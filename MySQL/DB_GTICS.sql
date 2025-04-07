@@ -44,13 +44,15 @@ CREATE TABLE canchas (
     FOREIGN KEY (tipo_cancha_id) REFERENCES tipos_cancha(tipo_cancha_id)
 );
 
+-- aun falta la parte de servicios, no está completamente implementada
+-- No sé si la parte de servicios deberia ir incluida en la parte de servicios.
 DROP TABLE IF EXISTS servicios_deportivos;
 CREATE TABLE servicios_deportivos (
     servicio_id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     descripcion TEXT,
-    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 DROP TABLE IF EXISTS mantenimientos;
