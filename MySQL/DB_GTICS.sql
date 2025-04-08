@@ -2,19 +2,21 @@ DROP DATABASE if EXISTS db_gtics;
 CREATE DATABASE db_gtics;
 USE db_gtics;
 
+-- Campos para usuarios
+
 DROP TABLE IF EXISTS roles;
 CREATE TABLE roles (
     rol_id INT AUTO_INCREMENT PRIMARY KEY,
-    rol NOT NULL VARCHAR (20),
+    rol VARCHAR(20) NOT NULL
 );
 
 DROP TABLE IF EXISTS usuarios;
 CREATE TABLE usuarios (
     usuario_id INT AUTO_INCREMENT PRIMARY KEY,
     nombres VARCHAR(100),
-    apellidos VARCHAR(100)
+    apellidos VARCHAR(100),
     correo_electronico VARCHAR(100) UNIQUE NOT NULL,
-    contrasena_hash VARCHAR(255) NOT NULL,
+    contrasenia_hash VARCHAR(255) NOT NULL,
     rol_id INT NOT NULL,
     dni VARCHAR(8) UNIQUE,
     direccion VARCHAR(255),
@@ -25,8 +27,9 @@ CREATE TABLE usuarios (
     FOREIGN KEY (rol_id) REFERENCES roles(rol_id)
 );
 
+-- Servicios deportivos
 DROP TABLE IF EXISTS servicios_deportivos; 
-CREATE TABLE tipos_cancha (
+CREATE TABLE servicios_deportivos (
     servicio_deportivo_id INT AUTO_INCREMENT PRIMARY KEY,
     servicio_deportivo VARCHAR (50) NOT NULL UNIQUE,
     descripcion TEXT,
@@ -56,14 +59,13 @@ CREATE TABLE espacios_deportivos (
     numero_soporte VARCHAR(9),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (tipo_cancha_id) REFERENCES tipos_cancha(tipo_cancha_id),
     FOREIGN KEY (servicio_deportivo_id) REFERENCES servicios_deportivos(servicio_deportivo_id)
 );
 
 DROP TABLE IF EXISTS reservas;
 CREATE TABLE reservas (
     reserva_id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT,
+    usuario_id INT NOT NULL,
     espacio_deportivo_id INT,
     inicio_reserva TIMESTAMP NOT NULL,
     fin_reserva TIMESTAMP NOT NULL,
@@ -102,12 +104,13 @@ CREATE TABLE asistencias (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
 );
 
-DROP TABLE IF EXISTS metodos_pago
-CREATE TAB (
-    metodo_pago_id INT AUTO_INCREMENT PRIMARY KEY,
-    metodo_pago VARCHAR (50) NOT NULL,
-)
+-- Gestión de Pagos
 
+DROP TABLE IF EXISTS metodos_pago;
+CREATE TABLE metodos_pago (
+    metodo_pago_id INT AUTO_INCREMENT PRIMARY KEY,
+    metodo_pago VARCHAR (50) UNIQUE NOT NULL
+);
 
 DROP TABLE IF EXISTS pagos;
 CREATE TABLE pagos (
@@ -140,16 +143,18 @@ CREATE TABLE reembolsos (
     FOREIGN KEY (pago_id) REFERENCES pagos(pago_id)
 );
 
+-- Notificaciones y actividades
+
 DROP TABLE IF EXISTS tipos_notificaciones;
 CREATE TABLE tipos_notificaciones (
     tipo_notificacion_id INT AUTO_INCREMENT PRIMARY KEY,
-    tipo_notificacion VARCHAR (50),
-)
+    tipo_notificacion UNIQUE VARCHAR (50)
+);
 
 DROP TABLE IF EXISTS notificaciones;
 CREATE TABLE notificaciones (
     notificacion_id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT,
+    usuario_id INT NOT NULL,
     tipo_notificacion_id INT NOT NULL,
     titulo_notificacion VARCHAR(50),
     mensaje TEXT,
@@ -159,19 +164,19 @@ CREATE TABLE notificaciones (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
 );
 
-DROP TABLE IF EXISTS avisos 
+DROP TABLE IF EXISTS avisos;
 CREATE TABLE avisos (
     aviso_id INT AUTO_INCREMENT PRIMARY KEY,
     titulo_aviso VARCHAR(50) NOT NULL,
     texto_aviso TEXT NOT NULL,
     foto_aviso_url VARCHAR(255) NOT NULL,
-    fecha_aviso TIMESTAMP DEFAULT CURRENT TIMESTAMP ON UPDATE CURRENT TIMESTAMP,
-)
+    fecha_aviso TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
-DROP TABLE IF EXISTS actividad_usuarios
+DROP TABLE IF EXISTS actividad_usuarios;
 CREATE TABLE actividad_usuarios (
     actividad_id INT AUTO_INCREMENT PRIMARY KEY,      
-    usuario_id INT,                                  
+    usuario_id INT NOT NULL,                                  
     accion VARCHAR(50),                             
     detalles TEXT,                                    
     recurso_id INT DEFAULT NULL,                      
@@ -181,3 +186,27 @@ CREATE TABLE actividad_usuarios (
     dispositivo VARCHAR(100) DEFAULT NULL,            
     FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)  -- Relación con la tabla de usuarios
 );
+
+-- Campos para Chatbot
+
+CREATE TABLE conversaciones (
+    conversacion_id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    inicio_conversacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fin_conversacion TIMESTAMP DEFAULT NULL,
+    estado ENUM('en_proceso', 'finalizada') DEFAULT 'en_proceso',
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
+);
+
+CREATE TABLE mensajes (
+    mensaje_id INT AUTO_INCREMENT PRIMARY KEY,
+    conversacion_id INT,
+    usuario_id INT,  -- Si el mensaje fue enviado por un usuario
+    texto_mensaje TEXT NOT NULL,
+    origen ENUM('usuario', 'chatbot') DEFAULT 'usuario',
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (conversacion_id) REFERENCES conversaciones(conversacion_id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
+);
+
+-- qué más? 
