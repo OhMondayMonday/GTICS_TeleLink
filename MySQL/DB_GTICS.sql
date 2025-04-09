@@ -46,7 +46,7 @@ CREATE TABLE espacios_deportivos (
     max_personas_por_carril INT DEFAULT NULL,
     carriles_piscina INT DEFAULT NULL,
     longitud_piscina INT DEFAULT NULL,
-    profundidad_piscina DECIMAL(1,2) DEFAULT NULL,
+    profundidad_piscina DECIMAL(4,2),
     descripcion TEXT,
     -- Para gimnasio
     aforo_gimnasio INT DEFAULT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE asistencias (
 DROP TABLE IF EXISTS metodos_pago;
 CREATE TABLE metodos_pago (
     metodo_pago_id INT AUTO_INCREMENT PRIMARY KEY,
-    metodo_pago VARCHAR (50) UNIQUE NOT NULL
+    metodo_pago VARCHAR(50) UNIQUE NOT NULL
 );
 
 DROP TABLE IF EXISTS pagos;
@@ -118,8 +118,7 @@ CREATE TABLE pagos (
     reserva_id INT NOT NULL,
     metodo_pago_id INT NOT NULL, 
     monto DECIMAL(4, 2) NOT NULL,
-    estado_pago ENUM('pendiente', 'completado', 'fallido') DEFAULT 'pendiente', --Estado de pago revisado por admin
-    estado_transaccion ENUM('completado', 'fallido') DEFAULT 'pendiente', -- Estado de transacción para Izipay  
+    estado_transaccion ENUM('completado', 'fallido', 'pendiente') DEFAULT 'pendiente', -- Puede ser determinado por Izipay o Admin
     transaccion_id VARCHAR(255) UNIQUE,  -- Campos para pagos con Izipay
     foto_comprobante_url VARCHAR (255), 
     fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
@@ -148,7 +147,7 @@ CREATE TABLE reembolsos (
 DROP TABLE IF EXISTS tipos_notificaciones;
 CREATE TABLE tipos_notificaciones (
     tipo_notificacion_id INT AUTO_INCREMENT PRIMARY KEY,
-    tipo_notificacion UNIQUE VARCHAR (50)
+    tipo_notificacion VARCHAR(50) UNIQUE
 );
 
 DROP TABLE IF EXISTS notificaciones;
@@ -210,3 +209,4 @@ CREATE TABLE mensajes (
 );
 
 -- qué más? 
+-- faltan índices para agilizar consultas
