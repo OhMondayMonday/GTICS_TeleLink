@@ -235,7 +235,6 @@ CREATE TABLE reembolsos (
     fecha_reembolso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     foto_comprobacion_reembolso_url VARCHAR(255), 
     detalles_transaccion TEXT,
-    FOREIGN KEY (reserva_id) REFERENCES reservas(reserva_id),
     FOREIGN KEY (pago_id) REFERENCES pagos(pago_id)
 );
 
