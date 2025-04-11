@@ -256,7 +256,8 @@ CREATE TABLE notificaciones (
     url_redireccion VARCHAR(255) DEFAULT NULL,
     estado ENUM('no_leido', 'leido') DEFAULT 'no_leido',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id),
+    FOREIGN KEY (tipo_notificacion_id) REFERENCES tipos_notificaciones(tipo_notificacion_id)
 );
 
 DROP TABLE IF EXISTS avisos;
@@ -297,6 +298,7 @@ CREATE TABLE actividad_usuarios (
 -- Por ejemplo, si queremos detectar cambios de ip
 CREATE INDEX idx_usuario_ip ON actividad_usuarios(usuario_id, direccion_ip);
 
+-- (opcional)
 DROP TABLE IF EXISTS resenias;
 CREATE TABLE resenias (
 	resenia_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -331,6 +333,18 @@ CREATE TABLE mensajes (
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (conversacion_id) REFERENCES conversaciones(conversacion_id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
+);
+
+DROP TABLE IF EXISTS observaciones;
+CREATE TABLE observaciones (
+    observacion_id INT AUTO_INCREMENT PRIMARY KEY,
+    espacio_deportivo_id INT NOT NULL,
+    coordinador_id INT NOT NULL,
+    descripcion TEXT NOT NULL,
+    fecha_observacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    estado ENUM('pendiente', 'en revisión', 'resuelto') DEFAULT 'pendiente',
+    FOREIGN KEY (espacio_deportivo_id) REFERENCES espacios_deportivos(espacio_deportivo_id),
+    FOREIGN KEY (coordinador_id) REFERENCES usuarios(usuario_id)
 );
 
 -- qué más? 
