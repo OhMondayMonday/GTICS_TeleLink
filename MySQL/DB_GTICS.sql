@@ -22,26 +22,53 @@ CREATE TABLE usuarios (
     direccion VARCHAR(255),
     telefono VARCHAR(9),
     foto_perfil_url VARCHAR(255),
+    estado_cuenta ENUM('activo','eliminado','baneado', 'pendiente') default 'pendiente',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (rol_id) REFERENCES roles(rol_id)
 );
 
+CREATE INDEX idx_autenticacion_rapida ON usuarios(correo_electronico, contrasenia_hash, estado_cuenta);
+
+-- Establecimientos que albergan los espacios deportivos. Ejemplo: Complejo deportivo San Micky
+DROP TABLE IF EXISTS establecimientos_deportivos;
+CREATE TABLE establecimientos_deportivos (
+    establecimiento_deportivo_id INT AUTO_INCREMENT PRIMARY KEY,
+    establecimiento_deportivo VARCHAR(100) NOT NULL UNIQUE,
+    descripcion TEXT,
+    direccion VARCHAR(255) NOT NULL,
+    espacios_estacionamiento INT,
+    telefono_contacto VARCHAR(20),
+    correo_contacto VARCHAR(100),
+    geolocalizacion VARCHAR(255) NOT NULL,
+    foto_establecimiento_url VARCHAR(255),
+    horario_apertura TIME NOT NULL,
+    horario_cierre TIME NOT NULL,
+    estado ENUM('activo', 'clausurado', 'mantenimiento') DEFAULT 'activo',
+    motivo_mantenimiento TEXT DEFAULT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Servicios deportivos
 DROP TABLE IF EXISTS servicios_deportivos; 
+-- Son los servicios que proveen los espacios deportivos:
+-- Piscina, Futbol, Pista de atletismo, etc.
 CREATE TABLE servicios_deportivos (
     servicio_deportivo_id INT AUTO_INCREMENT PRIMARY KEY,
-    servicio_deportivo VARCHAR (50) NOT NULL UNIQUE,
-    descripcion TEXT,
+    servicio_deportivo VARCHAR(50) NOT NULL UNIQUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 DROP TABLE IF EXISTS espacios_deportivos;
+-- Son los espacios deportivos específicos que permiten usar servicios deportivos
+-- Piscina San Miguel, Cancha 1 de F7, Gimnasio SmartPUCP, etc.
 CREATE TABLE espacios_deportivos (
     -- Nombre y tipo de servicio
     espacio_deportivo_id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     servicio_deportivo_id INT NOT NULL,
+    establecimiento_deportivo_id INT NOT NULL,
     -- Para piscinas
     max_personas_por_carril INT DEFAULT NULL,
     carriles_piscina INT DEFAULT NULL,
@@ -57,9 +84,39 @@ CREATE TABLE espacios_deportivos (
     ubicacion VARCHAR(255),
     estado_servicio ENUM ('operativo', 'mantenimiento', 'clausurado'),
     numero_soporte VARCHAR(9),
+    horario_apertura TIME, 
+    horario_cierre TIME,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (servicio_deportivo_id) REFERENCES servicios_deportivos(servicio_deportivo_id)
+    FOREIGN KEY (servicio_deportivo_id) REFERENCES servicios_deportivos(servicio_deportivo_id),
+    FOREIGN KEY (establecimiento_deportivo_id) REFERENCES establecimientos_deportivos(establecimiento_deportivo_id)
+);
+
+-- Para cargar rapidamente la estructura de los horarios al entrar en una reserva para un servicio (piscina, futbol, etc)
+CREATE INDEX idx_servicio_estado_horario 
+ON espacios_deportivos(servicio_deportivo_id, estado_servicio, horario_apertura, horario_cierre);
+
+-- Para poder agilizar la consulta de limitantes => Carriles llenos, aforo lleno, etc.
+CREATE INDEX idx_piscina_info 
+ON espacios_deportivos(
+    establecimiento_deportivo_id, 
+    carriles_piscina, 
+    max_personas_por_carril,
+    estado_servicio
+);
+
+CREATE INDEX idx_gimnasio_info 
+ON espacios_deportivos(
+    establecimiento_deportivo_id, 
+    aforo_gimnasio, 
+    estado_servicio
+);
+
+CREATE INDEX idx_pista_info 
+ON espacios_deportivos(
+    establecimiento_deportivo_id, 
+    carriles_pista, 
+    estado_servicio
 );
 
 DROP TABLE IF EXISTS reservas;
@@ -70,9 +127,10 @@ CREATE TABLE reservas (
     inicio_reserva TIMESTAMP NOT NULL,
     fin_reserva TIMESTAMP NOT NULL,
     -- Piscina
-    numero_carril INT DEFAULT NULL,
+    numero_carril_piscina INT DEFAULT NULL,
     -- Gimnasio: Solo importa el horario de inicio y fin
-    -- Pista de atletismo: No se reserva 
+    -- Pista de atletismo:
+    numero_carril_pista INT DEFAULT NULL,
     estado ENUM('pendiente', 'confirmada', 'cancelada') DEFAULT 'pendiente',
     razon_cancelacion TEXT,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -80,6 +138,17 @@ CREATE TABLE reservas (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id),
     FOREIGN KEY (espacio_deportivo_id) REFERENCES espacios_deportivos(espacio_deportivo_id)
 );
+
+-- Índices para poder saber ágilmente las reservas que bloquean los espacios disponibles para reservas
+-- Si no existieran, se demoraría bastante en cargar los horarios disponibles y no disponibles para cada espacio
+CREATE INDEX idx_reserva_piscina 
+ON reservas(espacio_deportivo_id, inicio_reserva, fin_reserva, numero_carril_piscina);
+
+CREATE INDEX idx_reserva_pista
+ON reservas(espacio_deportivo_id, inicio_reserva, fin_reserva, numero_carril_pista);
+
+CREATE INDEX idx_reserva_gimnasio_cancha
+ON reservas(espacio_deportivo_id, inicio_reserva, fin_reserva);
 
 DROP TABLE IF EXISTS mantenimientos;
 CREATE TABLE mantenimientos (
@@ -92,17 +161,46 @@ CREATE TABLE mantenimientos (
     FOREIGN KEY (espacio_deportivo_id) REFERENCES espacios_deportivos(espacio_deportivo_id)
 );
 
+DELIMITER $$
+
+CREATE TRIGGER actualizar_estado_espacio_deportivo
+AFTER UPDATE ON mantenimientos
+FOR EACH ROW
+BEGIN
+    IF NEW.fecha_estimada_fin = CURRENT_TIMESTAMP THEN
+        UPDATE espacios_deportivos
+        SET estado_servicio = 'operativo'
+        WHERE espacio_deportivo_id = NEW.espacio_deportivo_id;
+    END IF;
+END$$
+
+DELIMITER ;
+
 DROP TABLE IF EXISTS asistencias;
 CREATE TABLE asistencias (
     asistencia_id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT,
-    entrada TIMESTAMP,
-    salida TIMESTAMP,
+    administrador_id INT NOT NULL,
+    coordinador_id INT NOT NULL,
+    -- Campos definidos por el administrador
+    horario_entrada TIMESTAMP,
+    horario_salida TIMESTAMP,
+    -- Marcado de asistencia por parte de coordinador
+    registro_entrada TIMESTAMP,
+    registro_salida TIMESTAMP,
+    -- Estado asistencia en la entrada y salida
+    estado_entrada ENUM ('puntual', 'tarde', 'pendiente', 'inasistencia') DEFAULT 'pendiente',
+    estado_salida ENUM ('realizado', 'pendiente', 'inasistencia'),
     geolocalizacion VARCHAR(100),
     observacion TEXT,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
+    FOREIGN KEY (coordinador_id) REFERENCES usuarios(usuario_id),
+    FOREIGN KEY (administrador_id) REFERENCES usuarios(usuario_id)
 );
+
+-- Si es que el coordinador quiere marcar asistencia rápidamente, el sistema debe hacer la consulta 
+-- rápida del horario de entrada y salida
+CREATE INDEX idx_coordinador_horario 
+ON asistencias (coordinador_id, horario_entrada, horario_salida);
 
 -- Gestión de Pagos
 
@@ -130,7 +228,6 @@ CREATE TABLE pagos (
 DROP TABLE IF EXISTS reembolsos;
 CREATE TABLE reembolsos (
     reembolso_id INT AUTO_INCREMENT PRIMARY KEY,
-    reserva_id INT NOT NULL,
     pago_id INT NOT NULL,  
     monto DECIMAL(4, 2) NOT NULL,
     estado ENUM('pendiente', 'completado', 'rechazado', 'cancelado') DEFAULT 'pendiente',  
@@ -171,23 +268,52 @@ CREATE TABLE avisos (
     foto_aviso_url VARCHAR(255) NOT NULL,
     fecha_aviso TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+DROP TABLE IF EXISTS tipos_actividades;
+CREATE TABLE tipos_actividades (
+    tipo_actividad_id INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_actividad VARCHAR(100)
+);
 
 DROP TABLE IF EXISTS actividad_usuarios;
 CREATE TABLE actividad_usuarios (
     actividad_id INT AUTO_INCREMENT PRIMARY KEY,      
-    usuario_id INT NOT NULL,                                  
+    tipo_actividad_id INT NOT NULL,
+    usuario_id INT NOT NULL,
     accion VARCHAR(50),                             
     detalles TEXT,                                    
     recurso_id INT DEFAULT NULL,                      
     fecha_actividad TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-    direccion_ip VARCHAR(50) DEFAULT NULL,            
-    estado ENUM('exitoso', 'fallido', 'pendiente') DEFAULT 'exitoso', 
+    -- (Opcional)
+    -- Podríamos obtener la ip de esta actividad como parte
+    -- de la conexión durante el login
+    direccion_ip VARCHAR(50) DEFAULT NULL,
+    -- Utilizando una API, podemos saber la localizacion
+    -- con la IP
+    ubicacion VARCHAR(255) DEFAULT NULL,
+    -- Obtenido como parte de un user-agent
     dispositivo VARCHAR(100) DEFAULT NULL,            
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)  -- Relación con la tabla de usuarios
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id),
+    FOREIGN KEY (tipo_actividad_id) REFERENCES tipos_actividades(tipo_actividad_id)
+);
+-- Por ejemplo, si queremos detectar cambios de ip
+CREATE INDEX idx_usuario_ip ON actividad_usuarios(usuario_id, direccion_ip);
+
+DROP TABLE IF EXISTS resenias;
+CREATE TABLE resenias (
+	resenia_id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    espacio_deportivo_id INT NOT NULL,
+    calificacion INT NOT NULL,
+    comentario VARCHAR(255),
+    foto_resenia_url VARCHAR(255),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
 );
 
 -- Campos para Chatbot
-
+-- No aplicables si es que no se requiere historial
+DROP TABLE IF EXISTS conversaciones;
 CREATE TABLE conversaciones (
     conversacion_id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT,
@@ -196,7 +322,7 @@ CREATE TABLE conversaciones (
     estado ENUM('en_proceso', 'finalizada') DEFAULT 'en_proceso',
     FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
 );
-
+DROP TABLE IF EXISTS mensajes;
 CREATE TABLE mensajes (
     mensaje_id INT AUTO_INCREMENT PRIMARY KEY,
     conversacion_id INT,
