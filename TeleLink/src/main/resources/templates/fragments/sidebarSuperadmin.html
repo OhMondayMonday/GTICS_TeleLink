@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <!-- ========== Left Sidebar Start ========== -->
+        <div class="vertical-menu">
+
+            <div data-simplebar class="h-100">
+
+                <!--- Sidemenu -->
+                <div id="sidebar-menu">
+                    <!-- Left Menu Start -->
+                    <ul class="metismenu list-unstyled" id="side-menu">
+                        <li class="menu-title">MENÚ</li>
+
+                        <li class="mm-active">
+                            <a th:href="@{/}" class="waves-effect">
+                                <i class="ri-dashboard-line"></i>
+                                <span>Inicio</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a th:href="@{/}" class="waves-effect">
+                                <i class="ri-account-circle-line"></i>
+                                <span>Perfil</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title">GESTIÓN</li>
+
+                        <li>
+                            <a th:href="@{/}" class="waves-effect">
+                                <i class="ri-account-circle-line"></i>
+                                <span>Usuarios</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a th:href="@{/}" class="waves-effect">
+                                <i class="ri-basketball-line"></i>
+                                <span>Reservas</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a th:href="@{/}" class="waves-effect">
+                                <i class="ri-notification-3-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
+                                <span>Transacciones</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title">AVISOS</li>
+
+                        <li>
+                            <a th:href="@{/}" class="waves-effect">
+                                <i class="ri-notification-3-line"></i>
+                                <span>Crear aviso</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a th:href="@{/}" class="waves-effect">
+                                <i class="ri-notification-3-line"></i>
+                                <span>Ver avisos</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a th:href="@{/}" class="waves-effect">
+                                <i class="ri-eye-line"></i>
+                                <span>Observaciones</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Sidebar -->
+            </div>
+        </div>
+        <!-- Left Sidebar End -->
+    </body>
+</html>
