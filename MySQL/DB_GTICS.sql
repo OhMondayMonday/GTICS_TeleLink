@@ -1,170 +1,493 @@
-DROP DATABASE if EXISTS db_gtics;
-CREATE DATABASE db_gtics;
-USE db_gtics;
+-- MySQL Workbench Forward Engineering
 
--- Campos para usuarios
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
-DROP TABLE IF EXISTS roles;
-CREATE TABLE roles (
-    rol_id INT AUTO_INCREMENT PRIMARY KEY,
-    rol VARCHAR(20) NOT NULL
-);
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema db_gtics
+-- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `db_gtics` ;
 
-DROP TABLE IF EXISTS usuarios;
-CREATE TABLE usuarios (
-    usuario_id INT AUTO_INCREMENT PRIMARY KEY,
-    nombres VARCHAR(100),
-    apellidos VARCHAR(100),
-    correo_electronico VARCHAR(100) UNIQUE NOT NULL,
-    contrasenia_hash VARCHAR(255) NOT NULL,
-    rol_id INT NOT NULL,
-    dni VARCHAR(8) UNIQUE,
-    direccion VARCHAR(255),
-    telefono VARCHAR(9),
-    foto_perfil_url VARCHAR(255),
-    estado_cuenta ENUM('activo','eliminado','baneado', 'pendiente') default 'pendiente',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (rol_id) REFERENCES roles(rol_id)
-);
+-- -----------------------------------------------------
+-- Schema db_gtics
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `db_gtics` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+USE `db_gtics` ;
 
-CREATE INDEX idx_autenticacion_rapida ON usuarios(correo_electronico, contrasenia_hash, estado_cuenta);
+-- -----------------------------------------------------
+-- Table `db_gtics`.`roles`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`roles` (
+  `rol_id` INT NOT NULL AUTO_INCREMENT,
+  `rol` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (`rol_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
--- Establecimientos que albergan los espacios deportivos. Ejemplo: Complejo deportivo San Micky
-DROP TABLE IF EXISTS establecimientos_deportivos;
-CREATE TABLE establecimientos_deportivos (
-    establecimiento_deportivo_id INT AUTO_INCREMENT PRIMARY KEY,
-    establecimiento_deportivo VARCHAR(100) NOT NULL UNIQUE,
-    descripcion TEXT,
-    direccion VARCHAR(255) NOT NULL,
-    espacios_estacionamiento INT,
-    telefono_contacto VARCHAR(20),
-    correo_contacto VARCHAR(100),
-    geolocalizacion VARCHAR(255) NOT NULL,
-    foto_establecimiento_url VARCHAR(255),
-    horario_apertura TIME NOT NULL,
-    horario_cierre TIME NOT NULL,
-    estado ENUM('activo', 'clausurado', 'mantenimiento') DEFAULT 'activo',
-    motivo_mantenimiento TEXT DEFAULT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
 
--- Servicios deportivos
-DROP TABLE IF EXISTS servicios_deportivos; 
--- Son los servicios que proveen los espacios deportivos:
--- Piscina, Futbol, Pista de atletismo, etc.
-CREATE TABLE servicios_deportivos (
-    servicio_deportivo_id INT AUTO_INCREMENT PRIMARY KEY,
-    servicio_deportivo VARCHAR(50) NOT NULL UNIQUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- -----------------------------------------------------
+-- Table `db_gtics`.`usuarios`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`usuarios` (
+  `usuario_id` INT NOT NULL AUTO_INCREMENT,
+  `nombres` VARCHAR(100) NULL DEFAULT NULL,
+  `apellidos` VARCHAR(100) NULL DEFAULT NULL,
+  `correo_electronico` VARCHAR(100) NOT NULL,
+  `contrasenia_hash` VARCHAR(255) NOT NULL,
+  `rol_id` INT NOT NULL,
+  `dni` VARCHAR(8) NULL DEFAULT NULL,
+  `direccion` VARCHAR(255) NULL DEFAULT NULL,
+  `telefono` VARCHAR(9) NULL DEFAULT NULL,
+  `foto_perfil_url` VARCHAR(255) NULL DEFAULT NULL,
+  `estado_cuenta` ENUM('activo', 'eliminado', 'baneado', 'pendiente') NULL DEFAULT 'pendiente',
+  `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`usuario_id`),
+  UNIQUE INDEX `correo_electronico` (`correo_electronico` ASC) VISIBLE,
+  UNIQUE INDEX `dni` (`dni` ASC) VISIBLE,
+  INDEX `rol_id` (`rol_id` ASC) VISIBLE,
+  INDEX `idx_autenticacion_rapida` (`correo_electronico` ASC, `contrasenia_hash` ASC, `estado_cuenta` ASC) VISIBLE,
+  CONSTRAINT `usuarios_ibfk_1`
+    FOREIGN KEY (`rol_id`)
+    REFERENCES `db_gtics`.`roles` (`rol_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
-DROP TABLE IF EXISTS espacios_deportivos;
--- Son los espacios deportivos específicos que permiten usar servicios deportivos
--- Piscina San Miguel, Cancha 1 de F7, Gimnasio SmartPUCP, etc.
-CREATE TABLE espacios_deportivos (
-    -- Nombre y tipo de servicio
-    espacio_deportivo_id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,
-    servicio_deportivo_id INT NOT NULL,
-    establecimiento_deportivo_id INT NOT NULL,
-    -- Para piscinas
-    max_personas_por_carril INT DEFAULT NULL,
-    carriles_piscina INT DEFAULT NULL,
-    longitud_piscina INT DEFAULT NULL,
-    profundidad_piscina DECIMAL(4,2),
-    descripcion TEXT,
-    -- Para gimnasio
-    aforo_gimnasio INT DEFAULT NULL,
-    -- Pista de atletismo
-    longitud_pista DECIMAL(4,2) DEFAULT NULL,
-    carriles_pista INT DEFAULT NULL,
-    -- Detalles importantes generales
-    ubicacion VARCHAR(255),
-    estado_servicio ENUM ('operativo', 'mantenimiento', 'clausurado'),
-    numero_soporte VARCHAR(9),
-    horario_apertura TIME, 
-    horario_cierre TIME,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (servicio_deportivo_id) REFERENCES servicios_deportivos(servicio_deportivo_id),
-    FOREIGN KEY (establecimiento_deportivo_id) REFERENCES establecimientos_deportivos(establecimiento_deportivo_id)
-);
 
--- Para cargar rapidamente la estructura de los horarios al entrar en una reserva para un servicio (piscina, futbol, etc)
-CREATE INDEX idx_servicio_estado_horario 
-ON espacios_deportivos(servicio_deportivo_id, estado_servicio, horario_apertura, horario_cierre);
+-- -----------------------------------------------------
+-- Table `db_gtics`.`tipos_actividades`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`tipos_actividades` (
+  `tipo_actividad_id` INT NOT NULL AUTO_INCREMENT,
+  `tipo_actividad` VARCHAR(100) NULL DEFAULT NULL,
+  PRIMARY KEY (`tipo_actividad_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
--- Para poder agilizar la consulta de limitantes => Carriles llenos, aforo lleno, etc.
-CREATE INDEX idx_piscina_info 
-ON espacios_deportivos(
-    establecimiento_deportivo_id, 
-    carriles_piscina, 
-    max_personas_por_carril,
-    estado_servicio
-);
 
-CREATE INDEX idx_gimnasio_info 
-ON espacios_deportivos(
-    establecimiento_deportivo_id, 
-    aforo_gimnasio, 
-    estado_servicio
-);
+-- -----------------------------------------------------
+-- Table `db_gtics`.`actividad_usuarios`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`actividad_usuarios` (
+  `actividad_id` INT NOT NULL AUTO_INCREMENT,
+  `tipo_actividad_id` INT NOT NULL,
+  `usuario_id` INT NOT NULL,
+  `accion` VARCHAR(50) NULL DEFAULT NULL,
+  `detalles` TEXT NULL DEFAULT NULL,
+  `fecha_actividad` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `direccion_ip` VARCHAR(50) NULL DEFAULT NULL,
+  `ubicacion` VARCHAR(255) NULL DEFAULT NULL,
+  `dispositivo` VARCHAR(100) NULL DEFAULT NULL,
+  PRIMARY KEY (`actividad_id`),
+  INDEX `tipo_actividad_id` (`tipo_actividad_id` ASC) VISIBLE,
+  INDEX `idx_usuario_ip` (`usuario_id` ASC, `direccion_ip` ASC) VISIBLE,
+  CONSTRAINT `actividad_usuarios_ibfk_1`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`),
+  CONSTRAINT `actividad_usuarios_ibfk_2`
+    FOREIGN KEY (`tipo_actividad_id`)
+    REFERENCES `db_gtics`.`tipos_actividades` (`tipo_actividad_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
-CREATE INDEX idx_pista_info 
-ON espacios_deportivos(
-    establecimiento_deportivo_id, 
-    carriles_pista, 
-    estado_servicio
-);
 
-DROP TABLE IF EXISTS reservas;
-CREATE TABLE reservas (
-    reserva_id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    espacio_deportivo_id INT,
-    inicio_reserva TIMESTAMP NOT NULL,
-    fin_reserva TIMESTAMP NOT NULL,
-    -- Piscina
-    numero_carril_piscina INT DEFAULT NULL,
-    -- Gimnasio: Solo importa el horario de inicio y fin
-    -- Pista de atletismo:
-    numero_carril_pista INT DEFAULT NULL,
-    estado ENUM('pendiente', 'confirmada', 'cancelada') DEFAULT 'pendiente',
-    razon_cancelacion TEXT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id),
-    FOREIGN KEY (espacio_deportivo_id) REFERENCES espacios_deportivos(espacio_deportivo_id)
-);
+-- -----------------------------------------------------
+-- Table `db_gtics`.`servicios_deportivos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`servicios_deportivos` (
+  `servicio_deportivo_id` INT NOT NULL AUTO_INCREMENT,
+  `servicio_deportivo` VARCHAR(50) NOT NULL,
+  `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`servicio_deportivo_id`),
+  UNIQUE INDEX `servicio_deportivo` (`servicio_deportivo` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
--- Índices para poder saber ágilmente las reservas que bloquean los espacios disponibles para reservas
--- Si no existieran, se demoraría bastante en cargar los horarios disponibles y no disponibles para cada espacio
-CREATE INDEX idx_reserva_piscina 
-ON reservas(espacio_deportivo_id, inicio_reserva, fin_reserva, numero_carril_piscina);
 
-CREATE INDEX idx_reserva_pista
-ON reservas(espacio_deportivo_id, inicio_reserva, fin_reserva, numero_carril_pista);
+-- -----------------------------------------------------
+-- Table `db_gtics`.`establecimientos_deportivos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`establecimientos_deportivos` (
+  `establecimiento_deportivo_id` INT NOT NULL AUTO_INCREMENT,
+  `establecimiento_deportivo` VARCHAR(100) NOT NULL,
+  `descripcion` TEXT NULL DEFAULT NULL,
+  `direccion` VARCHAR(255) NOT NULL,
+  `espacios_estacionamiento` INT NULL DEFAULT NULL,
+  `telefono_contacto` VARCHAR(20) NULL DEFAULT NULL,
+  `correo_contacto` VARCHAR(100) NULL DEFAULT NULL,
+  `geolocalizacion` VARCHAR(255) NOT NULL,
+  `foto_establecimiento_url` VARCHAR(255) NULL DEFAULT NULL,
+  `horario_apertura` TIME NOT NULL,
+  `horario_cierre` TIME NOT NULL,
+  `estado` ENUM('activo', 'clausurado', 'mantenimiento') NULL DEFAULT 'activo',
+  `motivo_mantenimiento` TEXT NULL DEFAULT NULL,
+  `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`establecimiento_deportivo_id`),
+  UNIQUE INDEX `establecimiento_deportivo` (`establecimiento_deportivo` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
-CREATE INDEX idx_reserva_gimnasio_cancha
-ON reservas(espacio_deportivo_id, inicio_reserva, fin_reserva);
 
-DROP TABLE IF EXISTS mantenimientos;
-CREATE TABLE mantenimientos (
-    mantenimiento_id INT AUTO_INCREMENT PRIMARY KEY,
-    espacio_deportivo_id INT NOT NULL,
-    motivo TEXT NOT NULL,
-    fecha_inicio TIMESTAMP,
-    fecha_estimada_fin TIMESTAMP,
-    estado ENUM('pendiente', 'en_curso', 'finalizado'),
-    FOREIGN KEY (espacio_deportivo_id) REFERENCES espacios_deportivos(espacio_deportivo_id)
-);
+-- -----------------------------------------------------
+-- Table `db_gtics`.`espacios_deportivos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`espacios_deportivos` (
+  `espacio_deportivo_id` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(255) NOT NULL,
+  `servicio_deportivo_id` INT NOT NULL,
+  `establecimiento_deportivo_id` INT NOT NULL,
+  `max_personas_por_carril` INT NULL DEFAULT NULL,
+  `carriles_piscina` INT NULL DEFAULT NULL,
+  `longitud_piscina` INT NULL DEFAULT NULL,
+  `profundidad_piscina` DECIMAL(4,2) NULL DEFAULT NULL,
+  `descripcion` TEXT NULL DEFAULT NULL,
+  `aforo_gimnasio` INT NULL DEFAULT NULL,
+  `longitud_pista` DECIMAL(4,2) NULL DEFAULT NULL,
+  `carriles_pista` INT NULL DEFAULT NULL,
+  `geolocalizacion` VARCHAR(255) NULL DEFAULT NULL,
+  `estado_servicio` ENUM('operativo', 'mantenimiento', 'clausurado') NULL DEFAULT NULL,
+  `numero_soporte` VARCHAR(9) NULL DEFAULT NULL,
+  `horario_apertura` TIME NULL DEFAULT NULL,
+  `horario_cierre` TIME NULL DEFAULT NULL,
+  `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`espacio_deportivo_id`),
+  INDEX `idx_servicio_estado_horario` (`servicio_deportivo_id` ASC, `estado_servicio` ASC, `horario_apertura` ASC, `horario_cierre` ASC) VISIBLE,
+  INDEX `idx_piscina_info` (`establecimiento_deportivo_id` ASC, `carriles_piscina` ASC, `max_personas_por_carril` ASC, `estado_servicio` ASC) VISIBLE,
+  INDEX `idx_gimnasio_info` (`establecimiento_deportivo_id` ASC, `aforo_gimnasio` ASC, `estado_servicio` ASC) VISIBLE,
+  INDEX `idx_pista_info` (`establecimiento_deportivo_id` ASC, `carriles_pista` ASC, `estado_servicio` ASC) VISIBLE,
+  CONSTRAINT `espacios_deportivos_ibfk_1`
+    FOREIGN KEY (`servicio_deportivo_id`)
+    REFERENCES `db_gtics`.`servicios_deportivos` (`servicio_deportivo_id`),
+  CONSTRAINT `espacios_deportivos_ibfk_2`
+    FOREIGN KEY (`establecimiento_deportivo_id`)
+    REFERENCES `db_gtics`.`establecimientos_deportivos` (`establecimiento_deportivo_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`asistencias`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`asistencias` (
+  `asistencia_id` INT NOT NULL AUTO_INCREMENT,
+  `administrador_id` INT NOT NULL,
+  `coordinador_id` INT NOT NULL,
+  `horario_entrada` TIMESTAMP NULL DEFAULT NULL,
+  `horario_salida` TIMESTAMP NULL DEFAULT NULL,
+  `registro_entrada` TIMESTAMP NULL DEFAULT NULL,
+  `registro_salida` TIMESTAMP NULL DEFAULT NULL,
+  `estado_entrada` ENUM('puntual', 'tarde', 'pendiente', 'inasistencia') NULL DEFAULT 'pendiente',
+  `estado_salida` ENUM('realizado', 'pendiente', 'inasistencia') NULL DEFAULT NULL,
+  `geolocalizacion` VARCHAR(100) NULL DEFAULT NULL,
+  `observacion_asistencia` TEXT NULL DEFAULT NULL,
+  `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `espacio_deportivo_id` INT NOT NULL,
+  PRIMARY KEY (`asistencia_id`),
+  INDEX `administrador_id` (`administrador_id` ASC) VISIBLE,
+  INDEX `idx_coordinador_horario` (`coordinador_id` ASC, `horario_entrada` ASC, `horario_salida` ASC) VISIBLE,
+  INDEX `fk_asistencias_espacios_deportivos1_idx` (`espacio_deportivo_id` ASC) VISIBLE,
+  CONSTRAINT `asistencias_ibfk_1`
+    FOREIGN KEY (`coordinador_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`),
+  CONSTRAINT `asistencias_ibfk_2`
+    FOREIGN KEY (`administrador_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`),
+  CONSTRAINT `fk_asistencias_espacios_deportivos1`
+    FOREIGN KEY (`espacio_deportivo_id`)
+    REFERENCES `db_gtics`.`espacios_deportivos` (`espacio_deportivo_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`avisos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`avisos` (
+  `aviso_id` INT NOT NULL AUTO_INCREMENT,
+  `titulo_aviso` VARCHAR(50) NOT NULL,
+  `texto_aviso` TEXT NOT NULL,
+  `foto_aviso_url` VARCHAR(255) NOT NULL,
+  `fecha_aviso` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`aviso_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`conversaciones`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`conversaciones` (
+  `conversacion_id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NULL DEFAULT NULL,
+  `inicio_conversacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `fin_conversacion` TIMESTAMP NULL DEFAULT NULL,
+  `estado` ENUM('en_proceso', 'finalizada') NULL DEFAULT 'en_proceso',
+  PRIMARY KEY (`conversacion_id`),
+  INDEX `usuario_id` (`usuario_id` ASC) VISIBLE,
+  CONSTRAINT `conversaciones_ibfk_1`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`mantenimientos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`mantenimientos` (
+  `mantenimiento_id` INT NOT NULL AUTO_INCREMENT,
+  `espacio_deportivo_id` INT NOT NULL,
+  `motivo` TEXT NOT NULL,
+  `fecha_inicio` TIMESTAMP NULL DEFAULT NULL,
+  `fecha_estimada_fin` TIMESTAMP NULL DEFAULT NULL,
+  `estado` ENUM('pendiente', 'en_curso', 'finalizado') NULL DEFAULT NULL,
+  PRIMARY KEY (`mantenimiento_id`),
+  INDEX `espacio_deportivo_id` (`espacio_deportivo_id` ASC) VISIBLE,
+  CONSTRAINT `mantenimientos_ibfk_1`
+    FOREIGN KEY (`espacio_deportivo_id`)
+    REFERENCES `db_gtics`.`espacios_deportivos` (`espacio_deportivo_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`mensajes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`mensajes` (
+  `mensaje_id` INT NOT NULL AUTO_INCREMENT,
+  `conversacion_id` INT NULL DEFAULT NULL,
+  `texto_mensaje` TEXT NOT NULL,
+  `origen` ENUM('usuario', 'chatbot') NULL DEFAULT 'usuario',
+  `fecha` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`mensaje_id`),
+  INDEX `conversacion_id` (`conversacion_id` ASC) VISIBLE,
+  CONSTRAINT `mensajes_ibfk_1`
+    FOREIGN KEY (`conversacion_id`)
+    REFERENCES `db_gtics`.`conversaciones` (`conversacion_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`metodos_pago`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`metodos_pago` (
+  `metodo_pago_id` INT NOT NULL AUTO_INCREMENT,
+  `metodo_pago` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`metodo_pago_id`),
+  UNIQUE INDEX `metodo_pago` (`metodo_pago` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`tipos_notificaciones`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`tipos_notificaciones` (
+  `tipo_notificacion_id` INT NOT NULL AUTO_INCREMENT,
+  `tipo_notificacion` VARCHAR(50) NULL DEFAULT NULL,
+  PRIMARY KEY (`tipo_notificacion_id`),
+  UNIQUE INDEX `tipo_notificacion` (`tipo_notificacion` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`notificaciones`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`notificaciones` (
+  `notificacion_id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NOT NULL,
+  `titulo_notificacion` VARCHAR(50) NULL DEFAULT NULL,
+  `mensaje` TEXT NULL DEFAULT NULL,
+  `url_redireccion` VARCHAR(255) NULL DEFAULT NULL,
+  `estado` ENUM('no_leido', 'leido') NULL DEFAULT 'no_leido',
+  `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `tipo_notificacion_id` INT NOT NULL,
+  PRIMARY KEY (`notificacion_id`),
+  INDEX `usuario_id` (`usuario_id` ASC) VISIBLE,
+  INDEX `fk_notificaciones_tipos_notificaciones1_idx` (`tipo_notificacion_id` ASC) VISIBLE,
+  CONSTRAINT `notificaciones_ibfk_1`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`),
+  CONSTRAINT `fk_notificaciones_tipos_notificaciones1`
+    FOREIGN KEY (`tipo_notificacion_id`)
+    REFERENCES `db_gtics`.`tipos_notificaciones` (`tipo_notificacion_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`reservas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
+  `reserva_id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NOT NULL,
+  `espacio_deportivo_id` INT NULL,
+  `inicio_reserva` TIMESTAMP NOT NULL,
+  `fin_reserva` TIMESTAMP NOT NULL,
+  `numero_carril_piscina` INT NULL DEFAULT NULL,
+  `numero_carril_pista` INT NULL DEFAULT NULL,
+  `estado` ENUM('pendiente', 'confirmada', 'cancelada') NULL DEFAULT 'pendiente',
+  `razon_cancelacion` TEXT NULL DEFAULT NULL,
+  `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`reserva_id`),
+  INDEX `usuario_id` (`usuario_id` ASC) VISIBLE,
+  INDEX `idx_reserva_piscina` (`espacio_deportivo_id` ASC, `inicio_reserva` ASC, `fin_reserva` ASC, `numero_carril_piscina` ASC) VISIBLE,
+  INDEX `idx_reserva_pista` (`espacio_deportivo_id` ASC, `inicio_reserva` ASC, `fin_reserva` ASC, `numero_carril_pista` ASC) VISIBLE,
+  INDEX `idx_reserva_gimnasio_cancha` (`espacio_deportivo_id` ASC, `inicio_reserva` ASC, `fin_reserva` ASC) VISIBLE,
+  CONSTRAINT `reservas_ibfk_1`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`),
+  CONSTRAINT `reservas_ibfk_2`
+    FOREIGN KEY (`espacio_deportivo_id`)
+    REFERENCES `db_gtics`.`espacios_deportivos` (`espacio_deportivo_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`pagos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`pagos` (
+  `pago_id` INT NOT NULL AUTO_INCREMENT,
+  `reserva_id` INT NOT NULL,
+  `metodo_pago_id` INT NOT NULL,
+  `monto` DECIMAL(4,2) NOT NULL,
+  `estado_transaccion` ENUM('completado', 'fallido', 'pendiente') NULL DEFAULT 'pendiente',
+  `transaccion_id` VARCHAR(255) NULL DEFAULT NULL,
+  `foto_comprobante_url` VARCHAR(255) NULL DEFAULT NULL,
+  `fecha_pago` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `detalles_transaccion` TEXT NULL DEFAULT NULL,
+  PRIMARY KEY (`pago_id`),
+  UNIQUE INDEX `transaccion_id` (`transaccion_id` ASC) VISIBLE,
+  INDEX `reserva_id` (`reserva_id` ASC) VISIBLE,
+  INDEX `metodo_pago_id` (`metodo_pago_id` ASC) VISIBLE,
+  CONSTRAINT `pagos_ibfk_1`
+    FOREIGN KEY (`reserva_id`)
+    REFERENCES `db_gtics`.`reservas` (`reserva_id`),
+  CONSTRAINT `pagos_ibfk_2`
+    FOREIGN KEY (`metodo_pago_id`)
+    REFERENCES `db_gtics`.`metodos_pago` (`metodo_pago_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`reembolsos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`reembolsos` (
+  `reembolso_id` INT NOT NULL AUTO_INCREMENT,
+  `monto` DECIMAL(4,2) NOT NULL,
+  `estado` ENUM('pendiente', 'completado', 'rechazado', 'cancelado') NULL DEFAULT 'pendiente',
+  `motivo` TEXT NULL DEFAULT NULL,
+  `fecha_reembolso` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `foto_comprobacion_reembolso_url` VARCHAR(255) NULL DEFAULT NULL,
+  `detalles_transaccion` TEXT NULL DEFAULT NULL,
+  `pago_id` INT NOT NULL,
+  PRIMARY KEY (`reembolso_id`, `pago_id`),
+  INDEX `fk_reembolsos_pagos1_idx` (`pago_id` ASC) VISIBLE,
+  CONSTRAINT `fk_reembolsos_pagos1`
+    FOREIGN KEY (`pago_id`)
+    REFERENCES `db_gtics`.`pagos` (`pago_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`resenias`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`resenias` (
+  `resenia_id` INT NOT NULL AUTO_INCREMENT,
+  `usuario_id` INT NOT NULL,
+  `calificacion` INT NOT NULL,
+  `comentario` VARCHAR(255) NULL DEFAULT NULL,
+  `foto_resenia_url` VARCHAR(255) NULL DEFAULT NULL,
+  `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `espacio_deportivo_id` INT NOT NULL,
+  PRIMARY KEY (`resenia_id`),
+  INDEX `usuario_id` (`usuario_id` ASC) VISIBLE,
+  INDEX `fk_resenias_espacios_deportivos1_idx` (`espacio_deportivo_id` ASC) VISIBLE,
+  CONSTRAINT `resenias_ibfk_1`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`),
+  CONSTRAINT `fk_resenias_espacios_deportivos1`
+    FOREIGN KEY (`espacio_deportivo_id`)
+    REFERENCES `db_gtics`.`espacios_deportivos` (`espacio_deportivo_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`observaciones`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `db_gtics`.`observaciones` (
+  `observacion_id` INT NOT NULL,
+  `fecha_creacion` TIMESTAMP NULL,
+  `fecha_actualizacion` TIMESTAMP NULL,
+  `descripcion` TEXT NULL,
+  `foto_url` VARCHAR(255) NULL,
+  `nivel_urgencia` ENUM('alto', 'medio', 'bajo') NULL,
+  `espacio_deportivo_id` INT NOT NULL,
+  `coordinador_id` INT NOT NULL,
+  PRIMARY KEY (`observacion_id`),
+  INDEX `fk_observaciones_espacios_deportivos1_idx` (`espacio_deportivo_id` ASC) VISIBLE,
+  INDEX `fk_observaciones_usuarios1_idx` (`coordinador_id` ASC) VISIBLE,
+  CONSTRAINT `fk_observaciones_espacios_deportivos1`
+    FOREIGN KEY (`espacio_deportivo_id`)
+    REFERENCES `db_gtics`.`espacios_deportivos` (`espacio_deportivo_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_observaciones_usuarios1`
+    FOREIGN KEY (`coordinador_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+USE `db_gtics`;
 
 DELIMITER $$
-
-CREATE TRIGGER actualizar_estado_espacio_deportivo
-AFTER UPDATE ON mantenimientos
+USE `db_gtics`$$
+CREATE
+DEFINER=`root`@`localhost`
+TRIGGER `db_gtics`.`actualizar_estado_espacio_deportivo`
+AFTER UPDATE ON `db_gtics`.`mantenimientos`
 FOR EACH ROW
 BEGIN
     IF NEW.fecha_estimada_fin = CURRENT_TIMESTAMP THEN
@@ -174,178 +497,5 @@ BEGIN
     END IF;
 END$$
 
+
 DELIMITER ;
-
-DROP TABLE IF EXISTS asistencias;
-CREATE TABLE asistencias (
-    asistencia_id INT AUTO_INCREMENT PRIMARY KEY,
-    administrador_id INT NOT NULL,
-    coordinador_id INT NOT NULL,
-    -- Campos definidos por el administrador
-    horario_entrada TIMESTAMP,
-    horario_salida TIMESTAMP,
-    -- Marcado de asistencia por parte de coordinador
-    registro_entrada TIMESTAMP,
-    registro_salida TIMESTAMP,
-    -- Estado asistencia en la entrada y salida
-    estado_entrada ENUM ('puntual', 'tarde', 'pendiente', 'inasistencia') DEFAULT 'pendiente',
-    estado_salida ENUM ('realizado', 'pendiente', 'inasistencia'),
-    geolocalizacion VARCHAR(100),
-    observacion TEXT,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (coordinador_id) REFERENCES usuarios(usuario_id),
-    FOREIGN KEY (administrador_id) REFERENCES usuarios(usuario_id)
-);
-
--- Si es que el coordinador quiere marcar asistencia rápidamente, el sistema debe hacer la consulta 
--- rápida del horario de entrada y salida
-CREATE INDEX idx_coordinador_horario 
-ON asistencias (coordinador_id, horario_entrada, horario_salida);
-
--- Gestión de Pagos
-
-DROP TABLE IF EXISTS metodos_pago;
-CREATE TABLE metodos_pago (
-    metodo_pago_id INT AUTO_INCREMENT PRIMARY KEY,
-    metodo_pago VARCHAR(50) UNIQUE NOT NULL
-);
-
-DROP TABLE IF EXISTS pagos;
-CREATE TABLE pagos (
-    pago_id INT AUTO_INCREMENT PRIMARY KEY,
-    reserva_id INT NOT NULL,
-    metodo_pago_id INT NOT NULL, 
-    monto DECIMAL(4, 2) NOT NULL,
-    estado_transaccion ENUM('completado', 'fallido', 'pendiente') DEFAULT 'pendiente', -- Puede ser determinado por Izipay o Admin
-    transaccion_id VARCHAR(255) UNIQUE,  -- Campos para pagos con Izipay
-    foto_comprobante_url VARCHAR (255), 
-    fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
-    detalles_transaccion TEXT,  
-    FOREIGN KEY (reserva_id) REFERENCES reservas(reserva_id),
-    FOREIGN KEY (metodo_pago_id) REFERENCES metodos_pago(metodo_pago_id)
-);
-
-DROP TABLE IF EXISTS reembolsos;
-CREATE TABLE reembolsos (
-    reembolso_id INT AUTO_INCREMENT PRIMARY KEY,
-    pago_id INT NOT NULL,  
-    monto DECIMAL(4, 2) NOT NULL,
-    estado ENUM('pendiente', 'completado', 'rechazado', 'cancelado') DEFAULT 'pendiente',  
-    motivo TEXT,  -- Motivo del reembolso
-    fecha_reembolso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    foto_comprobacion_reembolso_url VARCHAR(255), 
-    detalles_transaccion TEXT,
-    FOREIGN KEY (pago_id) REFERENCES pagos(pago_id)
-);
-
--- Notificaciones y actividades
-
-DROP TABLE IF EXISTS tipos_notificaciones;
-CREATE TABLE tipos_notificaciones (
-    tipo_notificacion_id INT AUTO_INCREMENT PRIMARY KEY,
-    tipo_notificacion VARCHAR(50) UNIQUE
-);
-
-DROP TABLE IF EXISTS notificaciones;
-CREATE TABLE notificaciones (
-    notificacion_id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    tipo_notificacion_id INT NOT NULL,
-    titulo_notificacion VARCHAR(50),
-    mensaje TEXT,
-    url_redireccion VARCHAR(255) DEFAULT NULL,
-    estado ENUM('no_leido', 'leido') DEFAULT 'no_leido',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id),
-    FOREIGN KEY (tipo_notificacion_id) REFERENCES tipos_notificaciones(tipo_notificacion_id)
-);
-
-DROP TABLE IF EXISTS avisos;
-CREATE TABLE avisos (
-    aviso_id INT AUTO_INCREMENT PRIMARY KEY,
-    titulo_aviso VARCHAR(50) NOT NULL,
-    texto_aviso TEXT NOT NULL,
-    foto_aviso_url VARCHAR(255) NOT NULL,
-    fecha_aviso TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-DROP TABLE IF EXISTS tipos_actividades;
-CREATE TABLE tipos_actividades (
-    tipo_actividad_id INT AUTO_INCREMENT PRIMARY KEY,
-    tipo_actividad VARCHAR(100)
-);
-
-DROP TABLE IF EXISTS actividad_usuarios;
-CREATE TABLE actividad_usuarios (
-    actividad_id INT AUTO_INCREMENT PRIMARY KEY,      
-    tipo_actividad_id INT NOT NULL,
-    usuario_id INT NOT NULL,
-    accion VARCHAR(50),                             
-    detalles TEXT,                                    
-    recurso_id INT DEFAULT NULL,                      
-    fecha_actividad TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-    -- (Opcional)
-    -- Podríamos obtener la ip de esta actividad como parte
-    -- de la conexión durante el login
-    direccion_ip VARCHAR(50) DEFAULT NULL,
-    -- Utilizando una API, podemos saber la localizacion
-    -- con la IP
-    ubicacion VARCHAR(255) DEFAULT NULL,
-    -- Obtenido como parte de un user-agent
-    dispositivo VARCHAR(100) DEFAULT NULL,            
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id),
-    FOREIGN KEY (tipo_actividad_id) REFERENCES tipos_actividades(tipo_actividad_id)
-);
--- Por ejemplo, si queremos detectar cambios de ip
-CREATE INDEX idx_usuario_ip ON actividad_usuarios(usuario_id, direccion_ip);
-
--- (opcional)
-DROP TABLE IF EXISTS resenias;
-CREATE TABLE resenias (
-	resenia_id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    espacio_deportivo_id INT NOT NULL,
-    calificacion INT NOT NULL,
-    comentario VARCHAR(255),
-    foto_resenia_url VARCHAR(255),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
-);
-
--- Campos para Chatbot
--- No aplicables si es que no se requiere historial
-DROP TABLE IF EXISTS conversaciones;
-CREATE TABLE conversaciones (
-    conversacion_id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT,
-    inicio_conversacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fin_conversacion TIMESTAMP DEFAULT NULL,
-    estado ENUM('en_proceso', 'finalizada') DEFAULT 'en_proceso',
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
-);
-DROP TABLE IF EXISTS mensajes;
-CREATE TABLE mensajes (
-    mensaje_id INT AUTO_INCREMENT PRIMARY KEY,
-    conversacion_id INT,
-    usuario_id INT,  -- Si el mensaje fue enviado por un usuario
-    texto_mensaje TEXT NOT NULL,
-    origen ENUM('usuario', 'chatbot') DEFAULT 'usuario',
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (conversacion_id) REFERENCES conversaciones(conversacion_id),
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(usuario_id)
-);
-
-DROP TABLE IF EXISTS observaciones;
-CREATE TABLE observaciones (
-    observacion_id INT AUTO_INCREMENT PRIMARY KEY,
-    espacio_deportivo_id INT NOT NULL,
-    coordinador_id INT NOT NULL,
-    descripcion TEXT NOT NULL,
-    fecha_observacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado ENUM('pendiente', 'en revisión', 'resuelto') DEFAULT 'pendiente',
-    FOREIGN KEY (espacio_deportivo_id) REFERENCES espacios_deportivos(espacio_deportivo_id),
-    FOREIGN KEY (coordinador_id) REFERENCES usuarios(usuario_id)
-);
-
--- qué más? 
--- faltan índices para agilizar consultas

@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
