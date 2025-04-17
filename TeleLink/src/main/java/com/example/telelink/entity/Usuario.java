@@ -3,7 +3,6 @@ package com.example.telelink.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,10 +21,10 @@ public class Usuario {
     @Column(length = 100)
     private String apellidos;
 
-    @Column(name="correo_electronico", nullable = false, length = 100, unique = true)
+    @Column(name = "correo_electronico", nullable = false, length = 100, unique = true)
     private String correoElectronico;
 
-    @Column(name="contrasenia_hash", nullable = false, length = 255)
+    @Column(name = "contrasenia_hash", nullable = false, length = 255)
     private String contraseniaHash;
 
     @ManyToOne
@@ -45,13 +44,13 @@ public class Usuario {
     private String fotoPerfilUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado_cuenta", columnDefinition = "ENUM('activo','eliminado','baneado', 'pendiente') default 'pendiente'")
-    private EstadoCuenta estadoCuenta;
+    @Column(name = "estado_cuenta", columnDefinition = "ENUM('activo', 'eliminado', 'baneado', 'pendiente')")
+    private EstadoCuenta estadoCuenta = EstadoCuenta.pendiente;
 
-    @Column(name="fecha_creacion", updatable = false)
+    @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name="fecha_actualizacion")
+    @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
     public enum EstadoCuenta {

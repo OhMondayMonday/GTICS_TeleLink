@@ -3,5 +3,5 @@ package com.example.telelink.controller;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class UsuarioController {
+public class AdminController {
 }

@@ -14,7 +14,7 @@ import java.time.LocalTime;
 public class EspacioDeportivo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="espacio_deportivo_id")
+    @Column(name = "espacio_deportivo_id")
     private Integer espacioDeportivoId;
 
     @Column(nullable = false, length = 255)
@@ -40,6 +40,7 @@ public class EspacioDeportivo {
     @Column(name = "profundidad_piscina", precision = 4, scale = 2)
     private BigDecimal profundidadPiscina;
 
+    @Lob
     private String descripcion;
 
     @Column(name = "aforo_gimnasio")
@@ -51,7 +52,8 @@ public class EspacioDeportivo {
     @Column(name = "carriles_pista")
     private Integer carrilesPista;
 
-    private String ubicacion;
+    @Column(name = "geolocalizacion", length = 255)
+    private String geolocalizacion;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_servicio", columnDefinition = "ENUM('operativo', 'mantenimiento', 'clausurado')")
@@ -66,10 +68,10 @@ public class EspacioDeportivo {
     @Column(name = "horario_cierre")
     private LocalTime horarioCierre;
 
-    @Column(name="fecha_creacion", updatable = false)
+    @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name="fecha_actualizacion")
+    @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
     public enum EstadoServicio {
