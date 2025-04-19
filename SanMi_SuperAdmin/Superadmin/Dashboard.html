@@ -1,0 +1,1429 @@
+<!doctype html>
+<html lang="en">
+
+
+    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
+    <head>
+
+        <meta charset="utf-8" />
+        <title>Inicio</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+        <meta content="Themesdesign" name="author" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="assets/images/logoCortado.png">
+
+
+
+        <!-- jquery.vectormap css -->
+        <link href="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+
+        <!-- DataTables -->
+        <link href="assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+        <!-- Responsive datatable examples -->
+        <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+        <!-- Bootstrap Css -->
+        <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <!-- Icons Css -->
+        <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
+        <!-- App Css-->
+        <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css"/>
+
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    </head>
+
+    <body data-sidebar="dark" class="vertical-collpsed">
+
+        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+
+            <header id="page-topbar">
+                <div class="navbar-header">
+                    <div class="d-flex">
+                        <!-- LOGO -->
+                        <div class="navbar-brand-box">
+                            <a href="index.html" class="logo logo-light">
+                                <span class="logo-sm me-1">
+                                    <img src="assets/images/logoCortado.png" alt="logo-sm-light" height="25">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="assets/images/logoCompleto.png" alt="logo-light" height="40">
+                                </span>
+                            </a>
+                        </div>
+
+                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                            <i class="ri-menu-2-line align-middle"></i>
+                        </button>
+
+                        <div class="dropdown dropdown-mega d-none d-lg-block">
+                            <button type="button" class="btn header-item waves-effect font-size-16" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Inicio
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex">
+
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ri-notification-3-line"></i>
+                                <span class="noti-dot"></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                                 aria-labelledby="page-header-notifications-dropdown">
+                                <div class="p-3">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <h6 class="m-0"> Notificaciones </h6>
+                                        </div>
+                                        <div class="col-auto">
+                                            <a href="#" class="small"> Ver todas</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div data-simplebar style="max-height: 230px;">
+                                    <a href="#" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                                    <i class="ri-shopping-cart-line"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">Your order is placed</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">If several languages coalesce the grammar</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <img src="assets/images/users/avatar-3.jpg"
+                                                 class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">James Lemire</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">It will seem like simplified English.</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-success rounded-circle font-size-16">
+                                                    <i class="ri-checkbox-circle-line"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">Your item is shipped</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">If several languages coalesce the grammar</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                    <a href="#" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <img src="assets/images/users/avatar-4.jpg"
+                                                 class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">Salena Layfield</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">As a skeptical Cambridge friend of mine occidental.</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="dropdown d-inline-block user-dropdown">
+                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-2.jpg"
+                                     alt="Header Avatar">
+                                <span class="d-none d-xl-inline-block ms-1">Kevin</span>
+                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </header>
+
+            <!-- ========== Left Sidebar Start ========== -->
+            <div class="vertical-menu">
+
+                <div data-simplebar="init" class="h-100"><div class="simplebar-wrapper" style="margin: 0px;"><div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div><div class="simplebar-mask"><div class="simplebar-offset" style="right: 0px; bottom: 0px;"><div class="simplebar-content-wrapper" style="height: 100%; overflow: hidden;"><div class="simplebar-content" style="padding: 0px;">
+
+                    <!--- Sidemenu -->
+                    <div id="sidebar-menu">
+                        <!-- Left Menu Start -->
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li class="menu-title">Menu</li>
+
+                            <li>
+                                <a href="index.html" class="waves-effect">
+                                    <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="calendar.html" class=" waves-effect">
+                                    <i class="ri-calendar-2-line"></i>
+                                    <span>Calendar</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="apps-chat.html" class=" waves-effect">
+                                    <i class="ri-chat-1-line"></i>
+                                    <span>Chat</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-store-2-line"></i>
+                                    <span>Ecommerce</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="ecommerce-products.html">Products</a></li>
+                                    <li><a href="ecommerce-product-detail.html">Product Detail</a></li>
+                                    <li><a href="ecommerce-orders.html">Orders</a></li>
+                                    <li><a href="ecommerce-customers.html">Customers</a></li>
+                                    <li><a href="ecommerce-cart.html">Cart</a></li>
+                                    <li><a href="ecommerce-checkout.html">Checkout</a></li>
+                                    <li><a href="ecommerce-shops.html">Shops</a></li>
+                                    <li><a href="ecommerce-add-product.html">Add Product</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-mail-send-line"></i>
+                                    <span>Email</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="email-inbox.html">Inbox</a></li>
+                                    <li><a href="email-read.html">Read Email</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="apps-kanban-board.html" class=" waves-effect">
+                                    <i class="ri-artboard-2-line"></i>
+                                    <span>Kanban Board</span>
+                                </a>
+                            </li>
+
+                            <li class="mm-active">
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-layout-3-line"></i>
+                                    <span>Layouts</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse mm-show" aria-expanded="true">
+                                    <li class="mm-active">
+                                        <a href="javascript: void(0);" class="has-arrow mm-active">Vertical</a>
+                                        <ul class="sub-menu mm-collapse mm-show" aria-expanded="true">
+                                            <li><a href="layouts-light-sidebar.html">Light Sidebar</a></li>
+                                            <li><a href="layouts-compact-sidebar.html">Compact Sidebar</a></li>
+                                            <li class="mm-active"><a href="layouts-icon-sidebar.html" class="active">Icon Sidebar</a></li>
+                                            <li><a href="layouts-boxed.html">Boxed Layout</a></li>
+                                            <li><a href="layouts-preloader.html">Preloader</a></li>
+                                            <li><a href="layouts-colored-sidebar.html">Colored Sidebar</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <li>
+                                        <a href="javascript: void(0);" class="has-arrow">Horizontal</a>
+                                        <ul class="sub-menu mm-collapse" aria-expanded="true">
+                                            <li><a href="layouts-horizontal.html">Horizontal</a></li>
+                                            <li><a href="layouts-hori-topbar-light.html">Topbar light</a></li>
+                                            <li><a href="layouts-hori-boxed-width.html">Boxed width</a></li>
+                                            <li><a href="layouts-hori-preloader.html">Preloader</a></li>
+                                            <li><a href="layouts-hori-colored-header.html">Colored Header</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="menu-title">Pages</li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-account-circle-line"></i>
+                                    <span>Authentication</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="auth-login.html">Login</a></li>
+                                    <li><a href="auth-register.html">Register</a></li>
+                                    <li><a href="auth-recoverpw.html">Recover Password</a></li>
+                                    <li><a href="auth-lock-screen.html">Lock Screen</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-profile-line"></i>
+                                    <span>Utility</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="pages-starter.html">Starter Page</a></li>
+                                    <li><a href="pages-maintenance.html">Maintenance</a></li>
+                                    <li><a href="pages-comingsoon.html">Coming Soon</a></li>
+                                    <li><a href="pages-timeline.html">Timeline</a></li>
+                                    <li><a href="pages-faqs.html">FAQs</a></li>
+                                    <li><a href="pages-pricing.html">Pricing</a></li>
+                                    <li><a href="pages-404.html">Error 404</a></li>
+                                    <li><a href="pages-500.html">Error 500</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="menu-title">Components</li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-pencil-ruler-2-line"></i>
+                                    <span>UI Elements</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="ui-alerts.html">Alerts</a></li>
+                                    <li><a href="ui-buttons.html">Buttons</a></li>
+                                    <li><a href="ui-cards.html">Cards</a></li>
+                                    <li><a href="ui-carousel.html">Carousel</a></li>
+                                    <li><a href="ui-dropdowns.html">Dropdowns</a></li>
+                                    <li><a href="ui-grid.html">Grid</a></li>
+                                    <li><a href="ui-images.html">Images</a></li>
+                                    <li><a href="ui-lightbox.html">Lightbox</a></li>
+                                    <li><a href="ui-modals.html">Modals</a></li>
+                                    <li><a href="ui-offcanvas.html">Offcavas</a></li>
+                                    <li><a href="ui-rangeslider.html">Range Slider</a></li>
+                                    <li><a href="ui-roundslider.html">Round Slider</a></li>
+                                    <li><a href="ui-session-timeout.html">Session Timeout</a></li>
+                                    <li><a href="ui-progressbars.html">Progress Bars</a></li>
+                                    <li><a href="ui-sweet-alert.html">Sweetalert 2</a></li>
+                                    <li><a href="ui-tabs-accordions.html">Tabs &amp; Accordions</a></li>
+                                    <li><a href="ui-typography.html">Typography</a></li>
+                                    <li><a href="ui-video.html">Video</a></li>
+                                    <li><a href="ui-general.html">General</a></li>
+                                    <li><a href="ui-rating.html">Rating</a></li>
+                                    <li><a href="ui-notifications.html">Notifications</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="waves-effect">
+                                    <i class="ri-eraser-fill"></i>
+                                    <span class="badge rounded-pill bg-danger float-end">8</span>
+                                    <span>Forms</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="form-elements.html">Form Elements</a></li>
+                                    <li><a href="form-validation.html">Form Validation</a></li>
+                                    <li><a href="form-advanced.html">Form Advanced Plugins</a></li>
+                                    <li><a href="form-editors.html">Form Editors</a></li>
+                                    <li><a href="form-uploads.html">Form File Upload</a></li>
+                                    <li><a href="form-xeditable.html">Form X-editable</a></li>
+                                    <li><a href="form-wizard.html">Form Wizard</a></li>
+                                    <li><a href="form-mask.html">Form Mask</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-table-2"></i>
+                                    <span>Tables</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="tables-basic.html">Basic Tables</a></li>
+                                    <li><a href="tables-datatable.html">Data Tables</a></li>
+                                    <li><a href="tables-responsive.html">Responsive Table</a></li>
+                                    <li><a href="tables-editable.html">Editable Table</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-bar-chart-line"></i>
+                                    <span>Charts</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="charts-apex.html">Apex Charts</a></li>
+                                    <li><a href="charts-chartjs.html">Chartjs Charts</a></li>
+                                    <li><a href="charts-flot.html">Flot Charts</a></li>
+                                    <li><a href="charts-knob.html">Jquery Knob Charts</a></li>
+                                    <li><a href="charts-sparkline.html">Sparkline Charts</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-brush-line"></i>
+                                    <span>Icons</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="icons-remix.html">Remix Icons</a></li>
+                                    <li><a href="icons-materialdesign.html">Material Design</a></li>
+                                    <li><a href="icons-dripicons.html">Dripicons</a></li>
+                                    <li><a href="icons-fontawesome.html">Font awesome 5</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-map-pin-line"></i>
+                                    <span>Maps</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="false">
+                                    <li><a href="maps-google.html">Google Maps</a></li>
+                                    <li><a href="maps-vector.html">Vector Maps</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-share-line"></i>
+                                    <span>Multi Level</span>
+                                </a>
+                                <ul class="sub-menu mm-collapse" aria-expanded="true">
+                                    <li><a href="javascript: void(0);">Level 1.1</a></li>
+                                    <li><a href="javascript: void(0);" class="has-arrow">Level 1.2</a>
+                                        <ul class="sub-menu mm-collapse" aria-expanded="true">
+                                            <li><a href="javascript: void(0);">Level 2.1</a></li>
+                                            <li><a href="javascript: void(0);">Level 2.2</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <!-- Sidebar -->
+                </div></div></div></div><div class="simplebar-placeholder" style="width: auto; height: 920px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div></div>
+            </div>
+            <!-- Left Sidebar End -->
+
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+
+                        <div class="row">
+                            <div class="col-xl-9">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card" style="background: linear-gradient(90deg, #f47d56, #ffb98a);">
+                                            <div class="card-body">
+                                                <div class="d-flex">
+                                                    <div class="flex-1 overflow-hidden">
+                                                        <p class="text-truncate font-size-15 mb-2 text-white">Number of Sales</p>
+                                                        <h4 class="mb-0 text-white">1452</h4>
+                                                    </div>
+                                                    <div class="text-primary ms-auto">
+                                                        <i class="ri-stack-line font-size-24"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="card-body border-top py-3">
+                                                <div class="text-truncate">
+                                                    <span class="badge bg-success-subtle text-success  font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
+                                                    <span class="text-white ms-2">From previous period</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card" style="background: linear-gradient(90deg, #40b370, #8df6b7);">
+                                            <div class="card-body">
+                                                <div class="d-flex">
+                                                    <div class="flex-1 overflow-hidden">
+                                                        <p class="text-truncate font-size-15 mb-2 text-white">Sales Revenue</p>
+                                                        <h4 class="mb-0 text-white">$ 38452</h4>
+                                                    </div>
+                                                    <div class="text-primary ms-auto">
+                                                        <i class="ri-store-2-line font-size-24"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body border-top py-3">
+                                                <div class="text-truncate">
+                                                    <span class="badge bg-success-subtle text-success  font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
+                                                    <span class="ms-2 text-white">From previous period</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card" style="background: linear-gradient(90deg, #3ab2c3, #8ce5f3);">
+                                            <div class="card-body">
+                                                <div class="d-flex">
+                                                    <div class="flex-1 overflow-hidden">
+                                                        <p class="text-truncate font-size-15 mb-2 text-white">Average Price</p>
+                                                        <h4 class="mb-0 text-white">$ 15.4</h4>
+                                                    </div>
+                                                    <div class="text-primary ms-auto">
+                                                        <i class="ri-briefcase-4-line font-size-24"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body border-top py-3">
+                                                <div class="text-truncate">
+                                                    <span class="badge bg-success-subtle text-success  font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
+                                                    <span class="text-white ms-2">From previous period</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xl-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="dropdown float-end">
+                                                    <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="mdi mdi-dots-vertical"></i>
+                                                    </a>
+                                                    <div class="dropdown-menu dropdown-menu-end">
+                                                        <!-- item-->
+                                                        <a href="javascript:void(0);" class="dropdown-item">Sales Report</a>
+                                                        <!-- item-->
+                                                        <a href="javascript:void(0);" class="dropdown-item">Export Report</a>
+                                                        <!-- item-->
+                                                        <a href="javascript:void(0);" class="dropdown-item">Profit</a>
+                                                        <!-- item-->
+                                                        <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                                                    </div>
+                                                </div>
+
+                                                <h4 class="card-title mb-4">Actividad reciente</h4>
+
+                                                <div data-simplebar style="max-height: 475px;">
+                                                    <ul class="list-unstyled activity-wid">
+                                                        <li class="activity-list">
+                                                            <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-edit-2-fill"></i>
+                                                        </span>
+                                                            </div>
+                                                            <div>
+                                                                <div>
+                                                                    <h5 class="font-size-13">28 Apr, 2020 <small class="text-muted">12:07 am</small></h5>
+                                                                </div>
+
+                                                                <div>
+                                                                    <p class="text-muted mb-0">Responded to need “Volunteer Activities”</p>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="activity-list">
+                                                            <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-user-2-fill"></i>
+                                                        </span>
+                                                            </div>
+                                                            <div>
+                                                                <div>
+                                                                    <h5 class="font-size-13">21 Apr, 2020 <small class="text-muted">08:01 pm</small></h5>
+                                                                </div>
+
+                                                                <div>
+                                                                    <p class="text-muted mb-0">Added an interest “Volunteer Activities”</p>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="activity-list">
+                                                            <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-bar-chart-fill"></i>
+                                                        </span>
+                                                            </div>
+                                                            <div>
+                                                                <div>
+                                                                    <h5 class="font-size-13">17 Apr, 2020 <small class="text-muted">09:23 am</small></h5>
+                                                                </div>
+
+                                                                <div>
+                                                                    <p class="text-muted mb-0">Joined the group “Boardsmanship Forum”</p>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="activity-list">
+                                                            <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-mail-fill"></i>
+                                                        </span>
+                                                            </div>
+                                                            <div>
+                                                                <div>
+                                                                    <h5 class="font-size-13">11 Apr, 2020 <small class="text-muted">05:10 pm</small></h5>
+                                                                </div>
+
+                                                                <div>
+                                                                    <p class="text-muted mb-0">Responded to need “In-Kind Opportunity”</p>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="activity-list">
+                                                            <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-calendar-2-fill"></i>
+                                                        </span>
+                                                            </div>
+                                                            <div>
+                                                                <div>
+                                                                    <h5 class="font-size-13">07 Apr, 2020 <small class="text-muted">12:47 pm</small></h5>
+                                                                </div>
+
+                                                                <div>
+                                                                    <p class="text-muted mb-0">Created need “Volunteer Activities”</p>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="activity-list">
+                                                            <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-edit-2-fill"></i>
+                                                        </span>
+                                                            </div>
+                                                            <div>
+                                                                <div>
+                                                                    <h5 class="font-size-13">05 Apr, 2020 <small class="text-muted">03:09 pm</small></h5>
+                                                                </div>
+
+                                                                <div>
+                                                                    <p class="text-muted mb-0">Attending the event “Some New Event”</p>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li class="activity-list">
+                                                            <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-user-2-fill"></i>
+                                                        </span>
+                                                            </div>
+                                                            <div>
+                                                                <div>
+                                                                    <h5 class="font-size-13">02 Apr, 2020 <small class="text-muted">12:07 am</small></h5>
+                                                                </div>
+
+                                                                <div>
+                                                                    <p class="text-muted mb-0">Responded to need “In-Kind Opportunity”</p>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-8">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <h4 class="card-title">Card title</h4>
+                                                        <p class="card-text">This is a wider card with supporting text below as a
+                                                            natural lead-in to additional content. This content is a little bit
+                                                            longer.</p>
+                                                        <p class="card-text">
+                                                            <small class="text-muted">Last updated 3 mins ago</small>
+                                                        </p>
+                                                    </div>
+                                                    <div class="px-3">
+                                                        <img class="card-img-bottom img-fluid object-fit-cover"  style="max-height: 380px;" src="assets/images/small/img-7.jpg" alt="Card image cap">
+                                                    </div>
+                                                    <div class="row px-3 pb-2">
+                                                        <div class="mt-3">
+                                                            <a href="#" class="btn btn-primary btn-sm">View more</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="float-end">
+                                            <select class="form-select form-select-sm">
+                                                <option selected>Apr</option>
+                                                <option value="1">Mar</option>
+                                                <option value="2">Feb</option>
+                                                <option value="3">Jan</option>
+                                            </select>
+                                        </div>
+                                        <h4 class="card-title mb-4">Sales Analytics</h4>
+
+                                        <div id="chart" class="apex-charts"></div>
+
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="dropdown float-end">
+                                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi mdi-dots-vertical"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Sales Report</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Export Report</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Profit</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="card-title mb-3">Sources</h4>
+
+                                        <div>
+                                            <div class="table-responsive mt-4">
+                                                <table class="table table-hover mb-0 table-centered table-nowrap">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td style="width: 60px;">
+                                                                <div class="avatar-xs">
+                                                                    <div class="avatar-title rounded-circle bg-light">
+                                                                        <img src="assets/images/companies/img-1.png" alt="img-1" height="20">
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+
+                                                            <td>
+                                                                <h5 class="font-size-14 mb-0">Source 1</h5>
+                                                            </td>
+                                                            <td><div id="spak-chart4"></div></td>
+                                                            <td>
+                                                                <p class="text-muted mb-0">$ 2478</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 60px;">
+                                                                <div class="avatar-xs">
+                                                                    <div class="avatar-title rounded-circle bg-light">
+                                                                        <img src="assets/images/companies/img-1.png" alt="img-1" height="20">
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+
+                                                            <td>
+                                                                <h5 class="font-size-14 mb-0">Source 1</h5>
+                                                            </td>
+                                                            <td><div id="spak-chart1"></div></td>
+                                                            <td>
+                                                                <p class="text-muted mb-0">$ 2478</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="avatar-xs">
+                                                                    <div class="avatar-title rounded-circle bg-light">
+                                                                        <img src="assets/images/companies/img-2.png" alt="img-2" height="20">
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <h5 class="font-size-14 mb-0">Source 2</h5>
+                                                            </td>
+
+                                                            <td><div id="spak-chart2"></div></td>
+                                                            <td>
+                                                                <p class="text-muted mb-0">$ 2625</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <div class="avatar-xs">
+                                                                    <div class="avatar-title rounded-circle bg-light">
+                                                                        <img src="assets/images/companies/img-3.png" alt="img-3" height="20">
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <h5 class="font-size-14 mb-0">Source 3</h5>
+                                                            </td>
+                                                            <td class="overflow-hidden">
+                                                                <div id="spak-chart3"></div>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-muted mb-0">$ 2856</p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div class="text-center mt-4">
+                                                <a href="#" class="btn btn-primary btn-sm">View more</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="dropdown float-end">
+                                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi mdi-dots-vertical"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Sales Report</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Export Report</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Profit</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="card-title mb-4">Latest Transactions</h4>
+
+                                        <div class="table-responsive">
+                                            <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="width: 20px;">
+                                                        </th>
+                                                        <th style="width: 80px;">Order ID</th>
+                                                        <th style="width: 100px;">Fecha</th>
+                                                        <th style="width: 100px;">Usuario</th>
+                                                        <th>Total</th>
+                                                        <th style="width: 80px;">Estado</th>
+                                                        <th style="width: 80px;">Acción</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1572</a> </td>
+                                                        <td>
+                                                            04 Apr, 2020
+                                                        </td>
+                                                        <td>Walter Brown</td>
+
+                                                        <td>
+                                                            $172
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
+                                                        </td>
+                                                        <td id="tooltip-container1">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container1" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container1" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="ordercheck2">
+                                                                <label class="form-check-label mb-0" for="ordercheck2">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1571</a> </td>
+                                                        <td>
+                                                            03 Apr, 2020
+                                                        </td>
+                                                        <td>Jimmy Barker</td>
+
+                                                        <td>
+                                                            $165
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge  bg-warning-subtle text-warning font-size-12">unpaid</div>
+                                                        </td>
+                                                        <td id="tooltip-container2">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container2" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="ordercheck3">
+                                                                <label class="form-check-label mb-0" for="ordercheck3">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1570</a> </td>
+                                                        <td>
+                                                            03 Apr, 2020
+                                                        </td>
+                                                        <td>Donald Bailey</td>
+
+                                                        <td>
+                                                            $146
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
+                                                        </td>
+                                                        <td id="tooltip-container3">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container3" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container3" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="ordercheck4">
+                                                                <label class="form-check-label mb-0" for="ordercheck4">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1569</a> </td>
+                                                        <td>
+                                                            02 Apr, 2020
+                                                        </td>
+                                                        <td>Paul Jones</td>
+
+                                                        <td>
+                                                            $183
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
+                                                        </td>
+                                                        <td id="tooltip-container41">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container41" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container41" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="ordercheck5">
+                                                                <label class="form-check-label mb-0" for="ordercheck5">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1568</a> </td>
+                                                        <td>
+                                                            01 Apr, 2020
+                                                        </td>
+                                                        <td>Jefferson Allen</td>
+
+                                                        <td>
+                                                            $160
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge bg-danger-subtle text-danger font-size-12">Chargeback</div>
+                                                        </td>
+                                                        <td id="tooltip-container4">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container4" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container4" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="ordercheck6">
+                                                                <label class="form-check-label mb-0" for="ordercheck6">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1567</a> </td>
+                                                        <td>
+                                                            31 Mar, 2020
+                                                        </td>
+                                                        <td>Jeffrey Waltz</td>
+
+                                                        <td>
+                                                            $105
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge  bg-warning-subtle text-warning font-size-12">unpaid</div>
+                                                        </td>
+                                                        <td id="tooltip-container5">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container5" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container5" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="ordercheck7">
+                                                                <label class="form-check-label mb-0" for="ordercheck7">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1566</a> </td>
+                                                        <td>
+                                                            30 Mar, 2020
+                                                        </td>
+                                                        <td>Jewel Buckley</td>
+
+                                                        <td>
+                                                            $112
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
+                                                        </td>
+                                                        <td id="tooltip-container6">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container6" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container6" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="ordercheck8">
+                                                                <label class="form-check-label mb-0" for="ordercheck8">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1565</a> </td>
+                                                        <td>
+                                                            29 Mar, 2020
+                                                        </td>
+                                                        <td>Jamison Clark</td>
+
+                                                        <td>
+                                                            $123
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
+                                                        </td>
+                                                        <td id="tooltip-container7">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container7" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container7" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="ordercheck9">
+                                                                <label class="form-check-label mb-0" for="ordercheck9">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1564</a> </td>
+                                                        <td>
+                                                            28 Mar, 2020
+                                                        </td>
+                                                        <td>Eddy Torres</td>
+
+                                                        <td>
+                                                            $141
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
+                                                        </td>
+                                                        <td id="tooltip-container8">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container8" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container8" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="ordercheck10">
+                                                                <label class="form-check-label mb-0" for="ordercheck10">&nbsp;</label>
+                                                            </div>
+                                                        </td>
+
+                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1563</a> </td>
+                                                        <td>
+                                                            28 Mar, 2020
+                                                        </td>
+                                                        <td>Frank Dean</td>
+
+                                                        <td>
+                                                            $164
+                                                        </td>
+                                                        <td>
+                                                            <div class="badge  bg-warning-subtle text-warning font-size-12">unpaid</div>
+                                                        </td>
+                                                        <td id="tooltip-container9">
+                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-container="#tooltip-container9" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                            <a href="javascript:void(0);" class="text-danger" data-bs-container="#tooltip-container9" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 col-xl-5">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title mb-4">Dashed Line</h4>
+
+                                        <div id="line_chart_dashed" class="apex-charts" dir="ltr" style="height:408px;"></div>
+                                    </div>
+                                </div><!--end card-->
+                            </div>
+                            <div class="col-xl-2 col-lg-2">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="dropdown float-end">
+                                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi mdi-dots-vertical"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Sales Report</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Export Report</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Profit</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="card-title mb-4">Actividad reciente</h4>
+
+                                        <div data-simplebar style="max-height: 408px;">
+                                            <ul class="list-unstyled activity-wid">
+                                                <li class="activity-list">
+                                                    <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-edit-2-fill"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            <h5 class="font-size-13">28 Apr, 2020 <small class="text-muted">12:07 am</small></h5>
+                                                        </div>
+
+                                                        <div>
+                                                            <p class="text-muted mb-0">Responded to need “Volunteer Activities”</p>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="activity-list">
+                                                    <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-user-2-fill"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            <h5 class="font-size-13">21 Apr, 2020 <small class="text-muted">08:01 pm</small></h5>
+                                                        </div>
+
+                                                        <div>
+                                                            <p class="text-muted mb-0">Added an interest “Volunteer Activities”</p>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="activity-list">
+                                                    <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-bar-chart-fill"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            <h5 class="font-size-13">17 Apr, 2020 <small class="text-muted">09:23 am</small></h5>
+                                                        </div>
+
+                                                        <div>
+                                                            <p class="text-muted mb-0">Joined the group “Boardsmanship Forum”</p>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="activity-list">
+                                                    <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-mail-fill"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            <h5 class="font-size-13">11 Apr, 2020 <small class="text-muted">05:10 pm</small></h5>
+                                                        </div>
+
+                                                        <div>
+                                                            <p class="text-muted mb-0">Responded to need “In-Kind Opportunity”</p>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="activity-list">
+                                                    <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-calendar-2-fill"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            <h5 class="font-size-13">07 Apr, 2020 <small class="text-muted">12:47 pm</small></h5>
+                                                        </div>
+
+                                                        <div>
+                                                            <p class="text-muted mb-0">Created need “Volunteer Activities”</p>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="activity-list">
+                                                    <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-edit-2-fill"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            <h5 class="font-size-13">05 Apr, 2020 <small class="text-muted">03:09 pm</small></h5>
+                                                        </div>
+
+                                                        <div>
+                                                            <p class="text-muted mb-0">Attending the event “Some New Event”</p>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="activity-list">
+                                                    <div class="activity-icon avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
+                                                            <i class="ri-user-2-fill"></i>
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <div>
+                                                            <h5 class="font-size-13">02 Apr, 2020 <small class="text-muted">12:07 am</small></h5>
+                                                        </div>
+
+                                                        <div>
+                                                            <p class="text-muted mb-0">Responded to need “In-Kind Opportunity”</p>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end row -->
+                    </div>
+
+                </div>
+                <!-- End Page-content -->
+
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <script>document.write(new Date().getFullYear())</script> © Nazox.
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end d-none d-sm-block">
+                                    Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesdesign
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+
+            </div>
+            <!-- end main content-->
+
+        </div>
+        <!-- END layout-wrapper -->
+
+        <!-- Right Sidebar -->
+        <div class="right-bar">
+            <div data-simplebar class="h-100">
+                <div class="rightbar-title d-flex align-items-center px-3 py-4">
+
+                    <h5 class="m-0 me-2">Settings</h5>
+
+                    <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
+                        <i class="mdi mdi-close noti-icon"></i>
+                    </a>
+                </div>
+
+                <!-- Settings -->
+                <hr class="mt-0" />
+                <h6 class="text-center mb-0">Choose Layouts</h6>
+
+                <div class="p-4">
+                    <div class="mb-2">
+                        <img src="assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input theme-choice" type="checkbox" id="light-mode-switch" checked>
+                        <label class="form-check-label" for="light-mode-switch">Light Mode</label>
+                    </div>
+
+                    <div class="mb-2">
+                        <img src="assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
+                        <label class="form-check-label" for="dark-mode-switch">Dark Mode</label>
+                    </div>
+
+                    <div class="mb-2">
+                        <img src="assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
+                    </div>
+                    <div class="form-check form-switch mb-5">
+                        <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
+                        <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
+                    </div>
+
+
+                </div>
+
+            </div> <!-- end slimscroll-menu-->
+        </div>
+        <!-- /Right-bar -->
+
+        <!-- Right bar overlay-->
+        <div class="sidebar-overlay"></div>
+        <div class="rightbar-overlay"></div>
+
+        <!-- JAVASCRIPT -->
+        <script src="assets/libs/jquery/jquery.min.js"></script>
+        <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="assets/libs/metismenu/metisMenu.min.js"></script>
+        <script src="assets/libs/simplebar/simplebar.min.js"></script>
+        <script src="assets/libs/node-waves/waves.min.js"></script>
+
+
+        <!-- apexcharts -->
+        <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+
+        <!-- jquery.vectormap map -->
+        <script src="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js"></script>
+        <script src="assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js"></script>
+
+        <!-- Required datatable js -->
+        <script src="assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+
+        <!-- Responsive examples -->
+        <script src="assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+        <script src="assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+
+        <script src="assets/js/pages/dashboard.init.js"></script>
+
+        <!-- App js -->
+        <script src="assets/js/app.js"></script>
+
+        <script>
+            var options = {
+                series: [44, 55, 13, 33],
+                chart: {
+                    width: 380,
+                    type: 'donut',
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            show: false
+                        }
+                    }
+                }],
+                legend: {
+                    position: 'right',
+                    offsetY: 0,
+                    height: 230,
+                }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        </script>
+
+        <script>
+            var options = {
+                chart: {height: 400, type: "line", zoom: {enabled: !1}, toolbar: {show: !1}},
+                colors: ["#5664d2", "#fcb92c", "#1cbb8c"],
+                    dataLabels: {enabled: !1},
+                stroke: {width: [3, 4, 3], curve: "straight", dashArray: [0, 8, 5]},
+                series: [{name: "Session Duration", data: [45, 52, 38, 24, 33, 26, 21, 20, 6, 8, 15, 10]}, {
+                    name: "Page Views",
+                    data: [36, 42, 60, 42, 13, 18, 29, 37, 36, 51, 32, 35]
+                }, {name: "Total Visits", data: [89, 56, 74, 98, 72, 38, 64, 46, 84, 58, 46, 49]}],
+                    title: {text: "Page Statistics", align: "left"},
+                markers: {size: 0, hover: {sizeOffset: 6}},
+                xaxis: {categories: ["01 Jan", "02 Jan", "03 Jan", "04 Jan", "05 Jan", "06 Jan", "07 Jan", "08 Jan", "09 Jan", "10 Jan", "11 Jan", "12 Jan"]},
+                tooltip: {
+                    y: [{
+                        title: {
+                            formatter: function (e) {
+                                return e + " (mins)"
+                            }
+                        }
+                    }, {
+                        title: {
+                            formatter: function (e) {
+                                return e + " per session"
+                            }
+                        }
+                    }, {
+                        title: {
+                            formatter: function (e) {
+                                return e
+                            }
+                        }
+                    }]
+                },
+                grid: {borderColor: "#f1f1f1", padding: {bottom: 5}},
+                legend: {offsetY: 5}
+            }
+            var chart = new ApexCharts(document.querySelector("#line_chart_dashed"), options);
+            chart.render();
+        </script>
+    </body>
+
+
+    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:03 GMT -->
+</html>
