@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+
+
+<!-- Mirrored from themesdesign.in/nazox/layouts/ecommerce-checkout.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:27 GMT -->
+<head>
+
+    <meta charset="utf-8" />
+    <title>Checkout | Nazox - Admin & Dashboard Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+    <meta content="Themesdesign" name="author" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+
+
+    <!-- twitter-bootstrap-wizard css -->
+    <link rel="stylesheet" href="assets/libs/twitter-bootstrap-wizard/prettify.css">
+
+    <!-- Bootstrap Css -->
+    <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body data-sidebar="dark">
+    
+<!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+<!-- Begin page -->
+<div id="layout-wrapper">
+
+    <header id="page-topbar">
+        <div class="navbar-header">
+            <div class="d-flex">
+                <!-- LOGO -->
+                <div class="navbar-brand-box">
+
+                    <a href="" class="logo logo-light">
+                                <span class="logo-sm">
+                                    <img src="assets\images\logo-San-Miguel-1.webp" alt="logo-sanmiguel" height="25">
+                                </span>
+                        <span class="logo-lg">
+                                    <img src="assets\images\logo-San-Miguel-1.webp" alt="logo-sanmiguel" height="25" class="me-2">
+                                    <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;">SanMI</span>
+                                </span>
+                    </a>
+                </div>
+
+                <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                    <i class="ri-menu-2-line align-middle"></i>
+                </button>
+
+            </div>
+
+            <div class="d-flex">
+
+                <div class="dropdown d-inline-block d-lg-none ms-2">
+                    <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="ri-search-line"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                         aria-labelledby="page-header-search-dropdown">
+
+                        <form class="p-3">
+                            <div class="mb-3 m-0">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Search ...">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="submit"><i class="ri-search-line"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="dropdown d-none d-lg-inline-block ms-1">
+                    <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
+                        <i class="ri-fullscreen-line"></i>
+                    </button>
+                </div>
+
+                <div class="dropdown d-inline-block">
+                    <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ri-notification-3-line"></i>
+                        <span class="noti-dot"></span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                         aria-labelledby="page-header-notifications-dropdown">
+                        <div class="p-3">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="m-0"> Notifications </h6>
+                                </div>
+                                <div class="col-auto">
+                                    <a href="#!" class="small"> View All</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div data-simplebar style="max-height: 230px;">
+                            <a href="#" class="text-reset notification-item">
+                                <div class="d-flex">
+                                    <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                                    <i class="ri-shopping-cart-line"></i>
+                                                </span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h6 class="mb-1">Your order is placed</h6>
+                                        <div class="font-size-12 text-muted">
+                                            <p class="mb-1">If several languages coalesce the grammar</p>
+                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="text-reset notification-item">
+                                <div class="d-flex">
+                                    <img src="assets/images/users/avatar-3.jpg"
+                                         class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                    <div class="flex-1">
+                                        <h6 class="mb-1">James Lemire</h6>
+                                        <div class="font-size-12 text-muted">
+                                            <p class="mb-1">It will seem like simplified English.</p>
+                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                            <a href="#" class="text-reset notification-item">
+                                <div class="d-flex">
+                                    <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-success rounded-circle font-size-16">
+                                                    <i class="ri-checkbox-circle-line"></i>
+                                                </span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h6 class="mb-1">Your item is shipped</h6>
+                                        <div class="font-size-12 text-muted">
+                                            <p class="mb-1">If several languages coalesce the grammar</p>
+                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <a href="#" class="text-reset notification-item">
+                                <div class="d-flex">
+                                    <img src="assets/images/users/avatar-4.jpg"
+                                         class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                    <div class="flex-1">
+                                        <h6 class="mb-1">Salena Layfield</h6>
+                                        <div class="font-size-12 text-muted">
+                                            <p class="mb-1">As a skeptical Cambridge friend of mine occidental.</p>
+                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="p-2 border-top">
+                            <div class="d-grid">
+                                <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
+                                    <i class="mdi mdi-arrow-right-circle me-1"></i> View More..
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dropdown d-inline-block user-dropdown">
+                    <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img class="rounded-circle header-profile-user" src="assets/images/users/user1.jfif" alt="Header Avatar">
+                        <span class="d-none d-xl-inline-block ms-1">Dorian</span>
+                        <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <!-- item-->
+                        <a class="dropdown-item" href="vecino-perfil.html"><i class="ri-user-line align-middle me-1"></i>Mi perfil</a>
+                        <a class="dropdown-item d-block" href="#"><span class="badge bg-success float-end mt-1">11</span><i class="ri-settings-2-line align-middle me-1"></i> Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a>
+                    </div>
+                </div>
+
+                <div class="dropdown d-inline-block">
+                    <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
+                        <i class="ri-settings-2-line"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+    <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
+    <!-- ========== Left Sidebar Start ========== -->
+    <div class="vertical-menu">
+
+        <div data-simplebar class="h-100">
+
+            <!--- Sidemenu -->
+            <div id="sidebar-menu">
+                <!-- Left Menu Start -->
+                <ul class="metismenu list-unstyled" id="side-menu">
+                    <li class="menu-title">Menu</li>
+
+                    <li>
+                        <a href="vecino-index.html" class="waves-effect">
+                            <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end"></span>
+                            <span>Inicio</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-title">Actividad</li>
+
+                    <li>
+                        <a href="vecino-mis-reservas.html" class="waves-effect">
+                            <i class="ri-calendar-check-line"></i> <!-- Más específico para "reservas" -->
+                            <span>Mis reservas</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="ri-map-pin-line"></i> <!-- Más representativo para "buscar canchas" -->
+                            <span>Buscar Canchas</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="vecino-cancha.html">Canchas Disponibles</a></li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow waves-effect">
+                            <i class="ri-bank-card-line"></i> <!-- Ícono relacionado a pagos -->
+                            <span>Pagos</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="vecino-pago.html">Mis Pagos</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="menu-title">Ayuda</li>
+                    <li>
+                        <a href="vecino-ayuda.html" class="waves-effect">
+                            <i class="ri-customer-service-2-line"></i>
+                            <span>Ayuda</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Sidebar -->
+        </div>
+    </div>
+
+    <!-- ======================================================================================================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="main-content">
+
+        <div class="page-content">
+            <div class="container-fluid">
+
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                            <h4 class="mb-sm-0">Reservar Cancha</h4>
+
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Canchas Disponible</a></li>
+                                    <li class="breadcrumb-item active">Reservar</li>
+                                </ol>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end page title -->
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="checkout-nav-pills-wizard" class="twitter-bs-wizard">
+                                    <ul class="twitter-bs-wizard-nav nav nav-pills nav-justified">
+                                        <li class="nav-item">
+                                            <a href="#billing-info" class="nav-link" data-toggle="tab">
+                                                <span class="step-number">01</span>
+                                                <span class="step-title">Billing Info</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="#shipping-info" class="nav-link" data-toggle="tab">
+                                                <span class="step-number">02</span>
+                                                <span class="step-title">Shipping Info</span>
+                                            </a>
+                                        </li>
+                            
+                                        <li class="nav-item">
+                                            <a href="#payment-info" class="nav-link active" data-toggle="tab">
+                                                <span class="step-number">03</span>
+                                                <span class="step-title">Payment Info</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content twitter-bs-wizard-tab-content">
+                                        <div class="tab-pane" id="billing-info">
+                                            <h5 class="card-title">Billing information</h5>
+                                            <p class="card-title-desc">If several languages coalesce, the grammar of the resulting</p>
+                            
+                                            <form>
+                                                <div>
+                            
+                                                    <div>
+                            
+                                                        <div class="row">
+                                                            <div class="col-lg-4">
+                                                                <div class="mb-4">
+                                                                    <label class="form-label" for="billing-name">Name</label>
+                                                                    <input type="text" class="form-control" id="billing-name" placeholder="Enter name">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <div class="mb-4">
+                                                                    <label class="form-label" for="billing-email-address">Email Address</label>
+                                                                    <input type="email" class="form-control" id="billing-email-address" placeholder="Enter email">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <div class="mb-4">
+                                                                    <label class="form-label" for="billing-phone">Phone</label>
+                                                                    <input type="text" class="form-control" id="billing-phone" placeholder="Enter Phone no.">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                            
+                                                        <div class="mb-4">
+                                                            <label class="form-label" for="billing-address">Address</label>
+                                                            <textarea class="form-control" id="billing-address" rows="3" placeholder="Enter full address"></textarea>
+                                                        </div>
+
+                            
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="tab-pane" id="shipping-info">
+                                            <h5 class="card-title">Shipping information</h5>
+                                            <p class="card-title-desc">It will be as simple as occidental in fact</p>
+                            
+                                            <div class="row">
+                                                <div class="col-lg-4 col-sm-6">
+                                                    <div class="card border rounded active shipping-address">
+                                                        <div class="card-body">
+                                                            <a href="#" class="float-end ms-1">Edit</a>
+                                                            <h5 class="font-size-14 mb-4">Address 1</h5>
+                            
+                                                            <h5 class="font-size-14">Bradley McMillian</h5>
+                                                            <p class="mb-1">109 Clarksburg Park Road Show Low, AZ 85901</p>
+                                                            <p class="mb-0">Mo. 012-345-6789</p>
+                                                        </div>
+                                                    </div>
+                            
+                                                </div>
+                                                <div class="col-lg-4 col-sm-6">
+                                                    <div class="card border rounded shipping-address">
+                                                        <div class="card-body">
+                                                            <a href="#" class="float-end ms-1">Edit</a>
+                                                            <h5 class="font-size-14 mb-4">Address 2</h5>
+                            
+                                                            <h5 class="font-size-14">Bradley McMillian</h5>
+                                                            <p class="mb-1">109 Clarksburg Park Road Show Low, AZ 85901</p>
+                                                            <p class="mb-0">Mo. 012-345-6789</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane active" id="payment-info">
+                                            <h5 class="card-title">Payment information</h5>
+                                            <p class="card-title-desc">It will be as simple as occidental in fact</p>
+                            
+                                            <div>
+                                                <h5 class="font-size-14">Payment method :</h5>
+                            
+                                                <div class="row">
+                            
+                                                    <div class="col-lg-4 col-sm-6">
+                                                        <div>
+                                                            <label class="form-label card-radio-label mb-3">
+                                                                <input type="radio" name="pay-method" id="pay-methodoption1" class="card-radio-input">
+                            
+                                                                <span class="card-radio">
+                                                                    <i class="fab fa-cc-mastercard font-size-24 align-middle me-2"></i>
+                                                                    <span>Credit / Debit Card</span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                            
+                                                    <div class="col-lg-4 col-sm-6">
+                                                        <div>
+                                                            <label class="form-label card-radio-label mb-3">
+                                                                <input type="radio" name="pay-method" id="pay-methodoption2" class="card-radio-input">
+                            
+                                                                <span class="card-radio">
+                                                                    <i class="fab fa-cc-paypal font-size-24 align-middle me-2"></i>
+                                                                    <span>Paypal</span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                            
+                                                    <div class="col-lg-4 col-sm-6">
+                                                        <div>
+                                                            <label class="form-label card-radio-label mb-3">
+                                                                <input type="radio" name="pay-method" id="pay-methodoption3" class="card-radio-input" checked="">
+                            
+                                                                <span class="card-radio">
+                                                                    <i class="far fa-money-bill-alt font-size-24 align-middle me-2"></i>
+                                                                    <span>Cash on Delivery</span>
+                                                                </span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                            
+                                                </div>
+                            
+                                                <h5 class="my-3 font-size-14">For card Payment</h5>
+                                                <div class="p-4 border">
+                                                    <form>
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="cardnameInput">Name on card</label>
+                                                            <input type="text" class="form-control" id="cardnameInput" placeholder="Name on Card">
+                                                        </div>
+                            
+                                                        <div class="row">
+                                                            <div class="col-lg-4 col-sm-6">
+                                                                <div class="mb-3 mb-lg-0">
+                                                                    <label class="form-label" for="cardnumberInput">Card Number</label>
+                                                                    <input type="text" class="form-control" id="cardnumberInput" placeholder="0000 0000 0000 0000">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-4 col-sm-6">
+                                                                <div class="mb-3 mb-lg-0">
+                                                                    <label class="form-label" for="expirydateInput">Expiry date</label>
+                                                                    <input type="text" class="form-control" id="expirydateInput" placeholder="MM/YY">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-4 col-sm-6">
+                                                                <div class="mb-3 mb-lg-0">
+                                                                    <label class="form-label" for="cvvcodeInput">CVV Code</label>
+                                                                    <input type="text" class="form-control" id="cvvcodeInput" placeholder="Enter CVV Code">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                                <div class="mt-4 text-end">
+                                                    <a href="#" class="btn btn-success">
+                                                        Complete order
+                                                    </a>
+                                                </div>
+                            
+                                            </div>
+                                        </div>
+                                    </div>
+                            
+                                    <ul class="pager wizard twitter-bs-wizard-pager-link">
+                                        <li class="previous"><a href="#">Previous</a></li>
+                                        <li class="next disabled"><a href="#">Next</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card checkout-order-summary">
+                            <div class="card-body">
+                                <div class="p-3 bg-light mb-4">
+                                    <h5 class="font-size-14 mb-0">Order Summary <span class="float-end ms-2">#SK2356</span></h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-centered mb-0 table-nowrap">
+                                        <thead>
+                                            <tr>
+                                                <th class="border-top-0" style="width: 110px;" scope="col">Product</th>
+                                                <th class="border-top-0" scope="col">Product Desc</th>
+                                                <th class="border-top-0" scope="col">Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row"><img src="assets/images/product/img-1.png" alt="product-img" title="product-img" class="avatar-md"></th>
+                                                <td>
+                                                    <h5 class="font-size-14 text-truncate"><a href="ecommerce-product-detail.html" class="text-reset">Full sleeve T-shirt</a></h5>
+                                                    <p class="text-muted mb-0">$ 240 x 2</p>
+                                                </td>
+                                                <td>$ 480</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row"><img src="assets/images/product/img-2.png" alt="product-img" title="product-img" class="avatar-md"></th>
+                                                <td>
+                                                    <h5 class="font-size-14 text-truncate"><a href="ecommerce-product-detail.html" class="text-reset">Half sleeve T-shirt</a></h5>
+                                                    <p class="text-muted mb-0">$ 225 x 1</p>
+                                                </td>
+                                                <td>$ 225</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <h6 class="m-0 text-end">Sub Total:</h6>
+                                                </td>
+                                                <td>
+                                                    $ 705
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3">
+                                                    <div class="bg-primary-subtle  p-3 rounded">
+                                                        <h5 class="font-size-14 text-primary mb-0"><i class="fas fa-shipping-fast me-2"></i> Shipping <span class="float-end">Free</span></h5>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <h6 class="m-0 text-end">Total:</h6>
+                                                </td>
+                                                <td>
+                                                    $ 705
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+
+            </div> <!-- container-fluid -->
+        </div>
+        <!-- End Page-content -->
+
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <script>document.write(new Date().getFullYear())</script> © Nazox.
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-sm-end d-none d-sm-block">
+                            Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesdesign
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <!-- end main content-->
+
+</div>
+<!-- END layout-wrapper -->
+
+<!-- Right Sidebar -->
+<div class="right-bar">
+    <div data-simplebar class="h-100">
+        <div class="rightbar-title d-flex align-items-center px-3 py-4">
+            
+            <h5 class="m-0 me-2">Settings</h5>
+
+            <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
+                <i class="mdi mdi-close noti-icon"></i>
+            </a>
+        </div>
+
+        <!-- Settings -->
+        <hr class="mt-0" />
+        <h6 class="text-center mb-0">Choose Layouts</h6>
+
+        <div class="p-4">
+            <div class="mb-2">
+                <img src="assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
+            </div>
+
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input theme-choice" type="checkbox" id="light-mode-switch" checked>
+                <label class="form-check-label" for="light-mode-switch">Light Mode</label>
+            </div>
+    
+            <div class="mb-2">
+                <img src="assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
+            </div>
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
+                <label class="form-check-label" for="dark-mode-switch">Dark Mode</label>
+            </div>
+    
+            <div class="mb-2">
+                <img src="assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
+            </div>
+            <div class="form-check form-switch mb-5">
+                <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
+                <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
+            </div>
+
+            
+        </div>
+
+    </div> <!-- end slimscroll-menu-->
+</div>
+<!-- /Right-bar -->
+
+<!-- Right bar overlay-->
+<div class="rightbar-overlay"></div>
+
+<!-- JAVASCRIPT -->
+<script src="assets/libs/jquery/jquery.min.js"></script>
+<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/libs/metismenu/metisMenu.min.js"></script>
+<script src="assets/libs/simplebar/simplebar.min.js"></script>
+<script src="assets/libs/node-waves/waves.min.js"></script>
+
+<!-- twitter-bootstrap-wizard js -->
+<script src="assets/libs/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js"></script>
+
+<script src="assets/libs/twitter-bootstrap-wizard/prettify.js"></script>
+<!-- ecommerce-checkout init -->
+<script src="assets/js/pages/ecommerce-checkout.init.js"></script>
+
+<script src="assets/js/app.js"></script>
+
+</body>
+
+
+<!-- Mirrored from themesdesign.in/nazox/layouts/ecommerce-checkout.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:28 GMT -->
+</html>
