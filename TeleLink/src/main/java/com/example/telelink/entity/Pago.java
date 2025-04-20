@@ -43,6 +43,9 @@ public class Pago {
     @Column(name = "detalles_transaccion")
     private String detallesTransaccion;
 
+    @Column(name = "motivo_rechazo")
+    private String motivoRechazo;
+
     public enum EstadoTransaccion {
         completado, fallido, pendiente
     }

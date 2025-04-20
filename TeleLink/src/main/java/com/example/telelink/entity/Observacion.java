@@ -37,6 +37,9 @@ public class Observacion {
     @JoinColumn(name = "coordinador_id", nullable = false)
     private Usuario coordinador;
 
+    @Column(name = "comentario_administrador")
+    private String comentarioAdministrador;
+
     public enum NivelUrgencia {
         alto, medio, bajo
     }
