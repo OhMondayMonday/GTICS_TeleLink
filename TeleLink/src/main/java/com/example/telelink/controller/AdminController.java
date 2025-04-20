@@ -2,9 +2,11 @@ package com.example.telelink.controller;
 
 import com.example.telelink.entity.EspacioDeportivo;
 import com.example.telelink.entity.EstablecimientoDeportivo;
+import com.example.telelink.entity.Usuario;
 import com.example.telelink.repository.EspacioDeportivoRepository;
 import com.example.telelink.repository.EstablecimientoDeportivoRepository;
 import com.example.telelink.repository.ServicioDeportivoRepository;
+import com.example.telelink.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +30,9 @@ public class AdminController {
 
     @Autowired
     private ServicioDeportivoRepository servicioDeportivoRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
 
     @GetMapping("establecimientos")
@@ -86,6 +91,17 @@ public class AdminController {
         espacioDeportivoRepository.save(espacioDeportivo);
 
         return "redirect:/admin/establecimientos"; // Redirigir al listado de espacios
+    }
+
+
+
+
+    @GetMapping("coordinadores")
+    public String listarCoordinadores(Model model) {
+        List<Usuario> usuariosList = usuarioRepository.findAllByRol_Rol("coordinador");
+
+        model.addAttribute("coodinadores", usuariosList);
+        return "admin/coordinadorList";
     }
 
 
