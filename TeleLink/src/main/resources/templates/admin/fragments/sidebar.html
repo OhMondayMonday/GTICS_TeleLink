@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Fragmento del Sidebar -->
+<div th:fragment="sidebar" class="vertical-menu">
+    <div data-simplebar class="h-100">
+        <!-- Sidemenu -->
+        <div id="sidebar-menu">
+            <!-- Left Menu Start -->
+            <ul class="metismenu list-unstyled" id="side-menu">
+                <li class="menu-title">MENÚ</li>
+
+                <!-- Ítems del menú dinámicos con Thymeleaf -->
+                <li>
+                    <a th:href="@{/admin/establecimientos}" class="waves-effect">
+                        <i class="ri-store-line"></i>
+                        <span>Establecimientos deportivos</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a th:href="@{/admin/coordinadores}" class="waves-effect">
+                        <i class="ri-user-settings-line"></i>
+                        <span>Coordinadores</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a th:href="@{/admin/pagos}" class="waves-effect">
+                        <i class="ri-wallet-line"></i>
+                        <span>Pagos</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a th:href="@{/admin/observaciones}" class="waves-effect">
+                        <i class="ri-eye-line"></i>
+                        <span>Observaciones</span>
+                    </a>
+                </li>
+
+
+            </ul>
+        </div>
+        <!-- End Sidebar -->
+    </div>
+</div>
+</html>
