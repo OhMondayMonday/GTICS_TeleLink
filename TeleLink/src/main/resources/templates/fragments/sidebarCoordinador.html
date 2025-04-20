@@ -1,65 +1,79 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-    <body>
-        <!-- ========== Left Sidebar Start ========== -->
-        <div class="vertical-menu">
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body data-sidebar="dark">
 
-            <div data-simplebar class="h-100">
+        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
 
-                <!--- Sidemenu -->
-                <div id="sidebar-menu">
-                    <!-- Left Menu Start -->
-                    <ul class="metismenu list-unstyled" id="side-menu">
-                        <li class="menu-title">MENÚ</li>
+        <!-- Begin page -->
+        <div id="layout-wrapper">
 
-                        <li class="mm-active">
-                            <a href="index.html" class="waves-effect">
-                                <i class="ri-dashboard-line"></i>
-                                <span>Inicio</span>
-                            </a>
-                        </li>
+            <!-- ========== Left Sidebar Start ========== -->
+            <div class="vertical-menu" th:fragment="sidebar(activeItem)">
+                <div data-simplebar class="h-100">
+                    <!--- Sidemenu -->
+                    <div id="sidebar-menu">
+                        <!-- Left Menu Start -->
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li class="menu-title">MENÚ</li>
 
-                        <li>
-                            <a href="index.html" class="waves-effect">
-                                <i class="ri-account-circle-line"></i>
-                                <span>Perfil</span>
-                            </a>
-                        </li>
+                            <li th:class="${activeItem == 'inicio' ? 'mm-active' : ''}">
+                                <a href="inicio.html" class="waves-effect">
+                                    <i class="ri-dashboard-line"></i>
+                                    <span>Inicio</span>
+                                </a>
+                            </li>
 
-                        <li>
-                            <a href="index.html" class="waves-effect">
-                                <i class="ri-basketball-line"></i>
-                                <span>Servicios deportivos</span>
-                            </a>
-                        </li>
+                            <li th:class="${activeItem == 'perfil' ? 'mm-active' : ''}">
+                                <a href="perfil.html" class="waves-effect">
+                                    <i class="ri-account-circle-line"></i>
+                                    <span>Perfil</span>
+                                </a>
+                            </li>
 
-                        <li>
-                            <a href="index.html" class="waves-effect">
-                                <i class="ri-notification-3-line"></i><span class="badge rounded-pill bg-success float-end">3</span>
-                                <span>Notificaciones</span>
-                            </a>
-                        </li>
+                            <li th:class="${activeItem == 'servicios' ? 'mm-active' : ''}">
+                                <a href="servicios-deportivos.html" class="waves-effect">
+                                    <i class="ri-basketball-line"></i>
+                                    <span>Servicios deportivos</span>
+                                </a>
+                            </li>
 
-                        <li class="menu-title">ACTIVIDAD</li>
+                            <li th:class="${activeItem == 'notificaciones' ? 'mm-active' : ''}">
+                                <a href="notificaciones.html" class="waves-effect">
+                                    <i class="ri-notification-3-line"></i>
+                                    <span class="badge rounded-pill bg-success float-end">3</span>
+                                    <span>Notificaciones</span>
+                                </a>
+                            </li>
 
-                        <li>
-                            <a href="index.html" class="waves-effect">
-                                <i class="ri-calendar-check-line"></i>
-                                <span>Asistencia</span>
-                            </a>
-                        </li>
+                            <li class="menu-title">ACTIVIDAD</li>
 
-                        <li>
-                            <a href="index.html" class="waves-effect">
-                                <i class="ri-eye-line"></i>
-                                <span>Observaciones</span>
-                            </a>
-                        </li>
-                    </ul>
+                            <li th:class="${activeItem == 'asistencia' ? 'mm-active' : ''}">
+                                <a href="asistencia.html" class="waves-effect">
+                                    <i class="ri-calendar-check-line"></i>
+                                    <span>Asistencia</span>
+                                </a>
+                            </li>
+
+                            <li th:class="${activeItem == 'observaciones' ? 'mm-active' : ''}">
+                                <a href="observaciones.html" class="waves-effect">
+                                    <i class="ri-eye-line"></i>
+                                    <span>Observaciones</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Sidebar -->
                 </div>
-                <!-- Sidebar -->
             </div>
+            <!-- Left Sidebar End -->
         </div>
-        <!-- Left Sidebar End -->
+        <!-- END layout-wrapper -->
+
     </body>
+
+    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>

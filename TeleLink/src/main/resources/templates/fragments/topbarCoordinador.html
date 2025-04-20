@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+  <head th:fragment="head(title)">
+    <meta charset="utf-8" />
+    <title th:text="${title}"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+    <meta content="Themesdesign" name="author" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" th:href="@{/assets/images/logoCortado.png}">
+
+    <!-- jquery.vectormap css -->
+    <link th:href="@{/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css}" rel="stylesheet" type="text/css" />
+
+    <!-- DataTables -->
+    <link th:href="@{/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
+
+    <!-- Responsive datatable examples -->
+    <link th:href="@{/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
+
+    <!-- Plugin css -->
+    <link rel="stylesheet" th:href="@{/assets/libs/@fullcalendar/core/main.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/assets/libs/@fullcalendar/daygrid/main.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/assets/libs/@fullcalendar/bootstrap/main.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/assets/libs/@fullcalendar/timegrid/main.min.css}" type="text/css">
+
+    <!-- Bootstrap Css -->
+    <link th:href="@{/assets/css/bootstrap.min.css}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link th:href="@{/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
+  </head>
+  <body data-sidebar="dark">
+
+    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+
+      <header id="page-topbar" th:fragment="topbar">
+        <div class="navbar-header">
+          <div class="d-flex">
+            <!-- LOGO -->
+            <div class="navbar-brand-box">
+              <a th:href="@{/index.html}" class="logo logo-light">
+                    <span class="logo-sm">
+                        <img th:src="@{/assets/images/logoCortado.png}" alt="logo-sm-light" height="22">
+                    </span>
+                <span class="logo-lg">
+                        <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-light" height="40">
+                    </span>
+              </a>
+            </div>
+
+            <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+              <i class="ri-menu-2-line align-middle"></i>
+            </button>
+
+            <div class="dropdown dropdown-mega d-none d-lg-block ms-2">
+              <button type="button"
+                      class="btn header-item waves-effect"
+                      style="cursor: default !important;
+                              pointer-events: none;
+                              box-shadow: none !important;
+                              transform: none !important;">
+                Inicio
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex">
+            <div class="dropdown d-inline-block">
+              <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
+                      data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="ri-notification-3-line"></i>
+                <span class="noti-dot"></span>
+              </button>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                   aria-labelledby="page-header-notifications-dropdown">
+                <div class="p-3">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <h6 class="m-0"> Notificaciones </h6>
+                    </div>
+                    <div class="col-auto">
+                      <a href="#!" class="small"> Ver todas</a>
+                    </div>
+                  </div>
+                </div>
+                <div data-simplebar style="max-height: 230px;">
+                  <div data-simplebar style="max-height: 230px;">
+                    <a href="#" class="text-reset notification-item">
+                      <div class="d-flex">
+                        <div class="avatar-xs me-3">
+                                                    <span class="avatar-title bg-success rounded-circle font-size-16">
+                                                        <i class="ri-checkbox-circle-line"></i>
+                                                    </span>
+                        </div>
+                        <div class="flex-1">
+                          <h6 class="mb-1">Observación resuelta</h6>
+                          <div class="font-size-12 text-muted">
+                            <p class="mb-1">Complejo Deportivo Bancario: Cancha de fútbol</p>
+                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                    <a href="#" class="text-reset notification-item">
+                      <div class="d-flex">
+                        <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-warning rounded-circle font-size-16">
+                                                    <i class="ri-time-line"></i>
+                                                </span>
+                        </div>
+                        <div class="flex-1">
+                          <h6 class="mb-1">Observación en proceso de revisión</h6>
+                          <div class="font-size-12 text-muted">
+                            <p class="mb-1">Complejo Deportivo Bancario: Cancha de fútbol</p>
+                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+
+                    <a href="#" class="text-reset notification-item">
+                      <div class="d-flex">
+                        <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-danger rounded-circle font-size-16">
+                                                    <i class="ri-mail-send-line"></i>
+                                                </span>
+                        </div>
+                        <div class="flex-1">
+                          <h6 class="mb-1">Nueva observación registrada</h6>
+                          <div class="font-size-12 text-muted">
+                            <p class="mb-1">Complejo Deportivo Bancario: Cancha de fútbol</p>
+                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+
+                  </div>
+              </div>
+            </div>
+
+            <div class="dropdown d-inline-block user-dropdown">
+              <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                      data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <img class="rounded-circle header-profile-user" th:src="@{/assets/images/users/avatar-2.jpg}" alt="Header Avatar">
+                <span class="d-none d-xl-inline-block ms-1">Kevin</span>
+                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-end">
+                <!-- item-->
+                <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+    </div>
+    <!-- END layout-wrapper -->
+    <div class="main-content">
+      <footer class="footer" th:fragment="footer">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-sm-6">
+              @ Copyright <script>document.write(new Date().getFullYear())</script>
+            </div>
+            <div class="col-sm-6">
+              <div class="text-sm-end d-none d-sm-block">
+                Municipalidad de San Miguel
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <div th:fragment="scripts">
+      <!-- Right bar overlay-->
+      <div class="rightbar-overlay"></div>
+
+      <!-- JAVASCRIPT -->
+      <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+      <script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+      <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+      <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+      <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+
+      <!-- apexcharts -->
+      <script th:src="@{/assets/libs/apexcharts/apexcharts.min.js}"></script>
+
+      <!-- jquery.vectormap map -->
+      <script th:src="@{/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js}"></script>
+      <script th:src="@{/assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js}"></script>
+
+      <!-- plugin js -->
+      <script th:src="@{/assets/libs/moment/min/moment.min.js}"></script>
+      <script th:src="@{/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
+      <script th:src="@{/assets/libs/@fullcalendar/core/main.min.js}"></script>
+      <script th:src="@{/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
+      <script th:src="@{/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
+      <script th:src="@{/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
+      <script th:src="@{/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
+
+      <!-- Required datatable js -->
+      <script th:src="@{/assets/libs/datatables.net/js/jquery.dataTables.min.js}"></script>
+      <script th:src="@{/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js}"></script>
+
+      <!-- Responsive examples -->
+      <script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
+      <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
+    </div>
+  </body>
+
+  <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
+</html>
