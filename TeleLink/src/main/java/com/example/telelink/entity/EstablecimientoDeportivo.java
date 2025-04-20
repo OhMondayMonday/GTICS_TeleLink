@@ -17,11 +17,12 @@ public class EstablecimientoDeportivo {
     private Integer establecimientoDeportivoId;
 
     @Column(name = "establecimiento_deportivo", nullable = false, length = 100, unique = true)
-    private String establecimientoDeportivo;
+    private String establecimientoDeportivoNombre; //Antes era establecimientoDeportivo, habia una incompatibilidad
 
+    @Column(name = "descripcion")
     private String descripcion;
 
-    @Column(nullable = false, length = 255)
+    @Column(name="direccion", nullable = false, length = 255)
     private String direccion;
 
     @Column(name = "espacios_estacionamiento")
@@ -33,7 +34,7 @@ public class EstablecimientoDeportivo {
     @Column(name = "correo_contacto", length = 100)
     private String correoContacto;
 
-    @Column(nullable = false, length = 255)
+    @Column(name="geolocalizacion", nullable = false, length = 255)
     private String geolocalizacion;
 
     @Column(name = "foto_establecimiento_url", length = 255)

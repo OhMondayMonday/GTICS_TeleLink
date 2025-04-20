@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Creación de establecimientos deportivos')}">
+    <meta charset="UTF-8">
+    <title>Creación de Establecimientos</title>
+</head>
+<body data-sidebar="dark">
+<div id="layout-wrapper">
+
+    <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}"></div>
+
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row justify-content-around">
+                    <div class="col-lg-11 align-items-center">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <h3 class="mt-3 mb-4" style="color: #003366;">Formulario de creación de Establecimiento Deportivo</h3>
+
+                                <p class="card-title-desc text-muted fs-6">
+                                    Crea un nuevo establecimiento deportivo con todos los datos necesarios para su correcta gestión.
+                                </p>
+
+                                <form action="#" th:action="@{/admin/establecimientos/guardar}" method="post">
+
+                                    <!-- Nombre del establecimiento -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Nombre del establecimiento</label>
+                                        <input type="text" class="form-control" name="establecimientoDeportivoNombre" placeholder="Ej. Estadio Municipal de San Borja">
+                                    </div>
+
+                                    <!-- Descripción -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Descripción</label>
+                                        <textarea class="form-control" name="descripcion" placeholder="Descripción del establecimiento"></textarea>
+                                    </div>
+
+                                    <!-- Dirección -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Dirección</label>
+                                        <input type="text" class="form-control" name="direccion" placeholder="Ej. Av. Javier Prado Este 1234">
+                                    </div>
+
+                                    <!-- Espacios de estacionamiento -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Espacios de estacionamiento</label>
+                                        <input type="number" class="form-control" name="espaciosEstacionamiento" placeholder="Ej. 30">
+                                    </div>
+
+                                    <!-- Teléfono de contacto -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Teléfono de contacto</label>
+                                        <input type="text" class="form-control" name="telefonoContacto" placeholder="Ej. 014578963">
+                                    </div>
+
+                                    <!-- Correo de contacto -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Correo electrónico</label>
+                                        <input type="email" class="form-control" name="correoContacto" placeholder="Ej. contacto@estadio.gob.pe">
+                                    </div>
+
+                                    <!-- Geolocalización -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Geolocalización (lat,long)</label>
+                                        <input type="text" class="form-control" name="geolocalizacion" placeholder="Ej. -12.04318,-77.02824">
+                                    </div>
+
+                                    <!-- Horario apertura -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Horario de apertura</label>
+                                        <input type="time" class="form-control" name="horarioApertura">
+                                    </div>
+
+                                    <!-- Horario cierre -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Horario de cierre</label>
+                                        <input type="time" class="form-control" name="horarioCierre">
+                                    </div>
+
+                                    <!-- Estado -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Estado</label>
+                                        <select class="form-control" name="estado">
+                                            <option value="activo">Activo</option>
+                                            <option value="clausurado">Clausurado</option>
+                                            <option value="mantenimiento">Mantenimiento</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Motivo de mantenimiento -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Motivo de mantenimiento</label>
+                                        <textarea class="form-control" name="motivoMantenimiento" placeholder="Solo en caso de estado en mantenimiento"></textarea>
+                                    </div>
+
+                                    <!-- Botones -->
+                                    <button type="submit" class="btn btn-primary">Guardar establecimiento</button>
+                                    <a th:href="@{/admin/establecimientos}" class="btn btn-secondary ms-2">Cancelar</a>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+    </div>
+</div>
+
+<div class="rightbar-overlay"></div>
+<div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+</body>
+</html>
