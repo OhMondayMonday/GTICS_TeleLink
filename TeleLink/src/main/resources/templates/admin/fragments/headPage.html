@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Fragmento head para páginas -->
+<head th:fragment="headPage(title)">
+    <meta charset="utf-8" />
+    <title th:text="${title}">Inicio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+    <meta content="Themesdesign" name="author" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" th:href="@{/admin/assets/images/logoCortado.png}">
+
+    <!-- Plugin css -->
+    <!--
+    <link rel="stylesheet" th:href="@{/admin/assets/libs/@fullcalendar/core/main.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/admin/assets/libs/@fullcalendar/daygrid/main.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/admin/assets/libs/@fullcalendar/bootstrap/main.min.css}" type="text/css">
+    <link rel="stylesheet" th:href="@{/admin/assets/libs/@fullcalendar/timegrid/main.min.css}" type="text/css">
+    -->
+
+    <link th:href="@{/admin/assets/libs/select2/css/select2.min.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/admin/assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css}" rel="stylesheet">
+    <link th:href="@{/admin/assets/libs/spectrum-colorpicker2/spectrum.min.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/admin/assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css}" rel="stylesheet">
+
+    <!-- FLATPICKR CSS local -->
+    <link th:href="@{/admin/assets/css/flatpickr.min.css}" rel="stylesheet" type="text/css">
+
+    <!-- Bootstrap Css -->
+    <link th:href="@{/admin/assets/css/bootstrap.min.css}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link th:href="@{/admin/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link th:href="@{/admin/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
+</head>
+</html>
+
+<!-- Se usa
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headPage :: headPage(title='Página Personalizada')}"></head>
+<body>
+</body>
+</html>
+-->

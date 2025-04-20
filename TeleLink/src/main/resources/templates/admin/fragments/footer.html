@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Fragmento del Footer -->
+<footer th:fragment="footer" class="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                © Copyright
+                <span th:text="${#dates.year(#dates.createNow())}"></span>
+                <!-- Versión dinámica del año actual -->
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end d-none d-sm-block">
+                    Municipalidad de San Miguel
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</html>
