@@ -386,6 +386,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`pagos` (
   `foto_comprobante_url` VARCHAR(255) NULL DEFAULT NULL,
   `fecha_pago` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `detalles_transaccion` TEXT NULL DEFAULT NULL,
+  `motivo_rechazo` TEXT NULL,
   PRIMARY KEY (`pago_id`),
   UNIQUE INDEX `transaccion_id` (`transaccion_id` ASC) VISIBLE,
   INDEX `reserva_id` (`reserva_id` ASC) VISIBLE,
@@ -465,6 +466,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`observaciones` (
   `nivel_urgencia` ENUM('alto', 'medio', 'bajo') NULL,
   `espacio_deportivo_id` INT NOT NULL,
   `coordinador_id` INT NOT NULL,
+  `comentario_administrador` TEXT NULL,
   PRIMARY KEY (`observacion_id`),
   INDEX `fk_observaciones_espacios_deportivos1_idx` (`espacio_deportivo_id` ASC) VISIBLE,
   INDEX `fk_observaciones_usuarios1_idx` (`coordinador_id` ASC) VISIBLE,
@@ -499,3 +501,7 @@ END$$
 
 
 DELIMITER ;
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

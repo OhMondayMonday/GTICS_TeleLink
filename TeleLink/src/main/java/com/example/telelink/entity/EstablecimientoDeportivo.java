@@ -3,8 +3,6 @@ package com.example.telelink.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -15,10 +13,10 @@ import java.time.LocalTime;
 public class EstablecimientoDeportivo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="establecimiento_deportivo_id")
+    @Column(name = "establecimiento_deportivo_id")
     private Integer establecimientoDeportivoId;
 
-    @Column(name="establecimiento_deportivo",nullable = false, length = 100, unique = true)
+    @Column(name = "establecimiento_deportivo", nullable = false, length = 100, unique = true)
     private String establecimientoDeportivo;
 
     private String descripcion;
@@ -26,7 +24,7 @@ public class EstablecimientoDeportivo {
     @Column(nullable = false, length = 255)
     private String direccion;
 
-    @Column(name="espacios_estacionamiento")
+    @Column(name = "espacios_estacionamiento")
     private Integer espaciosEstacionamiento;
 
     @Column(name = "telefono_contacto", length = 20)
@@ -48,19 +46,19 @@ public class EstablecimientoDeportivo {
     private LocalTime horarioCierre;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('activo', 'clausurado', 'mantenimiento') DEFAULT 'activo'")
-    private EstadoEstablecimiento estado;
+    @Column(columnDefinition = "ENUM('activo', 'clausurado', 'mantenimiento')")
+    private Estado estado = Estado.activo;
 
     @Column(name = "motivo_mantenimiento")
     private String motivoMantenimiento;
 
-    @Column(name="fecha_creacion", updatable = false)
+    @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 
-    @Column(name="fecha_actualizacion")
+    @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
-    public enum EstadoEstablecimiento {
+    public enum Estado {
         activo, clausurado, mantenimiento
     }
 }

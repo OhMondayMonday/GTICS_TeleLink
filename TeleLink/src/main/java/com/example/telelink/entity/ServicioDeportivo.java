@@ -3,7 +3,6 @@ package com.example.telelink.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,12 +12,12 @@ import java.time.LocalDateTime;
 public class ServicioDeportivo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="servicio_deportivo_id")
+    @Column(name = "servicio_deportivo_id")
     private Integer servicioDeportivoId;
 
-    @Column(name="servicio_deportivo", nullable = false, length = 50, unique = true)
+    @Column(name = "servicio_deportivo", nullable = false, length = 50, unique = true)
     private String servicioDeportivo;
 
-    @Column(name="fecha_creacion", updatable = false)
+    @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 }
