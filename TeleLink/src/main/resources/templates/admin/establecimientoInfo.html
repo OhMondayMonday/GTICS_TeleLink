@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Información del Establecimiento Deportivo')}">
+    <meta charset="UTF-8">
+    <title>Información del Establecimiento</title>
+</head>
+<body data-sidebar="dark">
+<div id="layout-wrapper">
+
+    <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}"></div>
+
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="main-content">
+
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row justify-content-around">
+                    <div class="col-lg-11 align-items-center">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <h3 class="mt-3 mb-4" style="color: #003366;">Información del Establecimiento Deportivo</h3>
+
+                                <p class="card-title-desc text-muted fs-6">
+                                    Aquí puedes ver la información actual del establecimiento deportivo. Si necesitas realizar algún cambio,
+                                    puedes hacerlo usando el botón de "Editar".
+                                </p>
+
+                                <!-- Nombre del establecimiento -->
+                                <div class="mb-4">
+                                    <label class="form-label">Nombre del establecimiento</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control opacity-75"
+                                               th:value="${establecimiento.establecimientoDeportivoNombre}"
+                                               disabled />
+                                        <span class="input-group-text"><i class="mdi mdi-domain"></i></span>
+                                    </div>
+                                </div>
+
+                                <!-- Descripción -->
+                                <div class="mb-4">
+                                    <label class="form-label">Descripción</label>
+                                    <div class="input-group">
+                                    <textarea class="form-control opacity-75" rows="3" disabled
+                                              th:text="${establecimiento.descripcion}"></textarea>
+                                        <span class="input-group-text align-items-start"><i class="mdi mdi-text"></i></span>
+                                    </div>
+                                </div>
+
+
+                                <!-- Dirección -->
+                                <div class="mb-4">
+                                    <label class="form-label">Dirección</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control opacity-75"
+                                               th:value="${establecimiento.direccion}"
+                                               disabled />
+                                        <span class="input-group-text"><i class="mdi mdi-map-marker"></i></span>
+                                    </div>
+                                </div>
+
+                                <!-- Espacios de estacionamiento -->
+                                <div class="mb-4">
+                                    <label class="form-label">Espacios de estacionamiento</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control opacity-75"
+                                               th:value="${establecimiento.espaciosEstacionamiento}"
+                                               disabled />
+                                        <span class="input-group-text"><i class="mdi mdi-parking"></i></span>
+                                    </div>
+                                </div>
+
+                                <!-- Teléfono de contacto -->
+                                <div class="mb-4">
+                                    <label class="form-label">Teléfono de contacto</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control opacity-75"
+                                               th:value="${establecimiento.telefonoContacto}"
+                                               disabled />
+                                        <span class="input-group-text"><i class="mdi mdi-phone"></i></span>
+                                    </div>
+                                </div>
+
+                                <!-- Correo de contacto -->
+                                <div class="mb-4">
+                                    <label class="form-label">Correo de contacto</label>
+                                    <div class="input-group">
+                                        <input type="email" class="form-control opacity-75"
+                                               th:value="${establecimiento.correoContacto}"
+                                               disabled />
+                                        <span class="input-group-text"><i class="mdi mdi-email"></i></span>
+                                    </div>
+                                </div>
+
+                                <!-- Geolocalización -->
+                                <div class="mb-4">
+                                    <label class="form-label">Geolocalización (lat,long)</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control opacity-75"
+                                               th:value="${establecimiento.geolocalizacion}" disabled />
+                                        <span class="input-group-text"><i class="mdi mdi-map-marker-radius"></i></span>
+                                    </div>
+                                </div>
+
+
+                                <!-- Horario de apertura -->
+                                <div class="mb-4">
+                                    <label class="form-label">Horario de apertura</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control opacity-75"
+                                               th:value="${establecimiento.horarioApertura}"
+                                               disabled />
+                                        <span class="input-group-text"><i class="mdi mdi-clock-outline"></i></span>
+                                    </div>
+                                </div>
+
+                                <!-- Horario de cierre -->
+                                <div class="mb-4">
+                                    <label class="form-label">Horario de cierre</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control opacity-75"
+                                               th:value="${establecimiento.horarioCierre}"
+                                               disabled />
+                                        <span class="input-group-text"><i class="mdi mdi-clock-outline"></i></span>
+                                    </div>
+                                </div>
+
+                                <!-- Estado -->
+                                <div class="mb-4">
+                                    <label class="form-label">Estado</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control opacity-75"
+                                               th:value="${establecimiento.estado}"
+                                               disabled />
+                                        <span class="input-group-text"><i class="mdi mdi-alert-circle-outline"></i></span>
+                                    </div>
+                                </div>
+
+                                <!-- Motivo de mantenimiento -->
+                                <div class="mb-4" th:if="${establecimiento.estado.name() == 'mantenimiento'}">
+                                    <label class="form-label">Motivo de mantenimiento</label>
+                                    <textarea class="form-control opacity-75" rows="2" disabled
+                                              th:text="${establecimiento.motivoMantenimiento}"></textarea>
+                                </div>
+
+                                <!-- Botones -->
+                                <a th:href="@{/admin/establecimientos/editar(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-primary">Editar información</a>
+                                <a th:href="@{/admin/establecimientos}" class="btn btn-secondary ms-2">Volver a la lista</a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- container-fluid -->
+        </div> <!-- End Page-content -->
+
+        <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+    </div> <!-- end main content-->
+
+</div> <!-- END layout-wrapper -->
+
+<div class="rightbar-overlay"></div>
+
+<div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+</body>
+</html>

@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -38,5 +39,20 @@ public class AdminController {
         establecimientoDeportivoRepository.save(establecimiento);
         return "redirect:/admin/establecimientos"; // Redirige a la lista de establecimientos
     }
+
+    @GetMapping("establecimientos/info")
+    public String infoEstablecimiento(@RequestParam("id") Integer id, Model model) {
+        EstablecimientoDeportivo establecimientoDeportivo = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
+        model.addAttribute("establecimiento", establecimientoDeportivo);
+        return "admin/establecimientoInfo";
+    }
+
+    @GetMapping("establecimientos/editar")
+    public String editarEstablecimiento(@RequestParam("id") Integer id, Model model) {
+        EstablecimientoDeportivo establecimientoDeportivo = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
+        model.addAttribute("establecimiento", establecimientoDeportivo);
+        return "admin/establecimientoEditForm";
+    }
+
 
 }

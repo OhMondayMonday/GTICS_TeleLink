@@ -6,4 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EstablecimientoDeportivoRepository extends JpaRepository<EstablecimientoDeportivo, Integer> {
+
+    // Buscar establecimiento por su ID
+    EstablecimientoDeportivo findByEstablecimientoDeportivoId(Integer establecimientoDeportivoId);
+
+
 }

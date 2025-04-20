@@ -85,10 +85,10 @@
                                                             <a href="#" class="btn btn-sm btn-primary">
                                                                 <i class="mdi mdi-calendar-month-outline me-1"></i> Calendario
                                                             </a>
-                                                            <a th:href="@{'/admin/establecimientos/' + ${establecimiento.establecimientoDeportivoId} + '/detalles'}" class="btn btn-sm btn-secondary">
+                                                            <a th:href="@{/admin/establecimientos/info(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-sm btn-secondary">
                                                                 <i class="mdi mdi-calendar-month-outline me-1"></i> Detalles
                                                             </a>
-                                                            <a th:href="@{'/admin/establecimientos/' + ${establecimiento.establecimientoDeportivoId} + '/editar'}" class="btn btn-sm btn-success me-1">
+                                                            <a th:href="@{/admin/establecimientos/editar(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-sm btn-success me-1">
                                                                 <i class="mdi mdi-pencil me-1"></i> Editar
                                                             </a>
                                                         </td>

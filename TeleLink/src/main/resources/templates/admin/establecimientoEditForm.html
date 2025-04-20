@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Edición de establecimientos deportivos')}">
+  <meta charset="UTF-8">
+  <title>Edición de Establecimientos</title>
+</head>
+<body data-sidebar="dark">
+<div id="layout-wrapper">
+
+  <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}"></div>
+
+  <!-- ============================================================== -->
+  <!-- Start right Content here -->
+  <!-- ============================================================== -->
+  <div class="main-content">
+
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row justify-content-around">
+          <div class="col-lg-11 align-items-center">
+            <div class="card">
+              <div class="card-body">
+
+                <h3 class="mt-3 mb-4" style="color: #003366;">Editar información del establecimiento deportivo</h3>
+
+                <p class="card-title-desc text-muted fs-6">
+                  Asegúrate de que la información de contacto y ubicación esté actualizada para garantizar una atención eficiente a los usuarios.
+                  Esta información será visible en la plataforma pública y utilizada para gestionar reservas y consultas ciudadanas.
+                </p>
+
+                <form th:action="@{/admin/establecimientos/guardar}" method="post">
+                  <input type="hidden" name="establecimientoDeportivoId" th:value="${establecimiento.establecimientoDeportivoId}" />
+
+                  <!-- Nombre del establecimiento -->
+                  <div class="mb-4">
+                    <label class="form-label">Nombre del establecimiento</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" name="establecimientoDeportivoNombre"
+                             th:value="${establecimiento.establecimientoDeportivoNombre}" required />
+                      <span class="input-group-text"><i class="mdi mdi-domain"></i></span>
+                    </div>
+                  </div>
+
+                  <!-- Descripción -->
+                  <div class="mb-4">
+                    <label class="form-label">Descripción</label>
+                    <div class="input-group">
+                    <textarea class="form-control" name="descripcion" placeholder="Descripción del establecimiento"
+                              rows="3" th:text="${establecimiento.descripcion}"></textarea>
+                    <span class="input-group-text align-items-start"><i class="mdi mdi-text"></i></span>
+                    </div>
+                  </div>
+
+
+                  <!-- Dirección -->
+                  <div class="mb-4">
+                    <label class="form-label">Dirección</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" name="direccion"
+                             th:value="${establecimiento.direccion}" required />
+                      <span class="input-group-text"><i class="mdi mdi-map-marker"></i></span>
+                    </div>
+                  </div>
+
+                  <!-- Espacios de estacionamiento -->
+                  <div class="mb-4">
+                    <label class="form-label">Espacios de estacionamiento</label>
+                    <div class="input-group">
+                      <input type="number" class="form-control" name="espaciosEstacionamiento" min="0"
+                             th:value="${establecimiento.espaciosEstacionamiento}" />
+                      <span class="input-group-text"><i class="mdi mdi-parking"></i></span>
+                    </div>
+                  </div>
+
+                  <!-- Teléfono de contacto -->
+                  <div class="mb-4">
+                    <label class="form-label">Teléfono de contacto</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" name="telefonoContacto"
+                             th:value="${establecimiento.telefonoContacto}" />
+                      <span class="input-group-text"><i class="mdi mdi-phone"></i></span>
+                    </div>
+                  </div>
+
+                  <!-- Correo de contacto -->
+                  <div class="mb-4">
+                    <label class="form-label">Correo de contacto</label>
+                    <div class="input-group">
+                      <input type="email" class="form-control" name="correoContacto"
+                             th:value="${establecimiento.correoContacto}" />
+                      <span class="input-group-text"><i class="mdi mdi-email"></i></span>
+                    </div>
+                  </div>
+
+                  <!-- Geolocalización -->
+                  <div class="mb-4">
+                    <label class="form-label">Geolocalización (lat,long)</label>
+                    <div class="input-group">
+                      <input type="text" class="form-control" name="geolocalizacion" placeholder="Ej. -12.04318,-77.02824"
+                             th:value="${establecimiento.geolocalizacion}" />
+                      <span class="input-group-text"><i class="mdi mdi-map-marker-radius"></i></span>
+                    </div>
+                  </div>
+
+
+                  <!-- Horario de apertura -->
+                  <div class="mb-4">
+                    <label class="form-label">Horario de apertura</label>
+                    <div class="input-group">
+                      <input type="text" name="horarioApertura" class="form-control"
+                             placeholder="Ej: 08:00" th:value="${establecimiento.horarioApertura}" />
+                      <span class="input-group-text"><i class="mdi mdi-clock-outline"></i></span>
+                    </div>
+                  </div>
+
+                  <!-- Horario de cierre -->
+                  <div class="mb-4">
+                    <label class="form-label">Horario de cierre</label>
+                    <div class="input-group">
+                      <input type="text" name="horarioCierre" class="form-control"
+                             placeholder="Ej: 22:30" th:value="${establecimiento.horarioCierre}" />
+                      <span class="input-group-text"><i class="mdi mdi-clock-outline"></i></span>
+                    </div>
+                  </div>
+
+                  <!-- Estado -->
+                  <div class="mb-4">
+                    <label class="form-label">Estado</label>
+                    <div class="input-group">
+                      <select class="form-select" name="estado" required>
+                        <option value="activo" th:selected="${establecimiento.estado.name() == 'activo'}">Activo</option>
+                        <option value="clausurado" th:selected="${establecimiento.estado.name() == 'inactivo'}">Inactivo</option>
+                        <option value="mantenimiento" th:selected="${establecimiento.estado.name() == 'mantenimiento'}">Mantenimiento</option>
+                      </select>
+                      <span class="input-group-text"><i class="mdi mdi-alert-circle-outline"></i></span>
+                    </div>
+                  </div>
+
+                  <!-- Motivo de mantenimiento -->
+                  <div class="mb-4" th:if="${establecimiento.estado.name() == 'mantenimiento'}">
+                    <label class="form-label">Motivo de mantenimiento</label>
+                    <textarea class="form-control" name="motivoMantenimiento" rows="2"
+                              th:text="${establecimiento.motivoMantenimiento}"></textarea>
+                  </div>
+
+                  <!-- Botones -->
+                  <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                  <a th:href="@{/admin/establecimientos}" class="btn btn-secondary ms-2">Cancelar</a>
+                </form>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- container-fluid -->
+    </div>
+    <!-- End Page-content -->
+
+    <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+  </div>
+  <!-- end main content-->
+</div>
+<!-- END layout-wrapper -->
+
+<div class="rightbar-overlay"></div>
+<div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+</body>
+</html>
