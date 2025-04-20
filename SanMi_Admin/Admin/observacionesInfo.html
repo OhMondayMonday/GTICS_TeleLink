@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="es">
+
+    
+<!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
+<head>
+        
+        <meta charset="utf-8" />
+        <title>Inicio</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+        <meta content="Themesdesign" name="author" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="assets/images/logoCortado.png">
+
+
+
+        <!-- Plugin css -->
+        <link rel="stylesheet" href="assets/libs/%40fullcalendar/core/main.min.css" type="text/css">
+        <link rel="stylesheet" href="assets/libs/%40fullcalendar/daygrid/main.min.css" type="text/css">
+        <link rel="stylesheet" href="assets/libs/%40fullcalendar/bootstrap/main.min.css" type="text/css">
+        <link rel="stylesheet" href="assets/libs/%40fullcalendar/timegrid/main.min.css" type="text/css">
+
+
+        <link href="assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+        <link href="assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
+        <link href="assets/libs/spectrum-colorpicker2/spectrum.min.css" rel="stylesheet" type="text/css">
+        <link href="assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css" rel="stylesheet">
+
+
+        <!-- FLATPICKR CSS local -->
+        <link href="assets/css/flatpickr.min.css" rel="stylesheet" type="text/css">
+    
+        <!-- Bootstrap Css -->
+        <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <!-- Icons Css -->
+        <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+        <!-- App Css-->
+        <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+
+    </head>
+
+    <body data-sidebar="dark">
+    
+    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            
+            <header id="page-topbar">
+                <div class="navbar-header">
+                    <div class="d-flex">
+                        <!-- LOGO -->
+                        <div class="navbar-brand-box">
+
+                            <a href="index.html" class="logo logo-light">
+                                <span class="logo-sm">
+                                    <img src="assets/images/logoCortado.png" alt="logo-sm-light" height="22">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="assets/images/logoCompleto.png" alt="logo-light" height="40">
+                                </span>
+                            </a>
+                        </div>
+
+                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                            <i class="ri-menu-2-line align-middle"></i>
+                        </button>
+
+                        <div class="dropdown dropdown-mega d-none d-lg-block ms-2">
+                            <button type="button" 
+                                    class="btn header-item waves-effect" 
+                                    style="cursor: default !important; 
+                                        pointer-events: none;
+                                        box-shadow: none !important;
+                                        transform: none !important;">
+                                        <!--Gian: Modifica esto como titulo de la pantalla-->
+                                <p class="h4">Establecimientos deportivos</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex">
+
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
+                                  data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ri-notification-3-line"></i>
+                                <span class="noti-dot"></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                                aria-labelledby="page-header-notifications-dropdown">
+                                <div class="p-3">
+                                    <div class="row align-items-center">
+                                        <div class="col">
+                                            <h6 class="m-0"> Notificaciones </h6>
+                                        </div>
+                                        <div class="col-auto">
+                                            <a href="#!" class="small"> Ver todas</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div data-simplebar style="max-height: 230px;">
+                                    <a href="#" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                                    <i class="ri-shopping-cart-line"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">Your order is placed</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">If several languages coalesce the grammar</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <img src="assets/images/users/avatar-3.jpg"
+                                                class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">James Lemire</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">It will seem like simplified English.</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-success rounded-circle font-size-16">
+                                                    <i class="ri-checkbox-circle-line"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">Your item is shipped</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">If several languages coalesce the grammar</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                    <a href="#" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <img src="assets/images/users/avatar-4.jpg"
+                                                class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">Salena Layfield</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">As a skeptical Cambridge friend of mine occidental.</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                        <div class="dropdown d-inline-block user-dropdown">
+                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-2.jpg"
+                                    alt="Header Avatar">
+                                <span class="d-none d-xl-inline-block ms-1">Kevin</span>
+                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
+                            </div>
+                        </div>
+
+                        
+            
+                    </div>
+                </div>
+            </header>
+
+            
+            <!-- ========== Left Sidebar Start ========== -->
+            <div class="vertical-menu">
+
+                <div data-simplebar class="h-100">
+
+                    <!--- Sidemenu -->
+                    <div id="sidebar-menu">
+                        <!-- Left Menu Start -->
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li class="menu-title">MENÚ</li>
+
+                            <li>
+                                <a href="establecimientoList.html" class="waves-effect">
+                                    <i class="ri-store-line"></i>
+                                    <span>Establecimientos deportivos</span>
+                                </a>
+                            </li>
+                            
+                            <li>
+                                <a href="coordinadorList.html" class="waves-effect">
+                                    <i class="ri-user-settings-line"></i>
+                                    <span>Coordinadores</span>
+                                </a>
+                            </li>
+                            
+                            <li>
+                                <a href="pagosList.html" class="waves-effect">
+                                    <i class="ri-wallet-line"></i>
+                                    <span>Pagos</span>
+                                </a>
+                            </li>
+                            
+                            <li>
+                                <a href="observacionesList.html" class="waves-effect">
+                                    <i class="ri-eye-line"></i>
+                                    <span>Observaciones</span>
+                                </a>
+                            </li>
+                            
+
+                        </ul>
+                    </div>
+                    <!-- Sidebar -->
+                </div>
+            </div>
+            <!-- Left Sidebar End -->
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+                        <div class="row justify-content-around">
+                            <div class="col-lg-11 align-items-center">
+                                <div class="card">
+                                    <div class="card-body">
+                
+                                        <h3 class="mt-3 mb-4" style="color: #003366;">Detalle de la Observación</h3>
+                
+                                        <p class="card-title-desc text-muted fs-6">
+                                            Aquí puedes ver la información registrada por el coordinador sobre una observación
+                                            realizada en un espacio deportivo.
+                                        </p>
+                
+                                        <!-- Descripción de la observación -->
+                                        <div class="mb-4">
+                                            <label class="form-label">Descripción</label>
+                                            <div class="input-group">
+                                                <textarea class="form-control opacity-75" rows="4" disabled
+                                                    th:text="${observacion.descripcion}">Fuga de agua en la piscina principal</textarea>
+                                                <span class="input-group-text"><i class="mdi mdi-note-text-outline"></i></span>
+                                            </div>
+                                        </div>
+                
+                                        <!-- Nivel de urgencia -->
+                                        <div class="mb-4">
+                                            <label class="form-label">Nivel de urgencia</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control opacity-75" 
+                                                    value="Alto" 
+                                                    th:value="${observacion.nivelUrgencia}" 
+                                                    disabled />
+                                                <span class="input-group-text"><i class="mdi mdi-alert-circle-outline"></i></span>
+                                            </div>
+                                        </div>
+                
+                                        <!-- Fecha de creación -->
+                                        <div class="mb-4">
+                                            <label class="form-label">Fecha de creación</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control opacity-75"
+                                                    value="2025-04-10 14:30" 
+                                                    th:value="${#dates.format(observacion.fechaCreacion, 'yyyy-MM-dd HH:mm')}" 
+                                                    disabled />
+                                                <span class="input-group-text"><i class="mdi mdi-calendar-clock"></i></span>
+                                            </div>
+                                        </div>
+                
+                                        <!-- Fecha de actualización -->
+                                        <div class="mb-4">
+                                            <label class="form-label">Última actualización</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control opacity-75"
+                                                    value="2025-04-11 09:15" 
+                                                    th:value="${#dates.format(observacion.fechaActualizacion, 'yyyy-MM-dd HH:mm')}" 
+                                                    disabled />
+                                                <span class="input-group-text"><i class="mdi mdi-calendar-refresh"></i></span>
+                                            </div>
+                                        </div>
+                
+                                        <!-- Espacio deportivo relacionado -->
+                                        <div class="mb-4">
+                                            <label class="form-label">Espacio deportivo</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control opacity-75"
+                                                    value="Piscina Olímpica" 
+                                                    th:value="${observacion.espacioDeportivo.nombre}" 
+                                                    disabled />
+                                                <span class="input-group-text"><i class="mdi mdi-swim"></i></span>
+                                            </div>
+                                        </div>
+                
+                                        <!-- Coordinador que reportó -->
+                                        <div class="mb-4">
+                                            <label class="form-label">Coordinador responsable</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control opacity-75"
+                                                    value="Ana Pérez" 
+                                                    th:value="${observacion.coordinador.nombres} + ' ' + ${observacion.coordinador.apellidos}" 
+                                                    disabled />
+                                                <span class="input-group-text"><i class="mdi mdi-account-tie-outline"></i></span>
+                                            </div>
+                                        </div>
+                
+                                        <!-- Imagen -->
+                                        <div class="mb-4">
+                                            <label class="form-label">Foto adjunta</label>
+                                            <div class="d-flex align-items-center">
+                                                <img th:src="@{${observacion.fotoUrl}}" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQS514VI5ub-vXWG90OGVNNHV_CklUE1tqm1w&s" alt="Foto Observación"
+                                                    class="img-fluid rounded shadow-sm" style="max-height: 250px;">
+                                            </div>
+                                        </div>
+                
+                                        <!-- Botones -->
+                                        <a href="observacionesList.html" class="btn btn-secondary ms-2">Volver a la lista</a>
+                
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                @ Copyright <script>document.write(new Date().getFullYear())</script>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end d-none d-sm-block">
+                                    Municipalidad de San Miguel
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+                
+            </div>
+            <!-- end main content-->
+
+        </div>
+        <!-- END layout-wrapper -->
+
+
+        <!-- Right bar overlay-->
+        <div class="rightbar-overlay"></div>
+
+        <!-- JAVASCRIPT -->
+        <script src="assets/libs/jquery/jquery.min.js"></script>
+        <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="assets/libs/metismenu/metisMenu.min.js"></script>
+        <script src="assets/libs/simplebar/simplebar.min.js"></script>
+        <script src="assets/libs/node-waves/waves.min.js"></script>
+
+        <!-- plugin js -->
+        <script src="assets/libs/moment/min/moment.min.js"></script>
+        <script src="assets/libs/jquery-ui-dist/jquery-ui.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/core/main.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/bootstrap/main.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/daygrid/main.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/timegrid/main.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/interaction/main.min.js"></script>
+
+        <script src="assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+
+
+        <!-- Calendar init -->
+        <script src="assets/js/pages/calendar.init.js"></script>
+
+        <script src="assets/js/app.js"></script>
+
+
+        <!-- FLATPICKR JS -->
+        <!--Gian: Modifica esto para cambiar el intervalo de tiempo que transcurre entre opciones, en este caso 30 minutos-->
+        <!-- FLATPICKR JS local -->
+        <script src="assets/js/flatpickr.min.js"></script>
+        <script>
+        flatpickr("#inicio", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        minuteIncrement: 30,
+        time_24hr: false,
+        allowInput: false // ❌ no permite escribir manualmente
+        });
+
+        flatpickr("#fin", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        minuteIncrement: 30,
+        time_24hr: false,
+        allowInput: false
+        });
+
+        </script>
+
+        <!--<script>
+        flatpickr("#inicio", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minuteIncrement: 30,
+            time_24hr: false
+        });
+
+        flatpickr("#fin", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minuteIncrement: 30,
+            time_24hr: false
+        });
+        </script>-->
+
+        
+
+
+    </body>
+
+<!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
+</html>
