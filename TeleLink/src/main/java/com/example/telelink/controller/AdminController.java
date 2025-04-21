@@ -2,21 +2,17 @@ package com.example.telelink.controller;
 
 import com.example.telelink.entity.EspacioDeportivo;
 import com.example.telelink.entity.EstablecimientoDeportivo;
+import com.example.telelink.entity.Pago;
 import com.example.telelink.entity.Usuario;
-import com.example.telelink.repository.EspacioDeportivoRepository;
-import com.example.telelink.repository.EstablecimientoDeportivoRepository;
-import com.example.telelink.repository.ServicioDeportivoRepository;
-import com.example.telelink.repository.UsuarioRepository;
+import com.example.telelink.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
@@ -33,6 +29,9 @@ public class AdminController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PagoRepository pagoRepository;
 
 
     @GetMapping("establecimientos")
@@ -103,6 +102,50 @@ public class AdminController {
         model.addAttribute("coodinadores", usuariosList);
         return "admin/coordinadorList";
     }
+
+
+    @GetMapping("pagos")
+    public String listarPagos(Model model) {
+        List<Pago> pagosPendientes = pagoRepository.findByEstadoTransaccionAndMetodoPago_MetodoPago(
+                Pago.EstadoTransaccion.pendiente, "Transaccion"
+        );
+
+        model.addAttribute("pagosPendientes", pagosPendientes);
+        return "admin/pagosList";
+    }
+
+    @GetMapping("/pagos/aceptar")
+    public String aceptarPago(@RequestParam("id") Integer id) {
+        Optional<Pago> optPago = pagoRepository.findById(id);
+        if (optPago.isPresent()) {
+            Pago pago = optPago.get();
+            pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
+            pagoRepository.save(pago);
+        }
+        return "redirect:/admin/pagos";
+    }
+
+    @GetMapping("/pagos/rechazar")
+    public String rechazarPago(@RequestParam("id") Integer id) {
+        Optional<Pago> optPago = pagoRepository.findById(id);
+        if (optPago.isPresent()) {
+            Pago pago = optPago.get();
+            pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
+            pagoRepository.save(pago);
+        }
+        return "redirect:/admin/pagos";
+    }
+
+    @GetMapping("/pagos/ver")
+    public String verDetallePago(@RequestParam("id") Integer id, Model model) {
+        Optional<Pago> optPago = pagoRepository.findById(id);
+        if (optPago.isPresent()) {
+            model.addAttribute("pago", optPago.get());
+            return "admin/pagosInfo";
+        }
+        return "redirect:/admin/pagos/pendientes/transaccion";
+    }
+
 
 
 }
