@@ -295,355 +295,157 @@
                                     <div class="card-body  pt-0">
                                         <ul class="nav nav-tabs nav-tabs-custom mb-4">
                                             <li class="nav-item">
-                                                <a class="nav-link fw-bold p-3 active" href="#">All Orders</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link p-3 fw-bold" href="#">Active</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link p-3 fw-bold" href="#">Unpaid</a>
+                                                <a class="nav-link fw-bold p-3 active" href="#"> Mis pagos</a>
                                             </li>
                                         </ul>
                                         <div class="table-responsive">
-                                            <table class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                                <thead class="thead-light">
+
+                                            <div class="table-responsive">
+                                                <table id="tablaPagos" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                    <thead class="thead-light">
                                                     <tr>
-                                                        <th style="width: 20px;">
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck">
-                                                                <label class="form-check-label mb-0" for="ordercheck">&nbsp;</label>
-                                                            </div>
-                                                        </th>
-                                                        <th>Order ID</th>
-                                                        <th>Date</th>
-                                                        <th>Billing Name</th>
+                                                        <th></th>
+                                                        <th>Servicio Deportivo</th>
+                                                        <th>Fecha y Hora</th>
+                                                        <th>Nombre de facturación</th>
+                                                        <th>Método de Pago</th>
                                                         <th>Total</th>
-                                                        <th>Payment Status</th>
-                                                        <th>Invoice</th>
-                                                        <th style="width: 120px;">Action</th>
+                                                        <th>Estado</th>
+                                                        <th>Factura</th>
+                                                        <th>Detalles</th>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
+                                                    </thead>
+
+                                                    <tbody>
+                                                    <!-- Ejemplo 1: Pagado con depósito -->
                                                     <tr>
+                                                        <td><input type="checkbox" class="form-check-input" /></td>
+                                                        <td>Piscina Olímpica</td>
+                                                        <td>18 Abr, 2025 - 9:00 AM</td>
+                                                        <td>Luis Fernández</td>
+                                                        <td>Depósito</td>
+                                                        <td>S/ 30.00</td>
+                                                        <td><span class="badge bg-success-subtle text-success">Pagado</span></td>
                                                         <td>
-                                                           o <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck1">
-                                                                <label class="form-check-label mb-0" for="ordercheck1">&nbsp;</label>
-                                                            </div>
+                                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalFactura" data-factura="assets/images/factura5.webp">Ver imagen</button>
                                                         </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1572</a> </td>
+                                                        <td></td>
+                                                    </tr>
+
+                                                    <!-- Ejemplo 2: Pagado con transferencia -->
+                                                    <tr>
+                                                        <td><input type="checkbox" class="form-check-input" /></td>
+                                                        <td>Cancha de Fútbol Municipal</td>
+                                                        <td>17 Abr, 2025 - 5:00 PM</td>
+                                                        <td>Karina Ruiz</td>
+                                                        <td>Transferencia</td>
+                                                        <td>S/ 40.00</td>
+                                                        <td><span class="badge bg-success-subtle text-success">Pagado</span></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+
+                                                    <!-- Ejemplo 3: Rechazado con detalle -->
+                                                    <tr>
+                                                        <td><input type="checkbox" class="form-check-input" /></td>
+                                                        <td>Gimnasio Central</td>
+                                                        <td>16 Abr, 2025 - 8:00 AM</td>
+                                                        <td>Carlos Mendoza</td>
+                                                        <td>Depósito</td>
+                                                        <td>S/ 50.00</td>
+                                                        <td><span class="badge bg-danger-subtle text-danger">Rechazado</span></td>
                                                         <td>
-                                                            04 Apr, 2020
+                                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalFactura" data-factura="assets/images/factura2.jpg">Ver imagen</button>
                                                         </td>
-                                                        <td>Walter Brown</td>
-                                                        
                                                         <td>
-                                                            $172
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit" ><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                            <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalDetalles">Ver detalles</button>
                                                         </td>
                                                     </tr>
 
+                                                    <!-- Ejemplo 4: Pagado con depósito -->
                                                     <tr>
+                                                        <td><input type="checkbox" class="form-check-input" /></td>
+                                                        <td>Cancha de Fútbol (Grass sintético)</td>
+                                                        <td>15 Abr, 2025 - 10:00 AM</td>
+                                                        <td>Ana García</td>
+                                                        <td>Depósito</td>
+                                                        <td>S/ 55.00</td>
+                                                        <td><span class="badge bg-success-subtle text-success">Pagado</span></td>
                                                         <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck2">
-                                                                <label class="form-check-label mb-0" for="ordercheck2">&nbsp;</label>
-                                                            </div>
+                                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalFactura" data-factura="assets/images/factura1.jpg">Ver imagen</button>
                                                         </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1571</a> </td>
-                                                        <td>
-                                                            03 Apr, 2020
-                                                        </td>
-                                                        <td>Jimmy Barker</td>
-                                                        
-                                                        <td>
-                                                            $165
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge  bg-warning-subtle text-warning font-size-12">unpaid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                                        </td>
+                                                        <td></td>
                                                     </tr>
 
+                                                    <!-- Ejemplo 5: Rechazado con detalle -->
                                                     <tr>
+                                                        <td><input type="checkbox" class="form-check-input" /></td>
+                                                        <td>Pista de Atletismo Municipal</td>
+                                                        <td>14 Abr, 2025 - 7:30 AM</td>
+                                                        <td>Pedro Jiménez</td>
+                                                        <td>Depósito</td>
+                                                        <td>S/ 20.00</td>
+                                                        <td><span class="badge bg-danger-subtle text-danger">Rechazado</span></td>
                                                         <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck3">
-                                                                <label class="form-check-label mb-0" for="ordercheck3">&nbsp;</label>
-                                                            </div>
-                                                        </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1570</a> </td>
-                                                        <td>
-                                                            03 Apr, 2020
-                                                        </td>
-                                                        <td>Donald Bailey</td>
-                                                        
-                                                        <td>
-                                                            $146
+                                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalFactura" data-factura="assets/images/factura3.jpg_large">Ver imagen</button>
                                                         </td>
                                                         <td>
-                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
+                                                            <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalDetalles">Ver detalles</button>
                                                         </td>
                                                     </tr>
+                                                    </tbody>
 
-                                                    <tr>
-                                                        <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck4">
-                                                                <label class="form-check-label mb-0" for="ordercheck4">&nbsp;</label>
-                                                            </div>
-                                                        </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1569</a> </td>
-                                                        <td>
-                                                            02 Apr, 2020
-                                                        </td>
-                                                        <td>Paul Jones</td>
-                                                        
-                                                        <td>
-                                                            $183
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                                        </td>
-                                                    </tr>
+                                                </table>
 
-                                                    <tr>
-                                                        <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck5">
-                                                                <label class="form-check-label mb-0" for="ordercheck5">&nbsp;</label>
-                                                            </div>
-                                                        </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1568</a> </td>
-                                                        <td>
-                                                            01 Apr, 2020
-                                                        </td>
-                                                        <td>Jefferson Allen</td>
-                                                        
-                                                        <td>
-                                                            $160
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge bg-danger-subtle text-danger font-size-12">Chargeback</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                                        </td>
-                                                    </tr>
 
-                                                    <tr>
-                                                        <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck6">
-                                                                <label class="form-check-label mb-0" for="ordercheck6">&nbsp;</label>
+                                                <!-- MODAL IMAGEN DE FACTURA -->
+                                                <div class="modal fade" id="modalFactura" tabindex="-1" aria-labelledby="modalFacturaLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="modalFacturaLabel">Imagen de la factura</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                                             </div>
-                                                        </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1567</a> </td>
-                                                        <td>
-                                                            31 Mar, 2020
-                                                        </td>
-                                                        <td>Jeffrey Waltz</td>
-                                                        
-                                                        <td>
-                                                            $105
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge  bg-warning-subtle text-warning font-size-12">unpaid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                                        </td>
-                                                    </tr>
+                                                            <div class="modal-body">
+                                                                <img id="facturaImagen" src="" alt="Factura" class="img-fluid">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                                    <tr>
-                                                        <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck7">
-                                                                <label class="form-check-label mb-0" for="ordercheck7">&nbsp;</label>
+                                                <!-- MODAL DETALLES DE RECHAZO -->
+                                                <div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content border-warning">
+                                                            <div class="modal-header bg-warning-subtle">
+                                                                <h5 class="modal-title" id="modalDetallesLabel">Motivo del rechazo</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                                             </div>
-                                                        </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1566</a> </td>
-                                                        <td>
-                                                            30 Mar, 2020
-                                                        </td>
-                                                        <td>Jewel Buckley</td>
-                                                        
-                                                        <td>
-                                                            $112
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                                        </td>
-                                                    </tr>
+                                                            <div class="modal-body">
+                                                                <p class="mb-0"><strong>Motivo:</strong> El comprobante de pago estaba borroso o no coincidía con el monto del servicio.</p>
+                                                                <p class="mt-2"><strong>¿Qué hacer?</strong> Vuelve a subir una imagen clara del comprobante o contacta con soporte.</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                                    <tr>
-                                                        <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck8">
-                                                                <label class="form-check-label mb-0" for="ordercheck8">&nbsp;</label>
-                                                            </div>
-                                                        </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1565</a> </td>
-                                                        <td>
-                                                            29 Mar, 2020
-                                                        </td>
-                                                        <td>Jamison Clark</td>
-                                                        
-                                                        <td>
-                                                            $123
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                                        </td>
-                                                    </tr>
+                                                <!-- JS para cargar la imagen en el modal -->
+                                                <script>
+                                                    // Asignar la imagen en el modal al hacer clic
+                                                    const facturaButtons = document.querySelectorAll('[data-bs-toggle="modal"][data-bs-target="#modalFactura"]');
 
-                                                    <tr>
-                                                        <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck9">
-                                                                <label class="form-check-label mb-0" for="ordercheck9">&nbsp;</label>
-                                                            </div>
-                                                        </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1564</a> </td>
-                                                        <td>
-                                                            28 Mar, 2020
-                                                        </td>
-                                                        <td>Eddy Torres</td>
-                                                        
-                                                        <td>
-                                                            $141
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                                        </td>
-                                                    </tr>
+                                                    facturaButtons.forEach(button => {
+                                                        button.addEventListener('click', function() {
+                                                            const factura = this.getAttribute('data-factura');
+                                                            const modalImage = document.getElementById('facturaImagen');
+                                                            modalImage.src = factura;
+                                                        });
+                                                    });
+                                                </script>
+                                            </div>
 
-                                                    <tr>
-                                                        <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck10">
-                                                                <label class="form-check-label mb-0" for="ordercheck10">&nbsp;</label>
-                                                            </div>
-                                                        </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ1563</a> </td>
-                                                        <td>
-                                                            28 Mar, 2020
-                                                        </td>
-                                                        <td>Frank Dean</td>
-                                                        
-                                                        <td>
-                                                            $164
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge  bg-warning-subtle text-warning font-size-12">unpaid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                                        </td>
-                                                    </tr>
+                                            </div>
 
-                                                    <tr>
-                                                        <td>
-                                                            <div class="form-checkbox">
-                                                                <input type="checkbox" class="form-check-input" id="ordercheck11">
-                                                                <label class="form-check-label mb-0" for="ordercheck11">&nbsp;</label>
-                                                            </div>
-                                                        </td>
-                                                        
-                                                        <td><a href="javascript: void(0);" class="text-reset fw-bold">#NZ15632</a> </td>
-                                                        <td>
-                                                            27 Mar, 2020
-                                                        </td>
-                                                        <td>James Hamilton</td>
-                                                        
-                                                        <td>
-                                                            $154
-                                                        </td>
-                                                        <td>
-                                                            <div class="badge bg-success-subtle text-success  font-size-12">Paid</div>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-light btn-rounded">Invoice <i class="mdi mdi-download ms-2"></i></button>
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0);" class="me-3 text-primary" data-bs-toggle="tooltip" data-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
-                                                            <a href="javascript:void(0);" class="text-danger" data-bs-toggle="tooltip" data-placement="top" title="Delete"><i class="mdi mdi-trash-can font-size-18"></i></a>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -745,6 +547,25 @@
         <script src="assets/js/pages/ecommerce-order-datatables.init.js"></script>
 
         <script src="assets/js/app.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#tablaPagos').DataTable({
+                    responsive: true
+                });
+            });
+        </script>
+
+        <!-- jQuery (requerido para DataTables) -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- DataTables JS -->
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+        <!-- DataTables CSS -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
 
     </body>
 
