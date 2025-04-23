@@ -25,6 +25,47 @@
     <!-- App Css-->
     <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
 
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .payment-card {
+            border: 2px solid transparent;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: white;
+        }
+
+        .payment-card:hover,
+        .payment-selected {
+            border-color: #007bff;
+            background-color: #f0f8ff;
+        }
+
+        .payment-card input[type="radio"] {
+            display: none;
+        }
+
+        .payment-icons {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        body {
+            background-color: #f8f9fa;
+        }
+    </style>
+
 </head>
 
 <body data-sidebar="dark">
@@ -265,10 +306,8 @@
     <!-- Start right Content here -->
     <!-- ============================================================== -->
     <div class="main-content">
-
         <div class="page-content">
             <div class="container-fluid">
-
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
@@ -287,191 +326,158 @@
                 </div>
                 <!-- end page title -->
 
-                <div class="row">
+                <div class="row justify-content-center">
                     <div class="col-lg-8">
                         <div class="card">
                             <div class="card-body">
                                 <div id="checkout-nav-pills-wizard" class="twitter-bs-wizard">
                                     <ul class="twitter-bs-wizard-nav nav nav-pills nav-justified">
+
+                                    <!-- Paso 1: Datos de facturación -->
                                         <li class="nav-item">
                                             <a href="#billing-info" class="nav-link" data-toggle="tab">
                                                 <span class="step-number">01</span>
-                                                <span class="step-title">Billing Info</span>
+                                                <span class="step-title">Datos de facturación</span>
                                             </a>
                                         </li>
+
+                                        <!-- Paso 2: Selección de cancha y horario -->
                                         <li class="nav-item">
-                                            <a href="#shipping-info" class="nav-link" data-toggle="tab">
+                                            <a href="#court-selection" class="nav-link" data-toggle="tab">
                                                 <span class="step-number">02</span>
-                                                <span class="step-title">Shipping Info</span>
+                                                <span class="step-title">Selección de cancha y horario</span>
                                             </a>
                                         </li>
-                            
+
+                                        <!-- Paso 3: Método de pago -->
                                         <li class="nav-item">
-                                            <a href="#payment-info" class="nav-link active" data-toggle="tab">
+                                            <a href="#payment-info" class="nav-link" data-toggle="tab">
                                                 <span class="step-number">03</span>
-                                                <span class="step-title">Payment Info</span>
+                                                <span class="step-title">Método de pago</span>
                                             </a>
                                         </li>
                                     </ul>
                                     <div class="tab-content twitter-bs-wizard-tab-content">
                                         <div class="tab-pane" id="billing-info">
-                                            <h5 class="card-title">Billing information</h5>
-                                            <p class="card-title-desc">If several languages coalesce, the grammar of the resulting</p>
-                            
                                             <form>
                                                 <div>
-                            
                                                     <div>
-                            
-                                                        <div class="row">
-                                                            <div class="col-lg-4">
-                                                                <div class="mb-4">
-                                                                    <label class="form-label" for="billing-name">Name</label>
-                                                                    <input type="text" class="form-control" id="billing-name" placeholder="Enter name">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-4">
-                                                                <div class="mb-4">
-                                                                    <label class="form-label" for="billing-email-address">Email Address</label>
-                                                                    <input type="email" class="form-control" id="billing-email-address" placeholder="Enter email">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-4">
-                                                                <div class="mb-4">
-                                                                    <label class="form-label" for="billing-phone">Phone</label>
-                                                                    <input type="text" class="form-control" id="billing-phone" placeholder="Enter Phone no.">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                            
+
+                                                        <!-- Nombre completo -->
                                                         <div class="mb-4">
-                                                            <label class="form-label" for="billing-address">Address</label>
-                                                            <textarea class="form-control" id="billing-address" rows="3" placeholder="Enter full address"></textarea>
+                                                            <label class="form-label" for="billing-name">Nombre completo</label>
+                                                            <input type="text" class="form-control" id="billing-name" placeholder="Enter name" required>
                                                         </div>
 
-                            
+                                                        <div class="row">
+                                                            <div class="col-lg-4">
+                                                                <!-- DNI o documento de identidad -->
+                                                                <div class="mb-4">
+                                                                    <label class="form-label" for="dni">DNI</label>
+                                                                    <input type="text" class="form-control" id="dni" maxlength="8" required>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-lg-4">
+                                                                <!-- Teléfono de contacto -->
+                                                                <div class="mb-4">
+                                                                    <label class="form-label" for="billing-phone">Teléfono</label>
+                                                                    <input type="tel" class="form-control" id="billing-phone" placeholder="Enter Phone no." required>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-lg-4">
+                                                                <!-- Cantidad de personas -->
+                                                                <div class="mb-4">
+                                                                    <label class="form-label" for="cantidadPersonas">Cantidad de personas</label>
+                                                                    <input type="number" class="form-control" id="cantidadPersonas" min="1" required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Correo electrónico -->
+                                                        <div class="mb-4">
+                                                            <label class="form-label" for="billing-email">Email</label>
+                                                            <input type="email" class="form-control" id="billing-email" placeholder="Enter email">
+                                                        </div>
+
+                                                        <div class="mb-4">
+                                                            <label class="form-label" for="address">Dirección</label>
+                                                            <input type="text" class="form-control" id="address" placeholder="Enter address" required>
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </form>
                                         </div>
-                                        <div class="tab-pane" id="shipping-info">
-                                            <h5 class="card-title">Shipping information</h5>
-                                            <p class="card-title-desc">It will be as simple as occidental in fact</p>
-                            
-                                            <div class="row">
-                                                <div class="col-lg-4 col-sm-6">
-                                                    <div class="card border rounded active shipping-address">
-                                                        <div class="card-body">
-                                                            <a href="#" class="float-end ms-1">Edit</a>
-                                                            <h5 class="font-size-14 mb-4">Address 1</h5>
-                            
-                                                            <h5 class="font-size-14">Bradley McMillian</h5>
-                                                            <p class="mb-1">109 Clarksburg Park Road Show Low, AZ 85901</p>
-                                                            <p class="mb-0">Mo. 012-345-6789</p>
+
+        <!-------------------------------------------------------------------------------------------------------------------------->
+
+                                        <!-- Paso 2: Selección de cancha y horario -->
+                                        <div class="tab-pane fade" id="court-selection">
+
+
+
+
+
+
+                                        </div>
+        <!-------------------------------------------------------------------------------------------------------------------------->
+                                        <!-- Paso 3: Método de pago -->
+                                        <div class="tab-pane" id="payment-info">
+                                            <div class="row mt-4">
+                                                <!-- Pago online -->
+                                                <div class="col-md-6">
+                                                    <label class="payment-card" id="label-online">
+                                                        <input type="radio" name="payment-method" id="online" value="online">
+                                                        <div class="payment-icons">
+                                                            <i class="bi bi-credit-card"></i>
                                                         </div>
-                                                    </div>
-                            
+                                                        <strong>Pago en línea (automático y validado al instante)</strong>
+                                                        <p class="mt-2">Tarjeta de crédito o débito (Visa, Mastercard, etc.)<br>Yape / Plin</p>
+                                                    </label>
                                                 </div>
-                                                <div class="col-lg-4 col-sm-6">
-                                                    <div class="card border rounded shipping-address">
-                                                        <div class="card-body">
-                                                            <a href="#" class="float-end ms-1">Edit</a>
-                                                            <h5 class="font-size-14 mb-4">Address 2</h5>
-                            
-                                                            <h5 class="font-size-14">Bradley McMillian</h5>
-                                                            <p class="mb-1">109 Clarksburg Park Road Show Low, AZ 85901</p>
-                                                            <p class="mb-0">Mo. 012-345-6789</p>
+
+                                                <!-- Depósito bancario -->
+                                                <div class="col-md-6">
+                                                    <label class="payment-card" id="label-deposit">
+                                                        <input type="radio" name="payment-method" id="deposit" value="deposit">
+                                                        <div class="payment-icons">
+                                                            <i class="bi bi-bank2"></i>
                                                         </div>
-                                                    </div>
+                                                        <strong>Depósito o transferencia bancaria (con comprobante)</strong>
+                                                        <p class="mt-2">Sube tu voucher y espera validación.<br>El administrador valida manualmente antes de confirmar la reserva.</p>
+                                                    </label>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="tab-pane active" id="payment-info">
-                                            <h5 class="card-title">Payment information</h5>
-                                            <p class="card-title-desc">It will be as simple as occidental in fact</p>
-                            
-                                            <div>
-                                                <h5 class="font-size-14">Payment method :</h5>
-                            
-                                                <div class="row">
-                            
-                                                    <div class="col-lg-4 col-sm-6">
-                                                        <div>
-                                                            <label class="form-label card-radio-label mb-3">
-                                                                <input type="radio" name="pay-method" id="pay-methodoption1" class="card-radio-input">
-                            
-                                                                <span class="card-radio">
-                                                                    <i class="fab fa-cc-mastercard font-size-24 align-middle me-2"></i>
-                                                                    <span>Credit / Debit Card</span>
-                                                                </span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                            
-                                                    <div class="col-lg-4 col-sm-6">
-                                                        <div>
-                                                            <label class="form-label card-radio-label mb-3">
-                                                                <input type="radio" name="pay-method" id="pay-methodoption2" class="card-radio-input">
-                            
-                                                                <span class="card-radio">
-                                                                    <i class="fab fa-cc-paypal font-size-24 align-middle me-2"></i>
-                                                                    <span>Paypal</span>
-                                                                </span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                            
-                                                    <div class="col-lg-4 col-sm-6">
-                                                        <div>
-                                                            <label class="form-label card-radio-label mb-3">
-                                                                <input type="radio" name="pay-method" id="pay-methodoption3" class="card-radio-input" checked="">
-                            
-                                                                <span class="card-radio">
-                                                                    <i class="far fa-money-bill-alt font-size-24 align-middle me-2"></i>
-                                                                    <span>Cash on Delivery</span>
-                                                                </span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                            
-                                                </div>
-                            
-                                                <h5 class="my-3 font-size-14">For card Payment</h5>
-                                                <div class="p-4 border">
-                                                    <form>
-                                                        <div class="mb-3">
-                                                            <label class="form-label" for="cardnameInput">Name on card</label>
-                                                            <input type="text" class="form-control" id="cardnameInput" placeholder="Name on Card">
-                                                        </div>
-                            
-                                                        <div class="row">
-                                                            <div class="col-lg-4 col-sm-6">
-                                                                <div class="mb-3 mb-lg-0">
-                                                                    <label class="form-label" for="cardnumberInput">Card Number</label>
-                                                                    <input type="text" class="form-control" id="cardnumberInput" placeholder="0000 0000 0000 0000">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-4 col-sm-6">
-                                                                <div class="mb-3 mb-lg-0">
-                                                                    <label class="form-label" for="expirydateInput">Expiry date</label>
-                                                                    <input type="text" class="form-control" id="expirydateInput" placeholder="MM/YY">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-4 col-sm-6">
-                                                                <div class="mb-3 mb-lg-0">
-                                                                    <label class="form-label" for="cvvcodeInput">CVV Code</label>
-                                                                    <input type="text" class="form-control" id="cvvcodeInput" placeholder="Enter CVV Code">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                                <div class="mt-4 text-end">
-                                                    <a href="#" class="btn btn-success">
-                                                        Complete order
-                                                    </a>
-                                                </div>
-                            
+
+                                            <!-- ONLINE -->
+                                            <div id="online-info" class="mt-4" style="display:none;">
+                                                <p class="text-success">Serás redirigido a IzzyPay para finalizar el pago:</p>
+                                                <a href="https://sandbox.izzypay.pe/link-de-ejemplo" class="btn btn-success" target="_blank">Ir a IzzyPay</a>
+                                            </div>
+
+                                            <!-- DEPÓSITO -->
+                                            <div id="deposit-info" class="mt-4" style="display:none;">
+                                                <p><strong>Sube el comprobante de tu depósito bancario:</strong></p>
+                                                <ul>
+                                                    <li>Debe ser una imagen clara (JPG o PNG).</li>
+                                                    <li>Debe mostrar el monto y número de operación.</li>
+                                                    <li>No debe pesar más de 5MB.</li>
+                                                </ul>
+                                                <input type="file" class="form-control-file" id="deposit-image" name="deposit-image" accept="image/*">
+                                            </div>
+
+
+                                            <div class="btn-group">
+                                                <button class="btn btn-dark" type="button" id="btn-next">Confirmar Reserva</button>
+                                            </div>
+
+                                            <!-- Resumen -->
+                                            <div id="reserva-resumen" class="mt-4" style="display:none;">
+                                                <h5>Resumen de la Reserva</h5>
+                                                <p><strong>Método de pago:</strong> <span id="resumen-metodo"></span></p>
+                                                <p><strong>Estado:</strong> <span class="text-success">Reserva registrada localmente ✅</span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -484,89 +490,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="card checkout-order-summary">
-                            <div class="card-body">
-                                <div class="p-3 bg-light mb-4">
-                                    <h5 class="font-size-14 mb-0">Order Summary <span class="float-end ms-2">#SK2356</span></h5>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table table-centered mb-0 table-nowrap">
-                                        <thead>
-                                            <tr>
-                                                <th class="border-top-0" style="width: 110px;" scope="col">Product</th>
-                                                <th class="border-top-0" scope="col">Product Desc</th>
-                                                <th class="border-top-0" scope="col">Price</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th scope="row"><img src="assets/images/product/img-1.png" alt="product-img" title="product-img" class="avatar-md"></th>
-                                                <td>
-                                                    <h5 class="font-size-14 text-truncate"><a href="ecommerce-product-detail.html" class="text-reset">Full sleeve T-shirt</a></h5>
-                                                    <p class="text-muted mb-0">$ 240 x 2</p>
-                                                </td>
-                                                <td>$ 480</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row"><img src="assets/images/product/img-2.png" alt="product-img" title="product-img" class="avatar-md"></th>
-                                                <td>
-                                                    <h5 class="font-size-14 text-truncate"><a href="ecommerce-product-detail.html" class="text-reset">Half sleeve T-shirt</a></h5>
-                                                    <p class="text-muted mb-0">$ 225 x 1</p>
-                                                </td>
-                                                <td>$ 225</td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="2">
-                                                    <h6 class="m-0 text-end">Sub Total:</h6>
-                                                </td>
-                                                <td>
-                                                    $ 705
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="3">
-                                                    <div class="bg-primary-subtle  p-3 rounded">
-                                                        <h5 class="font-size-14 text-primary mb-0"><i class="fas fa-shipping-fast me-2"></i> Shipping <span class="float-end">Free</span></h5>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="2">
-                                                    <h6 class="m-0 text-end">Total:</h6>
-                                                </td>
-                                                <td>
-                                                    $ 705
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <!-- end row -->
 
             </div> <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
-
-        <footer class="footer">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <script>document.write(new Date().getFullYear())</script> © Nazox.
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-end d-none d-sm-block">
-                            Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesdesign
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
 
     </div>
     <!-- end main content-->
@@ -641,6 +570,62 @@
 <script src="assets/js/pages/ecommerce-checkout.init.js"></script>
 
 <script src="assets/js/app.js"></script>
+
+
+<!-- Script -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const radios = document.getElementsByName("payment-method");
+    const labelOnline = document.getElementById("label-online");
+    const labelDeposit = document.getElementById("label-deposit");
+
+    radios.forEach(r => {
+        r.addEventListener("change", function () {
+            const isOnline = this.value === "online";
+            document.getElementById("online-info").style.display = isOnline ? "block" : "none";
+            document.getElementById("deposit-info").style.display = !isOnline ? "block" : "none";
+            labelOnline.classList.toggle("payment-selected", isOnline);
+            labelDeposit.classList.toggle("payment-selected", !isOnline);
+        });
+    });
+
+    document.getElementById("btn-next").addEventListener("click", function () {
+        const active = document.querySelector(".twitter-bs-wizard-nav .nav-link.active");
+        const nextTab = active.closest("li").nextElementSibling;
+
+        if (nextTab) {
+            nextTab.querySelector("a").click();
+        } else {
+            const metodo = document.querySelector('input[name="payment-method"]:checked');
+            if (!metodo) {
+                alert("Por favor, selecciona un método de pago antes de continuar.");
+                return;
+            }
+
+            const resumenMetodo = metodo.value === "online"
+                ? "Pago en línea (validación automática)"
+                : "Depósito o transferencia bancaria (validación manual)";
+
+            document.getElementById("resumen-metodo").innerText = resumenMetodo;
+            document.getElementById("reserva-resumen").style.display = "block";
+
+            alert("✅ ¡Reserva registrada en local con éxito!");
+            window.location.href = "vecino-mis-reservas.html";
+        }
+    });
+
+    document.getElementById("btn-prev").addEventListener("click", function () {
+        const active = document.querySelector(".twitter-bs-wizard-nav .nav-link.active");
+        const prevTab = active.closest("li").previousElementSibling;
+
+        if (prevTab) {
+            prevTab.querySelector("a").click();
+        } else {
+            location.reload();
+        }
+    });
+</script>
+
 
 </body>
 
