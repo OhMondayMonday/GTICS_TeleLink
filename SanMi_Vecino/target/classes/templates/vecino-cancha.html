@@ -561,137 +561,342 @@
 
                                             <!-- SCRIPT PARA PAGINAR TARJETAS -->
                                             <script>
-                                                const tarjetasPorPagina = 3;
-                                                let paginaActual = 1;
-
+                                                // Datos mejorados para las tarjetas de servicios deportivos
                                                 const tarjetas = [
                                                     {
-                                                        titulo: "Piscina Olímpica",
-                                                        descripcion: "Espacio para natación libre y entrenamiento individual.",
-                                                        capacidad: "1 persona",
+                                                        titulo: "Piscina Olímpica San Miguel",
+                                                        descripcion: "Piscina olímpica de 50m con 8 carriles y agua temperada. Ideal para natación libre y entrenamiento profesional.",
+                                                        capacidad: "40 personas",
                                                         precio: "S/ 30.00",
                                                         tipo: "Piscina",
                                                         imagen: "assets/images/small/Piscina_Olimpica1.jpg",
-                                                        enlace: "vecino-piscina.html"
+                                                        enlace: "vecino-piscina.html",
+                                                        horario: "6:00 AM - 9:00 PM",
+                                                        caracteristicas: ["Agua temperada", "Duchas", "Vestidores", "Instructor disponible"]
                                                     },
                                                     {
-                                                        titulo: "Gimnasio San Miguel",
-                                                        descripcion: "Entrena con máquinas modernas y pesas libres.",
-                                                        capacidad: "15 personas",
-                                                        precio: "S/ 20.00",
+                                                        titulo: "Gimnasio Municipal San Miguel",
+                                                        descripcion: "Gimnasio completamente equipado con máquinas modernas, pesas libres y área de cardio. Entrenadores disponibles.",
+                                                        capacidad: "25 personas",
+                                                        precio: "S/ 40.00",
                                                         tipo: "Gimnasio",
                                                         imagen: "assets/images/small/gym.jpg",
-                                                        enlace: "vecino-gym.html"
+                                                        enlace: "vecino-gym.html",
+                                                        horario: "5:00 AM - 11:00 PM",
+                                                        caracteristicas: ["Máquinas de pesas", "Zona cardio", "Instructor disponible", "Vestidores"]
                                                     },
                                                     {
-                                                        titulo: "Cancha de Fútbol (Loza)",
-                                                        descripcion: "Juega fútbol 5 en una cancha de loza de calidad.",
+                                                        titulo: "Cancha de Fútbol Parque Juan Pablo II",
+                                                        descripcion: "Cancha de fútbol 5vs5 en superficie de loza. Perfecta para partidos amistosos y campeonatos barriales.",
                                                         capacidad: "10 personas",
-                                                        precio: "S/ 35.00",
+                                                        precio: "S/ 135.00",
                                                         tipo: "Fútbol - Loza",
                                                         imagen: "assets/images/small/lozaDeportiva.jpg",
-                                                        enlace: "vecino-futbol-loza.html"
+                                                        enlace: "vecino-futbol-loza.html",
+                                                        horario: "8:00 AM - 10:00 PM",
+                                                        caracteristicas: ["Iluminación nocturna", "Arcos reglamentarios", "Graderías", "Alquiler de balones"]
                                                     },
                                                     {
-                                                        titulo: "Cancha Grass Sintético",
-                                                        descripcion: "Ideal para partidos de fútbol 7 con tus amigos.",
-                                                        capacidad: "10 personas",
+                                                        titulo: "Cancha Grass Sintético La Marina",
+                                                        descripcion: "Moderna cancha de fútbol 7 con grass sintético de última generación. Ideal para partidos competitivos y entrenamiento.",
+                                                        capacidad: "14 personas",
                                                         precio: "S/ 50.00",
                                                         tipo: "Fútbol - Grass",
                                                         imagen: "assets/images/small/Grass sintético_cf_3.jpg",
-                                                        enlace: "vecino-futbol-grass.html"
+                                                        enlace: "vecino-futbol-grass.html",
+                                                        horario: "7:00 AM - 11:00 PM",
+                                                        caracteristicas: ["Grass de alta calidad", "Iluminación LED", "Vestuarios", "Hidratación incluida"]
                                                     },
                                                     {
-                                                        titulo: "Pista de Atletismo",
-                                                        descripcion: "Corre y entrena en pista profesional de atletismo.",
-                                                        capacidad: "20 personas",
-                                                        precio: "S/ 15.00",
+                                                        titulo: "Pista de Atletismo PUCP",
+                                                        descripcion: "Pista profesional de atletismo con 8 carriles y superficie de tartán. Ideal para corredores amateurs y profesionales.",
+                                                        capacidad: "30 personas",
+                                                        precio: "S/ 65.00",
                                                         tipo: "Atletismo",
                                                         imagen: "assets/images/small/atletismo_pista.jpg",
-                                                        enlace: "vecino-atletismo.html"
+                                                        enlace: "vecino-atletismo.html",
+                                                        horario: "5:00 AM - 9:00 PM",
+                                                        caracteristicas: ["Pista reglamentaria", "Zona de salto", "Entrenadores certificados", "Cronometraje"]
                                                     },
                                                     {
-                                                        titulo: "Canchas Múltiples",
-                                                        descripcion: "Espacio versátil para vóley, básquet y más.",
-                                                        capacidad: "20 personas",
-                                                        precio: "S/ 50.00",
+                                                        titulo: "Complejo Deportivo Multifuncional",
+                                                        descripcion: "Espacio versátil adaptado para múltiples deportes: vóley, básquet, balonmano y más en un solo lugar.",
+                                                        capacidad: "30 personas",
+                                                        precio: "S/ 150.00",
                                                         tipo: "Multifuncional",
                                                         imagen: "assets/images/small/CanchasMultiples.jpg",
-                                                        enlace: "vecino-multiple.html"
+                                                        enlace: "vecino-multiple.html",
+                                                        horario: "8:00 AM - 10:00 PM",
+                                                        caracteristicas: ["Adaptable a varios deportes", "Equipamiento incluido", "Tribunas", "Cafetería"]
                                                     }
                                                 ];
 
+                                                // Variables para la paginación y filtrado
+                                                const tarjetasPorPagina = 3;
+                                                let paginaActual = 1;
+                                                let tarjetasActuales = [...tarjetas];
+
+                                                // Función principal para manejar el filtrado
+                                                function aplicarFiltros() {
+                                                    // Obtener valores de filtros de servicios
+                                                    const filtrosServicios = {
+                                                        'piscina': document.getElementById('piscina').checked,
+                                                        'gimnasio': document.getElementById('gimnasio').checked,
+                                                        'futbol-loza': document.getElementById('futbol-loza').checked,
+                                                        'futbol-grass': document.getElementById('futbol-grass').checked,
+                                                        'atletismo': document.getElementById('atletismo').checked,
+                                                        'multiusos': document.getElementById('multiusos').checked
+                                                    };
+
+                                                    // Destacar visualmente los filtros activos
+                                                    Object.keys(filtrosServicios).forEach(key => {
+                                                        const element = document.getElementById(key);
+                                                        if (element) {
+                                                            const label = element.nextElementSibling;
+                                                            if (filtrosServicios[key]) {
+                                                                label.classList.add('fw-bold', 'text-primary');
+                                                            } else {
+                                                                label.classList.remove('fw-bold', 'text-primary');
+                                                            }
+                                                        }
+                                                    });
+
+                                                    // Obtener precio máximo seleccionado
+                                                    const precioMaximo = parseInt(document.getElementById('precioRange').value);
+
+                                                    // Filtrar el array de tarjetas
+                                                    const tarjetasFiltradas = tarjetas.filter(tarjeta => {
+                                                        // Filtrar por precio
+                                                        const precio = parseInt(tarjeta.precio.replace('S/ ', '').replace('.00', ''));
+                                                        if (precio > precioMaximo) return false;
+
+                                                        // Verificar si hay algún filtro de servicio activo
+                                                        const algunFiltroActivo = Object.values(filtrosServicios).some(val => val);
+
+                                                        // Si no hay filtros activos, mostrar todas las tarjetas
+                                                        if (!algunFiltroActivo) return true;
+
+                                                        // Filtrar por tipo de servicio
+                                                        if (filtrosServicios['piscina'] && tarjeta.tipo === "Piscina") return true;
+                                                        if (filtrosServicios['gimnasio'] && tarjeta.tipo === "Gimnasio") return true;
+                                                        if (filtrosServicios['futbol-loza'] && tarjeta.tipo === "Fútbol - Loza") return true;
+                                                        if (filtrosServicios['futbol-grass'] && tarjeta.tipo === "Fútbol - Grass") return true;
+                                                        if (filtrosServicios['atletismo'] && tarjeta.tipo === "Atletismo") return true;
+                                                        if (filtrosServicios['multiusos'] && tarjeta.tipo === "Multifuncional") return true;
+
+                                                        // Si no coincide con ningún filtro activo, no mostrar
+                                                        return false;
+                                                    });
+
+                                                    // Actualizar variable global de tarjetas filtradas
+                                                    tarjetasActuales = tarjetasFiltradas;
+
+                                                    // Resetear a la primera página al filtrar
+                                                    paginaActual = 1;
+
+                                                    // Mostrar tarjetas filtradas
+                                                    mostrarTarjetas();
+
+                                                    // Mostrar contador de resultados
+                                                    mostrarContadorResultados(tarjetasFiltradas.length);
+                                                }
+
+                                                // Función para mostrar contador de resultados
+                                                function mostrarContadorResultados(cantidad) {
+                                                    const infoElement = document.querySelector('.col-md-6 h5');
+                                                    if (infoElement) {
+                                                        infoElement.innerHTML = `Servicios Deportivos <span class="badge bg-primary">${cantidad} resultados</span>`;
+                                                    }
+                                                }
+
+                                                // Función para mostrar las tarjetas con la información mejorada
                                                 function mostrarTarjetas() {
                                                     const inicio = (paginaActual - 1) * tarjetasPorPagina;
                                                     const fin = inicio + tarjetasPorPagina;
-                                                    const tarjetasPagina = tarjetas.slice(inicio, fin);
+                                                    const tarjetasPagina = tarjetasActuales.slice(inicio, fin);
 
                                                     const contenedor = document.getElementById("tarjetas-container");
                                                     contenedor.innerHTML = "";
 
-                                                    tarjetasPagina.forEach(t => {
-                                                        contenedor.innerHTML += `
+                                                    if (tarjetasPagina.length === 0) {
+                                                        contenedor.innerHTML = `
+            <div class="col-12 text-center p-5">
+                <h4>No se encontraron resultados para tu búsqueda</h4>
+                <p>Intenta cambiar los filtros o ajustar el rango de precios.</p>
+            </div>
+        `;
+                                                    } else {
+                                                        tarjetasPagina.forEach(t => {
+                                                            let badgeClass = "bg-info";
+
+                                                            // Asignar las clases de badge según el tipo de servicio
+                                                            if (t.tipo.includes("Fútbol")) {
+                                                                badgeClass = "bg-warning";
+                                                            } else if (t.tipo === "Atletismo") {
+                                                                badgeClass = "bg-danger";
+                                                            } else if (t.tipo === "Multifuncional") {
+                                                                badgeClass = "bg-secondary";
+                                                            }
+
+                                                            // Crear lista de características si existen
+                                                            let caracteristicasHTML = '';
+                                                            if (t.caracteristicas && t.caracteristicas.length > 0) {
+                                                                caracteristicasHTML = '<div class="mt-2 mb-2"><small class="text-muted">';
+                                                                caracteristicasHTML += t.caracteristicas.map(c => `<i class="mdi mdi-check-circle text-success me-1"></i>${c}`).join(' • ');
+                                                                caracteristicasHTML += '</small></div>';
+                                                            }
+
+                                                            // Crear tarjeta con diseño mejorado
+                                                            contenedor.innerHTML += `
                 <div class="col-xl-4 col-sm-6 mb-3">
-                    <div class="product-box border p-2 rounded shadow-sm">
+                    <div class="product-box border p-3 rounded shadow-sm">
                         <div class="product-img position-relative">
                             <div class="product-ribbon badge bg-success">Disponible</div>
-                            <span class="badge bg-info position-absolute top-0 end-0 m-2">${t.tipo}</span>
+                            <span class="badge ${badgeClass} position-absolute top-0 end-0 m-2">${t.tipo}</span>
                             <img src="${t.imagen}" alt="${t.titulo}" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
                         </div>
                         <div class="text-center p-2">
-                            <p class="font-size-12 mb-1">${t.descripcion}</p>
-                            <h5 class="font-size-15"><a href="#" class="text-reset">${t.titulo}</a></h5>
-                            <p class="mb-1">Capacidad: ${t.capacidad}</p>
-                            <p class="mb-1">Precio: ${t.precio}</p>
-                            <a href="${t.enlace}" class="btn btn-sm btn-primary mt-2">Reservar</a>
+                            <h5 class="font-size-16 mt-3"><a href="#" class="text-reset">${t.titulo}</a></h5>
+                            <p class="text-muted mb-2">${t.descripcion}</p>
+                            ${caracteristicasHTML}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span><i class="mdi mdi-account-group me-1"></i> ${t.capacidad}</span>
+                                <span><i class="mdi mdi-clock-outline me-1"></i> ${t.horario || 'Horario flexible'}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="text-primary">${t.precio}</h5>
+                                <a href="${t.enlace}" class="btn btn-primary">Reservar</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
-                                                    });
+                                                        });
+                                                    }
 
                                                     actualizarPaginacion();
                                                 }
 
+                                                // Función para actualizar la paginación
                                                 function actualizarPaginacion() {
-                                                    const totalPaginas = Math.ceil(tarjetas.length / tarjetasPorPagina);
+                                                    const totalPaginas = Math.ceil(tarjetasActuales.length / tarjetasPorPagina);
                                                     const paginacion = document.getElementById("pagination");
                                                     const pageInfo = document.getElementById("page-info");
+
+                                                    // Si no hay páginas, mostrar página 0 de 0
+                                                    if (totalPaginas === 0) {
+                                                        pageInfo.innerHTML = `Página <span class="fw-bold">0</span> de <span class="fw-bold">0</span>`;
+                                                        paginacion.innerHTML = '';
+                                                        return;
+                                                    }
+
                                                     pageInfo.innerHTML = `Página <span class="fw-bold">${paginaActual}</span> de <span class="fw-bold">${totalPaginas}</span>`;
 
                                                     paginacion.innerHTML = `
-            <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
-                <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual - 1})"><i class="mdi mdi-chevron-left"></i></a>
+        <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
+            <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual - 1}); return false;"><i class="mdi mdi-chevron-left"></i></a>
+        </li>
+    `;
+
+                                                    // Mostrar máximo 5 páginas en la paginación
+                                                    const maxPaginas = 5;
+                                                    let startPage = Math.max(1, paginaActual - Math.floor(maxPaginas / 2));
+                                                    let endPage = Math.min(totalPaginas, startPage + maxPaginas - 1);
+
+                                                    if (endPage - startPage + 1 < maxPaginas) {
+                                                        startPage = Math.max(1, endPage - maxPaginas + 1);
+                                                    }
+
+                                                    for (let i = startPage; i <= endPage; i++) {
+                                                        paginacion.innerHTML += `
+            <li class="page-item ${i === paginaActual ? 'active' : ''}">
+                <a href="#" class="page-link" onclick="cambiarPagina(${i}); return false;">${i}</a>
             </li>
         `;
-
-                                                    for (let i = 1; i <= totalPaginas; i++) {
-                                                        paginacion.innerHTML += `
-                <li class="page-item ${i === paginaActual ? 'active' : ''}">
-                    <a href="#" class="page-link" onclick="cambiarPagina(${i})">${i}</a>
-                </li>
-            `;
                                                     }
 
                                                     paginacion.innerHTML += `
-            <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
-                <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual + 1})"><i class="mdi mdi-chevron-right"></i></a>
-            </li>
-        `;
+        <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
+            <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual + 1}); return false;"><i class="mdi mdi-chevron-right"></i></a>
+        </li>
+    `;
                                                 }
 
+                                                // Función para cambiar de página
                                                 function cambiarPagina(nuevaPagina) {
-                                                    const totalPaginas = Math.ceil(tarjetas.length / tarjetasPorPagina);
+                                                    const totalPaginas = Math.ceil(tarjetasActuales.length / tarjetasPorPagina);
                                                     if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
                                                         paginaActual = nuevaPagina;
                                                         mostrarTarjetas();
+                                                        // Scroll suave hacia arriba
+                                                        window.scrollTo({top: 0, behavior: 'smooth'});
                                                     }
+                                                    return false; // Para evitar que la página se recargue
                                                 }
 
-                                                // Mostrar tarjetas al cargar
-                                                mostrarTarjetas();
-                                            </script>
+                                                // Función para búsqueda por texto
+                                                function buscarTexto() {
+                                                    const textoBusqueda = document.querySelector('.search-box input').value.toLowerCase().trim();
 
+                                                    // Restaurar todas las tarjetas si no hay texto de búsqueda
+                                                    if (textoBusqueda === '') {
+                                                        tarjetasActuales = [...tarjetas];
+                                                        aplicarFiltros(); // Aplicar los otros filtros
+                                                        return;
+                                                    }
+
+                                                    // Filtrar por texto en todas las propiedades relevantes
+                                                    tarjetasActuales = tarjetas.filter(tarjeta => {
+                                                        return tarjeta.titulo.toLowerCase().includes(textoBusqueda) ||
+                                                            tarjeta.descripcion.toLowerCase().includes(textoBusqueda) ||
+                                                            tarjeta.tipo.toLowerCase().includes(textoBusqueda) ||
+                                                            (tarjeta.caracteristicas && tarjeta.caracteristicas.some(c => c.toLowerCase().includes(textoBusqueda)));
+                                                    });
+
+                                                    // Luego aplicar los otros filtros (checkbox y precio)
+                                                    aplicarFiltros();
+                                                }
+
+                                                // Función para actualizar el precio mostrado y aplicar filtros
+                                                function actualizarPrecio(valor) {
+                                                    document.getElementById('precioActual').innerText = 'S/ ' + valor;
+                                                    aplicarFiltros();
+                                                }
+
+                                                // Inicializar cuando el DOM esté cargado
+                                                document.addEventListener('DOMContentLoaded', function() {
+                                                    // Añadir listeners a los checkboxes de filtro
+                                                    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                                                    checkboxes.forEach(checkbox => {
+                                                        checkbox.addEventListener('change', aplicarFiltros);
+                                                    });
+
+                                                    // Añadir listener al slider de precio
+                                                    const precioSlider = document.getElementById('precioRange');
+                                                    if (precioSlider) {
+                                                        precioSlider.addEventListener('input', function() {
+                                                            document.getElementById('precioActual').innerText = 'S/ ' + this.value;
+                                                            aplicarFiltros();
+                                                        });
+                                                    }
+
+                                                    // Añadir listener al campo de búsqueda
+                                                    const campoBusqueda = document.querySelector('.search-box input');
+                                                    if (campoBusqueda) {
+                                                        campoBusqueda.addEventListener('input', buscarTexto);
+                                                    }
+
+                                                    // Ocultar las tarjetas estáticas del HTML original
+                                                    const tarjetasEstaticas = document.querySelectorAll('.row.g-0 > .col-xl-4');
+                                                    tarjetasEstaticas.forEach(tarjeta => {
+                                                        tarjeta.style.display = 'none';
+                                                    });
+
+                                                    // Mostrar tarjetas dinámicas
+                                                    mostrarTarjetas();
+                                                    mostrarContadorResultados(tarjetas.length);
+                                                });
+                                            </script>
 
 
 
@@ -778,6 +983,8 @@
         <script src="assets/js/pages/product-filter-range.init.js"></script>
 
         <script src="assets/js/app.js"></script>
+
+
 
     </body>
 
