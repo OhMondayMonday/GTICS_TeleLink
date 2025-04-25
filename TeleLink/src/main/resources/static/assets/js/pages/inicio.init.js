@@ -178,14 +178,11 @@ chart.render();
             return estados[estado] || estado;
         }
 
-        // Función dummy para obtener userId - DEBES IMPLEMENTARLA
         function obtenerUserIdDeSesion() {
-            // Implementa cómo obtienes el ID del usuario logueado
-            // Esto puede ser desde un almacenamiento local, cookie, etc.
-            return 10; // Valor temporal para pruebas
+            return 11; // Valor temporal para pruebas
         }
 
-        // Actualizar cada 5 minutos (opcional)
+        // Actualizar cada 5 minutos
         setInterval(function() {
             console.log('Actualizando calendario...');
             calendar.refetchEvents();
