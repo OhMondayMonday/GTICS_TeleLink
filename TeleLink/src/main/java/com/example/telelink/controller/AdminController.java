@@ -1,9 +1,6 @@
 package com.example.telelink.controller;
 
-import com.example.telelink.entity.EspacioDeportivo;
-import com.example.telelink.entity.EstablecimientoDeportivo;
-import com.example.telelink.entity.Pago;
-import com.example.telelink.entity.Usuario;
+import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,6 +29,9 @@ public class AdminController {
 
     @Autowired
     private PagoRepository pagoRepository;
+
+    @Autowired
+    private ObservacionRepository observacionRepository;
 
 
     @GetMapping("establecimientos")
@@ -146,6 +146,32 @@ public class AdminController {
         return "redirect:/admin/pagos/pendientes/transaccion";
     }
 
+
+
+    @GetMapping("/observaciones")
+    public String listarObservaciones(
+            @RequestParam(required = false) String nivel,
+            Model model) {
+
+        List<Observacion> observaciones;
+
+        if (nivel == null || nivel.equals("sin_filtro")) {
+            // Obtener todas las observaciones sin filtro
+            observaciones = observacionRepository.findAll();
+        } else {
+            try {
+                Observacion.NivelUrgencia urgencia = Observacion.NivelUrgencia.valueOf(nivel);
+                // Obtener observaciones filtradas por nivel de urgencia con todas las relaciones
+                observaciones = observacionRepository.findAllByNivelUrgenciaWithRelationsNative(urgencia);
+            } catch (IllegalArgumentException e) {
+                observaciones = observacionRepository.findAll(); // fallback si hay error
+            }
+        }
+
+        model.addAttribute("observaciones", observaciones);
+        model.addAttribute("nivelSeleccionado", nivel == null ? "sin_filtro" : nivel);
+        return "admin/observacionesList"; // tu HTML con la tabla
+    }
 
 
 }
