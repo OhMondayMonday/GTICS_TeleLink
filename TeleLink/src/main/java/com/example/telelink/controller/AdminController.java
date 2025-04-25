@@ -103,6 +103,27 @@ public class AdminController {
         return "admin/coordinadorList";
     }
 
+    @GetMapping("perfil")
+    public String perfilAdministrador(Model model) {
+
+
+        // GIan: Hard rocked btw
+        Optional<Usuario> usuariosOptional = usuarioRepository.findById(10);
+        if (usuariosOptional.isPresent()) {
+            model.addAttribute("usuario", usuariosOptional.get());
+            return "admin/adminPerfil";
+        }
+        else {
+            return "redirect:/admin/establecimientos";
+        }
+
+
+    }
+
+
+
+
+
 
     @GetMapping("pagos")
     public String listarPagos(Model model) {
@@ -171,6 +192,16 @@ public class AdminController {
         model.addAttribute("observaciones", observaciones);
         model.addAttribute("nivelSeleccionado", nivel == null ? "sin_filtro" : nivel);
         return "admin/observacionesList"; // tu HTML con la tabla
+    }
+
+
+    @GetMapping("dashboard")
+    public String estadisticas(Model model) {
+
+        model.addAttribute("reservasPorDia", usuarioRepository.obtenerCantidadReservasPorDia());
+
+        return "admin/dashboard";
+
     }
 
 

@@ -82,7 +82,7 @@
                         <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                        <a class="dropdown-item" th:href="@{/admin/perfil}"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
                     </div>
@@ -97,6 +97,12 @@
             <div id="sidebar-menu">
                 <ul class="metismenu list-unstyled" id="side-menu">
                     <li class="menu-title">MENÚ</li>
+                    <li>
+                        <a th:href="@{/admin/dashboard}" class="waves-effect">
+                            <i class="ri-dashboard-line"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
                     <li>
                         <a th:href="@{/admin/establecimientos}" class="waves-effect">
                             <i class="ri-store-line"></i>
