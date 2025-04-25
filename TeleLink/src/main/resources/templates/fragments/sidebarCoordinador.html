@@ -21,45 +21,37 @@
                             <li class="menu-title">MENÚ</li>
 
                             <li th:class="${activeItem == 'inicio' ? 'mm-active' : ''}">
-                                <a href="inicio.html" class="waves-effect">
+                                <a th:href="@{/coordinador/inicio}" class="waves-effect">
                                     <i class="ri-dashboard-line"></i>
                                     <span>Inicio</span>
                                 </a>
                             </li>
 
                             <li th:class="${activeItem == 'perfil' ? 'mm-active' : ''}">
-                                <a href="perfil.html" class="waves-effect">
+                                <a th:href="@{/coordinador/perfil}" class="waves-effect">
                                     <i class="ri-account-circle-line"></i>
                                     <span>Perfil</span>
                                 </a>
                             </li>
 
-                            <li th:class="${activeItem == 'servicios' ? 'mm-active' : ''}">
-                                <a href="servicios-deportivos.html" class="waves-effect">
+                            <li th:class="${activeItem == 'espacios' ? 'mm-active' : ''}">
+                                <a th:href="@{/coordinador/espacios-deportivos}" class="waves-effect">
                                     <i class="ri-basketball-line"></i>
-                                    <span>Servicios deportivos</span>
-                                </a>
-                            </li>
-
-                            <li th:class="${activeItem == 'notificaciones' ? 'mm-active' : ''}">
-                                <a href="notificaciones.html" class="waves-effect">
-                                    <i class="ri-notification-3-line"></i>
-                                    <span class="badge rounded-pill bg-success float-end">3</span>
-                                    <span>Notificaciones</span>
+                                    <span>Espacios deportivos</span>
                                 </a>
                             </li>
 
                             <li class="menu-title">ACTIVIDAD</li>
 
                             <li th:class="${activeItem == 'asistencia' ? 'mm-active' : ''}">
-                                <a href="asistencia.html" class="waves-effect">
+                                <a th:href="@{/coordinador/asistencia}" class="waves-effect">
                                     <i class="ri-calendar-check-line"></i>
                                     <span>Asistencia</span>
                                 </a>
                             </li>
 
                             <li th:class="${activeItem == 'observaciones' ? 'mm-active' : ''}">
-                                <a href="observaciones.html" class="waves-effect">
+                                <a th:href="@{/coordinador/observaciones}" class="waves-effect">
                                     <i class="ri-eye-line"></i>
                                     <span>Observaciones</span>
                                 </a>

@@ -14,7 +14,6 @@ import java.util.List;
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
-
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -25,8 +24,4 @@ public class UsuarioController {
         return "lista-usuarios";
     }
 
-    @GetMapping("/inicio")
-    public String mostrarInicio(Model model) {
-        return "Coordinador/inicio";
-    }
 }

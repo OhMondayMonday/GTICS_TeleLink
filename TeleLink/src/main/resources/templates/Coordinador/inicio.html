@@ -6,9 +6,9 @@
     <!-- <body data-layout="horizontal" data-topbar="dark"> -->
     <!-- Begin page -->
     <div id="layout-wrapper">
-      <div th:replace="fragments/topbarCoordinador :: topbar"></div>
+      <div th:replace="~{fragments/topbarCoordinador :: topbar('Inicio')}"></div>
       <!-- ========== Left Sidebar Start ========== -->
-      <div th:replace="fragments/sidebarCoordinador :: sidebar('inicio')"></div>
+      <div th:replace="~{fragments/sidebarCoordinador :: sidebar('inicio')}"></div>
       <!-- Left Sidebar End -->
 
 
@@ -21,32 +21,32 @@
         <div class="page-content">
           <div class="container-fluid">
 
-            <div class="row mb-3">
-              <div class="col-xl-4">
-                <div class="card">
+            <div class="row mb-4">
+              <div class="col-xl-4 d-flex flex-column">
+                <div class="card flex-grow-1 mb-4">
                   <div class="card-body">
 
                     <h4 class="card-title mb-4">Estadísticas de asistencia</h4>
 
-                    <div id="donut-chart" class="apex-charts" data-puntualidad="87" data-tardanzas="13"></div>
+                    <div id="donut-chart" class="apex-charts" data-puntualidad="174" data-tardanzas="26"></div>
 
                     <div class="row">
                       <div class="col-6">
                         <div class="text-center mt-4">
-                          <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-danger font-size-10 me-1"></i> Tardanzas</p>
+                          <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-danger font-size-10 me-1"></i> Tardanza</p>
                           <h5>11 %</h5>
                         </div>
                       </div>
                       <div class="col-6">
                         <div class="text-center mt-4">
-                          <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-success font-size-10 me-1"></i> Puntualidad</p>
+                          <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-success font-size-10 me-1"></i> Puntual</p>
                           <h5>89 %</h5>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="card">
+                <div class="card flex-grow-1 mb-0">
                   <div class="card-body">
 
                     <h4 class="card-title mb-4">Última observación</h4>
@@ -65,7 +65,7 @@
                             </div>
 
                             <div>
-                              <p class="text-muted mb-0">Observación resuelta”</p>
+                              <p class="text-muted mb-0">Observación resuelta</p>
                             </div>
                           </div>
                         </li>
@@ -107,7 +107,7 @@
                 </div>
               </div> <!-- end col-->
               <div class="col-xl-8">
-                <div class="card mb-0">
+                <div class="card h-100 mb-0">
                   <div class="card-body">
                     <div id="calendar"></div>
                   </div>

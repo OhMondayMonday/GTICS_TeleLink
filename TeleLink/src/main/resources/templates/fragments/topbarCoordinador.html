@@ -39,12 +39,12 @@
     <div id="layout-wrapper">
 
 
-      <header id="page-topbar" th:fragment="topbar">
+      <header id="page-topbar" th:fragment="topbar(pagina)">
         <div class="navbar-header">
           <div class="d-flex">
             <!-- LOGO -->
             <div class="navbar-brand-box">
-              <a th:href="@{/index.html}" class="logo logo-light">
+              <a href="" class="logo logo-light">
                     <span class="logo-sm">
                         <img th:src="@{/assets/images/logoCortado.png}" alt="logo-sm-light" height="22">
                     </span>
@@ -64,8 +64,8 @@
                       style="cursor: default !important;
                               pointer-events: none;
                               box-shadow: none !important;
-                              transform: none !important;">
-                Inicio
+                              transform: none !important;" th:text="${pagina}">
+
               </button>
             </div>
           </div>
@@ -142,6 +142,7 @@
                     </a>
 
                   </div>
+                </div>
               </div>
             </div>
 

@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="es">
+    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
+    <head th:replace="~{fragments/topbarCoordinador :: head('Observaciones')}"></head>
+    <body data-sidebar="dark">
+        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+            <div th:replace="fragments/topbarCoordinador :: topbar('Observaciones')"></div>
+            <!-- ========== Left Sidebar Start ========== -->
+            <div th:replace="fragments/sidebarCoordinador :: sidebar('observaciones')"></div>
+            <!-- Left Sidebar End -->
+
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+                        <div class="row mb-4">
+                            <div class="col-lg-12">
+                                <div class="card mb-0">
+                                    <div class="card-body">
+
+                                        <div class="table-responsive">
+
+                                            <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Fecha</th>
+                                                        <th>Nombre del establecimiento</th>
+                                                        <th>Tipo de servicio</th>
+                                                        <th>Descripción</th>
+                                                        <th>Estado</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Fila 1 -->
+                                                    <tr>
+                                                        <td>02/04/2025</td>
+                                                        <td>Complejo Deportivo Bancario</td>
+                                                        <td>Cancha de fútbol</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-warning">Pendiente</span></td>
+                                                        <td style="width: 100px">
+                                                            <a th:href="@{/coordinador/observacionDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Editar">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 2 -->
+                                                    <tr>
+                                                        <td>02/04/2025</td>
+                                                        <td>Complejo Deportivo Bancario</td>
+                                                        <td>Cancha de básquet</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-warning">Pendiente</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 3 -->
+                                                    <tr>
+                                                        <td>02/04/2025</td>
+                                                        <td>Complejo Deportivo Bancario</td>
+                                                        <td>Cancha de voley</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-warning">Pendiente</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 4 -->
+                                                    <tr>
+                                                        <td>02/04/2025</td>
+                                                        <td>Complejo Deportivo Bancario</td>
+                                                        <td>Pista de atletismo</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-success">Resuelto</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 5 -->
+                                                    <tr>
+                                                        <td>31/03/2025</td>
+                                                        <td>Complejo Deportivo Juan Joya Cordero</td>
+                                                        <td>Cancha de fútbol</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-warning">Pendiente</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 6 -->
+                                                    <tr>
+                                                        <td>31/03/2025</td>
+                                                        <td>Complejo Deportivo Juan Joya Cordero</td>
+                                                        <td>Cancha de básquet</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-success">Resuelto</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 7 -->
+                                                    <tr>
+                                                        <td>31/03/2025</td>
+                                                        <td>Complejo Deportivo Juan Joya Cordero</td>
+                                                        <td>Cancha de voley</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-success">Resuelto</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 8 -->
+                                                    <tr>
+                                                        <td>31/03/2025</td>
+                                                        <td>Complejo Deportivo Juan Joya Cordero</td>
+                                                        <td>Pista de atletismo</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-primary">En proceso</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 9 -->
+                                                    <tr>
+                                                        <td>31/03/2025</td>
+                                                        <td>Complejo Deportivo Julio Meléndez</td>
+                                                        <td>Cancha de fútbol</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-primary">En proceso</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 10 -->
+                                                    <tr>
+                                                        <td>27/03/2025</td>
+                                                        <td>Complejo Deportivo Julio Meléndez</td>
+                                                        <td>Cancha de básquet</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-primary">En proceso</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 11 -->
+                                                    <tr>
+                                                        <td>27/03/2025</td>
+                                                        <td>Complejo Deportivo Julio Meléndez</td>
+                                                        <td>Cancha de voley</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-primary">En proceso</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 12 -->
+                                                    <tr>
+                                                        <td>27/03/2025</td>
+                                                        <td>Complejo Deportivo Julio Meléndez</td>
+                                                        <td>Pista de atletismo</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-success">Resuelto</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 13 -->
+                                                    <tr>
+                                                        <td>27/03/2025</td>
+                                                        <td>Complejo Panamericano Costa Verde</td>
+                                                        <td>Cancha de fútbol</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-warning">Pendiente</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 14 -->
+                                                    <tr>
+                                                        <td>27/03/2025</td>
+                                                        <td>Complejo Panamericano Costa Verde</td>
+                                                        <td>Cancha de básquet</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-success">Resuelto</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <!-- Fila 15 -->
+                                                    <tr>
+                                                        <td>27/03/2025</td>
+                                                        <td>Complejo Panamericano Costa Verde</td>
+                                                        <td>Cancha de voley</td>
+                                                        <td>El suelo presenta grietas de 2-3 cm...</td>
+                                                        <td><span class="badge bg-success">Resuelto</span></td>
+                                                        <td style="width: 100px">
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- end row -->
+                    </div> <!-- container-fluid -->
+                </div>
+                <!-- End Page-content -->
+
+                <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
+
+            </div>
+            <!-- ============================================================== -->
+            <!-- End main content -->
+            <!-- ============================================================== -->
+
+
+
+        </div>
+        <!-- END layout-wrapper -->
+        <div th:replace="fragments/topbarCoordinador :: scripts"></div>
+        <script th:src="@{/assets/js/pages/observaciones.init.js}"></script>
+        <!-- google maps api -->
+
+        <script th:src="@{/assets/js/app.js}"></script>
+    </body>
+    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
+</html>

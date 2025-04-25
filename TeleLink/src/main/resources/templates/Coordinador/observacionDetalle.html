@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
+    <head th:replace="~{fragments/topbarCoordinador :: head('Detalle de observación')}"></head>
+    <body data-sidebar="dark">
+        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+            <div th:replace="fragments/topbarCoordinador :: topbar('Observación: Detalle')"></div>
+            <!-- ========== Left Sidebar Start ========== -->
+            <div th:replace="fragments/sidebarCoordinador :: sidebar('')"></div>
+            <!-- Left Sidebar End -->
+
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+                        <div class="row mb-4">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col-md-12">
+                                            <div class="card-body">
+                                                <h4 class="card-title mb-4">Datos de la observación <span class="badge bg-warning">Pendiente</span></h4>
+                                                <div class="row">
+
+                                                    <div class="col-md-5">
+                                                        <img style="max-height: 230px; object-fit: cover"  class="card-img img-fluid" th:src="@{/assets/images/observacionfoto.png}" alt="Card image">
+                                                    </div>
+                                                    <div class="col-md-7">
+
+                                                            <div class="mb-3">
+                                                                <h5 class="font-size-14">Establecimiento deportivo:</h5>
+                                                                <p>Complejo Deportivo Juan Joya Cordero</p>
+                                                                <h5 class="font-size-14">Tipo de servicio:</h5>
+                                                                <p>Cancha de fútbol</p>
+                                                                <h5 class="font-size-14">Nivel de urgencia:</h5>
+                                                                <p>Alto</p>
+                                                                <h5 class="font-size-14">Fecha de reporte:</h5>
+                                                                <p>31/03/2025</p>
+                                                            </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+
+                                                        <div class="mb-3">
+                                                            <h5 class="font-size-14">Descripción:</h5>
+                                                            <p>El suelo presenta grietas de 2-3 cm de ancho a lo largo de la línea lateral este, con riesgo de tropiezos durante actividades dinámicas. Requiere sellado profesional con relleno elástico para prevenir daños mayores.</p>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <h5 class="font-size-14">Comentario del administrador:</h5>
+                                                            <p>No se ha registrado ningún comentario.</p>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </div> <!-- container-fluid -->
+                </div>
+                <!-- End Page-content -->
+
+                <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
+
+            </div>
+            <!-- ============================================================== -->
+            <!-- End main content -->
+            <!-- ============================================================== -->
+
+
+
+        </div>
+        <!-- END layout-wrapper -->
+        <div th:replace="fragments/topbarCoordinador :: scripts"></div>
+        <script th:src="@{/assets/js/pages/observaciones.init.js}"></script>
+        <!-- google maps api -->
+
+        <script th:src="@{/assets/js/app.js}"></script>
+    </body>
+    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
+    <head th:replace="~{fragments/topbarCoordinador :: head('Nueva observación')}"></head>
+    <body data-sidebar="dark">
+        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+            <div th:replace="fragments/topbarCoordinador :: topbar('Observación: Nuevo registro')"></div>
+            <!-- ========== Left Sidebar Start ========== -->
+            <div th:replace="fragments/sidebarCoordinador :: sidebar('')"></div>
+            <!-- Left Sidebar End -->
+
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title mb-3">Datos de la observación</h4>
+                                        <form class="needs-validation" novalidate>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="establecimientoDeportivo" class="form-label">Establecimiento deportivo</label>
+                                                        <select class="form-select" aria-label="Default select example" name="establecimientoDeportivo" id="establecimientoDeportivo">
+
+                                                            <option value="1">Complejo Deportivo Bancario</option>
+                                                            <option value="2">Two</option>
+                                                            <option value="3">Three</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="servicioDeportivo" class="form-label">Tipo de servicio</label>
+                                                        <select class="form-select" aria-label="Default select example" name="servicioDeportivo" id="servicioDeportivo">
+
+                                                            <option value="1">Cancha de fútbol</option>
+                                                            <option value="2">Two</option>
+                                                            <option value="3">Three</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="nivelUrgencia" class="form-label">Nivel de urgencia</label>
+                                                        <select class="form-select" aria-label="Default select example" name="nivelUrgencia" id="nivelUrgencia">
+
+                                                            <option value="1">Alto</option>
+                                                            <option value="2">Two</option>
+                                                            <option value="3">Three</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="descripcion" class="form-label">Textarea</label>
+                                                        <div>
+                                                            <textarea id="descripcion" name="descripcion" required="" class="form-control" rows="5" style="height: 52px; resize: none;"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="foto" class="form-label">Evidencia fotográfica</label>
+                                                        <div class="input-group">
+                                                            <input id="foto" name="foto" type="file" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="text-center">
+                                                <button class="btn btn-primary me-3" type="submit">Guardar</button>
+                                                <button class="btn btn-secondary ms-3">Cancelar</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- end card -->
+                            </div> <!-- end col -->
+                        </div>
+                        <!-- end row -->
+                    </div> <!-- container-fluid -->
+                </div>
+                <!-- End Page-content -->
+                    <!-- End Page-content -->
+
+                    <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
+
+            </div>
+                <!-- ============================================================== -->
+                <!-- End main content -->
+                <!-- ============================================================== -->
+
+
+
+            </div>
+            <!-- END layout-wrapper -->
+            <div th:replace="fragments/topbarCoordinador :: scripts"></div>
+            <script th:src="@{/assets/js/pages/form-validation.init.js}"></script>
+            <script th:src="@{/assets/libs/bs-custom-file-input/bs-custom-file-input.min.js}"></script>
+            <script th:src="@{/assets/js/pages/form-element.init.js}"></script>
+
+            <script th:src="@{/assets/js/app.js}"></script>
+    </body>
+    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
+</html>
