@@ -52,10 +52,8 @@ chart.render();
             const servicio = espacio.servicioDeportivo;
 
             return [
-                `${formatTime(asistencia.horarioEntrada)} - ${formatTime(asistencia.horarioSalida)}`,
-                `Establecimiento: ${establecimiento.establecimientoDeportivoNombre}`,
-                `Servicio: ${servicio.servicioDeportivo}`,
-                `Espacio: ${espacio.nombre}`
+                `${establecimiento.establecimientoDeportivoNombre}: `,
+                `${servicio.servicioDeportivo}`
             ].join('\n');
         }
 
@@ -94,7 +92,7 @@ chart.render();
                 console.log('Buscando asistencias entre:', fetchInfo.start, 'y', fetchInfo.end);
 
                 $.ajax({
-                    url: '/api/asistencias/calendario',
+                    url: '/coordinador/calendario',
                     method: 'GET',
                     data: {
                         start: fetchInfo.start.toISOString(),
