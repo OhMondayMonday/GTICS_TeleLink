@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Reservas Deportivas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .calendar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sport-selector {
+            display: flex;
+            align-items: center;
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .sport-selector svg {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .date-selector {
+            display: flex;
+            align-items: center;
+        }
+
+        .date-label {
+            border: 1px solid #e5e7eb;
+            padding: 6px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+
+        .date-label svg {
+            margin-right: 5px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .nav-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .dates-row {
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+        }
+
+        .date-button {
+            padding: 8px 16px;
+            margin: 0 4px;
+            min-width: 80px;
+            text-align: center;
+            background-color: #f3f4f6;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .date-button.selected {
+            background-color: #dbeafe;
+            color: #2563eb;
+        }
+
+        .hours-header {
+            display: flex;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .hour-cell {
+            min-width: 40px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .court-row {
+            margin-bottom: 20px;
+        }
+
+        .court-info {
+            margin-bottom: 5px;
+        }
+
+        .court-name {
+            font-weight: 500;
+        }
+
+        .court-details {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .court-schedule {
+            display: flex;
+        }
+
+        .time-slot {
+            height: 32px;
+            min-width: 40px;
+            border-radius: 4px;
+            margin: 2px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .available {
+            background-color: #10b981;
+        }
+
+        .unavailable {
+            background-color: #9ca3af;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .modal {
+            background-color: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-info-item {
+            display: flex;
+            align-items: center;
+            color: #6b7280;
+        }
+
+        .modal-info-item svg {
+            margin-right: 5px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .price-box {
+            background-color: #ecfdf5;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .book-button {
+            width: 100%;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .book-button:hover {
+            background-color: #059669;
+        }
+
+        .success-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #10b981;
+            color: white;
+            padding: 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="calendar-container">
+    <!-- Header -->
+    <div class="header">
+        <div class="sport-selector">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM5.32 10.32a1 1 0 011.41-1.41L10 12.17l3.27-3.26a1 1 0 111.41 1.41l-4 4a1 1 0 01-1.41 0l-4-4a1 1 0 01-.05-1.32z"></path>
+            </svg>
+            Fútbol
+        </div>
+        <div class="date-selector">
+            <button class="nav-button prev-date">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            <div class="date-label">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span id="current-date">Sáb. 26/04</span>
+            </div>
+            <button class="nav-button next-date">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Selector -->
+    <div class="dates-row" id="dates-container">
+        <button class="date-button" data-date="25/04">25/04</button>
+        <button class="date-button selected" data-date="26/04">26/04</button>
+        <button class="date-button" data-date="27/04">27/04</button>
+        <button class="date-button" data-date="28/04">28/04</button>
+        <button class="date-button" data-date="29/04">29/04</button>
+    </div>
+
+    <!-- Hours Header -->
+    <div class="hours-header" id="hours-header">
+        <!-- Hours will be added by JavaScript -->
+    </div>
+
+    <!-- Courts Container -->
+    <div id="courts-container">
+        <!-- Courts will be added by JavaScript -->
+    </div>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal-overlay" id="booking-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-info-item" id="modal-court">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+                Cancha 1 F7
+            </div>
+            <div class="modal-info-item" id="modal-time">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                14:00
+            </div>
+        </div>
+        <div class="price-box">
+            <div>60 min</div>
+            <div class="price">S/ 135</div>
+        </div>
+        <button class="book-button" id="book-button">Continuar - S/ 135</button>
+    </div>
+</div>
+
+<!-- Success Message -->
+<div class="success-message" id="success-message">
+    ¡Reserva completada con éxito!
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuración
+        const hours = ["06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"];
+        const courts = [
+            { id: 1, name: "Cancha 1 F7", type: "Césped sintético", features: ["Con iluminación", "Con Beeup"] },
+            { id: 2, name: "Cancha 2 F7", type: "Césped sintético", features: ["Con iluminación", "Con Beeup"] },
+            { id: 3, name: "Cancha 3 F7", type: "Césped sintético", features: ["Con iluminación", "Con Beeup"] },
+            { id: 4, name: "Cancha 4 F7", type: "Césped sintético", features: ["Con iluminación", "Con Beeup"] },
+            { id: 5, name: "Cancha 5 F6", type: "Césped sintético", features: ["Con iluminación"] },
+            { id: 6, name: "Cancha 6 F6", type: "Césped sintético", features: ["Con iluminación"] },
+            { id: 7, name: "Cancha 7 F9", type: "Césped sintético", features: ["Con iluminación"] },
+            { id: 8, name: "Cancha 8 F9", type: "Césped sintético", features: ["Con iluminación"] },
+            { id: 9, name: "Cancha 9 F11", type: "Césped sintético", features: ["Con iluminación"] },
+        ];
+
+        // Variables para almacenar selección actual
+        let selectedDate = "26/04";
+        let selectedTime = "14:00";
+        let selectedCourt = "Cancha 1 F7";
+
+        // Referencias a elementos DOM
+        const hoursHeader = document.getElementById('hours-header');
+        const courtsContainer = document.getElementById('courts-container');
+        const dateButtons = document.querySelectorAll('.date-button');
+        const bookingModal = document.getElementById('booking-modal');
+        const modalCourt = document.getElementById('modal-court');
+        const modalTime = document.getElementById('modal-time');
+        const bookButton = document.getElementById('book-button');
+        const successMessage = document.getElementById('success-message');
+
+        // Generar encabezados de horas
+        hours.forEach(hour => {
+            const hourCell = document.createElement('div');
+            hourCell.className = 'hour-cell';
+            hourCell.textContent = hour;
+            hoursHeader.appendChild(hourCell);
+        });
+
+        // Función para generar disponibilidad aleatoria (en un caso real, estos datos vendrían de tu servidor)
+        function generateAvailability() {
+            const availability = {};
+            courts.forEach(court => {
+                availability[court.id] = {};
+                hours.forEach(hour => {
+                    // Se genera disponibilidad aleatoria - en un caso real, serían datos reales
+                    availability[court.id][hour] = Math.random() > 0.3;
+                });
+            });
+            return availability;
+        }
+
+        const availability = generateAvailability();
+
+        // Renderizar filas de canchas con disponibilidad
+        function renderCourts() {
+            courtsContainer.innerHTML = '';
+
+            courts.forEach(court => {
+                const courtRow = document.createElement('div');
+                courtRow.className = 'court-row';
+
+                const courtInfo = document.createElement('div');
+                courtInfo.className = 'court-info';
+
+                const courtName = document.createElement('div');
+                courtName.className = 'court-name';
+                courtName.textContent = court.name;
+
+                const courtDetails = document.createElement('div');
+                courtDetails.className = 'court-details';
+                courtDetails.textContent = `${court.type} | ${court.features.join(' | ')}`;
+
+                courtInfo.appendChild(courtName);
+                courtInfo.appendChild(courtDetails);
+
+                const courtSchedule = document.createElement('div');
+                courtSchedule.className = 'court-schedule';
+
+                hours.forEach(hour => {
+                    const timeSlot = document.createElement('div');
+                    const isAvailable = availability[court.id][hour];
+                    timeSlot.className = `time-slot ${isAvailable ? 'available' : 'unavailable'}`;
+
+                    if (isAvailable) {
+                        timeSlot.addEventListener('click', function() {
+                            selectedCourt = court.name;
+                            selectedTime = `${hour}:00`;
+                            openBookingModal();
+                        });
+                    }
+
+                    courtSchedule.appendChild(timeSlot);
+                });
+
+                courtRow.appendChild(courtInfo);
+                courtRow.appendChild(courtSchedule);
+                courtsContainer.appendChild(courtRow);
+            });
+        }
+
+        // Inicializar el contenido
+        renderCourts();
+
+        // Manejar selección de fecha
+        dateButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                dateButtons.forEach(btn => btn.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedDate = this.getAttribute('data-date');
+                document.getElementById('current-date').textContent = `Sáb. ${selectedDate}`;
+
+                // En un caso real, aquí recargarías los datos de disponibilidad para esta fecha
+                // Por ahora, solo regeneramos datos aleatorios
+                Object.assign(availability, generateAvailability());
+                renderCourts();
+            });
+        });
+
+        // Función para abrir modal de reserva
+        function openBookingModal() {
+            modalCourt.textContent = selectedCourt;
+            modalTime.textContent = selectedTime;
+            bookingModal.style.display = 'flex';
+        }
+
+        // Cerrar modal haciendo clic fuera
+        bookingModal.addEventListener('click', function(e) {
+            if (e.target === bookingModal) {
+                bookingModal.style.display = 'none';
+            }
+        });
+
+        // Manejar reserva
+        bookButton.addEventListener('click', function() {
+            // Aquí iría la lógica para procesar la reserva
+            bookingModal.style.display = 'none';
+
+            // Mostrar mensaje de éxito
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        });
+
+        // Navegación por fechas con botones prev/next
+        document.querySelector('.prev-date').addEventListener('click', function() {
+            const currentIndex = [...dateButtons].findIndex(btn => btn.classList.contains('selected'));
+            if (currentIndex > 0) {
+                dateButtons[currentIndex - 1].click();
+            }
+        });
+
+        document.querySelector('.next-date').addEventListener('click', function() {
+            const currentIndex = [...dateButtons].findIndex(btn => btn.classList.contains('selected'));
+            if (currentIndex < dateButtons.length - 1) {
+                dateButtons[currentIndex + 1].click();
+            }
+        });
+    });
+</script>
+</body>
+</html>

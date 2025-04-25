@@ -415,6 +415,95 @@
 
                                         <!-- Paso 2: Selección de cancha y horario -->
                                         <div class="tab-pane fade" id="court-selection">
+                                            <!-- Añade este código dentro del div con id="court-selection" -->
+                                            <div class="card mb-4">
+                                                <div class="card-header bg-primary text-white">
+                                                    <h5 class="mb-0">Detalles de la reserva seleccionada</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p><strong>Servicio:</strong> <span id="servicio-seleccionado">-</span></p>
+                                                            <p><strong>Fecha:</strong> <span id="fecha-seleccionada">-</span></p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p><strong>Horarios:</strong></p>
+                                                            <ul id="horas-seleccionadas" class="list-group">
+                                                                <!-- Las horas se cargarán automáticamente -->
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <script>
+                                                document.addEventListener('DOMContentLoaded', function() {
+                                                    // Recuperar la información de reserva guardada en localStorage
+                                                    const reservaGuardada = localStorage.getItem('reserva_seleccionada');
+
+                                                    if (reservaGuardada) {
+                                                        try {
+                                                            const reserva = JSON.parse(reservaGuardada);
+
+                                                            // Verificar si la reserva es reciente (menos de 30 minutos)
+                                                            const ahora = new Date().getTime();
+                                                            const tiempoTranscurrido = ahora - reserva.timestamp;
+                                                            const minutosTranscurridos = tiempoTranscurrido / (1000 * 60);
+
+                                                            if (minutosTranscurridos <= 30) {
+                                                                // Mostrar información de la reserva
+                                                                document.getElementById('servicio-seleccionado').textContent = reserva.servicioNombre;
+
+                                                                // Formatear la fecha
+                                                                const fecha = new Date(reserva.fecha);
+                                                                const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                                                                document.getElementById('fecha-seleccionada').textContent = fecha.toLocaleDateString('es-ES', opciones);
+
+                                                                // Mostrar las horas seleccionadas
+                                                                const listaHoras = document.getElementById('horas-seleccionadas');
+                                                                listaHoras.innerHTML = '';
+
+                                                                reserva.horas.forEach(hora => {
+                                                                    const li = document.createElement('li');
+                                                                    li.className = 'list-group-item';
+                                                                    li.textContent = hora;
+                                                                    listaHoras.appendChild(li);
+                                                                });
+
+                                                                // Agregar campos ocultos con la información (para el formulario)
+                                                                const camposOcultos = `
+            <input type="hidden" name="servicio" value="${reserva.servicio}">
+            <input type="hidden" name="fecha" value="${reserva.fecha}">
+            <input type="hidden" name="horas" value="${reserva.horas.join(',')}">
+          `;
+                                                                document.getElementById('court-selection').insertAdjacentHTML('beforeend', camposOcultos);
+
+                                                            } else {
+                                                                // La reserva expiró
+                                                                document.getElementById('court-selection').innerHTML += `
+            <div class="alert alert-warning">
+              La selección de horario ha expirado. Por favor regresa al calendario para seleccionar nuevamente.
+            </div>
+          `;
+                                                            }
+
+                                                        } catch (error) {
+                                                            console.error("Error al procesar los datos de reserva:", error);
+                                                            mostrarErrorReserva();
+                                                        }
+                                                    } else {
+                                                        mostrarErrorReserva();
+                                                    }
+
+                                                    function mostrarErrorReserva() {
+                                                        document.getElementById('court-selection').innerHTML += `
+        <div class="alert alert-info">
+          No hay horarios seleccionados. Por favor regresa al calendario para seleccionar un horario.
+        </div>
+      `;
+                                                    }
+                                                });
+                                            </script>
 
 
 
