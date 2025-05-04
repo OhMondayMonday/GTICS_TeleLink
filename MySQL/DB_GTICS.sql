@@ -21,6 +21,8 @@ USE `db_gtics` ;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`roles`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`roles` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`roles` (
   `rol_id` INT NOT NULL AUTO_INCREMENT,
   `rol` VARCHAR(20) NOT NULL,
@@ -33,6 +35,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`usuarios`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`usuarios` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`usuarios` (
   `usuario_id` INT NOT NULL AUTO_INCREMENT,
   `nombres` VARCHAR(100) NULL DEFAULT NULL,
@@ -63,6 +67,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`tipos_actividades`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`tipos_actividades` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`tipos_actividades` (
   `tipo_actividad_id` INT NOT NULL AUTO_INCREMENT,
   `tipo_actividad` VARCHAR(100) NULL DEFAULT NULL,
@@ -75,6 +81,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`actividad_usuarios`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`actividad_usuarios` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`actividad_usuarios` (
   `actividad_id` INT NOT NULL AUTO_INCREMENT,
   `tipo_actividad_id` INT NOT NULL,
@@ -102,6 +110,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`servicios_deportivos`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`servicios_deportivos` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`servicios_deportivos` (
   `servicio_deportivo_id` INT NOT NULL AUTO_INCREMENT,
   `servicio_deportivo` VARCHAR(50) NOT NULL,
@@ -116,6 +126,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`establecimientos_deportivos`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`establecimientos_deportivos` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`establecimientos_deportivos` (
   `establecimiento_deportivo_id` INT NOT NULL AUTO_INCREMENT,
   `establecimiento_deportivo` VARCHAR(100) NOT NULL,
@@ -142,6 +154,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`espacios_deportivos`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`espacios_deportivos` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`espacios_deportivos` (
   `espacio_deportivo_id` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(255) NOT NULL,
@@ -150,10 +164,10 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`espacios_deportivos` (
   `max_personas_por_carril` INT NULL DEFAULT NULL,
   `carriles_piscina` INT NULL DEFAULT NULL,
   `longitud_piscina` INT NULL DEFAULT NULL,
-  `profundidad_piscina` DECIMAL(4,2) NULL DEFAULT NULL,
+  `profundidad_piscina` DECIMAL(6,2) NULL DEFAULT NULL,
   `descripcion` TEXT NULL DEFAULT NULL,
   `aforo_gimnasio` INT NULL DEFAULT NULL,
-  `longitud_pista` DECIMAL(4,2) NULL DEFAULT NULL,
+  `longitud_pista` DECIMAL(6,2) NULL DEFAULT NULL,
   `carriles_pista` INT NULL DEFAULT NULL,
   `geolocalizacion` VARCHAR(255) NULL DEFAULT NULL,
   `estado_servicio` ENUM('operativo', 'mantenimiento', 'clausurado') NULL DEFAULT NULL,
@@ -162,6 +176,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`espacios_deportivos` (
   `horario_cierre` TIME NULL DEFAULT NULL,
   `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `precio_por_hora` DECIMAL(6,2) NULL,
   PRIMARY KEY (`espacio_deportivo_id`),
   INDEX `idx_servicio_estado_horario` (`servicio_deportivo_id` ASC, `estado_servicio` ASC, `horario_apertura` ASC, `horario_cierre` ASC) VISIBLE,
   INDEX `idx_piscina_info` (`establecimiento_deportivo_id` ASC, `carriles_piscina` ASC, `max_personas_por_carril` ASC, `estado_servicio` ASC) VISIBLE,
@@ -181,6 +196,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`asistencias`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`asistencias` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`asistencias` (
   `asistencia_id` INT NOT NULL AUTO_INCREMENT,
   `administrador_id` INT NOT NULL,
@@ -218,6 +235,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`avisos`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`avisos` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`avisos` (
   `aviso_id` INT NOT NULL AUTO_INCREMENT,
   `titulo_aviso` VARCHAR(50) NOT NULL,
@@ -233,6 +252,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`conversaciones`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`conversaciones` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`conversaciones` (
   `conversacion_id` INT NOT NULL AUTO_INCREMENT,
   `usuario_id` INT NULL DEFAULT NULL,
@@ -252,6 +273,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`mantenimientos`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`mantenimientos` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`mantenimientos` (
   `mantenimiento_id` INT NOT NULL AUTO_INCREMENT,
   `espacio_deportivo_id` INT NOT NULL,
@@ -272,6 +295,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`mensajes`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`mensajes` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`mensajes` (
   `mensaje_id` INT NOT NULL AUTO_INCREMENT,
   `conversacion_id` INT NULL DEFAULT NULL,
@@ -291,6 +316,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`metodos_pago`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`metodos_pago` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`metodos_pago` (
   `metodo_pago_id` INT NOT NULL AUTO_INCREMENT,
   `metodo_pago` VARCHAR(50) NOT NULL,
@@ -304,6 +331,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`tipos_notificaciones`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`tipos_notificaciones` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`tipos_notificaciones` (
   `tipo_notificacion_id` INT NOT NULL AUTO_INCREMENT,
   `tipo_notificacion` VARCHAR(50) NULL DEFAULT NULL,
@@ -317,6 +346,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`notificaciones`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`notificaciones` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`notificaciones` (
   `notificacion_id` INT NOT NULL AUTO_INCREMENT,
   `usuario_id` INT NOT NULL,
@@ -345,6 +376,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`reservas`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`reservas` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
   `reserva_id` INT NOT NULL AUTO_INCREMENT,
   `usuario_id` INT NOT NULL,
@@ -376,11 +409,13 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`pagos`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`pagos` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`pagos` (
   `pago_id` INT NOT NULL AUTO_INCREMENT,
   `reserva_id` INT NOT NULL,
   `metodo_pago_id` INT NOT NULL,
-  `monto` DECIMAL(4,2) NOT NULL,
+  `monto` DECIMAL(6,2) NOT NULL,
   `estado_transaccion` ENUM('completado', 'fallido', 'pendiente') NULL DEFAULT 'pendiente',
   `transaccion_id` VARCHAR(255) NULL DEFAULT NULL,
   `foto_comprobante_url` VARCHAR(255) NULL DEFAULT NULL,
@@ -405,16 +440,18 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`reembolsos`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`reembolsos` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`reembolsos` (
   `reembolso_id` INT NOT NULL AUTO_INCREMENT,
-  `monto` DECIMAL(4,2) NOT NULL,
+  `monto` DECIMAL(6,2) NOT NULL,
   `estado` ENUM('pendiente', 'completado', 'rechazado', 'cancelado') NULL DEFAULT 'pendiente',
   `motivo` TEXT NULL DEFAULT NULL,
   `fecha_reembolso` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `foto_comprobacion_reembolso_url` VARCHAR(255) NULL DEFAULT NULL,
   `detalles_transaccion` TEXT NULL DEFAULT NULL,
   `pago_id` INT NOT NULL,
-  PRIMARY KEY (`reembolso_id`, `pago_id`),
+  PRIMARY KEY (`reembolso_id`),
   INDEX `fk_reembolsos_pagos1_idx` (`pago_id` ASC) VISIBLE,
   CONSTRAINT `fk_reembolsos_pagos1`
     FOREIGN KEY (`pago_id`)
@@ -429,6 +466,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`resenias`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`resenias` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`resenias` (
   `resenia_id` INT NOT NULL AUTO_INCREMENT,
   `usuario_id` INT NOT NULL,
@@ -457,6 +496,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`observaciones`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`observaciones` ;
+
 CREATE TABLE IF NOT EXISTS `db_gtics`.`observaciones` (
   `observacion_id` INT NOT NULL,
   `fecha_creacion` TIMESTAMP NULL,
@@ -485,6 +526,9 @@ ENGINE = InnoDB;
 USE `db_gtics`;
 
 DELIMITER $$
+
+USE `db_gtics`$$
+DROP TRIGGER IF EXISTS `db_gtics`.`actualizar_estado_espacio_deportivo` $$
 USE `db_gtics`$$
 CREATE
 DEFINER=`root`@`localhost`
@@ -492,7 +536,7 @@ TRIGGER `db_gtics`.`actualizar_estado_espacio_deportivo`
 AFTER UPDATE ON `db_gtics`.`mantenimientos`
 FOR EACH ROW
 BEGIN
-    IF NEW.fecha_estimada_fin = CURRENT_TIMESTAMP THEN
+    IF NEW.fecha_estimada_fin <= CURRENT_TIMESTAMP THEN
         UPDATE espacios_deportivos
         SET estado_servicio = 'operativo'
         WHERE espacio_deportivo_id = NEW.espacio_deportivo_id;

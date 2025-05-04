@@ -23,7 +23,6 @@ public class Mensaje {
     private String textoMensaje;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('usuario', 'chatbot')")
     private Origen origen = Origen.usuario;
 
     @Column

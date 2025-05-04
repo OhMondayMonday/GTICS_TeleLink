@@ -24,11 +24,11 @@ public class Pago {
     @JoinColumn(name = "metodo_pago_id", nullable = false)
     private MetodoPago metodoPago;
 
-    @Column(nullable = false, precision = 4, scale = 2)
+    @Column(nullable = false, precision = 6, scale = 2)
     private BigDecimal monto;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado_transaccion", columnDefinition = "ENUM('completado', 'fallido', 'pendiente')")
+    @Column(name = "estado_transaccion")
     private EstadoTransaccion estadoTransaccion = EstadoTransaccion.pendiente;
 
     @Column(name = "transaccion_id", length = 255, unique = true)

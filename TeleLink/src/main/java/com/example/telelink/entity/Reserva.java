@@ -36,7 +36,6 @@ public class Reserva {
     private Integer numeroCarrilPista;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('pendiente', 'confirmada', 'cancelada')")
     private Estado estado = Estado.pendiente;
 
     @Column(name = "razon_cancelacion")

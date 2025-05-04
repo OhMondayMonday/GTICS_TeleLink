@@ -28,7 +28,6 @@ public class Notificacion {
     private String urlRedireccion;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('no_leido', 'leido')")
     private Estado estado = Estado.no_leido;
 
     @Column(name = "fecha_creacion", updatable = false)

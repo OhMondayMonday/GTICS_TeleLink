@@ -20,7 +20,6 @@ public class Reembolso {
     private BigDecimal monto;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('pendiente', 'completado', 'rechazado', 'cancelado')")
     private Estado estado = Estado.pendiente;
 
     private String motivo;

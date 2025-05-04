@@ -44,7 +44,7 @@ public class Usuario {
     private String fotoPerfilUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado_cuenta", columnDefinition = "ENUM('activo', 'eliminado', 'baneado', 'pendiente')")
+    @Column(name = "estado_cuenta")
     private EstadoCuenta estadoCuenta = EstadoCuenta.pendiente;
 
     @Column(name = "fecha_creacion", updatable = false)

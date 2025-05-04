@@ -36,11 +36,11 @@ public class Asistencia {
     private LocalDateTime registroSalida;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado_entrada", columnDefinition = "ENUM('puntual', 'tarde', 'pendiente', 'inasistencia')")
+    @Column(name = "estado_entrada")
     private EstadoEntrada estadoEntrada = EstadoEntrada.pendiente;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado_salida", columnDefinition = "ENUM('realizado', 'pendiente', 'inasistencia')")
+    @Column(name = "estado_salida")
     private EstadoSalida estadoSalida;
 
     @Column(length = 100)

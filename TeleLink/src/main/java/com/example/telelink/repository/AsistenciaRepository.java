@@ -23,4 +23,12 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
             @Param("userId") int userId);
+
+    @Query("SELECT a FROM Asistencia a WHERE a.coordinador.usuarioId = :coordinadorId " +
+            "AND a.horarioEntrada <= :horarioSalida " +
+            "AND a.horarioSalida >= :horarioEntrada")
+    List<Asistencia> findOverlappingAsistencias(
+            @Param("coordinadorId") int coordinadorId,
+            @Param("horarioEntrada") LocalDateTime horarioEntrada,
+            @Param("horarioSalida") LocalDateTime horarioSalida);
 }
