@@ -2,6 +2,7 @@ package com.example.telelink.controller;
 
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -20,8 +22,31 @@ public class CoordinadorController {
     @Autowired
     private AsistenciaRepository asistenciaRepository;
 
+    @Autowired
+    private EstablecimientoDeportivoRepository establecimientoDeportivoRepository;
+
+    @Autowired
+    private ServicioDeportivoRepository servicioDeportivoRepository;
+
+    @Autowired
+    private EspacioDeportivoRepository espacioDeportivoRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     @GetMapping("/inicio")
-    public String mostrarInicio(Model model) {
+    public String mostrarInicio(Model model, HttpSession session) {
+        // Simulamos el usuario logueado con userId = 6 (reemplazar con autenticación real en producción)
+        Integer userId = 6;
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Almacenar el objeto Usuario en la sesión
+        session.setAttribute("currentUser", usuario);
+
+        // Pasar el userId al modelo para la vista
+        model.addAttribute("currentUserId", usuario.getUsuarioId());
+
         return "Coordinador/inicio";
     }
 
@@ -75,17 +100,12 @@ public class CoordinadorController {
         return ResponseEntity.ok(asistencias);
     }
 
-    @Autowired
-    private EstablecimientoDeportivoRepository establecimientoDeportivoRepository;
-
-    @Autowired
-    private ServicioDeportivoRepository servicioDeportivoRepository;
-
-    @Autowired
-    private EspacioDeportivoRepository espacioDeportivoRepository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    // Endpoint para obtener estadísticas de asistencias (opcional, si prefieres AJAX para el donut chart)
+    @GetMapping("/estadisticas-asistencias")
+    public ResponseEntity<Map<String, Long>> getEstadisticasAsistencias(@RequestParam int userId) {
+        Map<String, Long> estadisticas = asistenciaRepository.countByEstadoEntrada(userId);
+        return ResponseEntity.ok(estadisticas);
+    }
 
     /*
     @GetMapping("/calendarioCoordi")
