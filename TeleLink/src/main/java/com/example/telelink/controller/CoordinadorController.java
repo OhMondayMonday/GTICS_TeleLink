@@ -87,6 +87,7 @@ public class CoordinadorController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    /*
     @GetMapping("/calendarioCoordi")
     public String mostrarCalendario(Model model) {
         return "Coordinador/calendar";
@@ -196,5 +197,5 @@ public class CoordinadorController {
         public String getObservacionAsistencia() { return observacionAsistencia; }
         public void setObservacionAsistencia(String observacionAsistencia) { this.observacionAsistencia = observacionAsistencia; }
     }
-
+    */
 }

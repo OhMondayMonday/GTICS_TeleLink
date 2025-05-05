@@ -179,7 +179,7 @@ chart.render();
         }
 
         function obtenerUserIdDeSesion() {
-            return 11; // Valor temporal para pruebas
+            return 6; // Valor temporal para pruebas
         }
 
         // Actualizar cada 5 minutos

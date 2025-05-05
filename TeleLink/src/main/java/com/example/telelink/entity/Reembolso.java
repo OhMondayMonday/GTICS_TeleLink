@@ -33,7 +33,7 @@ public class Reembolso {
     @Column(name = "detalles_transaccion")
     private String detallesTransaccion;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "pago_id", nullable = false)
     private Pago pago;
 

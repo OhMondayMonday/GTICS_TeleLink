@@ -141,3 +141,23 @@ INSERT INTO asistencias (
  TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), '15:00:00'), 
  TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), '19:00:00'), 
  'inasistencia', 'inasistencia');
+
+-- Eventos programados
+
+DELIMITER $$
+
+CREATE EVENT `actualizar_asistencias_inasistencia`
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    UPDATE asistencias
+    SET 
+        estado_entrada = 'inasistencia',
+        estado_salida = 'inasistencia'
+    WHERE 
+        horario_salida < CURRENT_TIMESTAMP
+        AND estado_entrada = 'pendiente';
+END$$
+
+DELIMITER ;
