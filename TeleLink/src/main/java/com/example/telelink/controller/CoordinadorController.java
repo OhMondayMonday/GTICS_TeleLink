@@ -46,47 +46,64 @@ public class CoordinadorController {
 
         // Pasar el userId al modelo para la vista
         model.addAttribute("currentUserId", usuario.getUsuarioId());
+        model.addAttribute("usuario", usuario);
 
         return "Coordinador/inicio";
     }
 
     @GetMapping("/asistencia")
-    public String mostrarAsistencia(Model model) {
+    public String mostrarAsistencia(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        model.addAttribute("usuario", usuario);
         return "Coordinador/asistencia";
     }
 
     @GetMapping("/notificaciones")
-    public String mostrarNotificaciones(Model model) {
+    public String mostrarNotificaciones(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        model.addAttribute("usuario", usuario);
         return "Coordinador/notificaciones";
     }
 
     @GetMapping("/observaciones")
-    public String mostrarObservaciones(Model model) {
+    public String mostrarObservaciones(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        model.addAttribute("usuario", usuario);
         return "Coordinador/observaciones";
     }
 
     @GetMapping("/perfil")
-    public String mostrarPerfil(Model model) {
+    public String mostrarPerfil(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        model.addAttribute("usuario", usuario);
         return "Coordinador/perfil";
     }
 
     @GetMapping("/espacios-deportivos")
-    public String mostrarEspaciosDeportivos(Model model) {
+    public String mostrarEspaciosDeportivos(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        model.addAttribute("usuario", usuario);
         return "Coordinador/espaciosDeportivos";
     }
 
     @GetMapping("/espacioDetalle")
-    public String mostrarDetalleEspacio(Model model) {
+    public String mostrarDetalleEspacio(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        model.addAttribute("usuario", usuario);
         return "Coordinador/espacioDetalle";
     }
 
     @GetMapping("/observacionDetalle")
-    public String mostrarDetalleObservacion(Model model) {
+    public String mostrarDetalleObservacion(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        model.addAttribute("usuario", usuario);
         return "Coordinador/observacionDetalle";
     }
 
     @GetMapping("/observacionNewForm")
-    public String mostrarNewFormObservacion(Model model) {
+    public String mostrarNewFormObservacion(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        model.addAttribute("usuario", usuario);
         return "Coordinador/observacionNewForm";
     }
 

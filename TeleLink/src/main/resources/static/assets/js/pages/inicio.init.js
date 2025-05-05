@@ -64,42 +64,41 @@ function loadDonutChartData(userId) {
     });
 }
 
-// Calendario
-!function ($) {
+// Calendario con carga dinámica y formateo en frontend
+!function(v){
     "use strict";
 
-    var CalendarPage = function () {};
+    function e(){}
 
-    CalendarPage.prototype.init = function () {
+    e.prototype.init=function(){
+
         // Cargar donut chart
         var userId = obtenerUserIdDeSesion();
         loadDonutChartData(userId);
 
-        var calendarEl = document.getElementById('calendar');
+        var calendarEl = document.getElementById("calendar");
 
+        // Formateador de hora
         function formatTime(dateTime) {
             return new Date(dateTime).toLocaleTimeString('es-PE', {
                 hour: '2-digit',
                 minute: '2-digit',
-                hour12: true
+                hour12: false
             });
         }
 
+        // Clase CSS según estado
         function getEventClass(estado) {
-            switch (estado) {
-                case 'puntual':
-                    return 'bg-success';
-                case 'tarde':
-                    return 'bg-warning';
-                case 'pendiente':
-                    return 'bg-info';
-                case 'inasistencia':
-                    return 'bg-danger';
-                default:
-                    return 'bg-primary';
+            switch(estado) {
+                case 'puntual': return 'bg-success';
+                case 'tarde': return 'bg-warning';
+                case 'pendiente': return 'bg-info';
+                case 'inasistencia': return 'bg-danger';
+                default: return 'bg-primary';
             }
         }
 
+        // Formateador del título del evento
         function formatEventTitle(asistencia) {
             const espacio = asistencia.espacioDeportivo;
             const establecimiento = espacio.establecimientoDeportivo;
@@ -111,16 +110,23 @@ function loadDonutChartData(userId) {
             ].join('\n');
         }
 
+        // Configuración del calendario
         var calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: ['bootstrap', 'interaction', 'dayGrid', 'timeGrid'],
-            defaultView: 'dayGridMonth',
-            themeSystem: 'bootstrap',
-            header: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            },
+            plugins: ["bootstrap", "interaction", "dayGrid", "timeGrid"],
+            editable: false,
+            droppable: false,
+            selectable: false,
+            defaultView: "timeGridWeek",
+            themeSystem: "bootstrap",
+            allDaySlot: false,
             locale: 'es',
+            slotMinTime: "06:00:00",
+            slotMaxTime: "22:00:00",
+            header: {
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay"
+            },
             buttonText: {
                 today: 'Hoy',
                 month: 'Mes',
@@ -128,14 +134,15 @@ function loadDonutChartData(userId) {
                 day: 'Día'
             },
             eventTimeFormat: {
-                hour: 'numeric',
+                hour: '2-digit',
                 minute: '2-digit',
-                meridiem: 'short'
+                hour12: false
             },
-            events: function (fetchInfo, successCallback, failureCallback) {
+            events: function(fetchInfo, successCallback, failureCallback) {
+                // Obtener el userId del usuario logueado (debes implementar esto)
                 const userId = obtenerUserIdDeSesion();
 
-                console.log('Buscando asistencias entre:', fetchInfo.start, 'y', fetchInfo.end, 'para userId:', userId);
+                console.log('Buscando asistencias entre:', fetchInfo.start, 'y', fetchInfo.end);
 
                 $.ajax({
                     url: '/coordinador/calendario',
@@ -145,7 +152,7 @@ function loadDonutChartData(userId) {
                         end: fetchInfo.end.toISOString(),
                         userId: userId
                     },
-                    success: function (asistencias) {
+                    success: function(asistencias) {
                         console.log('Asistencias recibidas:', asistencias);
 
                         const eventos = asistencias.map(asistencia => {
@@ -170,13 +177,14 @@ function loadDonutChartData(userId) {
                         console.log('Eventos generados:', eventos);
                         successCallback(eventos);
                     },
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         console.error('Error al obtener asistencias:', error);
                         failureCallback(error);
                     }
                 });
             },
-            eventDidMount: function (info) {
+            eventRender: function(info) {
+                // Tooltip con mejor formato
                 $(info.el).tooltip({
                     title: info.event.title.replace(/\n/g, '<br>'),
                     placement: 'top',
@@ -185,7 +193,7 @@ function loadDonutChartData(userId) {
                     container: 'body'
                 });
             },
-            eventClick: function (info) {
+            eventClick: function(info) {
                 info.jsEvent.preventDefault();
 
                 const event = info.event;
@@ -193,7 +201,7 @@ function loadDonutChartData(userId) {
                     <div class="p-3">
                         <h5>${event.extendedProps.espacio}</h5>
                         <hr>
-                        <p><strong>Horario:</strong> ${formatTime(event.start)} - ${formatTime(event.end)}</p>
+                        <p><strong>Horario:</strong> ${event.start.toLocaleTimeString('es-PE')} - ${event.end.toLocaleTimeString('es-PE')}</p>
                         <p><strong>Coordinador:</strong> ${event.extendedProps.coordinador}</p>
                         <p><strong>Estado:</strong> ${formatEstado(event.extendedProps.estado)}</p>
                     </div>
@@ -212,6 +220,7 @@ function loadDonutChartData(userId) {
 
         calendar.render();
 
+        // Función para formatear el estado
         function formatEstado(estado) {
             const estados = {
                 'puntual': 'Puntual',
@@ -226,14 +235,19 @@ function loadDonutChartData(userId) {
             const userIdEl = document.getElementById('currentUserId');
             return userIdEl ? parseInt(userIdEl.value) : 6; // Fallback a 6
         }
-    };
 
-    $.CalendarPage = new CalendarPage();
-    $.CalendarPage.Constructor = CalendarPage;
+        // Actualizar cada 5 minutos
+        setInterval(function() {
+            console.log('Actualizando calendario...');
+            calendar.refetchEvents();
+        }, 300000);
+    },
 
-}(window.jQuery);
+        v.CalendarPage=new e,
+        v.CalendarPage.Constructor=e
+}(window.jQuery),
 
-$(function () {
-    "use strict";
-    $.CalendarPage.init();
-});
+    function(){
+        "use strict";
+        window.jQuery.CalendarPage.init();
+    }();

@@ -96,8 +96,8 @@ INSERT INTO usuarios (
     dni, 
     estado_cuenta
 ) VALUES 
-('Carlos', 'Mendoza', 'coordinador1@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 2, '02345678', 'activo'),
-('Laura', 'García', 'coordinador2@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 2, '87654321', 'activo');
+('Carlos', 'Mendoza', 'coordinador1@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 4, '02345678', 'activo'),
+('Laura', 'García', 'coordinador2@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 4, '87654321', 'activo');
 
 -- 6. Insertar asistencias para la fecha actual y días cercanos
 INSERT INTO asistencias (
