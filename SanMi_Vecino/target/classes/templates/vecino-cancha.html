@@ -720,11 +720,11 @@
 
                                                     if (tarjetasPagina.length === 0) {
                                                         contenedor.innerHTML = `
-            <div class="col-12 text-center p-5">
-                <h4>No se encontraron resultados para tu búsqueda</h4>
-                <p>Intenta cambiar los filtros o ajustar el rango de precios.</p>
-            </div>
-        `;
+                                                        <div class="col-12 text-center p-5">
+                                                            <h4>No se encontraron resultados para tu búsqueda</h4>
+                                                            <p>Intenta cambiar los filtros o ajustar el rango de precios.</p>
+                                                        </div>
+                                                    `;
                                                     } else {
                                                         tarjetasPagina.forEach(t => {
                                                             let badgeClass = "bg-info";
@@ -748,29 +748,29 @@
 
                                                             // Crear tarjeta con diseño mejorado
                                                             contenedor.innerHTML += `
-                <div class="col-xl-4 col-sm-6 mb-3">
-                    <div class="product-box border p-3 rounded shadow-sm">
-                        <div class="product-img position-relative">
-                            <div class="product-ribbon badge bg-success">Disponible</div>
-                            <span class="badge ${badgeClass} position-absolute top-0 end-0 m-2">${t.tipo}</span>
-                            <img src="${t.imagen}" alt="${t.titulo}" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
-                        </div>
-                        <div class="text-center p-2">
-                            <h5 class="font-size-16 mt-3"><a href="#" class="text-reset">${t.titulo}</a></h5>
-                            <p class="text-muted mb-2">${t.descripcion}</p>
-                            ${caracteristicasHTML}
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span><i class="mdi mdi-account-group me-1"></i> ${t.capacidad}</span>
-                                <span><i class="mdi mdi-clock-outline me-1"></i> ${t.horario || 'Horario flexible'}</span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="text-primary">${t.precio}</h5>
-                                <a href="${t.enlace}" class="btn btn-primary">Reservar</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+                                                            <div class="col-xl-4 col-sm-6 mb-3">
+                                                                <div class="product-box border p-3 rounded shadow-sm">
+                                                                    <div class="product-img position-relative">
+                                                                        <div class="product-ribbon badge bg-success">Disponible</div>
+                                                                        <span class="badge ${badgeClass} position-absolute top-0 end-0 m-2">${t.tipo}</span>
+                                                                        <img src="${t.imagen}" alt="${t.titulo}" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+                                                                    </div>
+                                                                    <div class="text-center p-2">
+                                                                        <h5 class="font-size-16 mt-3"><a href="#" class="text-reset">${t.titulo}</a></h5>
+                                                                        <p class="text-muted mb-2">${t.descripcion}</p>
+                                                                        ${caracteristicasHTML}
+                                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                            <span><i class="mdi mdi-account-group me-1"></i> ${t.capacidad}</span>
+                                                                            <span><i class="mdi mdi-clock-outline me-1"></i> ${t.horario || 'Horario flexible'}</span>
+                                                                        </div>
+                                                                        <div class="d-flex justify-content-between align-items-center">
+                                                                            <h5 class="text-primary">${t.precio}</h5>
+                                                                            <a href="${t.enlace}" class="btn btn-primary">Reservar</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        `;
                                                         });
                                                     }
 
@@ -793,10 +793,10 @@
                                                     pageInfo.innerHTML = `Página <span class="fw-bold">${paginaActual}</span> de <span class="fw-bold">${totalPaginas}</span>`;
 
                                                     paginacion.innerHTML = `
-        <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
-            <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual - 1}); return false;"><i class="mdi mdi-chevron-left"></i></a>
-        </li>
-    `;
+                                                        <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
+                                                            <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual - 1}); return false;"><i class="mdi mdi-chevron-left"></i></a>
+                                                        </li>
+                                                    `;
 
                                                     // Mostrar máximo 5 páginas en la paginación
                                                     const maxPaginas = 5;
@@ -809,17 +809,17 @@
 
                                                     for (let i = startPage; i <= endPage; i++) {
                                                         paginacion.innerHTML += `
-            <li class="page-item ${i === paginaActual ? 'active' : ''}">
-                <a href="#" class="page-link" onclick="cambiarPagina(${i}); return false;">${i}</a>
-            </li>
-        `;
+                                                        <li class="page-item ${i === paginaActual ? 'active' : ''}">
+                                                            <a href="#" class="page-link" onclick="cambiarPagina(${i}); return false;">${i}</a>
+                                                        </li>
+                                                    `;
                                                     }
 
                                                     paginacion.innerHTML += `
-        <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
-            <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual + 1}); return false;"><i class="mdi mdi-chevron-right"></i></a>
-        </li>
-    `;
+                                                        <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
+                                                            <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual + 1}); return false;"><i class="mdi mdi-chevron-right"></i></a>
+                                                        </li>
+                                                    `;
                                                 }
 
                                                 // Función para cambiar de página
@@ -897,9 +897,6 @@
                                                     mostrarContadorResultados(tarjetas.length);
                                                 });
                                             </script>
-
-
-
                                         </div>
                                     </div>
                                 </div>
