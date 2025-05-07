@@ -26,7 +26,7 @@ public class Conversacion {
     private LocalDateTime finConversacion;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('en_proceso', 'finalizada')")
+    @Column(name="estado")
     private Estado estado = Estado.en_proceso;
 
     public enum Estado {

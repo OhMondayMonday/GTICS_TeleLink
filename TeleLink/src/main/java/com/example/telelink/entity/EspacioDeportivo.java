@@ -37,7 +37,7 @@ public class EspacioDeportivo {
     @Column(name = "longitud_piscina")
     private Integer longitudPiscina;
 
-    @Column(name = "profundidad_piscina", precision = 4, scale = 2)
+    @Column(name = "profundidad_piscina", precision = 6, scale = 2)
     private BigDecimal profundidadPiscina;
 
     @Lob
@@ -46,7 +46,7 @@ public class EspacioDeportivo {
     @Column(name = "aforo_gimnasio")
     private Integer aforoGimnasio;
 
-    @Column(name = "longitud_pista", precision = 4, scale = 2)
+    @Column(name = "longitud_pista", precision = 6, scale = 2)
     private BigDecimal longitudPista;
 
     @Column(name = "carriles_pista")
@@ -56,7 +56,7 @@ public class EspacioDeportivo {
     private String geolocalizacion;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado_servicio", columnDefinition = "ENUM('operativo', 'mantenimiento', 'clausurado')")
+    @Column(nullable = false, name = "estado_servicio")
     private EstadoServicio estadoServicio;
 
     @Column(name = "numero_soporte", length = 9)
@@ -73,6 +73,9 @@ public class EspacioDeportivo {
 
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
+
+    @Column(name="precio_por_hora", precision = 6, scale = 2)
+    private BigDecimal precioPorHora;
 
     public enum EstadoServicio {
         operativo, mantenimiento, clausurado

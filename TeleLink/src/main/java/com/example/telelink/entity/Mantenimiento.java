@@ -29,7 +29,6 @@ public class Mantenimiento {
     private LocalDateTime fechaEstimadaFin;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('pendiente', 'en_curso', 'finalizado')")
     private Estado estado;
 
     public enum Estado {

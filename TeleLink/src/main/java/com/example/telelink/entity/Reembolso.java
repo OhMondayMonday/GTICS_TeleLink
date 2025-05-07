@@ -20,7 +20,6 @@ public class Reembolso {
     private BigDecimal monto;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('pendiente', 'completado', 'rechazado', 'cancelado')")
     private Estado estado = Estado.pendiente;
 
     private String motivo;
@@ -34,7 +33,7 @@ public class Reembolso {
     @Column(name = "detalles_transaccion")
     private String detallesTransaccion;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "pago_id", nullable = false)
     private Pago pago;
 

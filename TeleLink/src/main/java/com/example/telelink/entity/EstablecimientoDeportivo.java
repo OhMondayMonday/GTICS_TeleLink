@@ -47,7 +47,6 @@ public class EstablecimientoDeportivo {
     private LocalTime horarioCierre;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('activo', 'clausurado', 'mantenimiento')")
     private Estado estado = Estado.activo;
 
     @Column(name = "motivo_mantenimiento")
