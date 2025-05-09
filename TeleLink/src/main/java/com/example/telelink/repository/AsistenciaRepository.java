@@ -47,6 +47,8 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
         return estadisticas;
     }
 
+    List<Asistencia> findByCoordinador_UsuarioId(Integer usuarioId);
+
     /*
     @Query("SELECT a FROM Asistencia a WHERE a.coordinador.usuarioId = :coordinadorId " +
             "AND a.horarioEntrada <= :horarioSalida " +

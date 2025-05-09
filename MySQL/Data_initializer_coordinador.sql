@@ -195,3 +195,22 @@ WHERE espacio_deportivo_id = 3;
 UPDATE espacios_deportivos 
 SET estado_servicio = 'clausurado'
 WHERE espacio_deportivo_id = 4;
+
+-- Nuevas asistencias
+INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, fecha_creacion)
+VALUES (6, 1, 1, '2025-05-09 08:00:00', '2025-05-09 15:00:00', '2025-05-09 07:00:00');
+
+INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, geolocalizacion, fecha_creacion)
+VALUES (6, 1, 1, '2025-05-09 08:00:00', '2025-05-09 18:00:00', '-12.046374,-77.042793', '2025-05-09 16:00:00');
+
+
+-- coordenadas para los espacios deportivos
+UPDATE espacios_deportivos 
+SET geolocalizacion = 
+    CASE 
+        WHEN espacio_deportivo_id = 1 THEN '-12.098145,-77.035672' -- Piscina Olímpica (San Isidro)
+        WHEN espacio_deportivo_id = 2 THEN '-12.145123,-77.002345' -- Cancha de Fútbol 1 (Surco)
+        WHEN espacio_deportivo_id = 3 THEN '-12.076543,-77.054321' -- Pista de Atletismo (Jesús María)
+        WHEN espacio_deportivo_id = 4 THEN '-12.121987,-77.029876' -- Gimnasio Principal (Miraflores)
+    END
+WHERE espacio_deportivo_id IN (1, 2, 3, 4);

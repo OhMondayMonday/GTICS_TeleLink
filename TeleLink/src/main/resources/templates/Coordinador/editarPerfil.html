@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
     <head th:replace="~{fragments/topbarCoordinador :: head('Editar Perfil')}"></head>
-    <body data-sidebar="dark">
+    <body data-sidebar="dark" class="vertical-collpsed">
         <div id="layout-wrapper">
             <div th:replace="fragments/topbarCoordinador :: topbar('Editar Perfil')"></div>
             <div th:replace="fragments/sidebarCoordinador :: sidebar('perfil')"></div>
@@ -64,6 +64,6 @@
         <div class="sidebar-overlay"></div>
 
         <div th:replace="fragments/topbarCoordinador :: scripts"></div>
-        <script th:src="@{/admin/assets/js/app.js}"></script>
+        <script th:src="@{/superadmin/assets/js/app.js}"></script>
     </body>
 </html>

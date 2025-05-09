@@ -13,6 +13,7 @@
 
     import java.text.DecimalFormat;
     import java.time.LocalDateTime;
+    import java.time.format.DateTimeFormatter;
     import java.util.HashMap;
     import java.util.List;
     import java.util.Map;
@@ -66,7 +67,58 @@
         @GetMapping("/asistencia")
         public String mostrarAsistencia(Model model, HttpSession session) {
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            if (usuario == null) {
+                throw new IllegalArgumentException("Usuario no encontrado en la sesión");
+            }
             model.addAttribute("usuario", usuario);
+
+            // Obtener todas las asistencias del coordinador actual
+            List<Asistencia> asistencias = asistenciaRepository.findByCoordinador_UsuarioId(usuario.getUsuarioId());
+            model.addAttribute("asistencias", asistencias);
+
+            // Buscar una asistencia activa (hora actual dentro de horarioEntrada - 15 min y horarioSalida + 15 min)
+            LocalDateTime ahora = LocalDateTime.now();
+            Asistencia asistenciaActiva = null;
+            for (Asistencia asistencia : asistencias) {
+                LocalDateTime inicioRango = asistencia.getHorarioEntrada().minusMinutes(15);
+                LocalDateTime finRango = asistencia.getHorarioSalida().plusMinutes(15);
+                if (ahora.isAfter(inicioRango) && ahora.isBefore(finRango)) {
+                    asistenciaActiva = asistencia;
+                    break;
+                }
+            }
+
+            // Si hay asistencia activa, preparar datos para "Asignación actual"
+            if (asistenciaActiva != null) {
+                // Formatear horario
+                DateTimeFormatter formatterHora = DateTimeFormatter.ofPattern("h:mm a");
+                String horario = asistenciaActiva.getHorarioEntrada().format(formatterHora) + " - " +
+                        asistenciaActiva.getHorarioSalida().format(formatterHora);
+
+                // Obtener establecimiento y servicio deportivo
+                String establecimiento = asistenciaActiva.getEspacioDeportivo()
+                        .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre();
+                String servicioDeportivo = asistenciaActiva.getEspacioDeportivo()
+                        .getServicioDeportivo().getServicioDeportivo();
+
+                // Agregar geolocalización para el mapa
+                String geolocalizacion = asistenciaActiva.getEspacioDeportivo().getGeolocalizacion(); // Valor por defecto si no hay asistencia activa
+                System.out.println(geolocalizacion);
+
+                // Agregar al modelo
+                model.addAttribute("asistenciaActiva", asistenciaActiva);
+                model.addAttribute("horario", horario);
+                model.addAttribute("establecimiento", establecimiento);
+                model.addAttribute("servicioDeportivo", servicioDeportivo);
+                model.addAttribute("geolocalizacion", geolocalizacion);
+            } else {
+                model.addAttribute("asistenciaActiva", null);
+                model.addAttribute("horario", "--");
+                model.addAttribute("establecimiento", "--");
+                model.addAttribute("servicioDeportivo", "--");
+                model.addAttribute("geolocalizacion", null);
+            }
+
             return "Coordinador/asistencia";
         }
 
@@ -191,9 +243,12 @@
         }
 
         @GetMapping("/observacionNewForm")
-        public String mostrarNewFormObservacion(Model model, HttpSession session) {
+        public String mostrarNewFormObservacion(
+                @RequestParam(value = "asistenciaId", required = false) Integer asistenciaId,
+                Model model, HttpSession session) {
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
             model.addAttribute("usuario", usuario);
+            model.addAttribute("asistenciaId", asistenciaId);
             return "Coordinador/observacionNewForm";
         }
 
