@@ -40,7 +40,7 @@ public class ReservaController {
     @Autowired
     private ReservaService reservaService;
 
-    @PostMapping
+    @PostMapping("/guardar")
     public ResponseEntity<Map<String, Object>> guardarReserva(@RequestBody Reserva reserva) {
         try {
             // Guardar la reserva en la base de datos
@@ -112,7 +112,7 @@ public class ReservaController {
     /**
      * Crea una nueva reserva
      */
-    @PostMapping
+    @PostMapping("/crear")
     public ResponseEntity<?> crearReserva(@RequestBody ReservaDTO reservaDTO) {
         try {
             // Obtener el usuario autenticado
@@ -122,9 +122,9 @@ public class ReservaController {
                         .body(Map.of("error", "Usuario no autenticado"));
             }
 
-            // Obtener el usuario de la base de datos
+            //Obtener el usuario de la base de datos
             String username = auth.getName();
-            Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+            Optional<Usuario> usuarioOpt = usuarioRepository.findByNombres(username);
             if (!usuarioOpt.isPresent()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Usuario no encontrado"));

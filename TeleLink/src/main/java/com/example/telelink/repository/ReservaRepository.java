@@ -28,6 +28,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     List<Reserva> findAll();
 
     // Método para obtener reservas por usuario (si es necesario)
-    List<Reserva> findByUsuario(String usuario);
+    List<Reserva> findByUsuario_Nombres(String usuario);
 
 }

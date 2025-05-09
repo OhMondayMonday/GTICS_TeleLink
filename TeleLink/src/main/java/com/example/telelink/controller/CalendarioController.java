@@ -37,7 +37,7 @@ public class CalendarioController {
         return "vecino-calendario"; // Redirige a la vista del calendario
     }
 
-    @PostMapping("/guardarReserva")
+    /*@PostMapping("/guardarReserva")
     public String guardarReserva(@RequestParam("startDate") String startDate,
                                  @RequestParam("endDate") String endDate,
                                  Principal principal) {
@@ -58,7 +58,7 @@ public class CalendarioController {
         reservaService.guardarReserva(reserva);
 
         return "redirect:/vecino/reservas"; // Redirige a la página de reservas
-    }
+    }*/
 
     @GetMapping("/vecino/reservas")
     public String verReservas(Model model, Principal principal) {
