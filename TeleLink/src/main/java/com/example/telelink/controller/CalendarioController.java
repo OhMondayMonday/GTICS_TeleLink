@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static com.example.telelink.entity.Mensaje.Origen.usuario;
-
 @Controller
 public class CalendarioController {
 
@@ -27,7 +25,6 @@ public class CalendarioController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-
 
     @GetMapping("/vecino/calendario")
     public String mostrarCalendario(Model model) {
