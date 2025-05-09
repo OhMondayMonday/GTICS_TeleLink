@@ -2,10 +2,13 @@ package com.example.telelink.controller;
 
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,58 +45,103 @@ public class AdminController {
         return "admin/establecimientoList";
     }
 
+    // Modificacion
     @GetMapping("establecimientos/nuevo")
-    public String crearEstablecimiento(Model model) {
-        model.addAttribute("establecimiento", new EstablecimientoDeportivo());
+    public String crearEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento, Model model) {
         return "admin/establecimientoForm";
     }
 
-    @PostMapping("establecimientos/guardar")
-    public String guardarEstablecimiento(EstablecimientoDeportivo establecimiento) {
-        // Lógica para guardar el establecimiento en la base de datos
-        establecimientoDeportivoRepository.save(establecimiento);
-        return "redirect:/admin/establecimientos"; // Redirige a la lista de establecimientos
-    }
 
     @GetMapping("establecimientos/info")
-    public String infoEstablecimiento(@RequestParam("id") Integer id, Model model) {
-        EstablecimientoDeportivo establecimientoDeportivo = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
-        model.addAttribute("establecimiento", establecimientoDeportivo);
+    public String infoEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento, @RequestParam("id") Integer id, Model model) {
+        establecimiento = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
+        model.addAttribute("establecimiento", establecimiento);
         return "admin/establecimientoInfo";
     }
 
+
+    // Recepciona un establecimiento con una id en específico
     @GetMapping("establecimientos/editar")
-    public String editarEstablecimiento(@RequestParam("id") Integer id, Model model) {
-        EstablecimientoDeportivo establecimientoDeportivo = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
-        model.addAttribute("establecimiento", establecimientoDeportivo);
-        return "admin/establecimientoEditForm";
+    public String editarEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento, @RequestParam("id") Integer id, Model model) {
+
+        Optional<EstablecimientoDeportivo> optEstablecimiento = Optional.ofNullable(establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id));
+
+        if(optEstablecimiento.isPresent()) {
+
+            establecimiento = optEstablecimiento.get();
+            model.addAttribute("establecimiento", establecimiento);
+            return "admin/establecimientoForm";
+
+        }
+
+        else {
+            return "redirect:/admin/establecimientos";
+        }
+    }
+
+    @PostMapping("establecimientos/guardar")
+    public String guardarEstablecimiento(@ModelAttribute("establecimiento") @Valid EstablecimientoDeportivo establecimiento, BindingResult bindingResult, RedirectAttributes attr) {
+        // Lógica para guardar el establecimiento en la base de datos
+
+        if (bindingResult.hasErrors()) {
+            return "admin/establecimientoForm";
+
+        }
+
+        else {
+            if (establecimiento.getEstablecimientoDeportivoId() == null || establecimiento.getEstablecimientoDeportivoId() == 0) {
+                attr.addFlashAttribute("msg", "Establecimiento creado satisfactoriamente Owo");
+            }
+
+            else {
+                attr.addFlashAttribute("msg", "Establecimiento editado satisfactoriamente :D");
+            }
+            establecimientoDeportivoRepository.save(establecimiento);
+            return "redirect:/admin/establecimientos"; // Redirige a la lista de establecimientos
+        }
+
     }
 
 
-
+    // Sección: Espacios
 
     @GetMapping("espacios/nuevo")
-    public String crearEspacioDeportivo(Model model) {
-        model.addAttribute("espacioDeportivo", new EspacioDeportivo());
+    public String crearEspacioDeportivo(@ModelAttribute("espacio") EspacioDeportivo espacio, Model model) {
+
         model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
         model.addAttribute("servicios", servicioDeportivoRepository.findAll());
         return "admin/espacioForm";
     }
 
     @PostMapping("espacios/guardar")
-    public String guardarEspacioDeportivo(EspacioDeportivo espacioDeportivo) {
-        // Aquí no es necesario hacer los @RequestParam, ya que Thymeleaf vincula los campos al objeto espacioDeportivo.
-        espacioDeportivo.setFechaCreacion(LocalDateTime.now());
-        espacioDeportivo.setFechaActualizacion(LocalDateTime.now());
+    public String guardarEspacioDeportivo(@ModelAttribute("espacio") @Valid EspacioDeportivo espacio, BindingResult bindingResult, Model model, RedirectAttributes attr) {
 
-        // Guardar el espacio en la base de datos
-        espacioDeportivoRepository.save(espacioDeportivo);
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
+            model.addAttribute("servicios", servicioDeportivoRepository.findAll());
+            return "admin/espacioForm";
 
-        return "redirect:/admin/establecimientos"; // Redirigir al listado de espacios
+        }
+
+        else {
+            if (espacio.getEspacioDeportivoId() == null || espacio.getEspacioDeportivoId() == 0) {
+                attr.addFlashAttribute("msg", "Espacio creado satisfactoriamente Owo");
+            }
+
+            else {
+                attr.addFlashAttribute("msg", "Establecimiento ???? satisfactoriamente :D");
+            }
+            // Aquí no es necesario hacer los @RequestParam, ya que Thymeleaf vincula los campos al objeto espacioDeportivo.
+            espacio.setFechaCreacion(LocalDateTime.now());
+            espacio.setFechaActualizacion(LocalDateTime.now());
+            espacioDeportivoRepository.save(espacio);
+            return "redirect:/admin/establecimientos"; // Redirige a la lista de establecimientos
+        }
+
     }
 
 
-
+    // Sección: Coordinadores
 
     @GetMapping("coordinadores")
     public String listarCoordinadores(Model model) {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head th:replace="~{admin/fragments/headPage.html :: headPage(title='Perfil')}"></head>
-<body data-sidebar="dark">
+<body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
 
     <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Perfil')}"></div>
@@ -143,7 +143,7 @@
     </div>
 </div>
 
-<div class="rightbar-overlay"></div>
+<div class="sidebar-overlay"></div>
 <div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
 </body>
 </html>
