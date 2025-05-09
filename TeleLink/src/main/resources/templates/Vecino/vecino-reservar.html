@@ -9,6 +9,9 @@
     <meta content="Themesdesign" name="author" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="assets/images/logo-San-Miguel-1.webp">
+
+
+
     <!-- twitter-bootstrap-wizard css -->
     <link rel="stylesheet" href="assets/libs/twitter-bootstrap-wizard/prettify.css">
 
@@ -466,19 +469,19 @@
 
                                                                 // Agregar campos ocultos con la información (para el formulario)
                                                                 const camposOcultos = `
-                                                                <input type="hidden" name="servicio" value="${reserva.servicio}">
-                                                                <input type="hidden" name="fecha" value="${reserva.fecha}">
-                                                                <input type="hidden" name="horas" value="${reserva.horas.join(',')}">
-                                                              `;
+            <input type="hidden" name="servicio" value="${reserva.servicio}">
+            <input type="hidden" name="fecha" value="${reserva.fecha}">
+            <input type="hidden" name="horas" value="${reserva.horas.join(',')}">
+          `;
                                                                 document.getElementById('court-selection').insertAdjacentHTML('beforeend', camposOcultos);
 
                                                             } else {
                                                                 // La reserva expiró
                                                                 document.getElementById('court-selection').innerHTML += `
-                                                                <div class="alert alert-warning">
-                                                                  La selección de horario ha expirado. Por favor regresa al calendario para seleccionar nuevamente.
-                                                                </div>
-                                                              `;
+            <div class="alert alert-warning">
+              La selección de horario ha expirado. Por favor regresa al calendario para seleccionar nuevamente.
+            </div>
+          `;
                                                             }
 
                                                         } catch (error) {
@@ -491,13 +494,19 @@
 
                                                     function mostrarErrorReserva() {
                                                         document.getElementById('court-selection').innerHTML += `
-                                                        <div class="alert alert-info">
-                                                          No hay horarios seleccionados. Por favor regresa al calendario para seleccionar un horario.
-                                                        </div>
-                                                      `;
+        <div class="alert alert-info">
+          No hay horarios seleccionados. Por favor regresa al calendario para seleccionar un horario.
+        </div>
+      `;
                                                     }
                                                 });
                                             </script>
+
+
+
+
+
+
                                         </div>
         <!-------------------------------------------------------------------------------------------------------------------------->
                                         <!-- Paso 3: Método de pago -->
@@ -545,6 +554,7 @@
                                                 <input type="file" class="form-control-file" id="deposit-image" name="deposit-image" accept="image/*">
                                             </div>
 
+
                                             <div class="btn-group">
                                                 <button class="btn btn-dark" type="button" id="btn-next">Confirmar Reserva</button>
                                             </div>
@@ -557,12 +567,11 @@
                                             </div>
                                         </div>
                                     </div>
-
+                            
                                     <ul class="pager wizard twitter-bs-wizard-pager-link">
-                                        <li class="previous" id="btn-prev"><a href="#">Previous</a></li>
-                                        <li class="next disabled" id="btn-next-tab"><a href="#">Next</a></li>
+                                        <li class="previous"><a href="#">Previous</a></li>
+                                        <li class="next disabled"><a href="#">Next</a></li>
                                     </ul>
-
                                 </div>
                             </div>
                         </div>
@@ -703,42 +712,7 @@
     });
 </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const tabs = document.querySelectorAll('.twitter-bs-wizard-nav a');
-        const btnPrev = document.getElementById('btn-prev');
-        const btnNextTab = document.getElementById('btn-next-tab');
-        const btnConfirmar = document.getElementById('btn-confirmar');
 
-        function actualizarBotones() {
-            const activeTab = document.querySelector('.twitter-bs-wizard-nav .nav-link.active').getAttribute('href');
-
-            if (activeTab === '#payment-info') {
-                btnPrev.style.display = 'inline-block';
-                btnNextTab.style.display = 'none';
-                btnConfirmar.style.display = 'inline-block';
-            } else {
-                btnConfirmar.style.display = 'none';
-                btnNextTab.style.display = 'inline-block';
-
-                if (activeTab === '#billing-info') {
-                    btnPrev.style.display = 'none';
-                } else {
-                    btnPrev.style.display = 'inline-block';
-                }
-            }
-        }
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function () {
-                setTimeout(actualizarBotones, 100);
-            });
-        });
-
-        // Inicializa los botones al cargar la página
-        actualizarBotones();
-    });
-</script>
 </body>
 
 
