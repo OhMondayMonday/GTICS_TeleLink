@@ -9,7 +9,7 @@ function renderDonutChart(puntualidad, tardanzas, inasistencias) {
     var inasistenciasPct = total > 0 ? Math.round((inasistencias / total) * 100) : 0;
 
     var options = {
-        series: [puntualidadPct, tardanzasPct, inasistenciasPct],
+        series: [puntualidad, tardanzas, inasistencias],
         chart: { height: 250, type: "donut" },
         labels: ["Puntual", "Tardanza", "Inasistencia"],
         plotOptions: { pie: { donut: { size: "75%" } } },

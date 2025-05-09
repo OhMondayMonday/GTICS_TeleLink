@@ -27,7 +27,6 @@
 
                                         <div class="table-responsive">
                                             <style>
-                                                /* Oculta las flechas de ordenamiento en todas las columnas */
                                                 table.datatable thead th.sorting::before,
                                                 table.datatable thead th.sorting::after,
                                                 table.datatable thead th.sorting_asc::before,
@@ -36,8 +35,6 @@
                                                 table.datatable thead th.sorting_desc::after {
                                                     display: none !important;
                                                 }
-
-                                                /* Opcional: Elimina el cursor "pointer" y el hover en las cabeceras */
                                                 table.datatable thead th {
                                                     cursor: default !important;
                                                 }
@@ -52,182 +49,22 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- Fila 1 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Bancario</td>
-                                                        <td>Cancha de fútbol</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
+                                                    <tr th:each="espacio : ${espacios}">
+                                                        <td th:text="${espacio.establecimientoDeportivo.establecimientoDeportivoNombre}"></td>
+                                                        <td th:text="${espacio.servicioDeportivo.servicioDeportivo}"></td>
+                                                        <td>
+                                                            <span th:switch="${espacio.estadoServicio.name()}"
+                                                                  th:class="'badge ' + ${clasesEstado[espacio.espacioDeportivoId]}">
+
+                                                                <span th:case="'operativo'">Operativo</span>
+                                                                <span th:case="'mantenimiento'">En mantenimiento</span>
+                                                                <span th:case="'clausurado'">Clausurado</span>
+                                                            </span>
+
                                                         </td>
-                                                    </tr>
-
-                                                    <!-- Fila 2 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Bancario</td>
-                                                        <td>Cancha de básquet</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
                                                         <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 3 -->
-                                                    <tr>
-
-                                                        <td>Complejo Deportivo Bancario</td>
-                                                        <td>Cancha de voley</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 4 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Bancario</td>
-                                                        <td>Pista de atletismo</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 5 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Juan Joya Cordero</td>
-                                                        <td>Cancha de fútbol</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 6 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Juan Joya Cordero</td>
-                                                        <td>Cancha de básquet</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 7 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Juan Joya Cordero</td>
-                                                        <td>Cancha de voley</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 8 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Juan Joya Cordero</td>
-                                                        <td>Pista de atletismo</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 9 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Julio Meléndez</td>
-                                                        <td>Cancha de fútbol</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 10 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Julio Meléndez</td>
-                                                        <td>Cancha de básquet</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 11 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Julio Meléndez</td>
-                                                        <td>Cancha de voley</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 12 -->
-                                                    <tr>
-                                                        <td>Complejo Deportivo Julio Meléndez</td>
-                                                        <td>Pista de atletismo</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 13 -->
-                                                    <tr>
-                                                        <td>Complejo Panamericano Costa Verde</td>
-                                                        <td>Cancha de fútbol</td>
-                                                        <td><span class="badge bg-success">Operativo</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 14 -->
-                                                    <tr>
-                                                        <td>Complejo Panamericano Costa Verde</td>
-                                                        <td>Cancha de básquet</td>
-                                                        <td><span class="badge bg-danger">Clausurado</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Fila 15 -->
-                                                    <tr>
-                                                        <td>Complejo Panamericano Costa Verde</td>
-                                                        <td>Cancha de voley</td>
-                                                        <td><span class="badge bg-warning">En mantenimiento</span></td>
-                                                        <td style="width: 100px">
-                                                            <a th:href="@{/coordinador/espacioDetalle}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                            <a th:href="@{/coordinador/espacioDetalle(espacioId=${espacio.espacioDeportivoId})}"
+                                                               class="btn btn-outline-secondary btn-sm edit" title="Ver">
                                                                 <i class="fas fa-eye"></i>
                                                             </a>
                                                         </td>
