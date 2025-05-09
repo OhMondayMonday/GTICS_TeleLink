@@ -1,10 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
     <head>
-        <meta charset="UTF-8">
-        <title>Title</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
+    <!-- Fragment para el menú lateral -->
+    <div th:fragment="sidebar">
+        <div class="vertical-menu">
+            <div data-simplebar class="h-100">
+                <!-- Sidemenu -->
+                <div id="sidebar-menu">
+                    <!-- Left Menu Start -->
+                    <ul class="metismenu list-unstyled" id="side-menu">
+                        <li class="menu-title">Menu</li>
+
+                        <li>
+                            <a href="vecino-index.html" class="waves-effect">
+                                <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end"></span>
+                                <span>Inicio</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title">Actividad</li>
+
+                        <li>
+                            <a href="vecino-mis-reservas.html" class="waves-effect">
+                                <i class="ri-calendar-check-line"></i>
+                                <span>Mis reservas</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                <i class="ri-map-pin-line"></i>
+                                <span>Buscar Canchas</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
+                                <li><a href="vecino-cancha.html">Canchas Disponibles</a></li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                <i class="ri-bank-card-line"></i>
+                                <span>Pagos</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
+                                <li><a href="vecino-pago.html">Mis Pagos</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="menu-title">Ayuda</li>
+                        <li>
+                            <a href="vecino-ayuda.html" class="waves-effect">
+                                <i class="ri-customer-service-2-line"></i>
+                                <span>Ayuda</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Sidebar -->
+            </div>
+        </div>
+    </div>
+
 
     </body>
 </html>

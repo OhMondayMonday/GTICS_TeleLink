@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+        
+        <meta charset="utf-8" />
+        <title>Calendario | SanMi</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+        <meta content="Themesdesign" name="author" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="assets/images/logo-San-Miguel-1.webp">
+
+        <!-- Plugin css -->
+        <link rel="stylesheet" href="assets/libs/%40fullcalendar/core/main.min.css" type="text/css">
+        <link rel="stylesheet" href="assets/libs/%40fullcalendar/daygrid/main.min.css" type="text/css">
+        <link rel="stylesheet" href="assets/libs/%40fullcalendar/bootstrap/main.min.css" type="text/css">
+        <link rel="stylesheet" href="assets/libs/%40fullcalendar/timegrid/main.min.css" type="text/css">
+    
+        <!-- Bootstrap Css -->
+        <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <!-- Icons Css -->
+        <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+        <!-- App Css-->
+        <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+
+        <style>
+            /* Estilos generales */
+            .calendar-container {
+                max-width: 100%;
+                overflow-x: auto;
+            }
+
+            /* Estilos de la cabecera de horas */
+            .hour-headers {
+                display: flex;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .hour-label {
+                width: 60px;
+                text-align: center;
+                font-size: 0.875rem;
+                color: #6b7280;
+                flex-shrink: 0;
+            }
+
+            .service-label {
+                width: 100px;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+            }
+
+            /* Estilos de la fila de reservas */
+            .reservation-row {
+                display: flex;
+                height: 50px;
+                position: relative;
+                margin-bottom: 3px;
+            }
+
+            /* Contenedor para las celdas interactivas */
+            .interactive-cells {
+                flex: 1;
+                display: flex;
+                position: relative;
+            }
+
+            /* Celdas individuales para horas */
+            .hour-cell {
+                flex: 1;
+                border-right: 1px solid #f3f4f6;
+                position: relative;
+                cursor: pointer;
+            }
+
+            .hour-cell:hover {
+                background-color: #f9fafb;
+            }
+
+            .hour-cell.no-disponible {
+                cursor: not-allowed;
+            }
+
+            .hour-cell.seleccionado {
+                background-color: #dbeafe;
+                border: 1px solid #3b82f6;
+            }
+
+            /* Barras de reserva */
+            .reservation-bar {
+                position: absolute;
+                top: 0;
+                height: 100%;
+            }
+
+            .reservation-bar.no-disponible {
+                background-color: #9ca3af;
+            }
+
+            .reservation-bar.tu-reserva {
+                background-color: #10b981;
+            }
+
+            /* Estilos para servicios */
+            .service-item {
+                display: flex;
+                align-items: center;
+                padding: 8px 12px;
+                margin-bottom: 8px;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+
+            .service-item:hover {
+                background-color: #f3f4f6;
+            }
+
+            .service-item.active {
+                background-color: #ecfdf5;
+                color: #065f46;
+                font-weight: 500;
+            }
+
+            .service-icon {
+                margin-right: 8px;
+                font-size: 1.2rem;
+            }
+
+            /* Leyenda */
+            .legend-item {
+                display: flex;
+                align-items: center;
+                margin-right: 16px;
+                font-size: 0.875rem;
+            }
+
+            .legend-color {
+                width: 12px;
+                height: 12px;
+                margin-right: 4px;
+            }
+
+            /* Botones de navegación */
+            .nav-btn {
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                padding: 4px 8px;
+                border-radius: 50%;
+            }
+
+            .nav-btn:hover {
+                background-color: #f3f4f6;
+            }
+
+            /* Selector de servicios móvil */
+            .mobile-services {
+                display: flex;
+                overflow-x: auto;
+                padding: 8px;
+                background-color: #f9fafb;
+                border-radius: 8px;
+                margin-bottom: 16px;
+            }
+
+            .mobile-service-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 8px;
+                min-width: 70px;
+                border-radius: 8px;
+                margin-right: 8px;
+                border: 1px solid #e5e7eb;
+                background-color: white;
+            }
+
+            .mobile-service-btn.active {
+                background-color: #10b981;
+                color: white;
+                border-color: #10b981;
+            }
+
+            .mobile-service-icon {
+                font-size: 1.5rem;
+                margin-bottom: 4px;
+            }
+
+            .mobile-service-name {
+                font-size: 0.75rem;
+            }
+
+            /* Media queries */
+            @media (min-width: 768px) {
+                .mobile-services {
+                    display: none;
+                }
+            }
+
+            @media (max-width: 767px) {
+                .desktop-services {
+                    display: none;
+                }
+            }
+
+            /* Spinner de carga */
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border: 4px solid rgba(0, 0, 0, 0.1);
+                border-radius: 50%;
+                border-left-color: #10b981;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            .loading-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(255, 255, 255, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+            }
+        </style>
+    </head>
+
+    <body data-sidebar="dark">
+     <!-- Begin page -->
+        <div id="layout-wrapper">
+            <header id="page-topbar">
+                <div class="navbar-header">
+                    <div class="d-flex">
+                        <!-- LOGO -->
+                        <div class="navbar-brand-box">
+                            <a href="" class="logo logo-light">
+                                <span class="logo-sm">
+                                    <img src="assets\images\logo-San-Miguel-1.webp" alt="logo-sanmiguel" height="25">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="assets\images\logoCompleto.png" alt="logo-sanmiguel" height="40" class="me-2">
+                                    <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
+                                </span>
+                            </a>
+                        </div>
+
+                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                            <i class="ri-menu-2-line align-middle"></i>
+                        </button>
+
+                    </div>
+
+                    <div class="d-flex">
+
+                        <div class="dropdown d-inline-block d-lg-none ms-2">
+                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="ri-search-line"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                                 aria-labelledby="page-header-search-dropdown">
+
+                                <form class="p-3">
+                                    <div class="mb-3 m-0">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Search ...">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-primary" type="submit"><i class="ri-search-line"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="dropdown d-none d-lg-inline-block ms-1">
+                            <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
+                                <i class="ri-fullscreen-line"></i>
+                            </button>
+                        </div>
+
+                        <div class="dropdown d-inline-block user-dropdown">
+                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img class="rounded-circle header-profile-user" src="assets/images/users/user1.jfif" alt="Header Avatar">
+                                <span class="d-none d-xl-inline-block ms-1">Dorian</span>
+                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a class="dropdown-item" href="vecino-perfil.html"><i class="ri-user-line align-middle me-1"></i>Mi perfil</a>
+                                <a class="dropdown-item d-block" href="#"><span class="badge bg-success float-end mt-1">11</span><i class="ri-settings-2-line align-middle me-1"></i> Settings</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a>
+                            </div>
+                        </div>
+
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
+                                <i class="ri-settings-2-line"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </header>
+ <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
+            <!-- ========== Left Sidebar Start ========== -->
+            <div class="vertical-menu">
+
+                <div data-simplebar class="h-100">
+
+                    <!--- Sidemenu -->
+                    <div id="sidebar-menu">
+                        <!-- Left Menu Start -->
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li class="menu-title">Menu</li>
+
+                            <li>
+                                <a href="vecino-index.html" class="waves-effect">
+                                    <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end"></span>
+                                    <span>Inicio</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title">Actividad</li>
+
+                            <li>
+                                <a href="vecino-mis-reservas.html" class="waves-effect">
+                                    <i class="ri-calendar-check-line"></i> <!-- Más específico para "reservas" -->
+                                    <span>Mis reservas</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-map-pin-line"></i> <!-- Más representativo para "buscar canchas" -->
+                                    <span>Buscar Canchas</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="vecino-cancha.html">Canchas Disponibles</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-bank-card-line"></i> <!-- Ícono relacionado a pagos -->
+                                    <span>Pagos</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="vecino-pago.html">Mis Pagos</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="menu-title">Ayuda</li>
+                            <li>
+                                <a href="vecino-ayuda.html" class="waves-effect">
+                                    <i class="ri-customer-service-2-line"></i>
+                                    <span>Ayuda</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Sidebar -->
+                </div>
+            </div>
+
+<!-- =================================================================================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+                <div class="page-content">
+                    <div class="container-fluid">
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                    <h4 class="mb-sm-0">Horarios Disponibles</h4>
+
+                                    <div class="page-title-right">
+                                        <ol class="breadcrumb m-0">
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Reservas</a></li>
+                                            <li class="breadcrumb-item active">Horarios Disponibles</li>
+                                        </ol>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                        <div class="container mt-4">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h2>Calendario de Reservas Deportivas</h2>
+
+                                    <!-- Selector de servicio para pantallas pequeñas -->
+                                    <div class="mobile-services">
+                                        <!-- Se llenará dinámicamente con JavaScript -->
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Columna de servicios (visible solo en desktop) -->
+                                        <div class="col-md-3 desktop-services">
+                                            <div class="mb-3 fw-medium">Servicios</div>
+                                            <div id="service-list">
+                                                <!-- Se llenará dinámicamente con JavaScript -->
+                                            </div>
+                                        </div>
+
+                                        <!-- Columna del calendario -->
+                                        <div class="col-md-9" id="calendar-column">
+                                            <!-- Selector de fecha -->
+                                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                                <button id="prev-day" class="nav-btn" aria-label="Día anterior">&lt;</button>
+                                                <div class="text-center">
+                                                    <div id="current-date" class="fw-medium">Cargando...</div>
+                                                </div>
+                                                <button id="next-day" class="nav-btn" aria-label="Día siguiente">&gt;</button>
+                                            </div>
+
+                                            <!-- Contenedor del calendario -->
+                                            <div class="calendar-container mb-4">
+                                                <div id="calendar">
+                                                    <!-- Se llenará dinámicamente con JavaScript -->
+                                                </div>
+                                            </div>
+
+                                            <!-- Leyenda -->
+                                            <div class="d-flex justify-content-end mb-3">
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #9ca3af;"></div>
+                                                    <span>No disponible</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #ff7f00;"></div>
+                                                    <span>Mantenimiento</span>
+                                                </div>
+
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #dbeafe; border: 1px solid #3b82f6;"></div>
+                                                    <span>Tu reserva</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Información de selección y botón de reserva -->
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div id="selected-hours-info">
+                                                    <!-- Información de horas seleccionadas -->
+                                                </div>
+                                                <button id="continue-btn" class="btn btn-success" disabled>Continuar con la reserva</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Script externo del calendario -->
+                        <script src="/js/reservas.js"></script>
+
+                    </div> <!-- container-fluid -->
+                </div>
+                <!-- End Page-content -->
+                
+            </div>
+            <!-- ================================================================================================================================== -->
+
+        </div>
+        <!-- END layout-wrapper -->
+
+        <!-- Right Sidebar -->
+        <div class="right-bar">
+            <div data-simplebar class="h-100">
+                <div class="rightbar-title d-flex align-items-center px-3 py-4">
+            
+                    <h5 class="m-0 me-2">Settings</h5>
+
+                    <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
+                        <i class="mdi mdi-close noti-icon"></i>
+                    </a>
+                </div>
+
+                <!-- Settings -->
+                <hr class="mt-0" />
+                <h6 class="text-center mb-0">Choose Layouts</h6>
+
+                <div class="p-4">
+                    <div class="mb-2">
+                        <img src="assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input theme-choice" type="checkbox" id="light-mode-switch" checked>
+                        <label class="form-check-label" for="light-mode-switch">Light Mode</label>
+                    </div>
+    
+                    <div class="mb-2">
+                        <img src="assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
+                        <label class="form-check-label" for="dark-mode-switch">Dark Mode</label>
+                    </div>
+    
+                    <div class="mb-2">
+                        <img src="assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
+                    </div>
+                    <div class="form-check form-switch mb-5">
+                        <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
+                        <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
+                    </div>
+
+            
+                </div>
+
+            </div> <!-- end slimscroll-menu-->
+        </div>
+        <!-- /Right-bar -->
+
+        <!-- Right bar overlay-->
+        <div class="rightbar-overlay"></div>
+
+        <!-- JAVASCRIPT -->
+        <script src="assets/libs/jquery/jquery.min.js"></script>
+        <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="assets/libs/metismenu/metisMenu.min.js"></script>
+        <script src="assets/libs/simplebar/simplebar.min.js"></script>
+        <script src="assets/libs/node-waves/waves.min.js"></script>
+
+        <!-- plugin js -->
+        <script src="assets/libs/moment/min/moment.min.js"></script>
+        <script src="assets/libs/jquery-ui-dist/jquery-ui.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/core/main.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/bootstrap/main.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/daygrid/main.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/timegrid/main.min.js"></script>
+        <script src="assets/libs/%40fullcalendar/interaction/main.min.js"></script>
+
+        <!-- Calendar init -->
+        <script src="assets/js/pages/calendar.init.js"></script>
+
+        <script src="assets/js/app.js"></script>
+
+    </body>
+</html>
