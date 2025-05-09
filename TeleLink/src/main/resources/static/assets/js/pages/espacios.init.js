@@ -46,9 +46,11 @@ radialchart=new ApexCharts(document.querySelector("#radialchart-1"),radialoption
         var table = $(".datatable").DataTable({
             lengthMenu: [5, 10, 25, 50],
             pageLength: 15,
-            columnDefs: [
-                { targets: 0, orderable: false },  // Desactiva ordenamiento en la primera columna
-                { targets: '_all', orderable: false }  // Opcional: Desactiva ordenamiento en todas las columnas
+            columns: [
+                {orderable: !0},
+                {orderable: !0},
+                {orderable: !0},
+                {orderable: !1}
             ],
             language: {
                 "decimal": "",
