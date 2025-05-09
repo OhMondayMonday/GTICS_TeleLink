@@ -7,14 +7,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     List<Usuario> findAllByOrderByUsuarioIdAsc();
+    Optional<Usuario> findByUsername(String username);
 
     // Para buscar un grupo de usuarios por Rol
     List<Usuario> findAllByRol_Rol(String rol);
-
 
     @Query(value = """
             SELECT 
@@ -36,5 +37,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
                 FIELD(dia, 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
             """, nativeQuery = true)
     List<CantidadReservasPorDiaDto> obtenerCantidadReservasPorDia();
+
+    Usuario findByCorreoElectronico(String correoElectronico);
 
 }

@@ -50,4 +50,92 @@ public class Reserva {
     public enum Estado {
         pendiente, confirmada, cancelada
     }
+
+    public Integer getReservaId() {
+        return reservaId;
+    }
+
+    public void setReservaId(Integer reservaId) {
+        this.reservaId = reservaId;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public EspacioDeportivo getEspacioDeportivo() {
+        return espacioDeportivo;
+    }
+
+    public void setEspacioDeportivo(EspacioDeportivo espacioDeportivo) {
+        this.espacioDeportivo = espacioDeportivo;
+    }
+
+    public LocalDateTime getInicioReserva() {
+        return inicioReserva;
+    }
+
+    public void setInicioReserva(LocalDateTime inicioReserva) {
+        this.inicioReserva = inicioReserva;
+    }
+
+    public LocalDateTime getFinReserva() {
+        return finReserva;
+    }
+
+    public void setFinReserva(LocalDateTime finReserva) {
+        this.finReserva = finReserva;
+    }
+
+    public Integer getNumeroCarrilPiscina() {
+        return numeroCarrilPiscina;
+    }
+
+    public void setNumeroCarrilPiscina(Integer numeroCarrilPiscina) {
+        this.numeroCarrilPiscina = numeroCarrilPiscina;
+    }
+
+    public Integer getNumeroCarrilPista() {
+        return numeroCarrilPista;
+    }
+
+    public void setNumeroCarrilPista(Integer numeroCarrilPista) {
+        this.numeroCarrilPista = numeroCarrilPista;
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+    public String getRazonCancelacion() {
+        return razonCancelacion;
+    }
+
+    public void setRazonCancelacion(String razonCancelacion) {
+        this.razonCancelacion = razonCancelacion;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
+    }
+
+    public LocalDateTime getFechaActualizacion() {
+        return fechaActualizacion;
+    }
+
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
+        this.fechaActualizacion = fechaActualizacion;
+    }
 }

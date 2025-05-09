@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+        <meta charset="utf-8" />
+        <title>Canchas Disponibles | SanMi</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Espacios deportivos disponibles en San Miguel" name="description" />
+        <meta content="Themesdesign" name="author" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="assets/images/logo-San-Miguel-1.webp">
+
+        <!-- Bootstrap Css -->
+        <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <!-- Icons Css -->
+        <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+        <!-- App Css-->
+        <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+
+    </head>
+
+    <body data-sidebar="dark">
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+            <header id="page-topbar">
+                <div class="navbar-header">
+                    <div class="d-flex">
+                        <!-- LOGO -->
+                        <div class="navbar-brand-box">
+
+                            <a href="" class="logo logo-light">
+                                <span class="logo-sm">
+                                    <img src="assets\images\logo-San-Miguel-1.webp" alt="logo-sanmiguel" height="25">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="assets\images\logoCompleto.png" alt="logo-sanmiguel" height="40" class="me-2">
+                                    <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
+                                </span>
+                            </a>
+                        </div>
+
+                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                            <i class="ri-menu-2-line align-middle"></i>
+                        </button>
+
+                    </div>
+
+                    <div class="d-flex">
+                        <div class="dropdown d-inline-block user-dropdown">
+                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img class="rounded-circle header-profile-user" src="assets/images/users/user1.jfif" alt="Header Avatar">
+                                <span class="d-none d-xl-inline-block ms-1">Dorian</span>
+                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a class="dropdown-item" href="vecino-perfil.html"><i class="ri-user-line align-middle me-1"></i>Mi perfil</a>
+                                <a class="dropdown-item d-block" href="#"><span class="badge bg-success float-end mt-1">11</span><i class="ri-settings-2-line align-middle me-1"></i> Settings</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a>
+                            </div>
+                        </div>
+
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
+                                <i class="ri-settings-2-line"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </header>
+<!-----------------------------------------------------------------------MENU-------------------------------------------------------------------------->
+            <!-- ========== Left Sidebar Start ========== -->
+            <div class="vertical-menu">
+                <div data-simplebar class="h-100">
+                    <!--- Sidemenu -->
+                    <div id="sidebar-menu">
+                        <!-- Left Menu Start -->
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li class="menu-title">Menu</li>
+
+                            <li>
+                                <a href="vecino-index.html" class="waves-effect">
+                                    <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end"></span>
+                                    <span>Inicio</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title">Actividad</li>
+
+                            <li>
+                                <a href="vecino-mis-reservas.html" class="waves-effect">
+                                    <i class="ri-calendar-check-line"></i> <!-- Más específico para "reservas" -->
+                                    <span>Mis reservas</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-map-pin-line"></i> <!-- Más representativo para "buscar canchas" -->
+                                    <span>Buscar Canchas</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="vecino-cancha.html">Canchas Disponibles</a></li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <a href="javascript: void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-bank-card-line"></i> <!-- Ícono relacionado a pagos -->
+                                    <span>Pagos</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="vecino-pago.html">Mis Pagos</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="menu-title">Ayuda</li>
+                            <li>
+                                <a href="vecino-ayuda.html" class="waves-effect">
+                                    <i class="ri-customer-service-2-line"></i>
+                                    <span>Ayuda</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Sidebar -->
+                </div>
+            </div>
+
+<!-- ============================================================================================================================= -->
+            <div class="main-content">
+                <div class="page-content">
+                    <div class="container-fluid">
+
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                    <h4 class="mb-sm-0">Canchas Disponibles</h4>
+
+                                    <div class="page-title-right">
+                                        <ol class="breadcrumb m-0">
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Servicios Deportivos</a></li>
+                                            <li class="breadcrumb-item active">Canchas Disponibles</li>
+                                        </ol>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="font-size-14 mb-3">Filtrar por</h5>
+
+                                        <div class="accordion" id="accordionCanchaFiltros">
+
+                                            <!-- Servicios deportivos -->
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="serviciosHeading">
+                                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseServicios" aria-expanded="true" aria-controls="collapseServicios">
+                                                        <i class="mdi mdi-soccer font-size-16 align-middle me-2"></i> Servicios deportivos
+                                                    </button>
+                                                </h2>
+                                                <div id="collapseServicios" class="accordion-collapse collapse show" aria-labelledby="serviciosHeading" data-bs-parent="#accordionCanchaFiltros">
+                                                    <div class="accordion-body">
+                                                        <ul class="list-unstyled categories-list mb-0">
+                                                            <li><input type="checkbox" id="futbol-loza"> <label for="futbol-loza">Cancha de fútbol (Loza)</label></li>
+                                                            <li><input type="checkbox" id="futbol-grass"> <label for="futbol-grass">Cancha de fútbol (Grass sintético)</label></li>
+                                                            <li><input type="checkbox" id="gimnasio"> <label for="gimnasio">Gimnasio</label></li>
+                                                            <li><input type="checkbox" id="piscina"> <label for="piscina">Piscina</label></li>
+                                                            <li><input type="checkbox" id="atletismo"> <label for="atletismo">Pista de atletismo</label></li>
+                                                            <li><input type="checkbox" id="multiusos"> <label for="atletismo">Cancha Multiusos</label></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Precio -->
+                                            <!-- Precio -->
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="precioHeading">
+                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrecio" aria-expanded="false" aria-controls="collapsePrecio">
+                                                        <i class="mdi mdi-currency-usd font-size-16 align-middle me-2"></i> Precio (S/)
+                                                    </button>
+                                                </h2>
+                                                <div id="collapsePrecio" class="accordion-collapse collapse show" aria-labelledby="precioHeading" data-bs-parent="#accordionCanchaFiltros">
+                                                    <div class="accordion-body">
+                                                        <label for="precioRange" class="form-label">Rango de precios:</label>
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <span id="precioMin">S/ 10</span>
+                                                            <span id="precioMax">S/ 150</span>
+                                                        </div>
+                                                        <input type="range" class="form-range" min="10" max="150" step="5" id="precioRange" oninput="actualizarPrecio(this.value)">
+                                                        <div class="text-center mt-2">
+                                                            <strong>Seleccionado: <span id="precioActual">S/ 80</span></strong>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <script>
+                                                function actualizarPrecio(valor) {
+                                                    document.getElementById('precioActual').innerText = 'S/ ' + valor;
+                                                }
+                                            </script>
+
+
+                                            <!-- Zonas -->
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="zonaHeading">
+                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseZona" aria-expanded="false" aria-controls="collapseZona">
+                                                        <i class="mdi mdi-map-marker-radius font-size-16 align-middle me-2"></i> Zonas
+                                                    </button>
+                                                </h2>
+                                                <div id="collapseZona" class="accordion-collapse collapse" aria-labelledby="zonaHeading" data-bs-parent="#accordionCanchaFiltros">
+                                                    <div class="accordion-body">
+                                                        <ul class="list-unstyled mb-0">
+                                                            <li><input type="checkbox" id="zona-costado"> <label for="zona-costado">Costado de la UPC</label></li>
+                                                            <li><input type="checkbox" id="zona-avla-marina"> <label for="zona-avla-marina">Av. La Marina</label></li>
+                                                            <li><input type="checkbox" id="zona-parque-zonal"> <label for="zona-parque-zonal">Parque Zonal</label></li>
+                                                            <li><input type="checkbox" id="zona-plaza-sanmiguel"> <label for="zona-plaza-sanmiguel">Cerca a Plaza San Miguel</label></li>
+                                                            <li><input type="checkbox" id="zona-univcatolica"> <label for="zona-univcatolica">Cerca a PUCP</label></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Calificación -->
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="ratingHeading">
+                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRating" aria-expanded="false" aria-controls="collapseRating">
+                                                        <i class="mdi mdi-star-outline font-size-16 align-middle me-2"></i> Calificación
+                                                    </button>
+                                                </h2>
+                                                <div id="collapseRating" class="accordion-collapse collapse" aria-labelledby="ratingHeading" data-bs-parent="#accordionCanchaFiltros">
+                                                    <div class="accordion-body">
+                                                        <div class="form-check mb-2">
+                                                            <input type="radio" name="rating" id="rating4" class="form-check-input">
+                                                            <label class="form-check-label" for="rating4">4 estrellas o más</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="radio" name="rating" id="rating3" class="form-check-input">
+                                                            <label class="form-check-label" for="rating3">3 estrellas o más</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="radio" name="rating" id="rating2" class="form-check-input">
+                                                            <label class="form-check-label" for="rating2">2 estrellas o más</label>
+                                                        </div>
+                                                        <div class="form-check mb-2">
+                                                            <input type="radio" name="rating" id="rating1" class="form-check-input">
+                                                            <label class="form-check-label" for="rating1">1 estrella o más</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                            <div class="col-lg-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div>
+                                                        <h5>Servicio Deportivos</h5>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="form-inline float-md-end">
+                                                        <div class="search-box ms-2">
+                                                            <div class="position-relative">
+                                                                <input type="text" class="form-control rounded" placeholder="Search...">
+                                                                <i class="mdi mdi-magnify search-icon"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+<!-----==================================================================================================================================---->
+                                            <div class="row g-0">
+                                                <!-- Piscina -->
+                                                <div class="col-xl-4 col-sm-6">
+                                                    <div class="product-box">
+                                                        <div class="product-img position-relative">
+                                                            <div class="product-ribbon badge bg-success">Disponible</div>
+                                                            <span class="badge bg-info position-absolute top-0 end-0 m-2">Piscina</span>
+                                                            <img src="assets/images/small/Piscina_Olimpica1.jpg" alt="piscina" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+                                                        </div>
+                                                        <div class="text-center p-2">
+                                                            <p class="font-size-12 mb-1">Espacio para natación libre y entrenamiento individual.</p>
+                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Piscina Olímpica</a></h5>
+                                                            <p class="mb-1">Capacidad: 1 persona</p>
+                                                            <p class="mb-1">Precio: S/ 30.00</p>
+                                                            <a href="vecino-piscina.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Gimnasio -->
+                                                <div class="col-xl-4 col-sm-6">
+                                                    <div class="product-box">
+                                                        <div class="product-img position-relative">
+                                                            <div class="product-ribbon badge bg-success">Disponible</div>
+                                                            <span class="badge bg-info position-absolute top-0 end-0 m-2">Gimnasio</span>
+                                                            <img src="assets/images/small/gym.jpg" alt="gimnasio" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+                                                        </div>
+                                                        <div class="text-center p-2">
+                                                            <p class="font-size-12 mb-1">Entrena con máquinas modernas y pesas libres.</p>
+                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Gimnasio San Miguel</a></h5>
+                                                            <p class="mb-1">Capacidad: 15 personas</p>
+                                                            <p class="mb-1">Precio: S/ 20.00</p>
+                                                            <a href="vecino-gym.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Cancha de fútbol (loza) -->
+                                                <div class="col-xl-4 col-sm-6">
+                                                    <div class="product-box">
+                                                        <div class="product-img position-relative">
+                                                            <div class="product-ribbon badge bg-success">Disponible</div>
+                                                            <span class="badge bg-warning position-absolute top-0 end-0 m-2">Fútbol - Loza</span>
+                                                            <img src="assets/images/small/lozaDeportiva.jpg" alt="futbol-loza" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+                                                        </div>
+                                                        <div class="text-center p-2">
+                                                            <p class="font-size-12 mb-1">Juega fútbol 5 en una cancha de loza de calidad.</p>
+                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Cancha de Fútbol (Loza)</a></h5>
+                                                            <p class="mb-1">Capacidad: 10 personas</p>
+                                                            <p class="mb-1">Precio: S/ 35.00</p>
+                                                            <a href="vecino-futbol-loza.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Cancha de fútbol (Grass sintético) -->
+                                                <div class="col-xl-4 col-sm-6">
+                                                    <div class="product-box">
+                                                        <div class="product-img position-relative">
+                                                            <div class="product-ribbon badge bg-success">Disponible</div>
+                                                            <span class="badge bg-warning position-absolute top-0 end-0 m-2">Fútbol - Grass</span>
+                                                            <img src="assets/images/small/Grass sintético_cf_3.jpg" alt="grass" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+                                                        </div>
+                                                        <div class="text-center p-2">
+                                                            <p class="font-size-12 mb-1">Ideal para partidos de fútbol 7 con tus amigos.</p>
+                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Cancha Grass Sintético</a></h5>
+                                                            <p class="mb-1">Capacidad: 10 personas</p>
+                                                            <p class="mb-1">Precio: S/ 50.00</p>
+                                                            <a href="vecino-futbol-grass.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Pista de Atletismo -->
+                                                <div class="col-xl-4 col-sm-6">
+                                                    <div class="product-box">
+                                                        <div class="product-img position-relative">
+                                                            <div class="product-ribbon badge bg-success">Disponible</div>
+                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Atletismo</span>
+                                                            <img src="assets/images/small/atletismo_pista.jpg" alt="pista" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+                                                        </div>
+                                                        <div class="text-center p-2">
+                                                            <p class="font-size-12 mb-1">Corre y entrena en pista profesional de atletismo.</p>
+                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Pista de Atletismo</a></h5>
+                                                            <p class="mb-1">Capacidad: 20 personas</p>
+                                                            <p class="mb-1">Precio: S/ 15.00</p>
+                                                            <a href="vecino-atletismo.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Canchas Múltiples -->
+                                                <div class="col-xl-4 col-sm-6">
+                                                    <div class="product-box">
+                                                        <div class="product-img position-relative">
+                                                            <div class="product-ribbon badge bg-success">Disponible</div>
+                                                            <span class="badge bg-secondary position-absolute top-0 end-0 m-2">Multifuncional</span>
+                                                            <img src="assets/images/small/CanchasMultiples.jpg" alt="canchas-multiples" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+                                                        </div>
+                                                        <div class="text-center p-2">
+                                                            <p class="font-size-12 mb-1">Espacio versátil para vóley, básquet y más.</p>
+                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Canchas Múltiples</a></h5>
+                                                            <p class="mb-1">Capacidad: 20 personas</p>
+                                                            <p class="mb-1">Precio: S/ 50.00</p>
+                                                            <a href="vecino-multiple.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <!-----==================================================================================================================================---->
+
+                                            <!-- CONTENEDOR DE TARJETAS -->
+                                            <div id="tarjetas-container" class="row g-0"></div>
+
+                                            <!-- PAGINACIÓN -->
+                                            <div class="row mt-4">
+                                                <div class="col-sm-6">
+                                                    <div>
+                                                        <p id="page-info" class="mb-sm-0 mt-2">Página <span class="fw-bold">1</span> de <span class="fw-bold">1</span></p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="float-sm-end">
+                                                        <ul id="pagination" class="pagination pagination-rounded mb-sm-0"></ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- SCRIPT PARA PAGINAR TARJETAS -->
+                                            <script>
+                                                /*
+                                                // Datos mejorados para las tarjetas de servicios deportivos
+                                                const tarjetas = [
+                                                    {
+                                                        titulo: "Piscina Olímpica San Miguel",
+                                                        descripcion: "Piscina olímpica de 50m con 8 carriles y agua temperada. Ideal para natación libre y entrenamiento profesional.",
+                                                        capacidad: "40 personas",
+                                                        precio: "S/ 30.00",
+                                                        tipo: "Piscina",
+                                                        imagen: "assets/images/small/Piscina_Olimpica1.jpg",
+                                                        enlace: "vecino-piscina.html",
+                                                        horario: "6:00 AM - 9:00 PM",
+                                                        caracteristicas: ["Agua temperada", "Duchas", "Vestidores", "Instructor disponible"]
+                                                    },
+                                                    {
+                                                        titulo: "Gimnasio Municipal San Miguel",
+                                                        descripcion: "Gimnasio completamente equipado con máquinas modernas, pesas libres y área de cardio. Entrenadores disponibles.",
+                                                        capacidad: "25 personas",
+                                                        precio: "S/ 40.00",
+                                                        tipo: "Gimnasio",
+                                                        imagen: "assets/images/small/gym.jpg",
+                                                        enlace: "vecino-gym.html",
+                                                        horario: "5:00 AM - 11:00 PM",
+                                                        caracteristicas: ["Máquinas de pesas", "Zona cardio", "Instructor disponible", "Vestidores"]
+                                                    },
+                                                    {
+                                                        titulo: "Cancha de Fútbol Parque Juan Pablo II",
+                                                        descripcion: "Cancha de fútbol 5vs5 en superficie de loza. Perfecta para partidos amistosos y campeonatos barriales.",
+                                                        capacidad: "10 personas",
+                                                        precio: "S/ 135.00",
+                                                        tipo: "Fútbol - Loza",
+                                                        imagen: "assets/images/small/lozaDeportiva.jpg",
+                                                        enlace: "vecino-futbol-loza.html",
+                                                        horario: "8:00 AM - 10:00 PM",
+                                                        caracteristicas: ["Iluminación nocturna", "Arcos reglamentarios", "Graderías", "Alquiler de balones"]
+                                                    },
+                                                    {
+                                                        titulo: "Cancha Grass Sintético La Marina",
+                                                        descripcion: "Moderna cancha de fútbol 7 con grass sintético de última generación. Ideal para partidos competitivos y entrenamiento.",
+                                                        capacidad: "14 personas",
+                                                        precio: "S/ 50.00",
+                                                        tipo: "Fútbol - Grass",
+                                                        imagen: "assets/images/small/Grass sintético_cf_3.jpg",
+                                                        enlace: "vecino-futbol-grass.html",
+                                                        horario: "7:00 AM - 11:00 PM",
+                                                        caracteristicas: ["Grass de alta calidad", "Iluminación LED", "Vestuarios", "Hidratación incluida"]
+                                                    },
+                                                    {
+                                                        titulo: "Pista de Atletismo PUCP",
+                                                        descripcion: "Pista profesional de atletismo con 8 carriles y superficie de tartán. Ideal para corredores amateurs y profesionales.",
+                                                        capacidad: "30 personas",
+                                                        precio: "S/ 65.00",
+                                                        tipo: "Atletismo",
+                                                        imagen: "assets/images/small/atletismo_pista.jpg",
+                                                        enlace: "vecino-atletismo.html",
+                                                        horario: "5:00 AM - 9:00 PM",
+                                                        caracteristicas: ["Pista reglamentaria", "Zona de salto", "Entrenadores certificados", "Cronometraje"]
+                                                    },
+                                                    {
+                                                        titulo: "Complejo Deportivo Multifuncional",
+                                                        descripcion: "Espacio versátil adaptado para múltiples deportes: vóley, básquet, balonmano y más en un solo lugar.",
+                                                        capacidad: "30 personas",
+                                                        precio: "S/ 150.00",
+                                                        tipo: "Multifuncional",
+                                                        imagen: "assets/images/small/CanchasMultiples.jpg",
+                                                        enlace: "vecino-multiple.html",
+                                                        horario: "8:00 AM - 10:00 PM",
+                                                        caracteristicas: ["Adaptable a varios deportes", "Equipamiento incluido", "Tribunas", "Cafetería"]
+                                                    }
+                                                ];
+
+                                                 */
+                                                let tarjetas = [];
+
+                                                fetch("/espacios")
+                                                    .then(res => res.json())
+                                                    .then(data => {
+                                                        tarjetas = data.map(e => ({
+                                                            titulo: e.nombre,
+                                                            descripcion: e.descripcion || "Espacio deportivo disponible.",
+                                                            capacidad: e.aforoGimnasio || e.maxPersonasPorCarril || "No definido",
+                                                            precio: `S/ ${e.precioPorHora || 0}`,
+                                                            tipo: mapTipo(e.servicioDeportivo?.nombre),
+                                                            imagen: seleccionarImagen(e.nombre),
+                                                            enlace: `vecino-${slug(e.nombre)}.html`,
+                                                            horario: formatHorario(e.horarioApertura, e.horarioCierre),
+                                                            caracteristicas: []
+                                                        }));
+
+                                                        mostrarTarjetas();
+                                                        mostrarContadorResultados(tarjetas.length);
+                                                    });
+
+
+                                                // Variables para la paginación y filtrado
+                                                const tarjetasPorPagina = 3;
+                                                let paginaActual = 1;
+                                                let tarjetasActuales = [...tarjetas];
+
+                                                // Función principal para manejar el filtrado
+                                                function aplicarFiltros() {
+                                                    // Obtener valores de filtros de servicios
+                                                    const filtrosServicios = {
+                                                        'piscina': document.getElementById('piscina').checked,
+                                                        'gimnasio': document.getElementById('gimnasio').checked,
+                                                        'futbol-loza': document.getElementById('futbol-loza').checked,
+                                                        'futbol-grass': document.getElementById('futbol-grass').checked,
+                                                        'atletismo': document.getElementById('atletismo').checked,
+                                                        'multiusos': document.getElementById('multiusos').checked
+                                                    };
+
+                                                    // Destacar visualmente los filtros activos
+                                                    Object.keys(filtrosServicios).forEach(key => {
+                                                        const element = document.getElementById(key);
+                                                        if (element) {
+                                                            const label = element.nextElementSibling;
+                                                            if (filtrosServicios[key]) {
+                                                                label.classList.add('fw-bold', 'text-primary');
+                                                            } else {
+                                                                label.classList.remove('fw-bold', 'text-primary');
+                                                            }
+                                                        }
+                                                    });
+
+                                                    // Obtener precio máximo seleccionado
+                                                    const precioMaximo = parseInt(document.getElementById('precioRange').value);
+
+                                                    // Filtrar el array de tarjetas
+                                                    const tarjetasFiltradas = tarjetas.filter(tarjeta => {
+                                                        // Filtrar por precio
+                                                        const precio = parseInt(tarjeta.precio.replace('S/ ', '').replace('.00', ''));
+                                                        if (precio > precioMaximo) return false;
+
+                                                        // Verificar si hay algún filtro de servicio activo
+                                                        const algunFiltroActivo = Object.values(filtrosServicios).some(val => val);
+
+                                                        // Si no hay filtros activos, mostrar todas las tarjetas
+                                                        if (!algunFiltroActivo) return true;
+
+                                                        // Filtrar por tipo de servicio
+                                                        if (filtrosServicios['piscina'] && tarjeta.tipo === "Piscina") return true;
+                                                        if (filtrosServicios['gimnasio'] && tarjeta.tipo === "Gimnasio") return true;
+                                                        if (filtrosServicios['futbol-loza'] && tarjeta.tipo === "Fútbol - Loza") return true;
+                                                        if (filtrosServicios['futbol-grass'] && tarjeta.tipo === "Fútbol - Grass") return true;
+                                                        if (filtrosServicios['atletismo'] && tarjeta.tipo === "Atletismo") return true;
+                                                        if (filtrosServicios['multiusos'] && tarjeta.tipo === "Multifuncional") return true;
+
+                                                        // Si no coincide con ningún filtro activo, no mostrar
+                                                        return false;
+                                                    });
+
+                                                    // Actualizar variable global de tarjetas filtradas
+                                                    tarjetasActuales = tarjetasFiltradas;
+
+                                                    // Resetear a la primera página al filtrar
+                                                    paginaActual = 1;
+
+                                                    // Mostrar tarjetas filtradas
+                                                    mostrarTarjetas();
+
+                                                    // Mostrar contador de resultados
+                                                    mostrarContadorResultados(tarjetasFiltradas.length);
+                                                }
+
+                                                // Función para mostrar contador de resultados
+                                                function mostrarContadorResultados(cantidad) {
+                                                    const infoElement = document.querySelector('.col-md-6 h5');
+                                                    if (infoElement) {
+                                                        infoElement.innerHTML = `Servicios Deportivos <span class="badge bg-primary">${cantidad} resultados</span>`;
+                                                    }
+                                                }
+
+                                                // Función para mostrar las tarjetas con la información mejorada
+                                                function mostrarTarjetas() {
+                                                    const inicio = (paginaActual - 1) * tarjetasPorPagina;
+                                                    const fin = inicio + tarjetasPorPagina;
+                                                    const tarjetasPagina = tarjetasActuales.slice(inicio, fin);
+
+                                                    const contenedor = document.getElementById("tarjetas-container");
+                                                    contenedor.innerHTML = "";
+
+                                                    if (tarjetasPagina.length === 0) {
+                                                        contenedor.innerHTML = `
+            <div class="col-12 text-center p-5">
+                <h4>No se encontraron resultados para tu búsqueda</h4>
+                <p>Intenta cambiar los filtros o ajustar el rango de precios.</p>
+            </div>
+        `;
+                                                    } else {
+                                                        tarjetasPagina.forEach(t => {
+                                                            let badgeClass = "bg-info";
+
+                                                            // Asignar las clases de badge según el tipo de servicio
+                                                            if (t.tipo.includes("Fútbol")) {
+                                                                badgeClass = "bg-warning";
+                                                            } else if (t.tipo === "Atletismo") {
+                                                                badgeClass = "bg-danger";
+                                                            } else if (t.tipo === "Multifuncional") {
+                                                                badgeClass = "bg-secondary";
+                                                            }
+
+                                                            // Crear lista de características si existen
+                                                            let caracteristicasHTML = '';
+                                                            if (t.caracteristicas && t.caracteristicas.length > 0) {
+                                                                caracteristicasHTML = '<div class="mt-2 mb-2"><small class="text-muted">';
+                                                                caracteristicasHTML += t.caracteristicas.map(c => `<i class="mdi mdi-check-circle text-success me-1"></i>${c}`).join(' • ');
+                                                                caracteristicasHTML += '</small></div>';
+                                                            }
+
+                                                            // Crear tarjeta con diseño mejorado
+                                                            contenedor.innerHTML += `
+                <div class="col-xl-4 col-sm-6 mb-3">
+                    <div class="product-box border p-3 rounded shadow-sm">
+                        <div class="product-img position-relative">
+                            <div class="product-ribbon badge bg-success">Disponible</div>
+                            <span class="badge ${badgeClass} position-absolute top-0 end-0 m-2">${t.tipo}</span>
+                            <img src="${t.imagen}" alt="${t.titulo}" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+                        </div>
+                        <div class="text-center p-2">
+                            <h5 class="font-size-16 mt-3"><a href="#" class="text-reset">${t.titulo}</a></h5>
+                            <p class="text-muted mb-2">${t.descripcion}</p>
+                            ${caracteristicasHTML}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span><i class="mdi mdi-account-group me-1"></i> ${t.capacidad}</span>
+                                <span><i class="mdi mdi-clock-outline me-1"></i> ${t.horario || 'Horario flexible'}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="text-primary">${t.precio}</h5>
+                                <a href="${t.enlace}" class="btn btn-primary">Reservar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+                                                        });
+                                                    }
+
+                                                    actualizarPaginacion();
+                                                }
+
+                                                // Función para actualizar la paginación
+                                                function actualizarPaginacion() {
+                                                    const totalPaginas = Math.ceil(tarjetasActuales.length / tarjetasPorPagina);
+                                                    const paginacion = document.getElementById("pagination");
+                                                    const pageInfo = document.getElementById("page-info");
+
+                                                    // Si no hay páginas, mostrar página 0 de 0
+                                                    if (totalPaginas === 0) {
+                                                        pageInfo.innerHTML = `Página <span class="fw-bold">0</span> de <span class="fw-bold">0</span>`;
+                                                        paginacion.innerHTML = '';
+                                                        return;
+                                                    }
+
+                                                    pageInfo.innerHTML = `Página <span class="fw-bold">${paginaActual}</span> de <span class="fw-bold">${totalPaginas}</span>`;
+
+                                                    paginacion.innerHTML = `
+        <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
+            <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual - 1}); return false;"><i class="mdi mdi-chevron-left"></i></a>
+        </li>
+    `;
+
+                                                    // Mostrar máximo 5 páginas en la paginación
+                                                    const maxPaginas = 5;
+                                                    let startPage = Math.max(1, paginaActual - Math.floor(maxPaginas / 2));
+                                                    let endPage = Math.min(totalPaginas, startPage + maxPaginas - 1);
+
+                                                    if (endPage - startPage + 1 < maxPaginas) {
+                                                        startPage = Math.max(1, endPage - maxPaginas + 1);
+                                                    }
+
+                                                    for (let i = startPage; i <= endPage; i++) {
+                                                        paginacion.innerHTML += `
+            <li class="page-item ${i === paginaActual ? 'active' : ''}">
+                <a href="#" class="page-link" onclick="cambiarPagina(${i}); return false;">${i}</a>
+            </li>
+        `;
+                                                    }
+
+                                                    paginacion.innerHTML += `
+        <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
+            <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual + 1}); return false;"><i class="mdi mdi-chevron-right"></i></a>
+        </li>
+    `;
+                                                }
+
+                                                // Función para cambiar de página
+                                                function cambiarPagina(nuevaPagina) {
+                                                    const totalPaginas = Math.ceil(tarjetasActuales.length / tarjetasPorPagina);
+                                                    if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
+                                                        paginaActual = nuevaPagina;
+                                                        mostrarTarjetas();
+                                                        // Scroll suave hacia arriba
+                                                        window.scrollTo({top: 0, behavior: 'smooth'});
+                                                    }
+                                                    return false; // Para evitar que la página se recargue
+                                                }
+
+                                                // Función para búsqueda por texto
+                                                function buscarTexto() {
+                                                    const textoBusqueda = document.querySelector('.search-box input').value.toLowerCase().trim();
+
+                                                    // Restaurar todas las tarjetas si no hay texto de búsqueda
+                                                    if (textoBusqueda === '') {
+                                                        tarjetasActuales = [...tarjetas];
+                                                        aplicarFiltros(); // Aplicar los otros filtros
+                                                        return;
+                                                    }
+
+                                                    // Filtrar por texto en todas las propiedades relevantes
+                                                    tarjetasActuales = tarjetas.filter(tarjeta => {
+                                                        return tarjeta.titulo.toLowerCase().includes(textoBusqueda) ||
+                                                            tarjeta.descripcion.toLowerCase().includes(textoBusqueda) ||
+                                                            tarjeta.tipo.toLowerCase().includes(textoBusqueda) ||
+                                                            (tarjeta.caracteristicas && tarjeta.caracteristicas.some(c => c.toLowerCase().includes(textoBusqueda)));
+                                                    });
+
+                                                    // Luego aplicar los otros filtros (checkbox y precio)
+                                                    aplicarFiltros();
+                                                }
+
+                                                // Función para actualizar el precio mostrado y aplicar filtros
+                                                function actualizarPrecio(valor) {
+                                                    document.getElementById('precioActual').innerText = 'S/ ' + valor;
+                                                    aplicarFiltros();
+                                                }
+
+                                                // Inicializar cuando el DOM esté cargado
+                                                document.addEventListener('DOMContentLoaded', function() {
+                                                    // Añadir listeners a los checkboxes de filtro
+                                                    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                                                    checkboxes.forEach(checkbox => {
+                                                        checkbox.addEventListener('change', aplicarFiltros);
+                                                    });
+
+                                                    // Añadir listener al slider de precio
+                                                    const precioSlider = document.getElementById('precioRange');
+                                                    if (precioSlider) {
+                                                        precioSlider.addEventListener('input', function() {
+                                                            document.getElementById('precioActual').innerText = 'S/ ' + this.value;
+                                                            aplicarFiltros();
+                                                        });
+                                                    }
+
+                                                    // Añadir listener al campo de búsqueda
+                                                    const campoBusqueda = document.querySelector('.search-box input');
+                                                    if (campoBusqueda) {
+                                                        campoBusqueda.addEventListener('input', buscarTexto);
+                                                    }
+
+                                                    // Ocultar las tarjetas estáticas del HTML original
+                                                    const tarjetasEstaticas = document.querySelectorAll('.row.g-0 > .col-xl-4');
+                                                    tarjetasEstaticas.forEach(tarjeta => {
+                                                        tarjeta.style.display = 'none';
+                                                    });
+
+                                                    // Mostrar tarjetas dinámicas
+                                                    mostrarTarjetas();
+                                                    mostrarContadorResultados(tarjetas.length);
+                                                });
+                                            </script>
+
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </div> <!-- container-fluid -->
+                </div>
+                <!-- End Page-content -->
+
+            </div>
+            <!-- end main content-->
+
+        </div>
+        <!-- END layout-wrapper -->
+
+        <!-- Right Sidebar -->
+        <div class="right-bar">
+            <div data-simplebar class="h-100">
+                <div class="rightbar-title d-flex align-items-center px-3 py-4">
+
+                    <h5 class="m-0 me-2">Settings</h5>
+
+                    <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
+                        <i class="mdi mdi-close noti-icon"></i>
+                    </a>
+                </div>
+
+                <!-- Settings -->
+                <hr class="mt-0" />
+                <h6 class="text-center mb-0">Choose Layouts</h6>
+
+                <div class="p-4">
+                    <div class="mb-2">
+                        <img src="assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input theme-choice" type="checkbox" id="light-mode-switch" checked>
+                        <label class="form-check-label" for="light-mode-switch">Light Mode</label>
+                    </div>
+    
+                    <div class="mb-2">
+                        <img src="assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
+                        <label class="form-check-label" for="dark-mode-switch">Dark Mode</label>
+                    </div>
+    
+                    <div class="mb-2">
+                        <img src="assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
+                    </div>
+                    <div class="form-check form-switch mb-5">
+                        <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
+                        <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
+                    </div>
+
+
+                </div>
+
+            </div> <!-- end slimscroll-menu-->
+        </div>
+        <!-- /Right-bar -->
+
+        <!-- Right bar overlay-->
+        <div class="rightbar-overlay"></div>
+
+        <!-- JAVASCRIPT -->
+        <script src="assets/libs/jquery/jquery.min.js"></script>
+        <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="assets/libs/metismenu/metisMenu.min.js"></script>
+        <script src="assets/libs/simplebar/simplebar.min.js"></script>
+        <script src="assets/libs/node-waves/waves.min.js"></script>
+
+        <!-- Ion Range Slider-->
+        <script src="assets/libs/ion-rangeslider/js/ion.rangeSlider.min.js"></script>
+
+        <!-- init js -->
+        <script src="assets/js/pages/product-filter-range.init.js"></script>
+
+        <script src="assets/js/app.js"></script>
+
+    </body>
+
+<!-- Mirrored from themesdesign.in/nazox/layouts/vecino-cancha.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:25 GMT -->
+</html>

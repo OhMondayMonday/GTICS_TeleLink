@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Fragment para el HEAD con metadatos y CSS -->
+<head th:fragment="head(title)">
+    <meta charset="utf-8" />
+    <title th:text="${title}"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Espacios deportivos disponibles en San Miguel" name="description" />
+    <meta content="Themesdesign" name="author" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="assets/images/logo-San-Miguel-1.webp">
+
+    <!-- Bootstrap Css -->
+    <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+</head>
+
+<!-- Fragment para el header con logo y menú de usuario -->
+<header th:fragment="header">
+    <div id="page-topbar">
+        <div class="navbar-header">
+            <div class="d-flex">
+                <!-- LOGO -->
+                <div class="navbar-brand-box">
+                    <a href="" class="logo logo-light">
+                        <span class="logo-sm">
+                            <img src="assets\images\logo-San-Miguel-1.webp" alt="logo-sanmiguel" height="25">
+                        </span>
+                        <span class="logo-lg">
+                            <img src="assets\images\logoCompleto.png" alt="logo-sanmiguel" height="40" class="me-2">
+                            <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
+                        </span>
+                    </a>
+                </div>
+
+                <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                    <i class="ri-menu-2-line align-middle"></i>
+                </button>
+            </div>
+
+            <div class="d-flex">
+
+                <div class="dropdown d-inline-block user-dropdown">
+                    <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img class="rounded-circle header-profile-user" th:src="${usuario.fotoPerfilUrl} ?: @{assets/images/users/user1.jfif}" alt="Header Avatar">
+                        <span class="d-none d-xl-inline-block ms-1" th:text="${usuario.nombres.split(' ')[0]} ?: 'Usuario'"></span>
+                        <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <!-- item-->
+                        <a class="dropdown-item" href="vecino-perfil.html"><i class="ri-user-line align-middle me-1"></i>Mi perfil</a>
+                        <a class="dropdown-item d-block" href="#"><span class="badge bg-success float-end mt-1">11</span><i class="ri-settings-2-line align-middle me-1"></i> Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a>
+                    </div>
+                </div>
+
+                <div class="dropdown d-inline-block">
+                    <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
+                        <i class="ri-settings-2-line"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div th:fragment="carrusel">
+
+<!-- Fragment para el título de la página -->
+<div th:fragment="page-title(titulo, ruta)">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                <h4 class="mb-sm-0" th:text="${titulo}">Título de la página</h4>
+
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">Servicios Deportivos</a></li>
+                        <li class="breadcrumb-item active" th:text="${ruta}">Ruta</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fragment para el bloque de filtros -->
+<div th:fragment="filtros-canchas">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="font-size-14 mb-3">Filtrar por</h5>
+
+            <div class="accordion" id="accordionCanchaFiltros">
+                <!-- Servicios deportivos -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="serviciosHeading">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseServicios" aria-expanded="true" aria-controls="collapseServicios">
+                            <i class="mdi mdi-soccer font-size-16 align-middle me-2"></i> Servicios deportivos
+                        </button>
+                    </h2>
+                    <div id="collapseServicios" class="accordion-collapse collapse show" aria-labelledby="serviciosHeading" data-bs-parent="#accordionCanchaFiltros">
+                        <div class="accordion-body">
+                            <ul class="list-unstyled categories-list mb-0">
+                                <li><input type="checkbox" id="futbol-loza"> <label for="futbol-loza">Cancha de fútbol (Loza)</label></li>
+                                <li><input type="checkbox" id="futbol-grass"> <label for="futbol-grass">Cancha de fútbol (Grass sintético)</label></li>
+                                <li><input type="checkbox" id="gimnasio"> <label for="gimnasio">Gimnasio</label></li>
+                                <li><input type="checkbox" id="piscina"> <label for="piscina">Piscina</label></li>
+                                <li><input type="checkbox" id="atletismo"> <label for="atletismo">Pista de atletismo</label></li>
+                                <li><input type="checkbox" id="multiusos"> <label for="multiusos">Cancha Multiusos</label></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Precio -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="precioHeading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrecio" aria-expanded="false" aria-controls="collapsePrecio">
+                            <i class="mdi mdi-currency-usd font-size-16 align-middle me-2"></i> Precio (S/)
+                        </button>
+                    </h2>
+                    <div id="collapsePrecio" class="accordion-collapse collapse show" aria-labelledby="precioHeading" data-bs-parent="#accordionCanchaFiltros">
+                        <div class="accordion-body">
+                            <label for="precioRange" class="form-label">Rango de precios:</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span id="precioMin">S/ 10</span>
+                                <span id="precioMax">S/ 150</span>
+                            </div>
+                            <input type="range" class="form-range" min="10" max="150" step="5" id="precioRange" oninput="actualizarPrecio(this.value)">
+                            <div class="text-center mt-2">
+                                <strong>Seleccionado: <span id="precioActual">S/ 80</span></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zonas -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="zonaHeading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseZona" aria-expanded="false" aria-controls="collapseZona">
+                            <i class="mdi mdi-map-marker-radius font-size-16 align-middle me-2"></i> Zonas
+                        </button>
+                    </h2>
+                    <div id="collapseZona" class="accordion-collapse collapse" aria-labelledby="zonaHeading" data-bs-parent="#accordionCanchaFiltros">
+                        <div class="accordion-body">
+                            <ul class="list-unstyled mb-0">
+                                <li><input type="checkbox" id="zona-costado"> <label for="zona-costado">Costado de la UPC</label></li>
+                                <li><input type="checkbox" id="zona-avla-marina"> <label for="zona-avla-marina">Av. La Marina</label></li>
+                                <li><input type="checkbox" id="zona-parque-zonal"> <label for="zona-parque-zonal">Parque Zonal</label></li>
+                                <li><input type="checkbox" id="zona-plaza-sanmiguel"> <label for="zona-plaza-sanmiguel">Cerca a Plaza San Miguel</label></li>
+                                <li><input type="checkbox" id="zona-univcatolica"> <label for="zona-univcatolica">Cerca a PUCP</label></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calificación -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="ratingHeading">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRating" aria-expanded="false" aria-controls="collapseRating">
+                            <i class="mdi mdi-star-outline font-size-16 align-middle me-2"></i> Calificación
+                        </button>
+                    </h2>
+                    <div id="collapseRating" class="accordion-collapse collapse" aria-labelledby="ratingHeading" data-bs-parent="#accordionCanchaFiltros">
+                        <div class="accordion-body">
+                            <div class="form-check mb-2">
+                                <input type="radio" name="rating" id="rating4" class="form-check-input">
+                                <label class="form-check-label" for="rating4">4 estrellas o más</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="radio" name="rating" id="rating3" class="form-check-input">
+                                <label class="form-check-label" for="rating3">3 estrellas o más</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="radio" name="rating" id="rating2" class="form-check-input">
+                                <label class="form-check-label" for="rating2">2 estrellas o más</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input type="radio" name="rating" id="rating1" class="form-check-input">
+                                <label class="form-check-label" for="rating1">1 estrella o más</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fragment para la tarjeta de cancha -->
+<div th:fragment="tarjeta-cancha(cancha)">
+    <div class="col-xl-4 col-sm-6 mb-3">
+        <div class="product-box border p-3 rounded shadow-sm">
+            <div class="product-img position-relative">
+                <div class="product-ribbon badge bg-success" th:text="${cancha.disponible ? 'Disponible' : 'No disponible'}">Disponible</div>
+                <span class="badge bg-info position-absolute top-0 end-0 m-2" th:text="${cancha.tipo}">Tipo Cancha</span>
+                <img th:src="${cancha.imagen}" th:alt="${cancha.titulo}" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+            </div>
+            <div class="text-center p-2">
+                <h5 class="font-size-16 mt-3"><a href="#" class="text-reset" th:text="${cancha.titulo}">Nombre de Cancha</a></h5>
+                <p class="text-muted mb-2" th:text="${cancha.descripcion}">Descripción de la cancha</p>
+                <div class="mt-2 mb-2" th:if="${cancha.caracteristicas != null and !cancha.caracteristicas.empty}">
+                    <small class="text-muted">
+                        <th:block th:each="caracteristica, iterStat : ${cancha.caracteristicas}">
+                            <i class="mdi mdi-check-circle text-success me-1"></i>
+                            <span th:text="${caracteristica}">Característica</span>
+                            <span th:if="${!iterStat.last}"> • </span>
+                        </th:block>
+                    </small>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span><i class="mdi mdi-account-group me-1"></i> <span th:text="${cancha.capacidad}">Capacidad</span></span>
+                    <span><i class="mdi mdi-clock-outline me-1"></i> <span th:text="${cancha.horario}">Horario</span></span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="text-primary" th:text="${cancha.precio}">Precio</h5>
+                    <a th:href="${cancha.enlace}" class="btn btn-primary">Reservar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fragment para los scripts -->
+<div th:fragment="scripts">
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+    <!-- JAVASCRIPT -->
+    <script src="assets/libs/jquery/jquery.min.js"></script>
+    <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/libs/metismenu/metisMenu.min.js"></script>
+    <script src="assets/libs/simplebar/simplebar.min.js"></script>
+    <script src="assets/libs/node-waves/waves.min.js"></script>
+
+    <!-- Ion Range Slider-->
+    <script src="assets/libs/ion-rangeslider/js/ion.rangeSlider.min.js"></script>
+
+    <!-- init js -->
+    <script src="assets/js/pages/product-filter-range.init.js"></script>
+
+    <!-- apexcharts -->
+    <script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+
+    <!-- jquery.vectormap map -->
+    <script src="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js"></script>
+    <script src="assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js"></script>
+
+    <!-- Required datatable js -->
+    <script src="assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+
+    <!-- Responsive examples -->
+    <script src="assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+
+    <script src="assets/js/app.js"></script>
+</div>
+
+</html>

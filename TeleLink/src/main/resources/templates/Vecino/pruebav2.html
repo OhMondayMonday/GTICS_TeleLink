@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Reservas Deportivas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilos generales */
+        .calendar-container {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        /* Estilos de la cabecera de horas */
+        .hour-headers {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .hour-label {
+            width: 60px;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #6b7280;
+            flex-shrink: 0;
+        }
+
+        .service-label {
+            width: 100px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Estilos de la fila de reservas */
+        .reservation-row {
+            display: flex;
+            height: 50px;
+            position: relative;
+            margin-bottom: 3px;
+        }
+
+        /* Contenedor para las celdas interactivas */
+        .interactive-cells {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+
+        /* Celdas individuales para horas */
+        .hour-cell {
+            flex: 1;
+            border-right: 1px solid #f3f4f6;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .hour-cell:hover {
+            background-color: #f9fafb;
+        }
+
+        .hour-cell.no-disponible {
+            cursor: not-allowed;
+        }
+
+        .hour-cell.seleccionado {
+            background-color: #dbeafe;
+            border: 1px solid #3b82f6;
+        }
+
+        /* Barras de reserva */
+        .reservation-bar {
+            position: absolute;
+            top: 0;
+            height: 100%;
+        }
+
+        .reservation-bar.no-disponible {
+            background-color: #9ca3af;
+        }
+
+        .reservation-bar.tu-reserva {
+            background-color: #10b981;
+        }
+
+        /* Estilos para servicios */
+        .service-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .service-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .service-item.active {
+            background-color: #ecfdf5;
+            color: #065f46;
+            font-weight: 500;
+        }
+
+        .service-icon {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        /* Leyenda */
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 16px;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 4px;
+        }
+
+        /* Botones de navegación */
+        .nav-btn {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 50%;
+        }
+
+        .nav-btn:hover {
+            background-color: #f3f4f6;
+        }
+
+        /* Selector de servicios móvil */
+        .mobile-services {
+            display: flex;
+            overflow-x: auto;
+            padding: 8px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .mobile-service-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            min-width: 70px;
+            border-radius: 8px;
+            margin-right: 8px;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+        }
+
+        .mobile-service-btn.active {
+            background-color: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .mobile-service-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .mobile-service-name {
+            font-size: 0.75rem;
+        }
+
+        /* Media queries */
+        @media (min-width: 768px) {
+            .mobile-services {
+                display: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .desktop-services {
+                display: none;
+            }
+        }
+
+        /* Spinner de carga */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-left-color: #10b981;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>Calendario de Reservas Deportivas</h2>
+
+            <!-- Selector de servicio para pantallas pequeñas -->
+            <div class="mobile-services">
+                <!-- Se llenará dinámicamente con JavaScript -->
+            </div>
+
+            <div class="row">
+                <!-- Columna de servicios (visible solo en desktop) -->
+                <div class="col-md-3 desktop-services">
+                    <div class="mb-3 fw-medium">Servicios</div>
+                    <div id="service-list">
+                        <!-- Se llenará dinámicamente con JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Columna del calendario -->
+                <div class="col-md-9" id="calendar-column">
+                    <!-- Selector de fecha -->
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <button id="prev-day" class="nav-btn" aria-label="Día anterior">&lt;</button>
+                        <div class="text-center">
+                            <div id="current-date" class="fw-medium">Cargando...</div>
+                        </div>
+                        <button id="next-day" class="nav-btn" aria-label="Día siguiente">&gt;</button>
+                    </div>
+
+                    <!-- Contenedor del calendario -->
+                    <div class="calendar-container mb-4">
+                        <div id="calendar">
+                            <!-- Se llenará dinámicamente con JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Leyenda -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #9ca3af;"></div>
+                            <span>No disponible</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #10b981;"></div>
+                            <span>Tu reserva</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #dbeafe; border: 1px solid #3b82f6;"></div>
+                            <span>Seleccionado</span>
+                        </div>
+                    </div>
+
+                    <!-- Información de selección y botón de reserva -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div id="selected-hours-info">
+                            <!-- Información de horas seleccionadas -->
+                        </div>
+                        <button id="continue-btn" class="btn btn-success" disabled>Continuar con la reserva</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obtener el servicio desde la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const servicioIdParam = urlParams.get('servicio');
+
+        // Definir todos los servicios disponibles en el sistema
+        const mapeoServicios = {
+            'piscina': { id: 'piscina', nombre: 'Piscina', icon: '🏊' },
+            'gimnasio': { id: 'gimnasio', nombre: 'Gimnasio', icon: '🏋️' },
+            'futbol-loza': { id: 'futbol-loza', nombre: 'Fútbol Loza', icon: '⚽' },
+            'futbol-grass': { id: 'futbol-grass', nombre: 'Fútbol Grass', icon: '⚽' },
+            'atletismo': { id: 'atletismo', nombre: 'Atletismo', icon: '🏃' },
+            'voley': { id: 'voley', nombre: 'Vóley', icon: '🏐' },
+            'basquet': { id: 'basquet', nombre: 'Básquet', icon: '🏀' },
+            'multiple': { id: 'multiple', nombre: 'Cancha Multiusos', icon: '🎯' }
+        };
+
+        // Definir servicios disponibles para mostrar en los selectores
+        const servicios = [
+            mapeoServicios['piscina'],
+            mapeoServicios['gimnasio'],
+            mapeoServicios['futbol-loza'],
+            mapeoServicios['futbol-grass'],
+            mapeoServicios['atletismo'],
+            mapeoServicios['voley'],
+            mapeoServicios['basquet'],
+            mapeoServicios['multiple']
+        ];
+
+        // Establecer el servicio seleccionado según el parámetro, o usar el predeterminado
+        let servicioSeleccionado = servicioIdParam && mapeoServicios[servicioIdParam]
+            ? mapeoServicios[servicioIdParam]
+            : servicios[0];
+
+        // Ajustar el layout si venimos con un servicio específico
+        if (servicioIdParam) {
+            // Ocultar los selectores de servicio
+            document.querySelector('.desktop-services').style.display = 'none';
+            document.querySelector('.mobile-services').style.display = 'none';
+
+            // Ajustar el ancho del contenedor del calendario
+            document.getElementById('calendar-column').className = 'col-12';
+
+            // Actualizar el título para mostrar el servicio
+            document.querySelector('h2').textContent = `Reserva de ${servicioSeleccionado.nombre}`;
+        }
+
+        // Variables de estado
+        let fechaActual = new Date();
+        let reservas = {};
+        let horasSeleccionadas = [];
+        let cargando = true;
+
+        // Generar las horas del día (6am a 22pm)
+        const horas = Array.from({ length: 17 }, (_, i) => i + 6);
+
+        // Inicializar componentes
+        inicializarServicios();
+        actualizarCalendario();
+
+        // Event listeners para navegación de fecha
+        document.getElementById('prev-day').addEventListener('click', irAlDiaAnterior);
+        document.getElementById('next-day').addEventListener('click', irAlDiaSiguiente);
+
+        // Event listener para el botón de continuar
+        document.getElementById('continue-btn').addEventListener('click', continuarReserva);
+
+        // Función para inicializar los servicios
+        function inicializarServicios() {
+            // Si tenemos un servicio específico, no necesitamos inicializar los selectores
+            if (servicioIdParam) {
+                return;
+            }
+
+            // Llenar la lista de servicios (desktop)
+            const serviceList = document.getElementById('service-list');
+            serviceList.innerHTML = '';
+
+            servicios.forEach(servicio => {
+                const serviceItem = document.createElement('div');
+                serviceItem.className = `service-item ${servicio.id === servicioSeleccionado.id ? 'active' : ''}`;
+                serviceItem.dataset.id = servicio.id;
+
+                serviceItem.innerHTML = `
+                        <span class="service-icon">${servicio.icon}</span>
+                        <span>${servicio.nombre}</span>
+                        ${servicio.id === servicioSeleccionado.id ? '<span class="ms-auto text-success">✓</span>' : ''}
+                    `;
+
+                serviceItem.addEventListener('click', () => {
+                    cambiarServicio(servicio);
+                });
+
+                serviceList.appendChild(serviceItem);
+            });
+
+            // Llenar la lista de servicios móvil
+            const mobileServices = document.querySelector('.mobile-services');
+            mobileServices.innerHTML = '';
+
+            servicios.forEach(servicio => {
+                const mobileServiceBtn = document.createElement('button');
+                mobileServiceBtn.className = `mobile-service-btn ${servicio.id === servicioSeleccionado.id ? 'active' : ''}`;
+                mobileServiceBtn.dataset.id = servicio.id;
+
+                mobileServiceBtn.innerHTML = `
+                        <span class="mobile-service-icon">${servicio.icon}</span>
+                        <span class="mobile-service-name">${servicio.nombre}</span>
+                    `;
+
+                mobileServiceBtn.addEventListener('click', () => {
+                    cambiarServicio(servicio);
+                });
+
+                mobileServices.appendChild(mobileServiceBtn);
+            });
+        }
+
+        // Función para cambiar el servicio seleccionado
+        function cambiarServicio(servicio) {
+            servicioSeleccionado = servicio;
+            horasSeleccionadas = [];
+            inicializarServicios(); // Actualizar la UI de selección de servicio
+            actualizarCalendario();
+        }
+
+        // Función para ir al día anterior
+        function irAlDiaAnterior() {
+            fechaActual.setDate(fechaActual.getDate() - 1);
+            actualizarCalendario();
+        }
+
+        // Función para ir al día siguiente
+        function irAlDiaSiguiente() {
+            fechaActual.setDate(fechaActual.getDate() + 1);
+            actualizarCalendario();
+        }
+
+        // Función para formatear la fecha
+        function formatearFecha(fecha) {
+            const dia = fecha.getDate().toString().padStart(2, '0');
+            const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+            return `${dia}/${mes}`;
+        }
+
+        // Función para obtener el nombre del día
+        function obtenerNombreDia(fecha) {
+            const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            return dias[fecha.getDay()];
+        }
+
+        // Función para actualizar el calendario
+        function actualizarCalendario() {
+            // Actualizar fecha mostrada
+            document.getElementById('current-date').textContent = `${obtenerNombreDia(fechaActual)} ${formatearFecha(fechaActual)}`;
+
+            // Mostrar cargando
+            cargando = true;
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = `
+                    <div style="height: 100px; position: relative;">
+                        <div class="loading-overlay">
+                            <div class="spinner"></div>
+                            <p class="mt-2">Cargando...</p>
+                        </div>
+                    </div>
+                `;
+
+            // Simular carga de datos (en una app real, aquí harías una petición AJAX)
+            setTimeout(() => {
+                cargando = false;
+                generarDatosDeReserva();
+                renderizarCalendario();
+            }, 500);
+        }
+
+        // Función para generar datos simulados de reserva
+        function generarDatosDeReserva() {
+            reservas = {};
+
+            // Generar reservas para cada servicio
+            Object.keys(mapeoServicios).forEach(servicioId => {
+                reservas[servicioId] = {};
+
+                // Generar algunos bloques aleatorios de reservas
+                const numBloques = Math.floor(Math.random() * 4) + 1;
+
+                for (let i = 0; i < numBloques; i++) {
+                    const horaInicio = Math.floor(Math.random() * 13) + 8; // Entre 8 y 20
+                    const duracion = Math.floor(Math.random() * 3) + 1; // Entre 1 y 3 horas
+
+                    for (let h = horaInicio; h < horaInicio + duracion && h < 22; h++) {
+                        reservas[servicioId][h] = {
+                            disponible: false,
+                            esUsuarioActual: Math.random() > 0.9 // Algunas reservas son del usuario actual
+                        };
+                    }
+                }
+            });
+        }
+
+        // Función para renderizar el calendario
+        function renderizarCalendario() {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+
+            // Crear la fila de cabecera (horas)
+            const headerRow = document.createElement('div');
+            headerRow.className = 'hour-headers';
+
+            // Espacio para la columna de servicio
+            const serviceHeader = document.createElement('div');
+            serviceHeader.className = 'service-label';
+            headerRow.appendChild(serviceHeader);
+
+            // Crear las cabeceras de horas
+            horas.forEach(hora => {
+                const hourHeader = document.createElement('div');
+                hourHeader.className = 'hour-label';
+                hourHeader.textContent = hora;
+                headerRow.appendChild(hourHeader);
+            });
+
+            calendar.appendChild(headerRow);
+
+            // Crear la fila de reservas para el servicio seleccionado
+            const rowContainer = document.createElement('div');
+            rowContainer.className = 'reservation-row';
+
+            // Etiqueta del servicio
+            const serviceLabel = document.createElement('div');
+            serviceLabel.className = 'service-label';
+            serviceLabel.innerHTML = `<span class="fw-medium">${servicioSeleccionado.nombre}</span>`;
+            rowContainer.appendChild(serviceLabel);
+
+            // Contenedor para las celdas interactivas
+            const interactiveCells = document.createElement('div');
+            interactiveCells.className = 'interactive-cells';
+
+            // Crear las barras de reserva
+            if (reservas[servicioSeleccionado.id]) {
+                Object.entries(reservas[servicioSeleccionado.id]).forEach(([hora, datos]) => {
+                    const horaNum = parseInt(hora);
+                    if (horaNum >= 6 && horaNum <= 22) {
+                        const reservationBar = document.createElement('div');
+                        reservationBar.className = `reservation-bar ${datos.esUsuarioActual ? 'tu-reserva' : 'no-disponible'}`;
+
+                        // Calcular posición y ancho
+                        const leftPos = ((horaNum - 6) / 17) * 100;
+                        const width = (1 / 17) * 100;
+
+                        reservationBar.style.left = `${leftPos}%`;
+                        reservationBar.style.width = `${width}%`;
+
+                        interactiveCells.appendChild(reservationBar);
+                    }
+                });
+            }
+
+            // Crear las celdas interactivas para cada hora
+            horas.forEach(hora => {
+                const hourCell = document.createElement('div');
+                hourCell.className = 'hour-cell';
+                hourCell.dataset.hora = hora;
+
+                const estaReservado = reservas[servicioSeleccionado.id]?.[hora]?.disponible === false;
+                const estaSeleccionado = horasSeleccionadas.includes(hora);
+
+                if (estaReservado) {
+                    hourCell.classList.add('no-disponible');
+                }
+
+                if (estaSeleccionado) {
+                    hourCell.classList.add('seleccionado');
+                }
+
+                // Añadir evento de clic solo si no está reservado
+                if (!estaReservado) {
+                    hourCell.addEventListener('click', () => toggleSeleccionHora(hora));
+                }
+
+                interactiveCells.appendChild(hourCell);
+            });
+
+            rowContainer.appendChild(interactiveCells);
+            calendar.appendChild(rowContainer);
+
+            // Actualizar información de horas seleccionadas
+            actualizarInfoSeleccion();
+        }
+
+        // Función para alternar la selección de una hora
+        function toggleSeleccionHora(hora) {
+            const indice = horasSeleccionadas.indexOf(hora);
+
+            if (indice === -1) {
+                // Añadir hora a la selección
+                horasSeleccionadas.push(hora);
+            } else {
+                // Quitar hora de la selección
+                horasSeleccionadas.splice(indice, 1);
+            }
+
+            // Actualizar la visualización
+            renderizarCalendario();
+        }
+
+        // Función para actualizar la información de selección
+        function actualizarInfoSeleccion() {
+            const infoElement = document.getElementById('selected-hours-info');
+            const continueBtn = document.getElementById('continue-btn');
+
+            if (horasSeleccionadas.length === 0) {
+                infoElement.innerHTML = '';
+                continueBtn.disabled = true;
+            } else {
+                // Ordenar las horas y formatearlas
+                const horasOrdenadas = [...horasSeleccionadas].sort((a, b) => a - b);
+                const horasFormateadas = horasOrdenadas.map(h => `${h}:00`).join(', ');
+
+                infoElement.innerHTML = `<strong>Horas seleccionadas:</strong> ${horasFormateadas}`;
+                continueBtn.disabled = false;
+            }
+        }
+
+        // Función para continuar con la reserva
+        function continuarReserva() {
+            if (horasSeleccionadas.length === 0) {
+                alert('Por favor selecciona al menos una hora');
+                return;
+            }
+
+            // Preparar datos para localStorage
+            const seleccion = {
+                servicio: servicioSeleccionado.id,
+                servicioNombre: servicioSeleccionado.nombre,
+                fecha: fechaActual.toISOString(),
+                horas: horasSeleccionadas.map(h => `${h}:00`),
+                timestamp: new Date().getTime()
+            };
+
+            // Guardar en localStorage
+            localStorage.setItem('reserva_seleccionada', JSON.stringify(seleccion));
+
+            // Determinar la página a la que debemos regresar
+            let paginaDestino = 'vecino-reservar.html';
+
+            // Si venimos de una página específica, usamos la URL adecuada
+            if (servicioIdParam) {
+                paginaDestino = `vecino-${servicioIdParam}-reservar.html`;
+            }
+
+            // Redireccionar a la página de reserva
+            window.location.href = paginaDestino;
+        }
+    });
+</script>
+</body>
+</html>
