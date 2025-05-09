@@ -141,23 +141,11 @@ INSERT INTO asistencias (
  TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), '15:00:00'), 
  TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), '19:00:00'), 
  'inasistencia', 'inasistencia');
+ 
+-- aviso de prueba
 
--- Eventos programados
+INSERT INTO db_gtics.avisos (titulo_aviso, texto_aviso, foto_aviso_url, fecha_aviso)
+VALUES ('Aviso de prueba', 'Este es un aviso de prueba para el coordinador.', 'https://example.com/imagen.jpg', CURRENT_TIMESTAMP);
 
-DELIMITER $$
-
-CREATE EVENT `actualizar_asistencias_inasistencia`
-ON SCHEDULE EVERY 1 MINUTE
-STARTS CURRENT_TIMESTAMP
-DO
-BEGIN
-    UPDATE asistencias
-    SET 
-        estado_entrada = 'inasistencia',
-        estado_salida = 'inasistencia'
-    WHERE 
-        horario_salida < CURRENT_TIMESTAMP
-        AND estado_entrada = 'pendiente';
-END$$
-
-DELIMITER ;
+INSERT INTO db_gtics.avisos (titulo_aviso, texto_aviso, foto_aviso_url, fecha_aviso)
+VALUES ('Aviso de prueba 2', 'Este es un aviso de prueba para el coordinador.', 'https://static.vecteezy.com/system/resources/previews/004/431/172/non_2x/warning-notice-on-a-white-background-free-vector.jpg', CURRENT_TIMESTAMP);

@@ -33,6 +33,8 @@ public class CoordinadorController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private AvisoRepository avisoRepository;
 
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
@@ -44,9 +46,13 @@ public class CoordinadorController {
         // Almacenar el objeto Usuario en la sesión
         session.setAttribute("currentUser", usuario);
 
-        // Pasar el userId al modelo para la vista
+        // Obtener el aviso más reciente
+        Aviso ultimoAviso = avisoRepository.findLatestAviso();
+
+        // Pasar datos al modelo
         model.addAttribute("currentUserId", usuario.getUsuarioId());
         model.addAttribute("usuario", usuario);
+        model.addAttribute("ultimoAviso", ultimoAviso);
 
         return "Coordinador/inicio";
     }
@@ -77,6 +83,33 @@ public class CoordinadorController {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
         model.addAttribute("usuario", usuario);
         return "Coordinador/perfil";
+    }
+
+    @GetMapping("/editar-perfil")
+    public String mostrarEditarPerfil(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        model.addAttribute("usuario", usuario);
+        return "Coordinador/editarPerfil";
+    }
+
+    @PostMapping("/actualizar-perfil")
+    public String actualizarPerfil(@ModelAttribute("usuario") Usuario usuarioActualizado, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+
+        // Actualizar solo los campos permitidos (teléfono y foto)
+        usuario.setTelefono(usuarioActualizado.getTelefono());
+        // Por ahora, usamos una URL fija como ejemplo, ya que no se implementa la carga de imágenes
+        usuario.setFotoPerfilUrl(usuarioActualizado.getFotoPerfilUrl() != null && !usuarioActualizado.getFotoPerfilUrl().isEmpty()
+                ? usuarioActualizado.getFotoPerfilUrl()
+                : "https://st3.depositphotos.com/12985790/15794/i/450/depositphotos_157947226-stock-photo-man-looking-at-camera.jpg");
+
+        // Guardar los cambios en la base de datos
+        usuarioRepository.save(usuario);
+
+        // Actualizar el objeto en la sesión
+        session.setAttribute("currentUser", usuario);
+
+        return "redirect:/coordinador/perfil";
     }
 
     @GetMapping("/espacios-deportivos")
