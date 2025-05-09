@@ -22,16 +22,17 @@ public interface EspacioDeportivoRepository extends JpaRepository<EspacioDeporti
     List<EspacioDeportivo> findByEstadoServicio(EspacioDeportivo.EstadoServicio estadoServicio);
 
     // Mostrar solo los espacios operativos ordenados por nombre
-    List<EspacioDeportivo> findByEstadoServicioOrderByNombreAsc(String estadoServicio);
+    List<EspacioDeportivo> findByEstadoServicioOrderByNombreAsc(EspacioDeportivo.EstadoServicio estadoServicio);
 
     // Método para buscar canchas con filtros
+    /*
     @Query("SELECT e FROM EspacioDeportivo e WHERE " +
             "(?1 IS NULL OR e.tipo = ?1) AND " +
             "(?2 IS NULL OR e.precio <= ?2) AND " +
             "(?3 IS NULL OR e.zona = ?3) AND " +
             "(?4 IS NULL OR e.rating >= ?4)")
     Page<EspacioDeportivo> findByFilters(String tipo, Double precioMax, String zona, Integer rating, Pageable pageable);
-
+    */
     // Método para obtener todas las canchas
     Page<EspacioDeportivo> findAll(Pageable pageable);
 

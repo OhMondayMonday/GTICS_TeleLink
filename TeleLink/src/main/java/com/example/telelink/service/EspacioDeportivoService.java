@@ -33,12 +33,16 @@ public class EspacioDeportivoService {
 
     // Método para vecino-index
     public List<EspacioDeportivo> listarEspaciosOperativos() {
-        return espacioDeportivoRepository.findByEstadoServicioOrderByNombreAsc("operativo");
+        // Convierte el String "operativo" al valor correspondiente del enum EstadoServicio
+        EspacioDeportivo.EstadoServicio estadoOperativo = EspacioDeportivo.EstadoServicio.valueOf("operativo");
+
+        // Llama al repositorio pasando el enum
+        return espacioDeportivoRepository.findByEstadoServicioOrderByNombreAsc(estadoOperativo);
     }
 
-    public Page<EspacioDeportivo> buscarCanchasFiltradas(String tipo, Double precioMax, String zona, Integer rating, Pageable pageable) {
+    /*public Page<EspacioDeportivo> buscarCanchasFiltradas(String tipo, Double precioMax, String zona, Integer rating, Pageable pageable) {
         return espacioDeportivoRepository.findByFilters(tipo, precioMax, zona, rating, pageable);
-    }
+    }*/
     public Page<EspacioDeportivo> buscarTodasLasCanchas(Pageable pageable) {
         return espacioDeportivoRepository.findAll(pageable);
     }

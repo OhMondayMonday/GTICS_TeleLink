@@ -25,6 +25,6 @@ public class ReservaService {
 
     // Si necesitas obtener reservas por usuario, puedes hacerlo así:
     public List<Reserva> obtenerReservasPorUsuario(String usuario) {
-        return reservaRepository.findByUsuario(usuario); // Asumiendo que tienes un método findByUsuario
+        return reservaRepository.findByUsuario_Nombres(usuario); // Asumiendo que tienes un método findByUsuario
     }
 }

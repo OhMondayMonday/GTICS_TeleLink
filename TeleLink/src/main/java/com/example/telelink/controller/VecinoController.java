@@ -66,19 +66,21 @@ public class VecinoController {
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
 
         // Aplicar filtros si existen
-        Page<EspacioDeportivo> canchasPage;
+
+        /*Page<EspacioDeportivo> canchasPage;
         if (tipo != null || precioMax != null || zona != null || rating != null) {
             canchasPage = canchaService.buscarCanchasFiltradas(tipo, precioMax, zona, rating, pageRequest);
         } else {
             canchasPage = canchaService.buscarTodasLasCanchas(pageRequest);
-        }
+        }*/
+
 
         // Agregar atributos al modelo
-        model.addAttribute("canchas", canchasPage.getContent());
+        /*model.addAttribute("canchas", canchasPage.getContent());
         model.addAttribute("paginaActual", page);
         model.addAttribute("totalPaginas", canchasPage.getTotalPages());
         model.addAttribute("totalElementos", canchasPage.getTotalElements());
-
+        */
         return "vecino-cancha";
     }
 }
