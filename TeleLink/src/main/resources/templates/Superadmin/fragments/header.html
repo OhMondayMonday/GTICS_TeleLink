@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <!-- Fragmento del Header -->
-    <header th:fragment="header" id="page-topbar">
+    <header th:fragment="header(titulo)" id="page-topbar">
         <div class="navbar-header">
             <div class="d-flex">
                 <!-- LOGO -->
                 <div class="navbar-brand-box">
                     <a th:href="@{/}" class="logo logo-light">
                                 <span class="logo-sm me-1">
-                                    <img th:src="@{/admin/assets/images/logoCompleto.png}" alt="logo-sm-light" height="25">
+                                    <img th:src="@{/Superadmin/assets/images/logoCompleto.png}" alt="logo-sm-light" height="25">
                                 </span>
                         <span class="logo-lg">
-                                    <img th:src="@{/admin/assets/images/logoCompleto.png}" alt="logo-light" height="40">
+                                    <img th:src="@{/Superadmin/assets/images/logoCompleto.png}" alt="logo-light" height="40">
                                 </span>
                     </a>
                 </div>
@@ -65,7 +65,7 @@
                             </a>
                             <a href="#" class="text-reset notification-item">
                                 <div class="d-flex">
-                                    <img th:src="@{superadmin/assets/images/users/avatar-3.jpg}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                    <img th:src="@{Superadmin/assets/images/users/avatar-3.jpg}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                     <div class="flex-1">
                                         <h6 class="mb-1">James Lemire</h6>
                                         <div class="font-size-12 text-muted">
@@ -94,7 +94,7 @@
 
                             <a href="#" class="text-reset notification-item">
                                 <div class="d-flex">
-                                    <img th:src="@{superadmin/assets/images/users/avatar-4.jpg}"
+                                    <img th:src="@{Superadmin/assets/images/users/avatar-4.jpg}"
                                          class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                     <div class="flex-1">
                                         <h6 class="mb-1">Salena Layfield</h6>

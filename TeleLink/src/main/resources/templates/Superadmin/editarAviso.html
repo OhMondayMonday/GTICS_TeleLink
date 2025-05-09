@@ -1,14 +1,92 @@
 <!doctype html>
-<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 
 
     <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
-    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Perfil')}"></head>
+    <head>
+
+        <meta charset="utf-8" />
+        <title>Editar aviso</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+        <meta content="Themesdesign" name="author" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="assets/images/logoCortado.png">
+
+
+
+        <!-- jquery.vectormap css -->
+        <link href="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+
+        <link href="assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+        <link href="assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
+        <link href="assets/libs/spectrum-colorpicker2/spectrum.min.css" rel="stylesheet" type="text/css">
+        <link href="assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css" rel="stylesheet">
+
+        <!-- Bootstrap Css -->
+        <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <!-- Icons Css -->
+        <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
+        <!-- App Css-->
+        <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css"/>
+        <!-- App Css-->
+
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <style>
+            /* Contenedor del loader */
+            .loader-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 75vh; /* Toma toda la altura de la pantalla */
+                background-color: #ffffff; /* Fondo oscuro */
+            }
+
+            /* Estilo del loader */
+            /* HTML: <div class="loader"></div> */
+            .loader {
+                width: 60px;
+                aspect-ratio: 1;
+                display: grid;
+                color: #094183;
+                background: radial-gradient(farthest-side, currentColor calc(100% - 6px),#0000 calc(100% - 5px));
+                -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 13px), #000 calc(100% - 12px));
+                border-radius: 50%;
+                animation: l19 2s infinite linear;
+            }
+            .loader::before,
+            .loader::after {
+                content: "";
+                grid-area: 1/1;
+                background:
+                        linear-gradient(currentColor 0 0) center,
+                        linear-gradient(currentColor 0 0) center;
+                background-size: 100% 12px,12px 100%;
+                background-repeat: no-repeat;
+            }
+            .loader::after {
+                transform: rotate(45deg);
+            }
+
+            @keyframes l19 {
+                100%{transform: rotate(1turn)}
+            }
+        </style>
+
+        <style>
+            input.parsley-success, textarea.parsley-success {
+                border-color: #1cbb8c;  /* Color de borde para campo válido */
+            }
+        </style>
+
+    </head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
 
+        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
         <!-- Begin page -->
-        <div id="layout-wrapper">
+        <div id="layout-wrapper" >
 
 
             <header id="page-topbar">
@@ -31,7 +109,7 @@
                         </button>
 
                         <div class="dropdown dropdown-mega d-none d-lg-block">
-                            <button type="button" class="btn header-item waves-effect font-size-16" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Crear aviso
+                            <button type="button" class="btn header-item waves-effect font-size-16" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Editar aviso
                             </button>
                         </div>
                     </div>
@@ -239,7 +317,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                    <h4 class="mb-sm-0">Crear aviso</h4>
+                                    <h4 class="mb-sm-0">Editar aviso</h4>
                                 </div>
                             </div>
                         </div>

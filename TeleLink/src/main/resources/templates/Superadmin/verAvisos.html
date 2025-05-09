@@ -1,14 +1,98 @@
 <!doctype html>
-<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 
 
     <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
-    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Perfil')}"></head>
+    <head>
+
+        <meta charset="utf-8" />
+        <title>Lista de Usuarios</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+        <meta content="Themesdesign" name="author" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="assets/images/logoCortado.png">
+
+
+
+        <!-- jquery.vectormap css -->
+        <link href="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+
+        <link href="assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+        <link href="assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
+        <link href="assets/libs/spectrum-colorpicker2/spectrum.min.css" rel="stylesheet" type="text/css">
+        <link href="assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css" rel="stylesheet">
+        <link href="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+
+        <!-- DataTables -->
+        <link href="assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+        <!-- Responsive datatable examples -->
+        <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+        <!-- Bootstrap Css -->
+        <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <!-- Icons Css -->
+        <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
+        <!-- App Css-->
+        <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css"/>
+        <!-- App Css-->
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <style>
+            /* Contenedor del loader */
+            .loader-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 75vh; /* Toma toda la altura de la pantalla */
+                background-color: #ffffff; /* Fondo oscuro */
+            }
+
+            /* Estilo del loader */
+            /* HTML: <div class="loader"></div> */
+            .loader {
+                width: 60px;
+                aspect-ratio: 1;
+                display: grid;
+                color: #094183;
+                background: radial-gradient(farthest-side, currentColor calc(100% - 6px),#0000 calc(100% - 5px));
+                -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 13px), #000 calc(100% - 12px));
+                border-radius: 50%;
+                animation: l19 2s infinite linear;
+            }
+            .loader::before,
+            .loader::after {
+                content: "";
+                grid-area: 1/1;
+                background:
+                        linear-gradient(currentColor 0 0) center,
+                        linear-gradient(currentColor 0 0) center;
+                background-size: 100% 12px,12px 100%;
+                background-repeat: no-repeat;
+            }
+            .loader::after {
+                transform: rotate(45deg);
+            }
+
+            @keyframes l19 {
+                100%{transform: rotate(1turn)}
+            }
+        </style>
+
+        <style>
+            input.parsley-success, textarea.parsley-success {
+                border-color: #1cbb8c;  /* Color de borde para campo válido */
+            }
+        </style>
+
+    </head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
 
+        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
         <!-- Begin page -->
-        <div id="layout-wrapper">
+        <div id="layout-wrapper" >
 
 
             <header id="page-topbar">
@@ -166,7 +250,7 @@
                             <li>
                                 <a href="crearAviso.html" class="waves-effect">
                                     <i class="mdi mdi-newspaper-plus"></i>
-                                    <span>Crear avisos</span>
+                                    <span>Ver avisos</span>
                                 </a>
                             </li>
 
@@ -236,77 +320,110 @@
 
                 <div class="page-content" style="min-height: 100%;">
                     <div class="container-fluid">
+                        <!-- end page title -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                    <h4 class="mb-sm-0">Crear aviso</h4>
+                                    <h4 class="mb-sm-0">Registro de avisos</h4>
                                 </div>
                             </div>
                         </div>
-                        <!-- end page title -->
                         <div class="row">
                             <div class="col-xl-6 col-lg-6">
                                 <div class="card">
                                     <div class="card-body">
                                         <h4 class="card-title">Configuración del aviso</h4>
                                         <p class="card-title-desc mb-3">Ingresa los datos del aviso</p>
-
-                                        <form class="custom-validation" id="myForm" action="#" method="post">
-                                            <div class="mb-3">
-                                                <label for="title">Título</label>
-                                                <input type="text" id="title" class="form-control" required placeholder="Type something"/>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Single Select</label>
-                                                <select class="form-control select2">
-                                                    <option value="null">Select</option>
-                                                    <option value="1">Mantenimiento</option>
-                                                    <option value="2">Novedad</option>
-                                                    <option value="3">Alerta</option>
-                                                    <option value="4">Bienvenida</option>
-                                                    <option value="5">Reservas</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label for="switch4">Activo</label>
-                                                <div>
-                                                    <input type="checkbox" id="switch4" switch="primary"/>
-                                                    <label for="switch4" data-on-label="Sí" data-off-label="No"></label>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="textarea">Información</label>
-                                                <div>
-                                                    <textarea required id="textarea" class="form-control" maxlength="225" rows="3"></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="customFile" class="d-block">Insertar imagen</label>
-                                                <div class="d-block">
-                                                    <input type="file" class="form-control" id="customFile" required  accept=".jpg, .jpeg, .png">
-                                                </div>
-                                            </div>
-                                        </form>
-
-                                        <div class="d-flex justify-content-start mb-1 mt-4">
-                                            <button type="submit" class="btn btn-success me-2" id="submitBtn" form="myForm">Guardar cambios</button>
-                                            <button type="button" class="btn btn-secondary" id="cancelBtn">Descartar cambios</button>
+                                        <div class="d-flex justify-content-start position-absolute mb-2 end-0 top-0 p-3">
+                                            <button type="submit" class="btn btn-success me-2">+ Crear nuevo aviso</button>
                                         </div>
-
-                                    </div>
+                                        <div class="loader-container">
+                                            <div class="loader"></div>
+                                        </div>
+                                        <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100 display" style="display: none;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 30px">ID</th>
+                                                    <th>Título</th>
+                                                    <th>Fecha de creación</th>
+                                                    <th>Última actualización</th>
+                                                    <th>Estado</th> <!-- Pendiente, Realizado, Cancelado -->
+                                                    <th style="width: 20px">Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>Nuevas canchas</td>
+                                                    <td>28/06/2025</td>
+                                                    <td>28/08/2025</td>
+                                                    <td><div class="badge  bg-success-subtle text-success font-size-12">Activo</div></td>
+                                                    <td>
+                                                        <a href="VerReserva.html" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2</td>
+                                                    <td>Nuevas canchas</td>
+                                                    <td>28/06/2025</td>
+                                                    <td>28/08/2025</td>
+                                                    <td><div class="badge  bg-warning-subtle text-warning font-size-12">Inactivo</div></td>
+                                                    <td>
+                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-toggle="modal" data-bs-target=".bs-example-modal-center" data-bs-placement="center"  title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-toggle="modal" data-bs-target=".bs-example-modal-center" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="modal fade bs-example-modal-center bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-xl">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Center modal</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Cras mattis consectetur purus sit amet fermentum.
+                                                            Cras justo odio, dapibus ac facilisis in,
+                                                            egestas eget quam. Morbi leo risus, porta ac
+                                                            consectetur ac, vestibulum at eros.</p>
+                                                        <p>Praesent commodo cursus magna, vel scelerisque
+                                                            nisl consectetur et. Vivamus sagittis lacus vel
+                                                            augue laoreet rutrum faucibus dolor auctor.</p>
+                                                        <p class="mb-0">Aenean lacinia bibendum nulla sed consectetur.
+                                                            Praesent commodo cursus magna, vel scelerisque
+                                                            nisl consectetur et. Donec sed odio dui. Donec
+                                                            ullamcorper nulla non metus auctor
+                                                            fringilla.</p>
+                                                    </div>
+                                                </div><!-- /.modal-content -->
+                                            </div><!-- /.modal-dialog -->
+                                        </div><!-- /.modal -->
+                                    </div> <!-- end card body-->
                                 </div>
                             </div>
                             <div class="col-xl-6 col-lg-6">
-                                <div class="card border border-primary"  style="max-height: 560px">
-                                    <div class="card-body">
-                                        <h4 id="titulo" class="card-title">Aquí va el nombre del titulo</h4>
-                                        <p id="informacion" class="card-text">Aquí se verá el contenido de la vista previa</p>
-                                    </div>
-                                    <div class="px-3 justify-content-center" style="max-height: 450px; overflow: hidden">
-                                        <img class="card-img-bottom img-fluid" id="cardImagePreview" src="assets/images/small/img-7.jpg" alt="Card image cap">
-                                    </div>
-                                    <div class="row px-3 pb-2">
-                                        <div class="mt-3">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="card">
+                                            <div class="card-header pb-1">
+                                                <div class="d-flex">
+                                                    <h4 class="card-title my-2">Aviso actual</h4>
+                                                    <button class="btn btn-sm btn-outline-primary my-1 ms-auto">Editar aviso</button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body py-1">
+                                                <h4 class="card-title my-2">Actualización de Producto</h4>
+                                                <p class="card-text text-muted mb-1">Lanzamiento de producto con algunas características nuevas. Este contenido es un poco más largo para la descripción.</p>
+                                                <p class="card-text mt-1">
+                                                    <small class="text-muted">Última actualización hace 3 minutos</small>
+                                                </p>
+                                            </div>
+                                            <div class="px-3">
+                                                <img class="card-img-bottom img-fluid object-fit-cover" style="max-height: 415px;" src="assets/images/small/img-7.jpg" alt="Card image cap">
+                                            </div>
+                                            <div style="min-height: 10px; max-height: 40px"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -353,61 +470,54 @@
         <script src="assets/libs/select2/js/select2.min.js"></script>
         <script src="assets/libs/spectrum-colorpicker2/spectrum.min.js"></script>
         <script src="assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js"></script>
-        <script src="assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js"></script>
-        <script src="assets/js/pages/form-advanced.init.js"></script>
-        <script src="assets/js/pages/form-validation.init.js"></script>
+        <script src="assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
 
+        <!-- Responsive examples -->
+        <script src="assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+        <script src="assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+        <script src="assets/libs/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+        <script src="assets/libs/datatables.net-select/js/dataTables.select.min.js"></script>
+
+        <script>
+            $(document).ready(function() {
+                // Muestra el símbolo de carga
+                $("#loading").show();
+
+                // Inicializa DataTable
+                var table = $('#alternative-page-datatable').DataTable({
+                    "columnDefs": [
+                        {
+                            "targets": [-1], // Aplica a la última columna (puedes usar el índice adecuado si no es la última)
+                            "orderable": false // Desactiva el ordenamiento
+                        },
+                    ],
+                    "pageLength": 5,  // Fija el número de registros a mostrar
+                    "lengthChange": false,
+                    pagingType: "full_numbers",
+                    "info": true,  // Habilita la información de las entradas mostradas
+                    "language": {
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
+                        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
+                        "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+                    },
+                    "initComplete": function() {
+                        // Oculta el símbolo de carga y muestra la tabla cuando los datos hayan sido procesados y renderizados
+                        $(".loader-container").hide();  // Ocultamos el indicador de carga
+                        $('#alternative-page-datatable').show();  // Mostramos la tabla
+                    },
+                    drawCallback: function () {
+                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                    }
+                });
+
+                // Asegúrate de que la tabla esté inicialmente oculta
+                table.hide();
+            });
+        </script>
 
         <script src="assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js"></script>
         <script src="assets/js/app.js"></script>
-
-        <script>
-            document.getElementById('customFile').addEventListener('change', function(event) {
-                const file = event.target.files[0];  // Obtener el archivo seleccionado
-
-                if (file) {
-                    const reader = new FileReader();
-
-                    // Cuando el archivo se haya leído, actualizar la imagen
-                    reader.onload = function(e) {
-                        const imagePreview = document.getElementById('cardImagePreview');
-                        imagePreview.src = e.target.result;  // Establecer la nueva imagen como src
-                    };
-
-                    // Leer la imagen seleccionada como URL en base64
-                    reader.readAsDataURL(file);
-                }
-                const titleInput = document.getElementById('title');
-                if (titleInput.value === '') {
-                    document.getElementById('titulo').textContent = "Titulo"// Puedes restablecer el placeholder si el título está vacío
-                }
-                const infoInput = document.getElementById('textarea');
-                if (infoInput.value === '') {
-                    document.getElementById('informacion').textContent = "Aquí se verá el contenido de la vista previa" // Puedes restablecer el placeholder si el título está vacío
-                }
-            });
-
-            // Mostrar la vista previa de los campos de texto
-            document.getElementById('myForm').addEventListener('input', function() {
-                const title = document.getElementById('title').value;
-                const info = document.getElementById('textarea').value;
-
-                // Crear contenido para la vista previa dentro de la card
-                // Actualizar el contenido de la card con la vista previa del título y la información
-                document.getElementById('titulo').textContent = title;
-                document.getElementById('informacion').textContent = info;
-
-                const titleInput = document.getElementById('title');
-                if (titleInput.value === '') {
-                    document.getElementById('titulo').textContent = "Aquí va el nombre del titulo"// Puedes restablecer el placeholder si el título está vacío
-                }
-                const infoInput = document.getElementById('textarea');
-                if (infoInput.value === '') {
-                    document.getElementById('informacion').textContent = "Aquí se verá el cuerpo del aviso" // Puedes restablecer el placeholder si el título está vacío
-                }
-            });
-
-        </script>
     </body>
 
 
