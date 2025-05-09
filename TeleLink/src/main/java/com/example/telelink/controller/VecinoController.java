@@ -27,17 +27,6 @@ public class VecinoController {
     @Autowired
     private EspacioDeportivoService espacioService;
 
-    @GetMapping("/index")
-    public String index(Model model, Principal principal) {
-        Usuario vecino = usuarioRepository.findByCorreoElectronico(principal.getName());
-        List<EspacioDeportivo> espacios = espacioService.listarEspaciosOperativos();
-
-        model.addAttribute("vecino", vecino);
-        model.addAttribute("espacios", espacios);
-
-        return "vecino/index";
-    }
-
     @Autowired
     private EspacioDeportivoService canchaService;
 
@@ -81,6 +70,6 @@ public class VecinoController {
         model.addAttribute("totalPaginas", canchasPage.getTotalPages());
         model.addAttribute("totalElementos", canchasPage.getTotalElements());
         */
-        return "vecino-cancha";
+        return "Vecino/vecino-cancha";
     }
 }
