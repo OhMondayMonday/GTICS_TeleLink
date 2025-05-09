@@ -1,20 +1,68 @@
 // Donut Chart
 var donutEl = document.querySelector("#donut-chart");
-var puntualidad = donutEl ? parseInt(donutEl.dataset.puntualidad) || 89 : 89;
-var tardanzas = donutEl ? parseInt(donutEl.dataset.tardanzas) || 11 : 11;
+var legendEl = document.querySelector("#donut-chart-legend");
 
-options = {
-    series: [puntualidad, tardanzas],
-    chart: {height:250,type:"donut"},
-    labels: ["Puntual", "Tardanza"],
-    plotOptions: {pie:{donut:{size:"75%"}}},
-    dataLabels: {enabled:!1},
-    legend: {show:!1},
-    colors: ["#34c38f","#f46a6a"]
-};
+function renderDonutChart(puntualidad, tardanzas, inasistencias) {
+    var total = puntualidad + tardanzas + inasistencias;
+    var puntualidadPct = total > 0 ? Math.round((puntualidad / total) * 100) : 0;
+    var tardanzasPct = total > 0 ? Math.round((tardanzas / total) * 100) : 0;
+    var inasistenciasPct = total > 0 ? Math.round((inasistencias / total) * 100) : 0;
 
-chart = new ApexCharts(donutEl, options);
-chart.render();
+    var options = {
+        series: [puntualidad, tardanzas, inasistencias],
+        chart: { height: 250, type: "donut" },
+        labels: ["Puntual", "Tardanza", "Inasistencia"],
+        plotOptions: { pie: { donut: { size: "75%" } } },
+        dataLabels: { enabled: false },
+        legend: { show: false },
+        colors: ["#34c38f", "#f1b44c", "#f46a6a"] // success, warning, danger
+    };
+
+    var chart = new ApexCharts(donutEl, options);
+    chart.render();
+
+    // Generar leyenda dinámica
+    legendEl.innerHTML = `
+        <div class="col-4">
+            <div class="text-center">
+                <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-success font-size-10 me-1"></i> Puntual</p>
+                <h5>${puntualidadPct} %</h5>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="text-center">
+                <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-warning font-size-10 me-1"></i> Tardanza</p>
+                <h5>${tardanzasPct} %</h5>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="text-center">
+                <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-danger font-size-10 me-1"></i> Inasistencia</p>
+                <h5>${inasistenciasPct} %</h5>
+            </div>
+        </div>
+    `;
+}
+
+// Cargar datos del donut chart vía AJAX
+function loadDonutChartData(userId) {
+    $.ajax({
+        url: '/coordinador/estadisticas-asistencias',
+        method: 'GET',
+        data: { userId: userId },
+        success: function(data) {
+            console.log('Estadísticas recibidas:', data);
+            var puntualidad = data.puntual || 0;
+            var tardanzas = data.tarde || 0;
+            var inasistencias = data.inasistencia || 0;
+            renderDonutChart(puntualidad, tardanzas, inasistencias);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al obtener estadísticas:', error);
+            renderDonutChart(0, 0, 0);
+        }
+    });
+}
 
 // Calendario con carga dinámica y formateo en frontend
 !function(v){
@@ -23,6 +71,11 @@ chart.render();
     function e(){}
 
     e.prototype.init=function(){
+
+        // Cargar donut chart
+        var userId = obtenerUserIdDeSesion();
+        loadDonutChartData(userId);
+
         var calendarEl = document.getElementById("calendar");
 
         // Formateador de hora
@@ -179,7 +232,8 @@ chart.render();
         }
 
         function obtenerUserIdDeSesion() {
-            return 6; // Valor temporal para pruebas
+            const userIdEl = document.getElementById('currentUserId');
+            return userIdEl ? parseInt(userIdEl.value) : 6; // Fallback a 6
         }
 
         // Actualizar cada 5 minutos

@@ -549,3 +549,23 @@ DELIMITER ;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- Eventos programados
+
+DELIMITER $$
+
+CREATE EVENT `actualizar_asistencias_inasistencia`
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    UPDATE asistencias
+    SET 
+        estado_entrada = 'inasistencia',
+        estado_salida = 'inasistencia'
+    WHERE 
+        horario_salida < CURRENT_TIMESTAMP
+        AND estado_entrada = 'pendiente';
+END$$
+
+DELIMITER ;

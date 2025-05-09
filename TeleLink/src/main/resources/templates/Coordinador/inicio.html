@@ -1,112 +1,50 @@
 <!doctype html>
-<html lang="es">
-  <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/topbarCoordinador :: head('Inicio')}"></head>
   <body data-sidebar="dark">
-    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
-    <!-- Begin page -->
     <div id="layout-wrapper">
       <div th:replace="~{fragments/topbarCoordinador :: topbar('Inicio')}"></div>
-      <!-- ========== Left Sidebar Start ========== -->
       <div th:replace="~{fragments/sidebarCoordinador :: sidebar('inicio')}"></div>
-      <!-- Left Sidebar End -->
-
 
 
       <!-- ============================================================== -->
       <!-- Start right Content here -->
       <!-- ============================================================== -->
-      <div class="main-content">
 
+      <!-- Hidden input para pasar el userId al JavaScript -->
+      <input type="hidden" id="currentUserId" th:value="${currentUserId}"/>
+
+      <div class="main-content">
         <div class="page-content">
           <div class="container-fluid">
-
-            <div class="row mb-4">
-              <div class="col-xl-4 d-flex flex-column">
+            <div class="row">
+              <div class="col-xl-4 d-flex flex-column mb-4">
                 <div class="card flex-grow-1 mb-4">
                   <div class="card-body">
-
-                    <h4 class="card-title mb-4">Estadísticas de asistencia</h4>
-
-                    <div id="donut-chart" class="apex-charts" data-puntualidad="174" data-tardanzas="26"></div>
-
-                    <div class="row">
-                      <div class="col-6">
-                        <div class="text-center mt-4">
-                          <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-danger font-size-10 me-1"></i> Tardanza</p>
-                          <h5>11 %</h5>
-                        </div>
-                      </div>
-                      <div class="col-6">
-                        <div class="text-center mt-4">
-                          <p class="mb-2 text-truncate"><i class="mdi mdi-circle text-success font-size-10 me-1"></i> Puntual</p>
-                          <h5>89 %</h5>
-                        </div>
-                      </div>
-                    </div>
+                    <h4 class="card-title mb-4 fw-semibold">Estadísticas de asistencia</h4>
+                    <div id="donut-chart" class="apex-charts"></div>
+                    <!-- Leyenda será generada dinámicamente por JavaScript -->
+                    <div id="donut-chart-legend" class="row"></div>
                   </div>
                 </div>
                 <div class="card flex-grow-1 mb-0">
                   <div class="card-body">
-
-                    <h4 class="card-title mb-4">Última observación</h4>
-
-                    <div data-simplebar style="max-height: 330px;">
-                      <ul class="list-unstyled activity-wid">
-                        <li class="activity-list">
-                          <div class="activity-icon avatar-xs">
-                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
-                                                            <i class="ri-checkbox-circle-line"></i>
-                                                        </span>
-                          </div>
-                          <div>
-                            <div>
-                              <h5 class="font-size-13">28 Apr, 2020 <small class="text-muted">12:07 am</small></h5>
-                            </div>
-
-                            <div>
-                              <p class="text-muted mb-0">Observación resuelta</p>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="activity-list">
-                          <div class="activity-icon avatar-xs">
-                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
-                                                            <i class="ri-time-line"></i>
-                                                        </span>
-                          </div>
-                          <div>
-                            <div>
-                              <h5 class="font-size-13">21 Apr, 2020 <small class="text-muted">08:01 pm</small></h5>
-                            </div>
-
-                            <div>
-                              <p class="text-muted mb-0">Observación en proceso de revisión</p>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="activity-list">
-                          <div class="activity-icon avatar-xs">
-                                                        <span class="avatar-title bg-primary-subtle  text-primary rounded-circle">
-                                                            <i class="ri-mail-send-line"></i>
-                                                        </span>
-                          </div>
-                          <div>
-                            <div>
-                              <h5 class="font-size-13">17 Apr, 2020 <small class="text-muted">09:23 am</small></h5>
-                            </div>
-
-                            <div>
-                              <p class="text-muted mb-0">Nueva observación registrada</p>
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
+                    <h4 class="card-title mb-4 fw-semibold">Último aviso</h4>
+                    <div data-simplebar>
+                      <div th:if="${ultimoAviso != null}">
+                        <h5 class="font-size-14" th:text="${ultimoAviso.tituloAviso}"></h5>
+                        <p class="text-muted mb-2" th:text="${ultimoAviso.textoAviso}"></p>
+                        <img th:src="${ultimoAviso.fotoAvisoUrl}" alt="Foto del aviso" class="img-fluid mb-2" style="width: 100%; height: 250px; object-fit: cover;" />
+                        <small class="text-muted" th:text="${#temporals.format(ultimoAviso.fechaAviso, 'dd MMM, yyyy HH:mm')}"></small>
+                      </div>
+                      <div th:if="${ultimoAviso == null}">
+                        <p class="text-muted mb-0">No hay avisos disponibles.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div> <!-- end col-->
-              <div class="col-xl-8">
+              <div class="col-xl-8 mb-4">
                 <div class="card h-100 mb-0">
                   <div class="card-body">
                     <div id="calendar"></div>
@@ -115,25 +53,21 @@
               </div> <!-- end col -->
             </div> <!-- end row-->
             <div style='clear:both'></div>
-
           </div> <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
-
         <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
-
       </div>
       <!-- end main content-->
-
-
-
     </div>
     <!-- END layout-wrapper -->
+
+    <div class="sidebar-overlay"></div>
+
     <div th:replace="fragments/topbarCoordinador :: scripts"></div>
     <!-- Init js -->
     <script th:src="@{/assets/js/pages/inicio.init.js}"></script>
     <!-- App js -->
-    <script th:src="@{/assets/js/app.js}"></script>
+    <script th:src="@{/admin/assets/js/app.js}"></script>
   </body>
-  <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>

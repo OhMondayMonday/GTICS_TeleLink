@@ -93,11 +93,12 @@ INSERT INTO usuarios (
     correo_electronico, 
     contrasenia_hash, 
     rol_id, 
-    dni, 
+    dni,
+    telefono,
     estado_cuenta
 ) VALUES 
-('Carlos', 'Mendoza', 'coordinador1@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 2, '02345678', 'activo'),
-('Laura', 'García', 'coordinador2@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 2, '87654321', 'activo');
+('Carlos', 'Mendoza', 'coordinador1@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 4, '02345678','987654321', 'activo'),
+('Laura', 'García', 'coordinador2@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 4, '87654321', '987654320', 'activo');
 
 -- 6. Insertar asistencias para la fecha actual y días cercanos
 INSERT INTO asistencias (
@@ -141,23 +142,56 @@ INSERT INTO asistencias (
  TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), '15:00:00'), 
  TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), '19:00:00'), 
  'inasistencia', 'inasistencia');
+ 
+-- aviso de prueba
 
--- Eventos programados
+INSERT INTO db_gtics.avisos (titulo_aviso, texto_aviso, foto_aviso_url, fecha_aviso)
+VALUES ('Aviso de prueba', 'Este es un aviso de prueba para el coordinador.', 'https://example.com/imagen.jpg', CURRENT_TIMESTAMP);
 
-DELIMITER $$
+INSERT INTO db_gtics.avisos (titulo_aviso, texto_aviso, foto_aviso_url, fecha_aviso)
+VALUES ('Aviso de prueba 2', 'Este es un aviso de prueba para el coordinador.', 'https://static.vecteezy.com/system/resources/previews/004/431/172/non_2x/warning-notice-on-a-white-background-free-vector.jpg', CURRENT_TIMESTAMP);
 
-CREATE EVENT `actualizar_asistencias_inasistencia`
-ON SCHEDULE EVERY 1 MINUTE
-STARTS CURRENT_TIMESTAMP
-DO
-BEGIN
-    UPDATE asistencias
-    SET 
-        estado_entrada = 'inasistencia',
-        estado_salida = 'inasistencia'
-    WHERE 
-        horario_salida < CURRENT_TIMESTAMP
-        AND estado_entrada = 'pendiente';
-END$$
 
-DELIMITER ;
+-- 1. Insertar reseñas para probar el rating dinámico
+INSERT INTO resenias (usuario_id, calificacion, comentario, espacio_deportivo_id, fecha_creacion)
+VALUES 
+(2, 4, 'Buena cancha, pero necesita mantenimiento.', 2, NOW()),
+(3, 5, 'Excelente lugar para jugar fútbol.', 2, NOW()),
+(4, 3, 'Regular, el césped está desgastado.', 2, NOW()),
+(5, 5, 'La piscina está muy limpia.', 1, NOW()),
+(6, 4, 'Buena experiencia en la piscina.', 1, NOW());
+
+-- 2. Actualizar EspacioDeportivo para agregar precio_por_hora
+UPDATE espacios_deportivos 
+SET precio_por_hora = 100.00
+WHERE espacio_deportivo_id = 1;
+
+UPDATE espacios_deportivos 
+SET precio_por_hora = 120.00
+WHERE espacio_deportivo_id = 2;
+
+UPDATE espacios_deportivos 
+SET precio_por_hora = 80.00
+WHERE espacio_deportivo_id = 3;
+
+UPDATE espacios_deportivos 
+SET precio_por_hora = 150.00
+WHERE espacio_deportivo_id = 4;
+
+-- 3. Actualizar EstablecimientoDeportivo para agregar foto_establecimiento_url
+UPDATE establecimientos_deportivos 
+SET foto_establecimiento_url = 'https://i.ytimg.com/vi/3hXz2cSdYdI/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLANRtqmrsU0GKt1AhImtSNaMBz_YA'
+WHERE establecimiento_deportivo_id = 1;
+
+UPDATE establecimientos_deportivos 
+SET foto_establecimiento_url = 'https://i.ytimg.com/vi/3hXz2cSdYdI/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLANRtqmrsU0GKt1AhImtSNaMBz_YA'
+WHERE establecimiento_deportivo_id = 2;
+
+-- 4. Cambiar estado_servicio de algunos EspacioDeportivo para probar diferentes estados
+UPDATE espacios_deportivos 
+SET estado_servicio = 'mantenimiento'
+WHERE espacio_deportivo_id = 3;
+
+UPDATE espacios_deportivos 
+SET estado_servicio = 'clausurado'
+WHERE espacio_deportivo_id = 4;

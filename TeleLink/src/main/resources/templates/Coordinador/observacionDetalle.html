@@ -11,7 +11,7 @@
             <div th:replace="fragments/sidebarCoordinador :: sidebar('')"></div>
             <!-- Left Sidebar End -->
 
-
+            <div class="sidebar-overlay"></div>
 
             <!-- ============================================================== -->
             <!-- Start right Content here -->
@@ -62,6 +62,7 @@
 
                                                     </div>
                                                 </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -84,11 +85,14 @@
 
         </div>
         <!-- END layout-wrapper -->
+
+        <div class="sidebar-overlay"></div>
+
         <div th:replace="fragments/topbarCoordinador :: scripts"></div>
         <script th:src="@{/assets/js/pages/observaciones.init.js}"></script>
         <!-- google maps api -->
 
-        <script th:src="@{/assets/js/app.js}"></script>
+        <script th:src="@{/admin/assets/js/app.js}"></script>
     </body>
     <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>

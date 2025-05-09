@@ -11,8 +11,6 @@
             <div th:replace="fragments/sidebarCoordinador :: sidebar('')"></div>
             <!-- Left Sidebar End -->
 
-
-
             <!-- ============================================================== -->
             <!-- Start right Content here -->
             <!-- ============================================================== -->
@@ -114,12 +112,15 @@
 
             </div>
             <!-- END layout-wrapper -->
+
+        <div class="sidebar-overlay"></div>
+
             <div th:replace="fragments/topbarCoordinador :: scripts"></div>
             <script th:src="@{/assets/js/pages/form-validation.init.js}"></script>
             <script th:src="@{/assets/libs/bs-custom-file-input/bs-custom-file-input.min.js}"></script>
             <script th:src="@{/assets/js/pages/form-element.init.js}"></script>
 
-            <script th:src="@{/assets/js/app.js}"></script>
+            <script th:src="@{/admin/assets/js/app.js}"></script>
     </body>
     <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>
