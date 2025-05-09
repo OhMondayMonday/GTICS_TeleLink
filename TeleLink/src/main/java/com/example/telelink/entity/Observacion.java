@@ -26,6 +26,7 @@ public class Observacion {
     private String fotoUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(name= "nivel_urgencia")
     private NivelUrgencia nivelUrgencia;
 
     @ManyToOne
