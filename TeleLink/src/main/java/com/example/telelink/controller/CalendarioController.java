@@ -2,6 +2,8 @@ package com.example.telelink.controller;
 
 
 import com.example.telelink.entity.Reserva;
+import com.example.telelink.entity.Usuario;
+import com.example.telelink.repository.UsuarioRepository;
 import com.example.telelink.service.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,13 +13,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static com.example.telelink.entity.Mensaje.Origen.usuario;
 
 @Controller
 public class CalendarioController {
 
     @Autowired
     private ReservaService reservaService;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
 
     @GetMapping("/vecino/calendario")
     public String mostrarCalendario(Model model) {
@@ -35,10 +45,17 @@ public class CalendarioController {
                                  @RequestParam("endDate") String endDate,
                                  Principal principal) {
         // Creamos una nueva reserva
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        LocalDateTime start = LocalDateTime.parse(startDate, formatter);
+        LocalDateTime end = LocalDateTime.parse(endDate, formatter);
+
+        Usuario usuario = usuarioRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
         Reserva reserva = new Reserva();
-        reserva.setStartDate(startDate);
-        reserva.setEndDate(endDate);
-        reserva.setUsuario(principal.getName()); // Asume que cada usuario tiene un nombre
+        reserva.setInicioReserva(start);
+        reserva.setFinReserva(end);
+        reserva.setUsuario(usuario); // Asume que cada usuario tiene un nombre
 
         // Guardamos la reserva
         reservaService.guardarReserva(reserva);
