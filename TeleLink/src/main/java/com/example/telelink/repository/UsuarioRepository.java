@@ -36,8 +36,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
             ORDER BY 
                 FIELD(dia, 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
             """, nativeQuery = true)
-    List<CantidadReservasPorDiaDto> obtenerCantidadReservasPorDia();
 
-    Usuario findByCorreoElectronico(String correoElectronico);
+    List<CantidadReservasPorDiaDto> obtenerCantidadReservasPorDia();
 
 }
