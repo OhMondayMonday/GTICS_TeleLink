@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
     <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
-    <head th:replace="~{Superadmin/fragments/head.html :: head(titulo='Perfil')}"></head>
+    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Perfil')}"></head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
 
@@ -11,11 +11,10 @@
         <!-- Begin page -->
         <div id="layout-wrapper">
 
-
-            <header th:replace="~{/Superadmin/fragments/header.html :: head(titulo='Perfil')}"></header>
+            <header th:replace="~{/Superadmin/fragments/header.html :: header(title='Perfil')}"></header>
 
             <!-- ========== Left Sidebar Start ========== -->
-            <div th:replace="~{/Superadmin/fragments/sidebar.html :: sidebar"></div>
+            <div th:replace="~{/Superadmin/fragments/sidebar.html :: sidebar}"></div>
             <!-- Left Sidebar End -->
 
 
@@ -37,7 +36,7 @@
                                                 <div class="d-flex">
                                                     <div class="flex-1 overflow-hidden">
                                                         <p class="text-truncate font-size-15 mb-2 text-white">Número de Reservas</p>
-                                                        <h4 class="mb-0 text-white">1,452</h4>
+                                                        <h4 class="mb-0 text-white" th:text="${numeroReservasMes}">1,452</h4>
                                                     </div>
                                                     <div class="text-primary ms-auto">
                                                         <i class="ri-stack-line font-size-24"></i>
@@ -47,7 +46,7 @@
 
                                             <div class="card-body border-top py-3">
                                                 <div class="text-truncate">
-                                                    <span class="badge bg-success-subtle text-success font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
+                                                    <span class="badge font-size-11" th:class="${badge}" th:text="${diferencia}"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
                                                     <span class="text-white ms-2">Desde el periodo anterior</span>
                                                 </div>
                                             </div>
@@ -59,7 +58,7 @@
                                                 <div class="d-flex">
                                                     <div class="flex-1 overflow-hidden">
                                                         <p class="text-truncate font-size-15 mb-2 text-white">Monto de Reservas</p>
-                                                        <h4 class="mb-0 text-white">S/ 38,452</h4>
+                                                        <h4 class="mb-0 text-white" th:text="${montoMensual}"></h4>
                                                     </div>
                                                     <div class="text-primary ms-auto">
                                                         <i class="ri-store-2-line font-size-24"></i>
@@ -80,7 +79,7 @@
                                                 <div class="d-flex">
                                                     <div class="flex-1 overflow-hidden">
                                                         <p class="text-truncate font-size-15 mb-2 text-white">Promedio por Reserva</p>
-                                                        <h4 class="mb-0 text-white">S/ 15.40</h4>
+                                                        <h4 class="mb-0 text-white" th:text="${promedioMensual}"></h4>
                                                     </div>
                                                     <div class="text-primary ms-auto">
                                                         <i class="ri-briefcase-4-line font-size-24"></i>
@@ -108,52 +107,20 @@
                                             </div>
                                             <div class="card-body">
                                                 <div data-simplebar style="height: 475px;">
-                                                    <ul class="list-unstyled activity-wid">
-                                                        <li class="activity-list">
+                                                    <ul class="list-unstyled activity-wid" th:each="aviso : ${avisos}">
+                                                        <li>
                                                             <div class="activity-icon avatar-xs">
-                <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                    <i class="ri-news-line"></i> <!-- Icono de noticias -->
-                </span>
+                                                                <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
+                                                                    <i class="ri-news-line"></i> <!-- Icono de noticias -->
+                                                                </span>
                                                             </div>
                                                             <div>
                                                                 <div>
-                                                                    <h5 class="font-size-13">28 Abr, 2020 <small class="text-muted">12:07 am</small></h5>
+                                                                    <h5 class="font-size-13" th:text="${aviso.getFechaAviso()}"></h5>
                                                                 </div>
 
                                                                 <div>
-                                                                    <p class="text-muted mb-0">Nueva noticia: "Lanzamiento de Actividades de Voluntariado en la comunidad"</p>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                        <li class="activity-list">
-                                                            <div class="activity-icon avatar-xs">
-                <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                    <i class="ri-user-2-fill"></i>
-                </span>
-                                                            </div>
-                                                            <div>
-                                                                <div>
-                                                                    <h5 class="font-size-13">21 Abr, 2020 <small class="text-muted">08:01 pm</small></h5>
-                                                                </div>
-
-                                                                <div>
-                                                                    <p class="text-muted mb-0">Actualización: "Nuevo interés añadido en Actividades de Voluntariado"</p>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                        <li class="activity-list">
-                                                            <div class="activity-icon avatar-xs">
-                <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                    <i class="ri-bar-chart-fill"></i>
-                </span>
-                                                            </div>
-                                                            <div>
-                                                                <div>
-                                                                    <h5 class="font-size-13">17 Abr, 2020 <small class="text-muted">09:23 am</small></h5>
-                                                                </div>
-
-                                                                <div>
-                                                                    <p class="text-muted mb-0">Noticia importante: "Unión al Foro de Liderazgo sobre Iniciativas Comunitarias"</p>
+                                                                    <p class="text-muted mb-0" th:text="${aviso.getTituloAviso()}"></p>
                                                                 </div>
                                                             </div>
                                                         </li>
@@ -174,14 +141,14 @@
                                                         </div>
                                                     </div>
                                                     <div class="card-body py-1">
-                                                        <h4 class="card-title my-2">Actualización de Producto</h4>
-                                                        <p class="card-text text-muted mb-1">Lanzamiento de producto con algunas características nuevas. Este contenido es un poco más largo para la descripción.</p>
+                                                        <h4 class="card-title my-2" th:text="${ultimoAviso.getTituloAviso()}"></h4>
+                                                        <p class="card-text text-muted mb-1" th:text="${ultimoAviso.getTextoAviso()}"></p>
                                                         <p class="card-text mt-1">
-                                                            <small class="text-muted">Última actualización hace 3 minutos</small>
+                                                            <small>Creado: </small><small class="text-muted" th:text="${ultimoAviso.getFechaAviso()}"></small>
                                                         </p>
                                                     </div>
                                                     <div class="px-3">
-                                                        <img class="card-img-bottom img-fluid object-fit-cover" style="max-height: 415px;" src="assets/images/small/img-7.jpg" alt="Card image cap">
+                                                        <img class="card-img-bottom img-fluid object-fit-cover" style="max-height: 415px;" th:src="${ultimoAviso.getFotoAvisoUrl()}" alt="Card image cap">
                                                     </div>
                                                     <div style="min-height: 10px; max-height: 40px"></div>
                                                 </div>
@@ -237,13 +204,14 @@
                                                                 </div>
                                                             </td>
                                                             <td>
-                                                                <h5 class="font-size-14 mb-0">Fuente 1</h5>
+                                                                <h5 class="font-size-14 mb-0">Izipay</h5>
+                                                            </td>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0">S/ 2478</p>
+                                                                <p class="text-muted mb-0" th:text="${pagoIzipayMensual}"></p>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0">S/ 2478</p>
+                                                                <p class="text-muted mb-0" th:text="${pagoIzipaySemanal}"></p>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -255,13 +223,13 @@
                                                                 </div>
                                                             </td>
                                                             <td>
-                                                                <h5 class="font-size-14 mb-0">Fuente 2</h5>
+                                                                <h5 class="font-size-14 mb-0">Yape</h5>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0">S/ 2478</p>
+                                                                <p class="text-muted mb-0" th:text="${pagoYapeMensual}"></p>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0">S/ 2625</p>
+                                                                <p class="text-muted mb-0" th:text="${pagoYapeSemanal}"></p>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -273,13 +241,13 @@
                                                                 </div>
                                                             </td>
                                                             <td>
-                                                                <h5 class="font-size-14 mb-0">Fuente 1</h5>
+                                                                <h5 class="font-size-14 mb-0">Plin</h5>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0">S/ 2478</p>
+                                                                <p class="text-muted mb-0" th:text="${pagoPlinMensual}"></p>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0">S/ 2478</p>
+                                                                <p class="text-muted mb-0" th:text="${pagoPlinSemanal}"></p>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -291,13 +259,13 @@
                                                                 </div>
                                                             </td>
                                                             <td>
-                                                                <h5 class="font-size-14 mb-0">Fuente 1</h5>
+                                                                <h5 class="font-size-14 mb-0">Efectivo</h5>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0">S/ 2478</p>
+                                                                <p class="text-muted mb-0" th:text="${pagoEfectivoMensual}"></p>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0">S/ 2478</p>
+                                                                <p class="text-muted mb-0" th:text="${pagoEfectivoSemanal}"></p>
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -326,17 +294,22 @@
         <div class="sidebar-overlay"></div>
 
         <!-- JAVASCRIPT -->
-        <div th:replace="~{admin/fragments/foot.html :: foot}"></div>
+        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
 
         <script>
+            // Asumiendo que 'chartData' tiene los valores (número de reservas)
+            var chartData = [[${chartData}]]; // Los valores de las reservas, por ejemplo: [250, 300, 150, 400]
+            var chartLabels = ['Gimnasio', 'Futbol', 'Atletismo', 'Piscina']; // Las etiquetas correspondientes a cada sección
+
             var options = {
-                series: [44, 55, 13, 33],
+                series: chartData,           // Los valores para cada sección del gráfico
                 chart: {
                     width: 380,
-                    type: 'donut',
+                    type: 'donut',           // Tipo de gráfico: donut
                 },
+                labels: chartLabels,         // Asignación de las etiquetas a las secciones del gráfico
                 dataLabels: {
-                    enabled: false
+                    enabled: true,           // Habilitar etiquetas dentro del gráfico
                 },
                 responsive: [{
                     breakpoint: 480,
@@ -350,54 +323,20 @@
                     }
                 }],
                 legend: {
-                    position: 'right',
+                    position: 'right',        // Ubicación de la leyenda
                     offsetY: 0,
                     height: 230,
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return val + " reservas";  // Mostrar las reservas en el tooltip
+                        }
+                    }
                 }
             };
 
             var chart = new ApexCharts(document.querySelector("#chart"), options);
-            chart.render();
-        </script>
-
-        <script>
-            var options = {
-                chart: {height: 400, type: "line", zoom: {enabled: !1}, toolbar: {show: !1}},
-                colors: ["#5664d2", "#fcb92c", "#1cbb8c"],
-                    dataLabels: {enabled: !1},
-                stroke: {width: [3, 4, 3], curve: "straight", dashArray: [0, 8, 5]},
-                series: [{name: "Session Duration", data: [45, 52, 38, 24, 33, 26, 21, 20, 6, 8, 15, 10]}, {
-                    name: "Page Views",
-                    data: [36, 42, 60, 42, 13, 18, 29, 37, 36, 51, 32, 35]
-                }, {name: "Total Visits", data: [89, 56, 74, 98, 72, 38, 64, 46, 84, 58, 46, 49]}],
-                    title: {text: "Page Statistics", align: "left"},
-                markers: {size: 0, hover: {sizeOffset: 6}},
-                xaxis: {categories: ["01 Jan", "02 Jan", "03 Jan", "04 Jan", "05 Jan", "06 Jan", "07 Jan", "08 Jan", "09 Jan", "10 Jan", "11 Jan", "12 Jan"]},
-                tooltip: {
-                    y: [{
-                        title: {
-                            formatter: function (e) {
-                                return e + " (mins)"
-                            }
-                        }
-                    }, {
-                        title: {
-                            formatter: function (e) {
-                                return e + " per session"
-                            }
-                        }
-                    }, {
-                        title: {
-                            formatter: function (e) {
-                                return e
-                            }
-                        }
-                    }]
-                },
-                grid: {borderColor: "#f1f1f1", padding: {bottom: 5}},
-                legend: {offsetY: 5}
-            }
-            var chart = new ApexCharts(document.querySelector("#line_chart_dashed"), options);
             chart.render();
         </script>
     </body>

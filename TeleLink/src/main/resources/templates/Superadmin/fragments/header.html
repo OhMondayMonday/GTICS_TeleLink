@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <!-- Fragmento del Header -->
-    <header th:fragment="header(titulo)" id="page-topbar">
+    <header th:fragment="header(title)" id="page-topbar">
         <div class="navbar-header">
             <div class="d-flex">
                 <!-- LOGO -->
                 <div class="navbar-brand-box">
                     <a th:href="@{/}" class="logo logo-light">
                                 <span class="logo-sm me-1">
-                                    <img th:src="@{/Superadmin/assets/images/logoCompleto.png}" alt="logo-sm-light" height="25">
+                                    <img th:src="@{/Superadmin/assets/images/logoCortado.png}" alt="logo-sm-light" height="25">
                                 </span>
                         <span class="logo-lg">
                                     <img th:src="@{/Superadmin/assets/images/logoCompleto.png}" alt="logo-light" height="40">
@@ -21,7 +21,7 @@
                 </button>
 
                 <div class="dropdown dropdown-mega d-none d-lg-block">
-                    <button type="button" class="btn header-item waves-effect font-size-16" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Inicio
+                    <button type="button" th:text="${title}" class="btn header-item waves-effect font-size-16" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">
                     </button>
                 </div>
             </div>

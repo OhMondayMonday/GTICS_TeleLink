@@ -508,7 +508,7 @@ body[data-layout=horizontal] .footer {
 }
 
 .main-content {
-    margin-left: 70px;
+    margin-left: 240px;
     overflow: hidden
     -webkit-transition: all .3s ease-out;
     transition: all .3s ease-out;
