@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Creación de Establecimientos</title>
 </head>
-<body data-sidebar="dark">
+<body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
 
     <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}"></div>
@@ -23,77 +23,151 @@
                                     Crea un nuevo establecimiento deportivo con todos los datos necesarios para su correcta gestión.
                                 </p>
 
-                                <form action="#" th:action="@{/admin/establecimientos/guardar}" method="post">
+                                <form th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post">
+
+                                    <input type="hidden" th:field="*{establecimientoDeportivoId}" />
 
                                     <!-- Nombre del establecimiento -->
                                     <div class="mb-4">
                                         <label class="form-label">Nombre del establecimiento</label>
-                                        <input type="text" class="form-control" name="establecimientoDeportivoNombre" placeholder="Ej. Estadio Municipal de San Borja">
+                                        <input type="text" class="form-control"
+                                               th:field="*{establecimientoDeportivoNombre}"
+                                               placeholder="Ej. Estadio Municipal de San Borja"
+                                               th:classappend="${#fields.hasErrors('establecimientoDeportivoNombre')} ? 'is-invalid' : ''">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('establecimientoDeportivoNombre')}"
+                                             th:errors="*{establecimientoDeportivoNombre}"></div>
                                     </div>
 
                                     <!-- Descripción -->
                                     <div class="mb-4">
                                         <label class="form-label">Descripción</label>
-                                        <textarea class="form-control" name="descripcion" placeholder="Descripción del establecimiento"></textarea>
+                                        <textarea class="form-control"
+                                                  th:field="*{descripcion}"
+                                                  placeholder="Descripción del establecimiento"
+                                                  th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid' : ''"></textarea>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
                                     </div>
 
                                     <!-- Dirección -->
                                     <div class="mb-4">
                                         <label class="form-label">Dirección</label>
-                                        <input type="text" class="form-control" name="direccion" placeholder="Ej. Av. Javier Prado Este 1234">
+                                        <input type="text" class="form-control"
+                                               th:field="*{direccion}"
+                                               placeholder="Ej. Av. Javier Prado Este 1234"
+                                               th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid' : ''">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
                                     </div>
 
                                     <!-- Espacios de estacionamiento -->
                                     <div class="mb-4">
                                         <label class="form-label">Espacios de estacionamiento</label>
-                                        <input type="number" class="form-control" name="espaciosEstacionamiento" placeholder="Ej. 30">
+                                        <input type="number" class="form-control"
+                                               th:field="*{espaciosEstacionamiento}"
+                                               placeholder="Ej. 30"
+                                               th:classappend="${#fields.hasErrors('espaciosEstacionamiento')} ? 'is-invalid' : ''">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('espaciosEstacionamiento')}" th:errors="*{espaciosEstacionamiento}"></div>
                                     </div>
 
                                     <!-- Teléfono de contacto -->
+                                    <!--<div class="mb-4">
+                                        <label class="form-label">Teléfono de contacto</label>
+                                        <input type="text" class="form-control"
+                                               th:field="*{telefonoContacto}"
+                                               placeholder="Ej. 014578963"
+                                               th:classappend="${#fields.hasErrors('telefonoContacto')} ? 'is-invalid' : ''">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('telefonoContacto')}" th:errors="*{telefonoContacto}"></div>
+                                    </div>-->
+                                    <!-- Teléfono de contacto -->
+                                    <!--<div class="mb-4">
+                                        <label class="form-label">Teléfono de contacto</label>
+                                        <input type="text" class="form-control"
+                                               th:field="*{telefonoContacto}"
+                                               placeholder="Ej. 014578963"
+                                               maxlength="20"
+                                               pattern="^\d{1,20}$"
+                                               title="Ingrese solo números, máximo 20 dígitos"
+                                               th:classappend="${#fields.hasErrors('telefonoContacto')} ? 'is-invalid' : ''">
+                                        <div class="invalid-feedback"
+                                             th:if="${#fields.hasErrors('telefonoContacto')}"
+                                             th:errors="*{telefonoContacto}"></div>
+                                    </div>-->
                                     <div class="mb-4">
                                         <label class="form-label">Teléfono de contacto</label>
-                                        <input type="text" class="form-control" name="telefonoContacto" placeholder="Ej. 014578963">
+                                        <input type="text"
+                                               class="form-control"
+                                               th:field="*{telefonoContacto}"
+                                               placeholder="Ej. 014578963"
+                                               maxlength="20"
+                                               pattern="[0-9]{1,20}"
+                                               inputmode="numeric"
+                                               title="Ingrese solo números, máximo 20 dígitos"
+                                               th:classappend="${#fields.hasErrors('telefonoContacto')} ? 'is-invalid' : ''">
+                                        <div class="invalid-feedback"
+                                             th:if="${#fields.hasErrors('telefonoContacto')}"
+                                             th:errors="*{telefonoContacto}"></div>
                                     </div>
+
 
                                     <!-- Correo de contacto -->
                                     <div class="mb-4">
                                         <label class="form-label">Correo electrónico</label>
-                                        <input type="email" class="form-control" name="correoContacto" placeholder="Ej. contacto@estadio.gob.pe">
+                                        <input type="email" class="form-control"
+                                               th:field="*{correoContacto}"
+                                               placeholder="Ej. contacto@estadio.gob.pe"
+                                               th:classappend="${#fields.hasErrors('correoContacto')} ? 'is-invalid' : ''">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('correoContacto')}" th:errors="*{correoContacto}"></div>
                                     </div>
 
                                     <!-- Geolocalización -->
                                     <div class="mb-4">
                                         <label class="form-label">Geolocalización (lat,long)</label>
-                                        <input type="text" class="form-control" name="geolocalizacion" placeholder="Ej. -12.04318,-77.02824">
+                                        <input type="text" class="form-control"
+                                               th:field="*{geolocalizacion}"
+                                               placeholder="Ej. -12.04318,-77.02824"
+                                               th:classappend="${#fields.hasErrors('geolocalizacion')} ? 'is-invalid' : ''">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('geolocalizacion')}" th:errors="*{geolocalizacion}"></div>
                                     </div>
 
-                                    <!-- Horario apertura -->
+                                    <!-- Horario de apertura -->
                                     <div class="mb-4">
                                         <label class="form-label">Horario de apertura</label>
-                                        <input type="time" class="form-control" name="horarioApertura">
+                                        <input type="time" class="form-control"
+                                               name="horarioApertura"
+                                               th:value="${establecimiento.horarioApertura?.toString()?.substring(0,5)}">
                                     </div>
 
-                                    <!-- Horario cierre -->
+                                    <!-- Horario de cierre -->
                                     <div class="mb-4">
                                         <label class="form-label">Horario de cierre</label>
-                                        <input type="time" class="form-control" name="horarioCierre">
+                                        <input type="time" class="form-control"
+                                               name="horarioCierre"
+                                               th:value="${establecimiento.horarioCierre?.toString()?.substring(0,5)}">
                                     </div>
 
                                     <!-- Estado -->
                                     <div class="mb-4">
                                         <label class="form-label">Estado</label>
-                                        <select class="form-control" name="estado">
+                                        <select class="form-control"
+                                                th:field="*{estado}"
+                                                th:classappend="${#fields.hasErrors('estado')} ? 'is-invalid' : ''">
+                                            <option value="" disabled selected>Seleccione una opción</option>
                                             <option value="activo">Activo</option>
-                                            <option value="clausurado">Clausurado</option>
                                             <option value="mantenimiento">Mantenimiento</option>
+                                            <option value="clausurado">Clausurado</option>
                                         </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></div>
                                     </div>
 
                                     <!-- Motivo de mantenimiento -->
                                     <div class="mb-4">
                                         <label class="form-label">Motivo de mantenimiento</label>
-                                        <textarea class="form-control" name="motivoMantenimiento" placeholder="Solo en caso de estado en mantenimiento"></textarea>
+                                        <textarea class="form-control"
+                                                  th:field="*{motivoMantenimiento}"
+                                                  placeholder="Solo en caso de estado en mantenimiento"
+                                                  th:classappend="${#fields.hasErrors('motivoMantenimiento')} ? 'is-invalid' : ''"></textarea>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('motivoMantenimiento')}" th:errors="*{motivoMantenimiento}"></div>
                                     </div>
+
 
                                     <!-- Botones -->
                                     <button type="submit" class="btn btn-primary">Guardar establecimiento</button>
@@ -112,7 +186,7 @@
     </div>
 </div>
 
-<div class="rightbar-overlay"></div>
+<div class="sidebar-overlay"></div>
 <div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
 </body>
 </html>
