@@ -26,21 +26,8 @@
                                     <div class="card-body">
 
                                         <div class="table-responsive">
-                                            <style>
-                                                table.datatable thead th.sorting::before,
-                                                table.datatable thead th.sorting::after,
-                                                table.datatable thead th.sorting_asc::before,
-                                                table.datatable thead th.sorting_asc::after,
-                                                table.datatable thead th.sorting_desc::before,
-                                                table.datatable thead th.sorting_desc::after {
-                                                    display: none !important;
-                                                }
-                                                table.datatable thead th {
-                                                    cursor: default !important;
-                                                }
-                                            </style>
                                             <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                                <thead class="table-light">
+                                                <thead>
                                                     <tr>
                                                         <th>Nombre del establecimiento</th>
                                                         <th>Tipo de servicio</th>
@@ -100,7 +87,7 @@
         <script th:src="@{/assets/js/pages/espacios.init.js}"></script>
         <!-- google maps api -->
 
-        <script th:src="@{/superadmin/assets/js/app.js}"></script>
+        <script th:src="@{admin/assets/js/app.js}"></script>
     </body>
     <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>

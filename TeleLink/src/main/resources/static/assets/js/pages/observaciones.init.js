@@ -48,10 +48,10 @@ radialchart=new ApexCharts(document.querySelector("#radialchart-1"),radialoption
             pageLength: 15,
             columns: [
                 {orderable: 1},
-                {orderable: !1},
-                {orderable: !1},
-                {orderable: !1},
-                {orderable: !1},
+                {orderable: !0},
+                {orderable: !0},
+                {orderable: !0},
+                {orderable: !0},
                 {orderable: !1}
             ],
             order: [[0, "asc"]],

@@ -44,10 +44,10 @@ radialchart=new ApexCharts(document.querySelector("#radialchart-1"),radialoption
         lengthMenu: [5, 10, 25, 50],
         pageLength: 4,
         columns: [
-            {orderable: !1},
-            {orderable: !1},
-            {orderable: !1},
-            {orderable: !1}
+            {orderable: !0},
+            {orderable: !0},
+            {orderable: !0},
+            {orderable: !0}
         ],
         order: [[0, "desc"]],
         language: {
