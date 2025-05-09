@@ -1,148 +1,16 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{Vecino/fragments/topbarVecino.html :: topbarVecino(title='Inicio')}"></head>
+    <head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Inicio')}"></head>
 <!--------------------------------------------------------------------------------------------------------------------------------------------->
-    <body data-sidebar="dark">
-
+    <body data-sidebar="dark" class="vertical-collpsed">
         <!-- Begin page -->
         <div id="layout-wrapper">
-            <header id="page-topbar">
-                <div class="navbar-header">
-                    <div class="d-flex">
-                        <!-- LOGO -->
-                        <div class="navbar-brand-box">
 
-                            <a href="" class="logo logo-light">
-                                <span class="logo-sm">
-                                    <img src="assets\images\logo-San-Miguel-1.webp" alt="logo-sanmiguel" height="25">
-                                </span>
-                                <span class="logo-lg">
-                                    <img src="assets\images\logoCompleto.png" alt="logo-sanmiguel" height="40" class="me-2">
-                                    <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
-                                </span>
-                            </a>
-                        </div>
+            <div th:replace="~{fragments/topbarVecino :: topbar('Inicio')}"></div>
+            <div th:replace="~{fragments/sidebarVecino :: sidebar('inicio')}"></div>
 
-                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
-                            <i class="ri-menu-2-line align-middle"></i>
-                        </button>
-
-                    </div>
-
-                    <div class="d-flex">
-
-                        <div class="dropdown d-inline-block d-lg-none ms-2">
-                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="ri-search-line"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                                aria-labelledby="page-header-search-dropdown">
-
-                                <form class="p-3">
-                                    <div class="mb-3 m-0">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Search ...">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-primary" type="submit"><i class="ri-search-line"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-
-                        <div class="dropdown d-inline-block user-dropdown">
-                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img class="rounded-circle header-profile-user" src="assets/images/users/user1.jfif" alt="Header Avatar">
-                                <span class="d-none d-xl-inline-block ms-1">Dorian</span>
-                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <!-- item-->
-                                <a class="dropdown-item" href="vecino-perfil.html"><i class="ri-user-line align-middle me-1"></i>Mi perfil</a>
-                                <a class="dropdown-item d-block" href="#"><span class="badge bg-success float-end mt-1">11</span><i class="ri-settings-2-line align-middle me-1"></i> Settings</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a>
-                            </div>
-                        </div>
-
-                        <div class="dropdown d-inline-block">
-                            <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
-                                <i class="ri-settings-2-line"></i>
-                            </button>
-                        </div>
-            
-                    </div>
-                </div>
-            </header>
-<!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
-            <!-- ========== Left Sidebar Start ========== -->
-            <div class="vertical-menu">
-
-                <div data-simplebar class="h-100">
-
-                    <!--- Sidemenu -->
-                    <div id="sidebar-menu">
-                        <!-- Left Menu Start -->
-                        <ul class="metismenu list-unstyled" id="side-menu">
-                            <li class="menu-title">Menu</li>
-
-                            <li>
-                                <a href="vecino-index.html" class="waves-effect">
-                                    <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end"></span>
-                                    <span>Inicio</span>
-                                </a>
-                            </li>
-
-                            <li class="menu-title">Actividad</li>
-
-                            <li>
-                                <a href="vecino-mis-reservas.html" class="waves-effect">
-                                    <i class="ri-calendar-check-line"></i> <!-- Más específico para "reservas" -->
-                                    <span>Mis reservas</span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-map-pin-line"></i> <!-- Más representativo para "buscar canchas" -->
-                                    <span>Buscar Canchas</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="vecino-cancha.html">Canchas Disponibles</a></li>
-                                </ul>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="has-arrow waves-effect">
-                                    <i class="ri-bank-card-line"></i> <!-- Ícono relacionado a pagos -->
-                                    <span>Pagos</span>
-                                </a>
-                                <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="vecino-pago.html">Mis Pagos</a></li>
-                                </ul>
-                            </li>
-
-                            <li class="menu-title">Ayuda</li>
-                            <li>
-                                <a href="vecino-ayuda.html" class="waves-effect">
-                                    <i class="ri-customer-service-2-line"></i>
-                                    <span>Ayuda</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <!-- Sidebar -->
-                </div>
-            </div>
-            <!-- Left Sidebar End -->
-<!-- ====================================================================================================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
+<!--------------------------------------------------------------------------------------------------------------------------------------------->
             <div class="main-content">
 
                 <div class="page-content">
@@ -316,6 +184,8 @@
 
         </div>
         <!-- END layout-wrapper -->
+
+        <div class="sidebar-overlay"></div>
 
         <!-- Right Sidebar -->
         <div class="right-bar">

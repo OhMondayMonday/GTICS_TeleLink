@@ -7,7 +7,6 @@ import com.example.telelink.entity.Usuario;
 import com.example.telelink.repository.EspacioDeportivoRepository;
 import com.example.telelink.repository.ReservaRepository;
 import com.example.telelink.repository.UsuarioRepository;
-import com.example.telelink.service.ReservaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -37,23 +36,6 @@ public class ReservaController {
     @Autowired
     private EspacioDeportivoRepository espacioDeportivoRepository;
 
-    @Autowired
-    private ReservaService reservaService;
-
-    @PostMapping("/guardar")
-    public ResponseEntity<Map<String, Object>> guardarReserva(@RequestBody Reserva reserva) {
-        try {
-            // Guardar la reserva en la base de datos
-            reservaService.guardarReserva(reserva);
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
 
     //Obtiene las reservas disponibles para un espacio deportivo en una fecha específica
     @GetMapping("/disponibilidad")
@@ -109,9 +91,7 @@ public class ReservaController {
         }
     }
 
-    /**
-     * Crea una nueva reserva
-     */
+    //Crea una nueva reserva
     @PostMapping("/crear")
     public ResponseEntity<?> crearReserva(@RequestBody ReservaDTO reservaDTO) {
         try {

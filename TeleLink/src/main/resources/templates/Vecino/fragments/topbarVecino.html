@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:fragment="topbarVecino(title)">
+<head th:fragment="head(title)">
     <meta charset="utf-8" />
     <title th:text="${title}">Inicio | SanMi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +10,7 @@
     <link rel="shortcut icon" th:href="@{/Vecino/assets/images/logo-San-Miguel-1.webp}">
 
     <!-- jquery.vectormap css -->
-    <link href="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+    <link th:href="@{/Vecino/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css}" rel="stylesheet" type="text/css" />
 
     <!-- DataTables -->
     <link th:href="@{/Vecinoassets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
@@ -24,7 +24,76 @@
     <link th:href="@{/Vecino/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
     <!-- App Css-->
     <link th:href="@{/Vecino/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
-
 </head>
+
+<header id="page-topbar" th:fragment="topbar(pagina)">
+    <div class="navbar-header">
+        <div class="d-flex">
+            <!-- LOGO -->
+            <div class="navbar-brand-box">
+                <a href="" class="logo logo-light">
+                                <span class="logo-sm">
+                                    <img th:src="@{Vecino/assets/images/logo-San-Miguel-1.webp}" alt="logo-sanmiguel" height="25">
+                                </span>
+                    <span class="logo-lg">
+                                    <img th:src="@{Vecino/assets/images/logoCompleto.png}" alt="logo-sanmiguel" height="40" class="me-2">
+                                    <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
+                                </span>
+                </a>
+            </div>
+
+            <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                <i class="ri-menu-2-line align-middle"></i>
+            </button>
+
+        </div>
+
+        <div class="d-flex">
+
+            <div class="dropdown d-inline-block d-lg-none ms-2">
+                <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="ri-search-line"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                     aria-labelledby="page-header-search-dropdown">
+
+                    <form class="p-3">
+                        <div class="mb-3 m-0">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search ...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit"><i class="ri-search-line"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+            <div class="dropdown d-inline-block user-dropdown">
+                <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img class="rounded-circle header-profile-user" th:src="${usuario.fotoPerfilUrl} ?: @{/Vecino/assets/images/users/avatar-2.jpg}" alt="Header Avatar">
+                    <span class="d-none d-xl-inline-block ms-1" th:text="${usuario.nombres.split(' ')[0]} ?: 'Usuario'"></span>
+                    <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
+                </div>
+            </div>
+
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
+                    <i class="ri-settings-2-line"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</header>
 
 </html>

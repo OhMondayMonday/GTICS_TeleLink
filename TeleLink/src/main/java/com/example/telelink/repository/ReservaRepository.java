@@ -24,10 +24,4 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             LocalDateTime fin
     );
 
-    // Método para obtener todas las reservas
-    List<Reserva> findAll();
-
-    // Método para obtener reservas por usuario (si es necesario)
-    List<Reserva> findByUsuario_Nombres(String usuario);
-
 }
