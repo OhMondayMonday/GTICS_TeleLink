@@ -3,8 +3,6 @@
 <head th:replace="~{admin/fragments/headList.html :: headList(title='Estadísticas de Reservas')}">
   <meta charset="UTF-8">
   <title>Dashboard - Estadísticas de Reservas</title>
-  <!-- Incluir ApexCharts -->
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <!-- Estilos para el contenedor del gráfico -->
   <style>
     .donut-chart-container {
@@ -100,6 +98,59 @@
                 </div>
               </div>
             </div>
+
+            <div class="row">
+
+              <div class="col-xl-12">
+                <!-- Tarjeta para reservas por día (Sales Analytics con gráfico de dona) -->
+                <div class="card">
+                  <div class="card-body donut-card">
+                    <div class="float-end">
+                      <select class="form-select form-select-sm">
+                        <option selected>Abr</option>
+                        <option value="1">Mar</option>
+                        <option value="2">Feb</option>
+                        <option value="3">Ene</option>
+                      </select>
+                    </div>
+                    <h4 class="card-title mb-4">Reservas por Día</h4>
+                    <div id="donut-chart" class="apex-charts donut-chart-container"></div>
+                    <div class="row">
+                      <div class="col-4" th:if="${top3Dias.size() >= 1}">
+                        <div class="text-center mt-4">
+                          <p class="mb-2 text-truncate">
+                            <i class="mdi mdi-circle text-primary font-size-10 me-1"></i>
+                            <span th:text="${top3Dias[0][0]}"></span>
+                          </p>
+                          <h5 th:text="${top3Dias[0][1]}"></h5>
+                        </div>
+                      </div>
+                      <div class="col-4" th:if="${top3Dias.size() >= 2}">
+                        <div class="text-center mt-4">
+                          <p class="mb-2 text-truncate">
+                            <i class="mdi mdi-circle text-success font-size-10 me-1"></i>
+                            <span th:text="${top3Dias[1][0]}"></span>
+                          </p>
+                          <h5 th:text="${top3Dias[1][1]}"></h5>
+                        </div>
+                      </div>
+                      <div class="col-4" th:if="${top3Dias.size() >= 3}">
+                        <div class="text-center mt-4">
+                          <p class="mb-2 text-truncate">
+                            <i class="mdi mdi-circle text-warning font-size-10 me-1"></i>
+                            <span th:text="${top3Dias[2][0]}"></span>
+                          </p>
+                          <h5 th:text="${top3Dias[2][1]}"></h5>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
             <!-- Tarjeta para reservas por día -->
             <div class="row">
               <div class="col-xl-12">
@@ -169,50 +220,7 @@
           </div>
 
           <div class="col-xl-4">
-            <!-- Tarjeta para reservas por día (Sales Analytics con gráfico de dona) -->
-            <div class="card">
-              <div class="card-body donut-card">
-                <div class="float-end">
-                  <select class="form-select form-select-sm">
-                    <option selected>Abr</option>
-                    <option value="1">Mar</option>
-                    <option value="2">Feb</option>
-                    <option value="3">Ene</option>
-                  </select>
-                </div>
-                <h4 class="card-title mb-4">Reservas por Día</h4>
-                <div id="donut-chart" class="apex-charts donut-chart-container"></div>
-                <div class="row">
-                  <div class="col-4" th:if="${top3Dias.size() >= 1}">
-                    <div class="text-center mt-4">
-                      <p class="mb-2 text-truncate">
-                        <i class="mdi mdi-circle text-primary font-size-10 me-1"></i>
-                        <span th:text="${top3Dias[0][0]}"></span>
-                      </p>
-                      <h5 th:text="${top3Dias[0][1]}"></h5>
-                    </div>
-                  </div>
-                  <div class="col-4" th:if="${top3Dias.size() >= 2}">
-                    <div class="text-center mt-4">
-                      <p class="mb-2 text-truncate">
-                        <i class="mdi mdi-circle text-success font-size-10 me-1"></i>
-                        <span th:text="${top3Dias[1][0]}"></span>
-                      </p>
-                      <h5 th:text="${top3Dias[1][1]}"></h5>
-                    </div>
-                  </div>
-                  <div class="col-4" th:if="${top3Dias.size() >= 3}">
-                    <div class="text-center mt-4">
-                      <p class="mb-2 text-truncate">
-                        <i class="mdi mdi-circle text-warning font-size-10 me-1"></i>
-                        <span th:text="${top3Dias[2][0]}"></span>
-                      </p>
-                      <h5 th:text="${top3Dias[2][1]}"></h5>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+
             <!-- Placeholder para Earning Reports -->
             <div class="card">
               <div class="card-body">
@@ -235,15 +243,12 @@
         </div>
         <!-- end row -->
       </div>
-
     </div>
     <!-- End Page-content -->
 
     <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
-
   </div>
   <!-- end main content-->
-
 </div>
 <!-- END layout-wrapper -->
 
@@ -253,66 +258,21 @@
 <!-- Incluir los scripts del listado -->
 <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
 
-<!-- Script para el gráfico de dona -->
-
+<!-- Script estático de prueba -->
 <!--
-<script th:inline="javascript">
-  document.addEventListener("DOMContentLoaded", function() {
-    var chartData = /*[[${chartData}]]*/ [];
-    var chartLabels = /*[[${chartLabels}]]*/ [];
-
-    if (chartData.length > 0 && chartLabels.length > 0) {
-      var options = {
-        series: chartData,
-        chart: {
-          type: 'donut',
-          height: 300
-        },
-        labels: chartLabels,
-        colors: ['#5b73e8', '#34c38f', '#f1b44c', '#ff3d60', '#6f42c1', '#fd7e14', '#17a2b8'],
-        dataLabels: {
-          enabled: true
-        },
-        responsive: [{
-          breakpoint: 480,
-          options: {
-            chart: {
-              width: 200
-            },
-            legend: {
-              show: false
-            }
-          }
-        }],
-        legend: {
-          position: 'right',
-          offsetY: 0,
-          height: 230
-        },
-        tooltip: {
-          y: {
-            formatter: function(val) {
-              return val + " reservas";
-            }
-          }
-        }
-      };
-
-      var chartElement = document.querySelector("#donut-chart");
-      if (chartElement) {
-        var chart = new ApexCharts(chartElement, options);
-        chart.render();
-      } else {
-        console.error("Elemento #donut-chart no encontrado en el DOM");
-      }
-    } else {
-      console.warn("No hay datos para el gráfico: chartData o chartLabels están vacíos");
-    }
-  });
-</script>
--->
 <script>
   document.addEventListener("DOMContentLoaded", function() {
+    console.log("Iniciando script de prueba para ApexCharts");
+    if (typeof ApexCharts === "undefined") {
+      console.error("ApexCharts no está definido. Asegúrate de que el script de ApexCharts esté cargado.");
+      return;
+    }
+    var chartElement = document.querySelector("#donut-chart");
+    if (!chartElement) {
+      console.error("Elemento #donut-chart no encontrado en el DOM");
+      return;
+    }
+    console.log("Contenedor #donut-chart encontrado. Intentando renderizar gráfico.");
     var options = {
       series: [44, 55, 41, 17, 15],
       chart: {
@@ -340,10 +300,86 @@
         height: 230
       }
     };
-    var chart = new ApexCharts(document.querySelector("#donut-chart"), options);
-    chart.render();
+    console.log("Renderizando gráfico de prueba");
+    try {
+      var chart = new ApexCharts(chartElement, options);
+      chart.render();
+      console.log("Gráfico renderizado exitosamente");
+    } catch (error) {
+      console.error("Error al renderizar el gráfico:", error);
+    }
   });
 </script>
+-->
+
+<!-- Script dinámico (comentado) -->
+
+<script th:inline="javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("Iniciando script dinámico para ApexCharts");
+    var chartData = /*[[${chartData}]]*/ [];
+    var chartLabels = /*[[${chartLabels}]]*/ [];
+    console.log("chartData:", chartData);
+    console.log("chartLabels:", chartLabels);
+    if (typeof ApexCharts === "undefined") {
+      console.error("ApexCharts no está definido. Asegúrate de que el script de ApexCharts esté cargado.");
+      return;
+    }
+    if (chartData.length === 0 || chartLabels.length === 0) {
+      console.warn("No hay datos para el gráfico: chartData o chartLabels están vacíos");
+      return;
+    }
+    var chartElement = document.querySelector("#donut-chart");
+    if (!chartElement) {
+      console.error("Elemento #donut-chart no encontrado en el DOM");
+      return;
+    }
+    console.log("Renderizando gráfico dinámico");
+    var options = {
+      series: chartData,
+      chart: {
+        type: 'donut',
+        height: 300
+      },
+      labels: chartLabels,
+      colors: ['#5b73e8', '#34c38f', '#f1b44c', '#ff3d60', '#6f42c1', '#fd7e14', '#17a2b8'],
+      dataLabels: {
+        enabled: true
+      },
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200
+          },
+          legend: {
+            show: false
+          }
+        }
+      }],
+      legend: {
+        position: 'right',
+        offsetY: 0,
+        height: 230
+      },
+      tooltip: {
+        y: {
+          formatter: function(val) {
+            return val + " reservas";
+          }
+        }
+      }
+    };
+    try {
+      var chart = new ApexCharts(chartElement, options);
+      chart.render();
+      console.log("Gráfico dinámico renderizado exitosamente");
+    } catch (error) {
+      console.error("Error al renderizar el gráfico dinámico:", error);
+    }
+  });
+</script>
+
 
 </body>
 </html>

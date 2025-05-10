@@ -1,32 +1,36 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<!-- Fragmento de scripts para listados -->
 <div th:fragment="footList">
-    <!-- jQuery primero -->
+    <!-- jQuery -->
     <script th:src="@{/admin/assets/libs/jquery/jquery.min.js}"></script>
-
-    <!-- Luego, carga las bibliotecas necesarias para DataTables -->
+    <!-- Bootstrap -->
     <script th:src="@{/admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <!-- MetisMenu -->
     <script th:src="@{/admin/assets/libs/metismenu/metisMenu.min.js}"></script>
+    <!-- Simplebar -->
     <script th:src="@{/admin/assets/libs/simplebar/simplebar.min.js}"></script>
+    <!-- Waves -->
     <script th:src="@{/admin/assets/libs/node-waves/waves.min.js}"></script>
 
-    <!-- Plugin js -->
-    <script th:src="@{/admin/assets/libs/moment/min/moment.min.js}"></script>
-    <script th:src="@{/admin/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
-    <!--
-    <script th:src="@{/admin/assets/libs/@fullcalendar/core/main.min.js}"></script>
-    <script th:src="@{/admin/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
-    <script th:src="@{/admin/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
-    <script th:src="@{/admin/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
-    <script th:src="@{/admin/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
-    -->
+    <!-- ApexCharts -->
+    <script th:src="@{/admin/assets/libs/apexcharts/apexcharts.min.js}"></script>
 
-    <script th:src="@{/admin/assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js}"></script>
+    <!-- VectorMap -->
+    <script th:src="@{/admin/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js}"></script>
+    <script th:src="@{/admin/assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js}"></script>
 
     <!-- DataTables -->
     <script th:src="@{/admin/assets/libs/datatables.net/js/jquery.dataTables.min.js}"></script>
     <script th:src="@{/admin/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js}"></script>
+    <script th:src="@{/admin/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
+    <script th:src="@{/admin/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
+
+    <!-- Plugins -->
+    <script th:src="@{/admin/assets/libs/moment/min/moment.min.js}"></script>
+    <script th:src="@{/admin/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
+    <script th:src="@{/admin/assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js}"></script>
+
+    <!-- DataTables Buttons -->
     <script th:src="@{/admin/assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js}"></script>
     <script th:src="@{/admin/assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js}"></script>
     <script th:src="@{/admin/assets/libs/jszip/jszip.min.js}"></script>
@@ -38,13 +42,13 @@
     <script th:src="@{/admin/assets/libs/datatables.net-keytable/js/dataTables.keyTable.min.js}"></script>
     <script th:src="@{/admin/assets/libs/datatables.net-select/js/dataTables.select.min.js}"></script>
 
-    <!-- Datatable init js -->
-    <script th:src="@{/admin/assets/js/pages/datatables.init.js}"></script>
+    <!-- Dashboard init -->
+    <script th:src="@{/admin/assets/js/pages/dashboard.init.js}"></script>
 
-    <!-- Script final de la app -->
-    <script th:src="@{/superadmin/assets/js/app.js}"></script>
+    <!-- App js -->
+    <script th:src="@{/admin/assets/js/app.js}"></script>
 
-    <!-- Script para inicializar flatpickr -->
+    <!-- Flatpickr init -->
     <script>
         flatpickr("#inicio", {
             enableTime: true,
@@ -53,7 +57,6 @@
             time_24hr: false,
             allowInput: false
         });
-
         flatpickr("#fin", {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
@@ -63,12 +66,11 @@
         });
     </script>
 
-    <!-- Script para inicializar el sidebar -->
+    <!-- DataTable init -->
     <script>
         $(document).ready(function () {
-            // Inicializa DataTable para la tabla de trabajadores
             $('#establecimientosTable').DataTable({
-                scrollX: true, // Habilita scroll horizontal
+                scrollX: true,
                 responsive: true,
                 dom: 'Bfrtip',
                 buttons: ['excel', 'csv', 'pdf'],

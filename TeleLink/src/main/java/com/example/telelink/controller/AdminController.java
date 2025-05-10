@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -354,6 +355,69 @@ public class AdminController {
 
         return "admin/dashboard";
     }
+
+    /*
+    @GetMapping("dashboard")
+    public String estadisticas(Model model) {
+        // Obtener reservas por día
+        List<CantidadReservasPorDiaDto> reservasPorDia = usuarioRepository.obtenerCantidadReservasPorDia();
+        System.out.println("reservasPorDia: " + reservasPorDia);
+
+        // Calcular el total de reservas
+        int totalReservas = reservasPorDia.stream()
+                .mapToInt(CantidadReservasPorDiaDto::getCantidadReservas)
+                .sum();
+        System.out.println("totalReservas: " + totalReservas);
+
+        // Preparar datos para el gráfico
+        List<Integer> chartData = new ArrayList<>();
+        List<String> chartLabels = new ArrayList<>();
+        List<Object[]> topDias = new ArrayList<>();
+
+        // Asegurar que los 7 días estén presentes
+        String[] diasSemana = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+        for (String dia : diasSemana) {
+            boolean diaEncontrado = false;
+            for (CantidadReservasPorDiaDto reserva : reservasPorDia) {
+                if (reserva.getDia().equals(dia)) {
+                    chartData.add(reserva.getCantidadReservas());
+                    chartLabels.add(reserva.getDia());
+                    double porcentaje = totalReservas > 0 ? (reserva.getCantidadReservas() * 100.0) / totalReservas : 0.0;
+                    topDias.add(new Object[]{reserva.getDia(), String.format("%.1f%%", porcentaje)});
+                    diaEncontrado = true;
+                    break;
+                }
+            }
+            if (!diaEncontrado) {
+                chartData.add(0);
+                chartLabels.add(dia);
+                topDias.add(new Object[]{dia, "0.0%"});
+            }
+        }
+
+        System.out.println("chartData: " + chartData);
+        System.out.println("chartLabels: " + chartLabels);
+        System.out.println("topDias: " + topDias);
+
+        // Seleccionar los 3 días con más reservas
+        List<Object[]> top3Dias = topDias.stream()
+                .sorted((a, b) -> Double.compare(
+                        Double.parseDouble(((String) b[1]).replace("%", "")),
+                        Double.parseDouble(((String) a[1]).replace("%", ""))
+                ))
+                .limit(3)
+                .collect(Collectors.toList());
+        System.out.println("top3Dias: " + top3Dias);
+
+        // Añadir atributos al modelo
+        model.addAttribute("reservasPorDia", reservasPorDia);
+        model.addAttribute("chartData", chartData);
+        model.addAttribute("chartLabels", chartLabels);
+        model.addAttribute("top3Dias", top3Dias);
+
+        return "admin/dashboard";
+    }
+     */
 
 
 }
