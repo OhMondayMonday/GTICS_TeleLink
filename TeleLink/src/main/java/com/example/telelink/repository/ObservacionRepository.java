@@ -20,4 +20,6 @@ public interface ObservacionRepository extends JpaRepository<Observacion, Intege
             WHERE o.nivel_urgencia = :nivelUrgencia""", nativeQuery = true)
     List<Observacion> findAllByNivelUrgenciaWithRelationsNative(Observacion.NivelUrgencia nivelUrgencia);
 
+    List<Observacion> findByCoordinador_UsuarioId(Integer coordinadorId);
+
 }
