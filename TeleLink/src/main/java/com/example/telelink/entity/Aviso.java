@@ -27,7 +27,7 @@ public class Aviso {
     @Column(name = "fecha_aviso")
     private LocalDateTime fechaAviso;
 
-    @Column(name = "estado_aviso", nullable = false, columnDefinition = "ENUM('activo', 'disponible', 'eliminado') DEFAULT 'disponible'")
+    @Column(name = "estado_aviso", nullable = false)
     private String estadoAviso;
 
 }

@@ -72,7 +72,7 @@ INSERT INTO establecimientos_deportivos (
 (2, 'Polideportivo Villa El Salvador', 'Av. Central 456', '-12.234567,-77.234567', '07:00:00', '21:00:00');
 
 -- 4. Insertar espacios deportivos
-INSERT IGNORE INTO espacios_deportivos (
+INSERT INTO espacios_deportivos (
     espacio_deportivo_id, 
     nombre, 
     servicio_deportivo_id, 
@@ -142,11 +142,7 @@ INSERT INTO asistencias (
  TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), '15:00:00'), 
  TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), '19:00:00'), 
  'inasistencia', 'inasistencia');
- 
--- aviso de prueba
 
-INSERT INTO db_gtics.avisos (titulo_aviso, texto_aviso, foto_aviso_url, fecha_aviso)
-VALUES ('Aviso de prueba', 'Este es un aviso de prueba para el coordinador.', 'https://example.com/imagen.jpg', CURRENT_TIMESTAMP);
 
 INSERT INTO db_gtics.avisos (titulo_aviso, texto_aviso, foto_aviso_url, fecha_aviso)
 VALUES ('Aviso de prueba 2', 'Este es un aviso de prueba para el coordinador.', 'https://static.vecteezy.com/system/resources/previews/004/431/172/non_2x/warning-notice-on-a-white-background-free-vector.jpg', CURRENT_TIMESTAMP);
@@ -198,10 +194,7 @@ WHERE espacio_deportivo_id = 4;
 
 -- Nuevas asistencias
 INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, fecha_creacion)
-VALUES (6, 1, 1, '2025-05-09 08:00:00', '2025-05-09 15:00:00', '2025-05-09 07:00:00');
-
-INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, geolocalizacion, fecha_creacion)
-VALUES (6, 1, 1, '2025-05-09 08:00:00', '2025-05-09 18:00:00', '-12.046374,-77.042793', '2025-05-09 16:00:00');
+VALUES (6, 1, 1, '2025-05-09 13:00:00', '2025-05-09 22:00:00', '2025-05-09 07:00:00');
 
 
 -- coordenadas para los espacios deportivos
