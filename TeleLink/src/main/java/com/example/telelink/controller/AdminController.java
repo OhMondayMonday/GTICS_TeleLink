@@ -204,9 +204,13 @@ public class AdminController {
 
     @GetMapping("pagos")
     public String listarPagos(Model model) {
-        List<Pago> pagosPendientes = pagoRepository.findByEstadoTransaccionAndMetodoPago_MetodoPago(
-                Pago.EstadoTransaccion.pendiente, "Transaccion"
+
+        List<Pago> pagosPendientes = pagoRepository.findByEstadoTransaccionAndMetodoPago_MetodoPagoId(
+                Pago.EstadoTransaccion.pendiente, 1
         );
+
+
+        //List<Pago> pagosPendientes = pagoRepository.findAll();
 
         model.addAttribute("pagosPendientes", pagosPendientes);
         return "admin/pagosList";

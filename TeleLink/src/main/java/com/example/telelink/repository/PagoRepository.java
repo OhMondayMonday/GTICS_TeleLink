@@ -12,7 +12,10 @@ import java.util.List;
 public interface PagoRepository extends JpaRepository<Pago, Integer> {
 
     //List<Pago> findByEstadoTransaccionAndMetodoPago_MetodoPago(String estadoTransaccion, String metodoPago);
-    List<Pago> findByEstadoTransaccionAndMetodoPago_MetodoPago(Pago.EstadoTransaccion estadoTransaccion, String metodoPago);
+    //List<Pago> findByEstadoTransaccionAndMetodoPago_MetodoPago(Pago.EstadoTransaccion estadoTransaccion, String metodoPago);
+
+    List<Pago> findByEstadoTransaccionAndMetodoPago_MetodoPagoId(Pago.EstadoTransaccion estadoTransaccion, Integer metodoPagoId);
+
 
     // Consulta SQL nativa para obtener el monto total semanal por metodo_pago_id
     @Query(value = "SELECT SUM(p.monto) " +
