@@ -20,6 +20,7 @@ public class UsuarioController {
 
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
+        // Buscar usuario ID 1 (usuario por defecto)
         Integer userId = 1;
         Usuario usuario = usuarioRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
@@ -27,9 +28,9 @@ public class UsuarioController {
         // Almacenar el objeto Usuario en la sesión
         session.setAttribute("currentUser", usuario);
 
-        // Pasar el userId al modelo para la vista
-        model.addAttribute("currentUserId", usuario.getUsuarioId());
+        // Pasar datos al modelo
         model.addAttribute("usuario", usuario);
+        model.addAttribute("activeItem", "inicio");
 
         return "Vecino/vecino-index";
     }
@@ -37,7 +38,11 @@ public class UsuarioController {
     @GetMapping("/perfil")
     public String mostrarPerfil(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
         model.addAttribute("usuario", usuario);
+        model.addAttribute("activeItem", "perfil");
         return "Vecino/vecino-perfil";
     }
 
@@ -48,6 +53,47 @@ public class UsuarioController {
         return "lista-usuarios";
     }
 
+    @GetMapping("/pagos")
+    public String mostrarPagos(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("activeItem", "pagos");
+        return "Vecino/vecino-pago";
+    }
 
+    @GetMapping("/reserva")
+    public String mostrarReservas(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("activeItem", "reservas");
+        return "Vecino/vecino-mis-reservas";
+    }
+
+    @GetMapping("/cancha")
+    public String mostrarCancha(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("activeItem", "canchas");
+        return "Vecino/vecino-cancha";
+    }
+    @GetMapping("/ayuda")
+    public String mostrarAyuda(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("activeItem", "ayuda");
+        return "Vecino/vecino-ayuda";
+    }
 
 }
