@@ -1,23 +1,6 @@
 <!doctype html>
-<html lang="en">
-<head>
-
-    <meta charset="utf-8" />
-    <title>Servicio Deportivo | SanMi</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-    <meta content="Themesdesign" name="author" />
-    <!-- App favicon -->
-    <link rel="shortcut icon" th:href="@{/assets/images/logo-San-Miguel-1.webp}">
-7
-    <!-- Bootstrap Css -->
-    <link th:href="@{/assets/css/bootstrap.min.css}" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <!-- Icons Css -->
-    <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
-    <!-- App Css-->
-    <link th:href="@{/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
-
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Servicio Deportivo')}"></head>
 <!-- ====================================================================================================================================== -->
 <body data-sidebar="dark" class="vertical-collpsed">
 <!-- Begin page -->
@@ -96,66 +79,7 @@
 
     <!-- ==================================================================================================================================== -->
 
-    <!-- ========== Left Sidebar Start ========== -->
-    <div class="vertical-menu">
-
-        <div data-simplebar class="h-100">
-
-            <!--- Sidemenu -->
-            <div id="sidebar-menu">
-                <!-- Left Menu Start -->
-                <ul class="metismenu list-unstyled" id="side-menu">
-                    <li class="menu-title">Menu</li>
-
-                    <li>
-                        <a href="vecino-index.html" class="waves-effect">
-                            <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end"></span>
-                            <span>Inicio</span>
-                        </a>
-                    </li>
-
-                    <li class="menu-title">Actividad</li>
-
-                    <li>
-                        <a href="vecino-mis-reservas.html" class="waves-effect">
-                            <i class="ri-calendar-check-line"></i> <!-- Más específico para "reservas" -->
-                            <span>Mis reservas</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="javascript: void(0);" class="has-arrow waves-effect">
-                            <i class="ri-map-pin-line"></i> <!-- Más representativo para "buscar canchas" -->
-                            <span>Buscar Canchas</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">
-                            <li><a href="vecino-cancha.html">Canchas Disponibles</a></li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <a href="javascript: void(0);" class="has-arrow waves-effect">
-                            <i class="ri-bank-card-line"></i> <!-- Ícono relacionado a pagos -->
-                            <span>Pagos</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">
-                            <li><a href="vecino-pago.html">Mis Pagos</a></li>
-                        </ul>
-                    </li>
-
-                    <li class="menu-title">Ayuda</li>
-                    <li>
-                        <a href="vecino-ayuda.html" class="waves-effect">
-                            <i class="ri-customer-service-2-line"></i>
-                            <span>Ayuda</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <!-- Sidebar -->
-        </div>
-    </div>
-
+    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Servicio Deportivo')}"></div>
     <!-- ========================================================================================================================================== -->
     <!-- Start right Content here -->
     <!-- ============================================================== -->

@@ -1,6 +1,8 @@
 package com.example.telelink.controller;
 
+import com.example.telelink.entity.Pago;
 import com.example.telelink.entity.Usuario;
+import com.example.telelink.repository.PagoRepository;
 import com.example.telelink.repository.UsuarioRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -16,6 +19,9 @@ import java.util.List;
 public class UsuarioController {
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PagoRepository pagoRepository;
 
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
@@ -79,18 +85,24 @@ public class UsuarioController {
     public String mostrarPagos(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
         if (usuario == null) {
-            return "redirect:/Vecino/vecino-index";
+            return "redirect:/usuarios/inicio";
         }
+
+        List<Pago> pagos = pagoRepository.findByReserva_Usuario(usuario);
+
         model.addAttribute("usuario", usuario);
+        model.addAttribute("pagos", pagos); // importante para mostrarlos en la vista
         model.addAttribute("activeItem", "pagos");
+
         return "Vecino/vecino-pago";
     }
+
 
     @GetMapping("/reserva")
     public String mostrarReservas(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
         if (usuario == null) {
-            return "redirect:/Vecino/vecino-index";
+            return "redirect:/usuarios/inicio";
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "reservas");
