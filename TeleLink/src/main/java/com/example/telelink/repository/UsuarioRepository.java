@@ -16,6 +16,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     List<Usuario> findAllByRol_Rol(String rol);
 
 
+    /*
+
+
     @Query(value = """
             SELECT 
                 CASE 
@@ -34,6 +37,31 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
                 dia
             ORDER BY 
                 FIELD(dia, 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
+            """, nativeQuery = true)
+    List<CantidadReservasPorDiaDto> obtenerCantidadReservasPorDia();
+     */
+
+    @Query(value = """
+            SELECT\s
+                dia_nombre AS dia,
+                COUNT(*) AS cantidadReservas
+            FROM (
+                SELECT\s
+                    CASE\s
+                        WHEN DAYOFWEEK(inicio_reserva) = 1 THEN 'Domingo'
+                        WHEN DAYOFWEEK(inicio_reserva) = 2 THEN 'Lunes'
+                        WHEN DAYOFWEEK(inicio_reserva) = 3 THEN 'Martes'
+                        WHEN DAYOFWEEK(inicio_reserva) = 4 THEN 'Miércoles'
+                        WHEN DAYOFWEEK(inicio_reserva) = 5 THEN 'Jueves'
+                        WHEN DAYOFWEEK(inicio_reserva) = 6 THEN 'Viernes'
+                        WHEN DAYOFWEEK(inicio_reserva) = 7 THEN 'Sábado'
+                    END AS dia_nombre
+                FROM db_gtics.reservas
+            ) AS sub
+            GROUP BY dia
+            ORDER BY\s
+                FIELD(dia, 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
+            
             """, nativeQuery = true)
     List<CantidadReservasPorDiaDto> obtenerCantidadReservasPorDia();
 

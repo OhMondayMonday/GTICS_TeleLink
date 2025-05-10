@@ -1,5 +1,6 @@
 package com.example.telelink.controller;
 
+import com.example.telelink.dto.admin.CantidadReservasPorDiaDto;
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -269,6 +271,7 @@ public class AdminController {
     }
 
 
+    /*
     @GetMapping("dashboard")
     public String estadisticas(Model model) {
 
@@ -276,6 +279,80 @@ public class AdminController {
 
         return "admin/dashboard";
 
+    }
+    */
+
+    /*@GetMapping("dashboard")
+    public String estadisticas(Model model) {
+        List<CantidadReservasPorDiaDto> reservasPorDia = usuarioRepository.obtenerCantidadReservasPorDia();
+
+        // Calcular el total de reservas
+        int totalReservas = reservasPorDia.stream()
+                .mapToInt(CantidadReservasPorDiaDto::getCantidadReservas)
+                .sum();
+
+        // Calcular porcentajes y preparar datos para el gráfico
+        List<Integer> chartData = new ArrayList<>();
+        List<String> chartLabels = new ArrayList<>();
+        List<Object[]> topDias = new ArrayList<>();
+
+        for (CantidadReservasPorDiaDto reserva : reservasPorDia) {
+            chartData.add(reserva.getCantidadReservas());
+            chartLabels.add(reserva.getDia());
+            double porcentaje = (reserva.getCantidadReservas() * 100.0) / totalReservas;
+            topDias.add(new Object[]{reserva.getDia(), String.format("%.1f%%", porcentaje)});
+        }
+
+        // Seleccionar los 3 días con más reservas para los col-4
+        topDias.sort((a, b) -> Double.compare(
+                Double.parseDouble(((String) b[1]).replace("%", "")),
+                Double.parseDouble(((String) a[1]).replace("%", ""))
+        ));
+        List<Object[]> top3Dias = topDias.size() > 3 ? topDias.subList(0, 3) : topDias;
+
+        model.addAttribute("reservasPorDia", reservasPorDia);
+        model.addAttribute("chartData", chartData);
+        model.addAttribute("chartLabels", chartLabels);
+        model.addAttribute("top3Dias", top3Dias);
+
+        return "admin/dashboard";
+    }
+
+     */
+    @GetMapping("dashboard")
+    public String estadisticas(Model model) {
+        List<CantidadReservasPorDiaDto> reservasPorDia = usuarioRepository.obtenerCantidadReservasPorDia();
+
+        // Calcular el total de reservas
+        int totalReservas = reservasPorDia.stream()
+                .mapToInt(CantidadReservasPorDiaDto::getCantidadReservas)
+                .sum();
+
+        // Calcular porcentajes y preparar datos para el gráfico
+        List<Integer> chartData = new ArrayList<>();
+        List<String> chartLabels = new ArrayList<>();
+        List<Object[]> topDias = new ArrayList<>();
+
+        for (CantidadReservasPorDiaDto reserva : reservasPorDia) {
+            chartData.add(reserva.getCantidadReservas());
+            chartLabels.add(reserva.getDia());
+            double porcentaje = (reserva.getCantidadReservas() * 100.0) / totalReservas;
+            topDias.add(new Object[]{reserva.getDia(), String.format("%.1f%%", porcentaje)});
+        }
+
+        // Seleccionar los 3 días con más reservas
+        topDias.sort((a, b) -> Double.compare(
+                Double.parseDouble(((String) b[1]).replace("%", "")),
+                Double.parseDouble(((String) a[1]).replace("%", ""))
+        ));
+        List<Object[]> top3Dias = topDias.size() > 3 ? topDias.subList(0, 3) : topDias;
+
+        model.addAttribute("reservasPorDia", reservasPorDia);
+        model.addAttribute("chartData", chartData);
+        model.addAttribute("chartLabels", chartLabels);
+        model.addAttribute("top3Dias", top3Dias);
+
+        return "admin/dashboard";
     }
 
 
