@@ -5,6 +5,7 @@ import com.example.telelink.entity.EspacioDeportivo;
 import com.example.telelink.entity.Reserva;
 import com.example.telelink.entity.Usuario;
 import com.example.telelink.repository.EspacioDeportivoRepository;
+import com.example.telelink.repository.PagoRepository;
 import com.example.telelink.repository.ReservaRepository;
 import com.example.telelink.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -25,7 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/reservas")
+@RequestMapping("/vecino")
 public class ReservaController {
     @Autowired
     private ReservaRepository reservaRepository;
@@ -34,8 +36,49 @@ public class ReservaController {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
+    private PagoRepository pagoRepository;
+
+    @Autowired
     private EspacioDeportivoRepository espacioDeportivoRepository;
 
+    // Método para obtener el usuario actual
+    private Usuario getUsuarioActual() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        return usuarioRepository.findByCorreoElectronico(currentUserEmail);
+    }
+
+    @GetMapping("/mis-reservas")
+    public String mostrarMisReservas(Model model) {
+        // Obtener el usuario actual
+        Usuario usuarioActual = getUsuarioActual();
+
+        // Obtener las reservas del usuario
+        List<Reserva> reservas = reservaRepository.findByUsuarioOrderByInicioReservaDesc(usuarioActual);
+
+        model.addAttribute("reservas", reservas);
+        return "vecino/vecino-mis-reservas";
+    }
+
+    @PostMapping("/reserva/cancelar/{reservaId}")
+    public String cancelarReserva(@PathVariable Integer reservaId, String razon) {
+        Usuario usuarioActual = getUsuarioActual();
+
+        Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
+        if (optReserva.isPresent()) {
+            Reserva reserva = optReserva.get();
+
+            // Verificar que la reserva pertenece al usuario actual
+            if (reserva.getUsuario().getUsuarioId().equals(usuarioActual.getUsuarioId())) {
+                // Cambiar estado a cancelada
+                reserva.setEstado(Reserva.Estado.cancelada);
+                reserva.setRazonCancelacion(razon);
+                reservaRepository.save(reserva);
+            }
+        }
+
+        return "redirect:/vecino/mis-reservas";
+    }
 
     //Obtiene las reservas disponibles para un espacio deportivo en una fecha específica
     @GetMapping("/disponibilidad")
