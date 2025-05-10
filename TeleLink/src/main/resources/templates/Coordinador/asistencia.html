@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="es">
-    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
     <head th:replace="~{fragments/topbarCoordinador :: head('Asistencia')}">
         <style>
             #gmaps-markers {
@@ -13,31 +12,32 @@
                 color: #6c757d !important;
                 cursor: not-allowed !important;
             }
+            .error-message {
+                color: red;
+                margin-top: 10px;
+                text-align: center;
+            }
+            .success-message {
+                color: green;
+                margin-top: 10px;
+                text-align: center;
+            }
         </style>
     </head>
-    <body data-sidebar="dark" class="vertical-collpsed">
-        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
-        <!-- Begin page -->
+    <body data-sidebar="dark" class="vertical-collpsed"
+          th:data-horario-entrada="${asistenciaActiva != null ? #temporals.format(asistenciaActiva.horarioEntrada, 'yyyy-MM-dd HH:mm:ss') : ''}"
+          th:data-horario-salida="${asistenciaActiva != null ? #temporals.format(asistenciaActiva.horarioSalida, 'yyyy-MM-dd HH:mm:ss') : ''}">
         <div id="layout-wrapper">
             <div th:replace="fragments/topbarCoordinador :: topbar('Asistencia')"></div>
-            <!-- ========== Left Sidebar Start ========== -->
             <div th:replace="fragments/sidebarCoordinador :: sidebar('asistencia')"></div>
-            <!-- Left Sidebar End -->
 
-
-
-            <!-- ============================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content">
                     <div class="container-fluid">
                         <div class="row mb-4" style="display: flex; align-items: stretch;">
                             <div class="col-lg-5 d-flex">
                                 <div class="card mb-0 flex-grow-1">
                                     <div class="card-body mb-3">
-
                                         <h4 class="card-title mb-4 fw-semibold">Registro de asistencia</h4>
 
                                         <div class="text-center mb-4">
@@ -48,8 +48,6 @@
                                         <script>
                                             function actualizarReloj() {
                                                 const ahora = new Date();
-
-                                                // Formatear la hora (HH:MM:SS a.m./p.m.)
                                                 const opcionesHora = {
                                                     hour: '2-digit',
                                                     minute: '2-digit',
@@ -57,8 +55,6 @@
                                                     hour12: true
                                                 };
                                                 const horaFormateada = ahora.toLocaleTimeString('es-PE', opcionesHora);
-
-                                                // Formatear la fecha (ej: "Jueves 03 de Abril del 2025")
                                                 const opcionesFecha = {
                                                     weekday: 'long',
                                                     day: '2-digit',
@@ -66,27 +62,36 @@
                                                     year: 'numeric'
                                                 };
                                                 const fechaFormateada = ahora.toLocaleDateString('es-PE', opcionesFecha);
-
-                                                // Actualizar el DOM
                                                 document.getElementById('hora-actual').textContent = horaFormateada;
                                                 document.getElementById('fecha-actual').textContent = fechaFormateada;
                                             }
-
-                                            // Actualizar inmediatamente y luego cada segundo
                                             actualizarReloj();
                                             setInterval(actualizarReloj, 1000);
                                         </script>
 
                                         <div class="mb-4 text-center">
-                                            <div>
-                                                <button type="submit" class="btn btn-primary waves-effect waves-light me-1">
-                                                    Registrar entrada
-                                                </button>
-                                                <button type="submit" class="btn btn-primary waves-effect waves-light me-1">
-                                                    Registrar salida
-                                                </button>
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <form id="form-registrar-entrada" th:action="@{/coordinador/registrar-entrada}" method="post">
+                                                    <input type="hidden" name="latitude" id="latitude-entrada">
+                                                    <input type="hidden" name="longitude" id="longitude-entrada">
+                                                    <button type="submit" id="btn-registrar-entrada" class="btn btn-primary waves-effect waves-light">
+                                                        Registrar entrada
+                                                    </button>
+                                                </form>
+                                                <form id="form-registrar-salida" th:action="@{/coordinador/registrar-salida}" method="post">
+                                                    <input type="hidden" name="latitude" id="latitude-salida">
+                                                    <input type="hidden" name="longitude" id="longitude-salida">
+                                                    <button type="submit" id="btn-registrar-salida" class="btn btn-primary waves-effect waves-light">
+                                                        Registrar salida
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <!-- Mensaje de error o éxito -->
+                                            <div th:if="${message != null}" class="mt-2">
+                                                <div th:class="${messageType == 'error'} ? 'error-message' : 'success-message'" th:text="${message}"></div>
                                             </div>
                                         </div>
+
                                         <div class="table-responsive">
                                             <table class="table mb-0">
                                                 <thead class="table-light">
@@ -113,9 +118,7 @@
                             <div class="col-lg-7 d-flex">
                                 <div class="card mb-0 flex-grow-1">
                                     <div class="card-body">
-
                                         <h4 class="card-title mb-4 fw-semibold">Historial de asistencia</h4>
-
                                         <div class="table-responsive">
                                             <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                                 <thead>
@@ -139,18 +142,15 @@
                                                 </tbody>
                                             </table>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- end row -->
 
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="card">
                                     <div class="card-body">
-
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <h4 class="card-title mb-4 fw-semibold">Asignación actual</h4>
@@ -178,48 +178,32 @@
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- end row -->
-
-                    </div> <!-- container-fluid -->
+                    </div>
                 </div>
-                <!-- End Page-content -->
-
                 <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
-
             </div>
-            <!-- ============================================================== -->
-            <!-- End main content -->
-            <!-- ============================================================== -->
-
-
-
         </div>
-        <!-- END layout-wrapper -->
 
         <div class="sidebar-overlay"></div>
 
         <div th:replace="fragments/topbarCoordinador :: scripts"></div>
         <script th:src="@{/assets/js/pages/asistencia.init.js}"></script>
-        <!-- google maps api -->
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o&libraries=places"></script>
-
-        <!-- Gmaps file -->
         <script th:src="@{/assets/libs/gmaps/gmaps.min.js}"></script>
-        <!--<script th:src="@{/assets/js/pages/gmaps.init.js}"></script>-->
-        <!-- Script para inicializar el mapa -->
+
         <script th:inline="javascript">
             document.addEventListener('DOMContentLoaded', function () {
+                // Mapa
                 try {
                     var geolocalizacion = /*[[${geolocalizacion}]]*/ null;
-                    console.log("Geolocalización recibida:", geolocalizacion); // Depuración
+                    console.log("Geolocalización recibida:", geolocalizacion);
                     var map = new GMaps({
                         div: '#gmaps-markers',
-                        lat: -12.043333, // Coordenadas por defecto (Lima, Perú)
+                        lat: -12.043333,
                         lng: -77.028333,
                         zoom: 15
                     });
@@ -261,10 +245,123 @@
                 } catch (e) {
                     console.error("Error al inicializar el mapa:", e);
                 }
+
+                // Lógica para los botones de registrar entrada y salida
+                var asistenciaActiva = /*[[${asistenciaActiva}]]*/ null;
+                var btnEntrada = document.getElementById('btn-registrar-entrada');
+                var btnSalida = document.getElementById('btn-registrar-salida');
+                var formEntrada = document.getElementById('form-registrar-entrada');
+                var formSalida = document.getElementById('form-registrar-salida');
+
+                // Obtener horarios desde atributos de datos
+                var horarioEntradaStr = document.body.getAttribute('data-horario-entrada');
+                var horarioSalidaStr = document.body.getAttribute('data-horario-salida');
+                var horarioEntrada = horarioEntradaStr ? new Date(horarioEntradaStr) : null;
+                var horarioSalida = horarioSalidaStr ? new Date(horarioSalidaStr) : null;
+
+                function controlarBotones() {
+                    if (!asistenciaActiva) {
+                        // Sin asistencia activa: deshabilitar ambos botones
+                        btnEntrada.disabled = true;
+                        btnSalida.disabled = true;
+                        btnEntrada.classList.add('btn-disabled');
+                        btnSalida.classList.add('btn-disabled');
+                    } else {
+                        var ahora = new Date();
+                        var limiteEntrada = horarioEntrada ? new Date(horarioEntrada.getTime() - 15 * 60 * 1000) : null; // 15 minutos antes
+                        var limiteSalida = horarioSalida ? new Date(horarioSalida.getTime() + 15 * 60 * 1000) : null;  // 15 minutos después
+
+                        var registroEntrada = /*[[${asistenciaActiva != null && asistenciaActiva.registroEntrada != null} ? ${#temporals.format(asistenciaActiva.registroEntrada, 'yyyy-MM-dd HH:mm:ss')} : null]]*/ null;
+                        var registroSalida = /*[[${asistenciaActiva != null && asistenciaActiva.registroSalida != null} ? ${#temporals.format(asistenciaActiva.registroSalida, 'yyyy-MM-dd HH:mm:ss')} : null]]*/ null;
+
+                        registroEntrada = registroEntrada ? new Date(registroEntrada) : null;
+                        registroSalida = registroSalida ? new Date(registroSalida) : null;
+
+                        // Validar si estamos dentro del rango de tiempo para registrar entrada
+                        var puedeRegistrarEntrada = limiteEntrada && limiteSalida && ahora >= limiteEntrada && ahora <= horarioSalida && !registroEntrada;
+                        // Validar si estamos dentro del rango de tiempo para registrar salida
+                        var puedeRegistrarSalida = limiteEntrada && limiteSalida && ahora >= horarioEntrada && ahora <= limiteSalida && registroEntrada && !registroSalida;
+
+                        // Controlar botón de entrada
+                        if (puedeRegistrarEntrada) {
+                            btnEntrada.disabled = false;
+                            btnEntrada.classList.remove('btn-disabled');
+                        } else {
+                            btnEntrada.disabled = true;
+                            btnEntrada.classList.add('btn-disabled');
+                        }
+
+                        // Controlar botón de salida
+                        if (puedeRegistrarSalida) {
+                            btnSalida.disabled = false;
+                            btnSalida.classList.remove('btn-disabled');
+                        } else {
+                            btnSalida.disabled = true;
+                            btnSalida.classList.add('btn-disabled');
+                        }
+
+                        // Si ambos registros están completos, deshabilitar ambos botones
+                        if (registroEntrada && registroSalida) {
+                            btnEntrada.disabled = true;
+                            btnSalida.disabled = true;
+                            btnEntrada.classList.add('btn-disabled');
+                            btnSalida.classList.add('btn-disabled');
+                        }
+                    }
+                }
+
+                controlarBotones();
+
+                // Obtener coordenadas antes de enviar el formulario de entrada
+                formEntrada.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                document.getElementById('latitude-entrada').value = position.coords.latitude;
+                                document.getElementById('longitude-entrada').value = position.coords.longitude;
+                                formEntrada.submit();
+                            },
+                            function(error) {
+                                alert("Error al obtener tu ubicación: " + error.message);
+                            },
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 0
+                            }
+                        );
+                    } else {
+                        alert("La geolocalización no está soportada por tu navegador.");
+                    }
+                });
+
+                // Obtener coordenadas antes de enviar el formulario de salida
+                formSalida.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                document.getElementById('latitude-salida').value = position.coords.latitude;
+                                document.getElementById('longitude-salida').value = position.coords.longitude;
+                                formSalida.submit();
+                            },
+                            function(error) {
+                                alert("Error al obtener tu ubicación: " + error.message);
+                            },
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 0
+                            }
+                        );
+                    } else {
+                        alert("La geolocalización no está soportada por tu navegador.");
+                    }
+                });
             });
         </script>
 
         <script th:src="@{/superadmin/assets/js/app.js}"></script>
     </body>
-    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>

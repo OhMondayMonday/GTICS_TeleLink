@@ -10,6 +10,7 @@
     import org.springframework.ui.Model;
     import org.springframework.web.bind.annotation.*;
     import org.springframework.web.multipart.MultipartFile;
+    import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
     import java.text.DecimalFormat;
     import java.time.LocalDateTime;
@@ -72,11 +73,9 @@
             }
             model.addAttribute("usuario", usuario);
 
-            // Obtener todas las asistencias del coordinador actual
             List<Asistencia> asistencias = asistenciaRepository.findByCoordinador_UsuarioId(usuario.getUsuarioId());
             model.addAttribute("asistencias", asistencias);
 
-            // Buscar una asistencia activa (hora actual dentro de horarioEntrada - 15 min y horarioSalida + 15 min)
             LocalDateTime ahora = LocalDateTime.now();
             Asistencia asistenciaActiva = null;
             for (Asistencia asistencia : asistencias) {
@@ -88,24 +87,17 @@
                 }
             }
 
-            // Si hay asistencia activa, preparar datos para "Asignación actual"
             if (asistenciaActiva != null) {
-                // Formatear horario
                 DateTimeFormatter formatterHora = DateTimeFormatter.ofPattern("h:mm a");
                 String horario = asistenciaActiva.getHorarioEntrada().format(formatterHora) + " - " +
                         asistenciaActiva.getHorarioSalida().format(formatterHora);
 
-                // Obtener establecimiento y servicio deportivo
                 String establecimiento = asistenciaActiva.getEspacioDeportivo()
                         .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre();
                 String servicioDeportivo = asistenciaActiva.getEspacioDeportivo()
                         .getServicioDeportivo().getServicioDeportivo();
+                String geolocalizacion = asistenciaActiva.getEspacioDeportivo().getGeolocalizacion();
 
-                // Agregar geolocalización para el mapa
-                String geolocalizacion = asistenciaActiva.getEspacioDeportivo().getGeolocalizacion(); // Valor por defecto si no hay asistencia activa
-                System.out.println(geolocalizacion);
-
-                // Agregar al modelo
                 model.addAttribute("asistenciaActiva", asistenciaActiva);
                 model.addAttribute("horario", horario);
                 model.addAttribute("establecimiento", establecimiento);
@@ -120,6 +112,198 @@
             }
 
             return "Coordinador/asistencia";
+        }
+
+        // Fórmula de Haversine
+        private double calcularDistancia(double lat1, double lon1, double lat2, double lon2) {
+            final int R = 6371; // Radio de la Tierra en kilómetros
+            double latDistance = Math.toRadians(lat2 - lat1);
+            double lonDistance = Math.toRadians(lon2 - lon1);
+            double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                    + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                    * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            double distance = R * c * 1000; // Convertir a metros
+            return distance;
+        }
+
+        @PostMapping("/registrar-entrada")
+        public String registrarEntrada(
+                @RequestParam("latitude") Double latitude,
+                @RequestParam("longitude") Double longitude,
+                HttpSession session,
+                RedirectAttributes redirectAttributes) {
+            try {
+                Usuario usuario = (Usuario) session.getAttribute("currentUser");
+                if (usuario == null) {
+                    redirectAttributes.addFlashAttribute("message", "Usuario no encontrado en la sesión");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                LocalDateTime ahora = LocalDateTime.now();
+                List<Asistencia> asistencias = asistenciaRepository.findByCoordinador_UsuarioId(usuario.getUsuarioId());
+                Asistencia asistenciaActiva = null;
+                for (Asistencia asistencia : asistencias) {
+                    LocalDateTime inicioRango = asistencia.getHorarioEntrada().minusMinutes(15);
+                    LocalDateTime finRango = asistencia.getHorarioSalida().plusMinutes(15);
+                    if (ahora.isAfter(inicioRango) && ahora.isBefore(finRango)) {
+                        asistenciaActiva = asistencia;
+                        break;
+                    }
+                }
+
+                if (asistenciaActiva == null) {
+                    redirectAttributes.addFlashAttribute("message", "No hay asistencia activa para registrar entrada");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                // Validar tiempo
+                LocalDateTime limiteEntrada = asistenciaActiva.getHorarioEntrada().minusMinutes(15);
+                if (ahora.isBefore(limiteEntrada)) {
+                    redirectAttributes.addFlashAttribute("message", "No se puede registrar entrada antes de " + limiteEntrada.format(DateTimeFormatter.ofPattern("h:mm a")));
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                if (asistenciaActiva.getRegistroEntrada() != null) {
+                    redirectAttributes.addFlashAttribute("message", "La entrada ya ha sido registrada");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                // Validar geolocalización
+                String geolocalizacion = asistenciaActiva.getEspacioDeportivo().getGeolocalizacion();
+                if (geolocalizacion == null || !geolocalizacion.matches("^-?\\d+\\.\\d+\\s*,\\s*-?\\d+\\.\\d+$")) {
+                    redirectAttributes.addFlashAttribute("message", "Geolocalización del espacio deportivo no disponible o inválida");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                String[] coords = geolocalizacion.split(",");
+                double latEspacio = Double.parseDouble(coords[0].trim());
+                double lngEspacio = Double.parseDouble(coords[1].trim());
+
+                if (latitude == null || longitude == null) {
+                    redirectAttributes.addFlashAttribute("message", "No se proporcionaron coordenadas válidas");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                double distancia = calcularDistancia(latitude, longitude, latEspacio, lngEspacio);
+                if (distancia > 50) {
+                    redirectAttributes.addFlashAttribute("message", "No estás en el espacio deportivo. Debes estar a menos de 50 metros para registrar tu entrada.");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                // Registrar entrada y actualizar estado
+                asistenciaActiva.setRegistroEntrada(ahora);
+                if (ahora.compareTo(asistenciaActiva.getHorarioEntrada()) <= 0) {
+                    asistenciaActiva.setEstadoEntrada(Asistencia.EstadoEntrada.puntual);
+                } else {
+                    asistenciaActiva.setEstadoEntrada(Asistencia.EstadoEntrada.tarde);
+                }
+                asistenciaRepository.save(asistenciaActiva);
+
+                redirectAttributes.addFlashAttribute("message", "Entrada registrada exitosamente a las " + ahora.format(DateTimeFormatter.ofPattern("h:mm a")));
+                redirectAttributes.addFlashAttribute("messageType", "success");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("message", "Error al registrar entrada: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("messageType", "error");
+            }
+            return "redirect:/coordinador/asistencia";
+        }
+
+        @PostMapping("/registrar-salida")
+        public String registrarSalida(
+                @RequestParam("latitude") Double latitude,
+                @RequestParam("longitude") Double longitude,
+                HttpSession session,
+                RedirectAttributes redirectAttributes) {
+            try {
+                Usuario usuario = (Usuario) session.getAttribute("currentUser");
+                if (usuario == null) {
+                    redirectAttributes.addFlashAttribute("message", "Usuario no encontrado en la sesión");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                LocalDateTime ahora = LocalDateTime.now();
+                List<Asistencia> asistencias = asistenciaRepository.findByCoordinador_UsuarioId(usuario.getUsuarioId());
+                Asistencia asistenciaActiva = null;
+                for (Asistencia asistencia : asistencias) {
+                    LocalDateTime inicioRango = asistencia.getHorarioEntrada().minusMinutes(15);
+                    LocalDateTime finRango = asistencia.getHorarioSalida().plusMinutes(15);
+                    if (ahora.isAfter(inicioRango) && ahora.isBefore(finRango)) {
+                        asistenciaActiva = asistencia;
+                        break;
+                    }
+                }
+
+                if (asistenciaActiva == null) {
+                    redirectAttributes.addFlashAttribute("message", "No hay asistencia activa para registrar salida");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                // Validar tiempo
+                LocalDateTime limiteSalida = asistenciaActiva.getHorarioSalida().plusMinutes(15);
+                if (ahora.isAfter(limiteSalida)) {
+                    redirectAttributes.addFlashAttribute("message", "No se puede registrar salida después de " + limiteSalida.format(DateTimeFormatter.ofPattern("h:mm a")));
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                if (asistenciaActiva.getRegistroEntrada() == null) {
+                    redirectAttributes.addFlashAttribute("message", "Debe registrar la entrada antes de registrar la salida");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                if (asistenciaActiva.getRegistroSalida() != null) {
+                    redirectAttributes.addFlashAttribute("message", "La salida ya ha sido registrada");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                // Validar geolocalización
+                String geolocalizacion = asistenciaActiva.getEspacioDeportivo().getGeolocalizacion();
+                if (geolocalizacion == null || !geolocalizacion.matches("^-?\\d+\\.\\d+\\s*,\\s*-?\\d+\\.\\d+$")) {
+                    redirectAttributes.addFlashAttribute("message", "Geolocalización del espacio deportivo no disponible o inválida");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                String[] coords = geolocalizacion.split(",");
+                double latEspacio = Double.parseDouble(coords[0].trim());
+                double lngEspacio = Double.parseDouble(coords[1].trim());
+
+                if (latitude == null || longitude == null) {
+                    redirectAttributes.addFlashAttribute("message", "No se proporcionaron coordenadas válidas");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                double distancia = calcularDistancia(latitude, longitude, latEspacio, lngEspacio);
+                if (distancia > 50) {
+                    redirectAttributes.addFlashAttribute("message", "No estás en el espacio deportivo. Debes estar a menos de 50 metros para registrar tu salida.");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/asistencia";
+                }
+
+                // Registrar salida
+                asistenciaActiva.setRegistroSalida(ahora);
+                asistenciaRepository.save(asistenciaActiva);
+
+                redirectAttributes.addFlashAttribute("message", "Salida registrada exitosamente a las " + ahora.format(DateTimeFormatter.ofPattern("h:mm a")));
+                redirectAttributes.addFlashAttribute("messageType", "success");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("message", "Error al registrar salida: " + e.getMessage());
+                redirectAttributes.addFlashAttribute("messageType", "error");
+            }
+            return "redirect:/coordinador/asistencia";
         }
 
         @GetMapping("/notificaciones")
