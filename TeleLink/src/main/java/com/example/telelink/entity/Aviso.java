@@ -27,7 +27,7 @@ public class Aviso {
     @Column(name = "fecha_aviso")
     private LocalDateTime fechaAviso;
 
-    @Column(name = "estado_aviso", nullable = false)
+    @Column(name = "estado_aviso")
     private String estadoAviso;
 
 }

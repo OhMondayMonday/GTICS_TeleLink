@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`avisos` (
   `texto_aviso` TEXT NOT NULL,
   `foto_aviso_url` VARCHAR(255) NOT NULL,
   `fecha_aviso` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `estado_aviso` enum('activo', 'disponible', 'eliminado') DEFAULT 'disponible',
+  `estado_aviso` enum('activo', 'disponible', 'eliminado') NULL DEFAULT 'disponible',
   PRIMARY KEY (`aviso_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
