@@ -11,7 +11,7 @@
         <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
         <meta content="Themesdesign" name="author" />
         <!-- App favicon -->
-        <link rel="shortcut icon" href="../../static/vecino.assets/images/logo-San-Miguel-1.webp">
+        <link rel="shortcut icon" href="../../static/assets/images/logo-San-Miguel-1.webp">
 
         <link href="../../static/vecino.assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css" rel="stylesheet" />
 
@@ -174,7 +174,7 @@
                         <div class="dropdown d-inline-block user-dropdown">
                             <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img class="rounded-circle header-profile-user" src="../../static/vecino.assets/images/users/user1.jfif" alt="Header Avatar">
+                                <img class="rounded-circle header-profile-user" src="../../static/assets/images/users/user1.jfif" alt="Header Avatar">
                                 <span class="d-none d-xl-inline-block ms-1">Dorian</span>
                                 <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                             </button>
@@ -312,16 +312,16 @@
                                                     <td>
                                                         <!-- Mostrar imagen según el tipo de servicio deportivo -->
                                                         <img th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivoId == 1}"
-                                                             src="/static/vecino.assets/images/small/Grass sintético_cf_3.jpg" alt="Cancha fútbol"
+                                                             src="/assets/images/small/Grass%20sintético_cf_3.jpg" alt="Cancha fútbol"
                                                              class="img-fluid rounded" style="max-width: 100px;" />
                                                         <img th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivoId == 2}"
-                                                             src="/static/vecino.assets/images/small/Piscina_Olimpica1.jpg" alt="Piscina"
+                                                             src="/assets/images/small/Piscina_Olimpica1.jpg" alt="Piscina"
                                                              class="img-fluid rounded" style="max-width: 100px;" />
                                                         <img th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivoId == 3}"
-                                                             src="/static/vecino.assets/images/small/CanchasMultiples.jpg" alt="Cancha Múltiple"
+                                                             src="/assets/images/small/CanchasMultiples.jpg" alt="Cancha Múltiple"
                                                              class="img-fluid rounded" style="max-width: 100px;" />
                                                         <img th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivoId == 4}"
-                                                             src="/static/vecino.assets/images/small/gym.jpg" alt="Gimnasio"
+                                                             src="/assets/images/small/gym.jpg" alt="Gimnasio"
                                                              class="img-fluid rounded" style="max-width: 100px;" />
                                                     </td>
 
@@ -411,88 +411,8 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-
                                                     </td>>
-
-                                                <!-- Reserva 2 -->
-                                                <tr>
-                                                    <td>
-                                                        <img src="../../static/vecino.assets/images/small/Piscina_Olimpica1.jpg" alt="Piscina Municipal" class="img-fluid rounded" style="max-width: 100px;" />
-                                                    </td>
-                                                    <td>
-                                                        <h5 class="font-size-14 text-truncate"><a href="vecino-piscina.html" class="text-reset text-decoration-none">Piscina Olímpica Techada</a></h5>
-                                                        <p class="mb-0">Piscina climatizada, 8 carriles, vestuarios disponibles</p>
-                                                    </td>
-                                                    <td>S/ 30.00</td>
-                                                    <td>1</td>
-                                                    <td>22 Abril 2025, 9:00 AM</td>
-                                                    <td>Online</td>
-                                                    <td class="text-center">
-                                                        <a href="vecino-piscina.html" class="btn btn-sm btn-outline-primary mb-1">Ver detalles</a>
-                                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Eliminar</button>
-                                                    </td>
-                                                </tr>
-
-                                                <!-- Reserva 3 -->
-                                                <tr>
-                                                    <td>
-                                                        <img src="../../static/vecino.assets/images/small/CanchasMultiples.jpg" alt="Cancha Múltiple" class="img-fluid rounded" style="max-width: 100px;" />
-                                                    </td>
-                                                    <td>
-                                                        <h5 class="font-size-14 text-truncate"><a href="vecino-multiple.html" class="text-reset text-decoration-none">Cancha Múltiple San Miguel</a></h5>
-                                                        <p class="mb-0">Espacio para vóley, básquet y fútbol rápido</p>
-                                                    </td>
-                                                    <td>S/ 40.00</td>
-                                                    <td>8</td>
-                                                    <td>24 Abril 2025, 4:00 PM</td>
-                                                    <td>Online</td>
-                                                    <td class="text-center">
-                                                        <a href="vecino-multiple.html" class="btn btn-sm btn-outline-primary mb-1">Ver detalles</a>
-                                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Eliminar</button>
-                                                    </td>
-                                                </tr>
-
-                                                <!-- Reserva 4 -->
-                                                <tr>
-                                                    <td>
-                                                        <img src="../../static/vecino.assets/images/small/gym.jpg" alt="Gimnasio" class="img-fluid rounded" style="max-width: 100px;" />
-                                                    </td>
-                                                    <td>
-                                                        <h5 class="font-size-14 text-truncate"><a href="vecino-gym.html" class="text-reset text-decoration-none">Gym SanMi</a></h5>
-                                                        <p class="mb-0">Ejercítate en el Gimnasio Municipal de San Miguel</p>
-                                                    </td>
-                                                    <td>S/ 30.00</td>
-                                                    <td>1</td>
-                                                    <td>24 Abril 2025, 4:00 PM</td>
-                                                    <td>Depósito</td>
-                                                    <td class="text-center">
-                                                        <a href="vecino-gym.html" class="btn btn-sm btn-outline-primary mb-1">Ver detalles</a>
-                                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">Eliminar</button>
-                                                    </td>
-                                                </tr>
-
-
                                                 </tbody>
-
-                                                <!-- Modal de Confirmación -->
-                                                <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered">
-                                                        <div class="modal-content border-0 shadow">
-                                                            <div class="modal-header bg-light">
-                                                                <h5 class="modal-title" id="cancelModalLabel">¿Está seguro que quiere cancelar la reserva?</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                Puedes cancelar sin penalidad hasta <strong>48 horas antes</strong> del horario reservado. ¿Deseas continuar?
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
-                                                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Sí, cancelar</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
                                             </table>
                                         </div>
                                     </div>
@@ -500,14 +420,11 @@
                             </div>
                         </div>
                         <!-- end row -->
-
                     </div> <!-- container-fluid -->
                 </div>
                 <!-- End Page-content -->
-                
             </div>
             <!-- end main content-->
-
         </div>
         <!-- END layout-wrapper -->
 
