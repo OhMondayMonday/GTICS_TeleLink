@@ -17,6 +17,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     // Para buscar un grupo de usuarios por Rol
     List<Usuario> findAllByRol_Rol(String rol);
 
+    Usuario findByCorreoElectronico(String correoElectronico);
+
     @Query(value = """
             SELECT 
                 CASE 
