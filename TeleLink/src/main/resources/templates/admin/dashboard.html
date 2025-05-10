@@ -1,8 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{admin/fragments/headList.html :: headList(title='Estadísticas de Reservas')}">
   <meta charset="UTF-8">
   <title>Dashboard - Estadísticas de Reservas</title>
+  <!-- Estilos para el contenedor del gráfico -->
+  <style>
+    .donut-chart-container {
+      min-height: 300px !important;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .card-body.donut-card {
+      padding: 1.5rem;
+    }
+  </style>
 </head>
 <body data-sidebar="dark" class="vertical-collpsed">
 
@@ -18,63 +29,226 @@
 
     <div class="page-content">
       <div class="container-fluid">
-        <div class="row justify-content-around">
-          <div class="col-lg-11 align-items-center">
-            <div class="card">
-              <div class="card-body">
 
-                <div class="row">
-                  <div class="col-12">
-                    <div class="card">
-                      <div class="card-body">
-
-                        <!-- Título y descripción con mayor tamaño -->
-                        <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-                          <div class="mb-2">
-                            <h4 class="card-title" style="font-size: 1.8rem; font-weight: 600;">Estadísticas de Reservas</h4>
-                          </div>
-                          <div class="mb-2" style="font-size: 1.1rem; color: #6c757d;">
-                            Consulta las reservas realizadas por día. Aquí puedes ver la cantidad de reservas para cada día de la semana.
-                          </div>
-                        </div>
-
-                        <div class="table-responsive">
-                          <table id="reservasTable" class="table table-striped table-bordered nowrap w-100">
-                            <thead>
-                            <tr>
-                              <th>Día</th>
-                              <th>Cantidad de Reservas</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <!-- Recorrer los datos de reservas por día -->
-                            <tr th:each="reserva : ${reservasPorDia}">
-                              <td th:text="${reserva.dia}"></td>
-                              <td th:text="${reserva.cantidadReservas}"></td>
-                            </tr>
-                            </tbody>
-                          </table>
-                        </div>
-
+        <div class="row">
+          <div class="col-xl-8">
+            <!-- Tarjetas de estadísticas como placeholders -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="card" style="background: linear-gradient(90deg, #f47d56, #ffb98a);">
+                  <div class="card-body">
+                    <div class="d-flex">
+                      <div class="flex-1 overflow-hidden">
+                        <p class="text-truncate font-size-15 mb-2 text-white">Número de Reservas</p>
+                        <h4 class="mb-0 text-white">-</h4>
+                      </div>
+                      <div class="text-primary ms-auto">
+                        <i class="ri-stack-line font-size-24"></i>
                       </div>
                     </div>
-                  </div> <!-- end col -->
-                </div> <!-- end row -->
+                  </div>
+                  <div class="card-body border-top py-3">
+                    <div class="text-truncate">
+                      <span class="badge font-size-11">-</span>
+                      <span class="text-white ms-2">Desde el periodo anterior</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card" style="background: linear-gradient(90deg, #40b370, #8df6b7);">
+                  <div class="card-body">
+                    <div class="d-flex">
+                      <div class="flex-1 overflow-hidden">
+                        <p class="text-truncate font-size-15 mb-2 text-white">Monto de Reservas</p>
+                        <h4 class="mb-0 text-white">-</h4>
+                      </div>
+                      <div class="text-primary ms-auto">
+                        <i class="ri-store-2-line font-size-24"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body border-top py-3">
+                    <div class="text-truncate">
+                      <span class="badge bg-success-subtle text-success font-size-11">-</span>
+                      <span class="text-white ms-2">Desde el periodo anterior</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card" style="background: linear-gradient(90deg, #3ab2c3, #8ce5f3);">
+                  <div class="card-body">
+                    <div class="d-flex">
+                      <div class="flex-1 overflow-hidden">
+                        <p class="text-truncate font-size-15 mb-2 text-white">Promedio por Reserva</p>
+                        <h4 class="mb-0 text-white">-</h4>
+                      </div>
+                      <div class="text-primary ms-auto">
+                        <i class="ri-briefcase-4-line font-size-24"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body border-top py-3">
+                    <div class="text-truncate">
+                      <span class="badge bg-success-subtle text-success font-size-11">-</span>
+                      <span class="text-white ms-2">Desde el periodo anterior</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
+            <div class="row">
+
+              <div class="col-xl-12">
+                <!-- Tarjeta para reservas por día (Sales Analytics con gráfico de dona) -->
+                <div class="card">
+                  <div class="card-body donut-card">
+                    <div class="float-end">
+                      <select class="form-select form-select-sm">
+                        <option selected>Abr</option>
+                        <option value="1">Mar</option>
+                        <option value="2">Feb</option>
+                        <option value="3">Ene</option>
+                      </select>
+                    </div>
+                    <h4 class="card-title mb-4">Reservas por Día</h4>
+                    <div id="donut-chart" class="apex-charts donut-chart-container"></div>
+                    <div class="row">
+                      <div class="col-4" th:if="${top3Dias.size() >= 1}">
+                        <div class="text-center mt-4">
+                          <p class="mb-2 text-truncate">
+                            <i class="mdi mdi-circle text-primary font-size-10 me-1"></i>
+                            <span th:text="${top3Dias[0][0]}"></span>
+                          </p>
+                          <h5 th:text="${top3Dias[0][1]}"></h5>
+                        </div>
+                      </div>
+                      <div class="col-4" th:if="${top3Dias.size() >= 2}">
+                        <div class="text-center mt-4">
+                          <p class="mb-2 text-truncate">
+                            <i class="mdi mdi-circle text-success font-size-10 me-1"></i>
+                            <span th:text="${top3Dias[1][0]}"></span>
+                          </p>
+                          <h5 th:text="${top3Dias[1][1]}"></h5>
+                        </div>
+                      </div>
+                      <div class="col-4" th:if="${top3Dias.size() >= 3}">
+                        <div class="text-center mt-4">
+                          <p class="mb-2 text-truncate">
+                            <i class="mdi mdi-circle text-warning font-size-10 me-1"></i>
+                            <span th:text="${top3Dias[2][0]}"></span>
+                          </p>
+                          <h5 th:text="${top3Dias[2][1]}"></h5>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Tarjeta para reservas por día -->
+            <div class="row">
+              <div class="col-xl-12">
+                <div class="card">
+                  <div class="card-header pb-1">
+                    <div class="d-flex">
+                      <h4 class="card-title my-2">Reservas por Día</h4>
+                    </div>
+                  </div>
+                  <div class="card-body py-1">
+                    <p class="text-muted mb-3">Consulta la cantidad de reservas realizadas por día de la semana.</p>
+                    <div class="table-responsive">
+                      <table class="table table-striped table-bordered table-nowrap w-100">
+                        <thead>
+                        <tr>
+                          <th>Día</th>
+                          <th>Cantidad de Reservas</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="reserva : ${reservasPorDia}">
+                          <td th:text="${reserva.dia}"></td>
+                          <td th:text="${reserva.cantidadReservas}"></td>
+                        </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Placeholders para avisos -->
+            <div class="row">
+              <div class="col-xl-4">
+                <div class="card">
+                  <div class="card-header pb-1">
+                    <div class="d-flex">
+                      <h4 class="card-title my-2">Últimos avisos</h4>
+                      <button class="btn btn-sm btn-outline-primary border-light my-1 ms-auto">Ver todo</button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div data-simplebar style="height: 475px;">
+                      <p class="text-muted">Sin datos disponibles</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-8">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="card">
+                      <div class="card-header pb-1">
+                        <div class="d-flex">
+                          <h4 class="card-title my-2">Aviso actual</h4>
+                          <button class="btn btn-sm btn-outline-success my-1 ms-auto">Modificar aviso</button>
+                        </div>
+                      </div>
+                      <div class="card-body py-1">
+                        <p class="text-muted">Sin datos disponibles</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-4">
+
+            <!-- Placeholder para Earning Reports -->
+            <div class="card">
+              <div class="card-body">
+                <div class="dropdown float-end">
+                  <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="mdi mdi-dots-vertical"></i>
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-end">
+                    <a href="javascript:void(0);" class="dropdown-item">Sales Report</a>
+                    <a href="javascript:void(0);" class="dropdown-item">Export Report</a>
+                    <a href="javascript:void(0);" class="dropdown-item">Profit</a>
+                    <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                  </div>
+                </div>
+                <h4 class="card-title mb-4">Reportes de Ingresos</h4>
+                <p class="text-muted">Sin datos disponibles</p>
               </div>
             </div>
           </div>
         </div>
-      </div> <!-- container-fluid -->
+        <!-- end row -->
+      </div>
     </div>
     <!-- End Page-content -->
 
-    <!-- Footer -->
     <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
-
   </div>
-  <!-- end main content -->
-
+  <!-- end main content-->
 </div>
 <!-- END layout-wrapper -->
 
@@ -83,6 +257,129 @@
 
 <!-- Incluir los scripts del listado -->
 <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+
+<!-- Script estático de prueba -->
+<!--
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("Iniciando script de prueba para ApexCharts");
+    if (typeof ApexCharts === "undefined") {
+      console.error("ApexCharts no está definido. Asegúrate de que el script de ApexCharts esté cargado.");
+      return;
+    }
+    var chartElement = document.querySelector("#donut-chart");
+    if (!chartElement) {
+      console.error("Elemento #donut-chart no encontrado en el DOM");
+      return;
+    }
+    console.log("Contenedor #donut-chart encontrado. Intentando renderizar gráfico.");
+    var options = {
+      series: [44, 55, 41, 17, 15],
+      chart: {
+        type: 'donut',
+        height: 300
+      },
+      labels: ['A', 'B', 'C', 'D', 'E'],
+      dataLabels: {
+        enabled: true
+      },
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200
+          },
+          legend: {
+            show: false
+          }
+        }
+      }],
+      legend: {
+        position: 'right',
+        offsetY: 0,
+        height: 230
+      }
+    };
+    console.log("Renderizando gráfico de prueba");
+    try {
+      var chart = new ApexCharts(chartElement, options);
+      chart.render();
+      console.log("Gráfico renderizado exitosamente");
+    } catch (error) {
+      console.error("Error al renderizar el gráfico:", error);
+    }
+  });
+</script>
+-->
+
+<!-- Script dinámico (comentado) -->
+
+<script th:inline="javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("Iniciando script dinámico para ApexCharts");
+    var chartData = /*[[${chartData}]]*/ [];
+    var chartLabels = /*[[${chartLabels}]]*/ [];
+    console.log("chartData:", chartData);
+    console.log("chartLabels:", chartLabels);
+    if (typeof ApexCharts === "undefined") {
+      console.error("ApexCharts no está definido. Asegúrate de que el script de ApexCharts esté cargado.");
+      return;
+    }
+    if (chartData.length === 0 || chartLabels.length === 0) {
+      console.warn("No hay datos para el gráfico: chartData o chartLabels están vacíos");
+      return;
+    }
+    var chartElement = document.querySelector("#donut-chart");
+    if (!chartElement) {
+      console.error("Elemento #donut-chart no encontrado en el DOM");
+      return;
+    }
+    console.log("Renderizando gráfico dinámico");
+    var options = {
+      series: chartData,
+      chart: {
+        type: 'donut',
+        height: 300
+      },
+      labels: chartLabels,
+      colors: ['#5b73e8', '#34c38f', '#f1b44c', '#ff3d60', '#6f42c1', '#fd7e14', '#17a2b8'],
+      dataLabels: {
+        enabled: true
+      },
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200
+          },
+          legend: {
+            show: false
+          }
+        }
+      }],
+      legend: {
+        position: 'right',
+        offsetY: 0,
+        height: 230
+      },
+      tooltip: {
+        y: {
+          formatter: function(val) {
+            return val + " reservas";
+          }
+        }
+      }
+    };
+    try {
+      var chart = new ApexCharts(chartElement, options);
+      chart.render();
+      console.log("Gráfico dinámico renderizado exitosamente");
+    } catch (error) {
+      console.error("Error al renderizar el gráfico dinámico:", error);
+    }
+  });
+</script>
+
 
 </body>
 </html>
