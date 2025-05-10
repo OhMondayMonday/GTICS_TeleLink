@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
@@ -37,6 +38,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
             """, nativeQuery = true)
     List<CantidadReservasPorDiaDto> obtenerCantidadReservasPorDia();
 
+    @Query("SELECT u FROM Usuario u WHERE u.rol.rol = 'coordinador' ORDER BY u.usuarioId ASC LIMIT 1")
+    Optional<Usuario> findFirstCoordinadorByOrderByUsuarioIdAsc();
 
     Usuario findByUsuarioId(Integer usuarioId);
 

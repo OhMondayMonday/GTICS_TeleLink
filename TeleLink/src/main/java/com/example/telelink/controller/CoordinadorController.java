@@ -46,10 +46,8 @@
 
         @GetMapping("/inicio")
         public String mostrarInicio(Model model, HttpSession session) {
-            // Simulamos el usuario logueado con userId = 6 (reemplazar con autenticación real en producción)
-            Integer userId = 6;
-            Usuario usuario = usuarioRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+            Usuario usuario = usuarioRepository.findFirstCoordinadorByOrderByUsuarioIdAsc()
+                    .orElseThrow(() -> new IllegalArgumentException("No se encontró ningún coordinador en la base de datos"));
 
             // Almacenar el objeto Usuario en la sesión
             session.setAttribute("currentUser", usuario);
