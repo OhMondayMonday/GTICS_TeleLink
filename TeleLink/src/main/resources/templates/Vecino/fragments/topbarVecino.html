@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head(title)">
     <meta charset="utf-8" />
-    <title th:text="${title}">Inicio | SanMi</title>
+    <title th:text="${title}"> | SanMi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesdesign" name="author" />
@@ -78,7 +78,7 @@
                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                    <a class="dropdown-item" th:href="@{/usuarios/perfil}"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
                 </div>
