@@ -2,6 +2,7 @@ package com.example.telelink.repository;
 
 import com.example.telelink.entity.Pago;
 import com.example.telelink.entity.Reserva;
+import com.example.telelink.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,5 +17,6 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
 
     Optional<Pago> findByReserva(Reserva reserva);
 
+    List<Pago> findByReserva_Usuario(Usuario usuario);
 
 }

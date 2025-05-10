@@ -1,7 +1,5 @@
 <!doctype html>
-<html lang="en">
-
-<!-- Mirrored from themesdesign.in/nazox/layouts/vecino-index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 
     <meta charset="utf-8" />
@@ -39,13 +37,12 @@
             <div class="d-flex">
                 <!-- LOGO -->
                 <div class="navbar-brand-box">
-
                     <a href="" class="logo logo-light">
                                 <span class="logo-sm">
-                                    <img src="assets\images\logo-San-Miguel-1.webp" alt="logo-sanmiguel" height="25">
+                                    <img th:src="@{/assets/images/logo-San-Miguel-1.webp}" alt="logo-sanmiguel" height="25">
                                 </span>
                         <span class="logo-lg">
-                                    <img src="assets\images\logoCompleto.png" alt="logo-sanmiguel" height="40" class="me-2">
+                                    <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-sanmiguel" height="40" class="me-2">
                                     <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
                                 </span>
                     </a>
@@ -201,66 +198,7 @@
         </div>
     </header>
     <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
-    <!-- ========== Left Sidebar Start ========== -->
-    <div class="vertical-menu">
-
-        <div data-simplebar class="h-100">
-
-            <!--- Sidemenu -->
-            <div id="sidebar-menu">
-                <!-- Left Menu Start -->
-                <ul class="metismenu list-unstyled" id="side-menu">
-                    <li class="menu-title">Menu</li>
-
-                    <li>
-                        <a href="vecino-index.html" class="waves-effect">
-                            <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end"></span>
-                            <span>Inicio</span>
-                        </a>
-                    </li>
-
-                    <li class="menu-title">Actividad</li>
-
-                    <li>
-                        <a href="vecino-mis-reservas.html" class="waves-effect">
-                            <i class="ri-calendar-check-line"></i> <!-- Más específico para "reservas" -->
-                            <span>Mis reservas</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="javascript: void(0);" class="has-arrow waves-effect">
-                            <i class="ri-map-pin-line"></i> <!-- Más representativo para "buscar canchas" -->
-                            <span>Buscar Canchas</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">
-                            <li><a href="vecino-cancha.html">Canchas Disponibles</a></li>
-                        </ul>
-                    </li>
-
-                    <li>
-                        <a href="javascript: void(0);" class="has-arrow waves-effect">
-                            <i class="ri-bank-card-line"></i> <!-- Ícono relacionado a pagos -->
-                            <span>Pagos</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">
-                            <li><a href="vecino-pago.html">Mis Pagos</a></li>
-                        </ul>
-                    </li>
-
-                    <li class="menu-title">Ayuda</li>
-                    <li>
-                        <a href="vecino-ayuda.html" class="waves-effect">
-                            <i class="ri-customer-service-2-line"></i>
-                            <span>Ayuda</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <!-- Sidebar -->
-        </div>
-    </div>
-    <!-- Left Sidebar End -->
+    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Perfil')}"></div>
     <!-- ====================================================================================================================================== -->
 
     <!-- Estilos del perfil -->
