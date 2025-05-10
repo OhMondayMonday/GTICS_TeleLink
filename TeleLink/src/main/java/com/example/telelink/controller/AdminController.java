@@ -105,6 +105,14 @@ public class AdminController {
 
     // Sección: Espacios
 
+    @GetMapping("espacios")
+    public String listarEspacios(Model model) {
+        List<EspacioDeportivo> espaciosList = espacioDeportivoRepository.findAll();
+
+        model.addAttribute("espacios", espaciosList);
+        return "admin/espacioList";
+    }
+
     @GetMapping("espacios/nuevo")
     public String crearEspacioDeportivo(@ModelAttribute("espacio") EspacioDeportivo espacio, Model model) {
 
@@ -147,9 +155,27 @@ public class AdminController {
     public String listarCoordinadores(Model model) {
         List<Usuario> usuariosList = usuarioRepository.findAllByRol_Rol("coordinador");
 
-        model.addAttribute("coodinadores", usuariosList);
+        model.addAttribute("coordinadores", usuariosList);
         return "admin/coordinadorList";
     }
+
+
+
+    @GetMapping("coordinadores/calendario")
+    public String calendarioCoordinadores(@RequestParam Integer id, Model model) {
+
+        Usuario coordinador = usuarioRepository.findByUsuarioId(id);
+
+        model.addAttribute("coordinador", coordinador);
+
+        return "admin/coordinadorCalendario";
+    }
+
+
+
+
+
+
 
     @GetMapping("perfil")
     public String perfilAdministrador(Model model) {

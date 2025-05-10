@@ -37,4 +37,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
             """, nativeQuery = true)
     List<CantidadReservasPorDiaDto> obtenerCantidadReservasPorDia();
 
+
+    Usuario findByUsuarioId(Integer usuarioId);
+
 }

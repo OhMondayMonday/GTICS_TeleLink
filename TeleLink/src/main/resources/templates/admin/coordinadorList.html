@@ -58,12 +58,12 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="coodinador : ${coodinadores}">
-                              <td th:text="${coodinador.nombres + ' ' + coodinador.apellidos}"></td>
-                              <td th:text="${coodinador.correoElectronico}"></td>
-                              <td th:text="${coodinador.telefono}"></td>
+                            <tr th:each="coordinador : ${coordinadores}">
+                              <td th:text="${coordinador.nombres + ' ' + coordinador.apellidos}"></td>
+                              <td th:text="${coordinador.correoElectronico}"></td>
+                              <td th:text="${coordinador.telefono}"></td>
                               <td>
-                                <a th:href="@{'/coordinador/calendario' + ${coodinador.usuarioId}}" class="btn btn-sm btn-primary">
+                                <a th:href="@{/admin/coordinadores/calendario(id=${coordinador.usuarioId})}" class="btn btn-sm btn-primary">
                                   <i class="mdi mdi-calendar"></i> Ver Calendario
                                 </a>
                               </td>
