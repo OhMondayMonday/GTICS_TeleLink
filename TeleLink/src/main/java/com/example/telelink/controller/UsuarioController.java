@@ -34,6 +34,29 @@ public class UsuarioController {
         return "Vecino/vecino-index";
     }
 
+    @GetMapping("/reservas/futbol")
+    public String mostrarFutbolReservation(Model model) {
+        // Aquí puedes agregar cualquier lógica que necesites
+        return "Vecino/vecino-futbol"; // Nombre de la vista Thymeleaf para la cancha de fútbol
+    }
+
+    @GetMapping("/reservas/piscina")
+    public String mostrarPiscinaReservation(Model model) {
+        // Aquí puedes agregar cualquier lógica que necesites
+        return "Vecino/vecino-piscina"; // Nombre de la vista Thymeleaf para la piscina
+    }
+    @GetMapping("/reservas/multiple")
+    public String mostrarMultipleReservation(Model model) {
+        // Aquí puedes agregar cualquier lógica que necesites
+        return "Vecino/vecino-multiple"; // Nombre de la vista Thymeleaf para la cancha múltiple
+    }
+
+    @GetMapping("/reservas/gym")
+    public String mostrarGymReservation(Model model) {
+        // Aquí puedes agregar cualquier lógica que necesites
+        return "Vecino/vecino-gym"; // Nombre de la vista Thymeleaf para la cancha múltiple
+    }
+
     @GetMapping("/perfil")
     public String mostrarPerfil(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
@@ -71,7 +94,7 @@ public class UsuarioController {
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "reservas");
-        return "/Vecino/vecino-mis-reservas";
+        return "Vecino/vecino-mis-reservas";
     }
 
     @GetMapping("/cancha")

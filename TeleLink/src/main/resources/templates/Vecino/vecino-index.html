@@ -30,15 +30,16 @@
                     <div class="row">
                         <div class="col-12">
                             <div id="carouselSanMiguel" class="carousel slide" data-bs-ride="carousel">
+
                                 <div class="carousel-inner">
                                     <div class="carousel-item active">
-                                        <img src="../../static/assets/images/small/sanMi.png" class="d-block img-fluid" alt="Primera imagen">
+                                        <img src="/assets/images/small/sanMi.png" class="d-block img-fluid" alt="Primera imagen">
                                     </div>
                                     <div class="carousel-item">
-                                        <img src="../../static/assets/images/small/sanMigue.jpg" class="d-block img-fluid" alt="Segunda imagen">
+                                        <img src="/assets/images/small/sanMigue.jpg" class="d-block img-fluid" alt="Segunda imagen">
                                     </div>
                                     <div class="carousel-item">
-                                        <img src="../../static/assets/images/small/sanMi_dis.png" class="d-block img-fluid" alt="Tercera imagen">
+                                        <img src="/assets/images/small/sanMi_dis.png" class="d-block img-fluid" alt="Tercera imagen">
                                     </div>
                                 </div>
 
@@ -94,7 +95,7 @@
                                         </div>
                                         <h5 class="card-title">Cancha de Fútbol Municipal</h5>
                                         <p class="card-text text-muted">Ubicada cerca del parque principal. Ideal para torneos y juegos recreativos.</p>
-                                        <a href="vecino-futbol.html" class="btn btn-primary w-100">Ver más</a>
+                                        <a th:href="@{/usuarios/reservas/futbol}" class="btn btn-primary w-100">Ver más</a>
                                     </div>
                                 </div>
                             </div>
@@ -112,7 +113,7 @@
                                         </div>
                                         <h5 class="card-title">Piscina Olímpica</h5>
                                         <p class="card-text text-muted">Piscina techada con horarios amplios. Ideal para entrenamientos o natación libre.</p>
-                                        <a href="vecino-piscina.html" class="btn btn-primary w-100">Ver más</a>
+                                        <a th:href="@{/usuarios/reservas/piscina}" class="btn btn-primary w-100">Ver más</a>
                                     </div>
                                 </div>
                             </div>
@@ -130,7 +131,7 @@
                                         </div>
                                         <h5 class="card-title">Cancha Múltiple San Miguel</h5>
                                         <p class="card-text text-muted">Perfecta para vóley, básquet o fútbol rápido. Piso antideslizante.</p>
-                                        <a href="vecino-multiple.html" class="btn btn-primary w-100">Ver más</a>
+                                        <a th:href="@{/usuarios/reservas/multiple}" class="btn btn-primary w-100">Ver más</a>
                                     </div>
                                 </div>
                             </div>
@@ -234,7 +235,38 @@
     </div> <!-- end slimscroll-menu-->
 </div>
 <!-- /Right-bar -->
-<div th:replace="fragments/layoutVecino :: scripts"></div>
+<!-- Right bar overlay-->
+<div class="rightbar-overlay"></div>
+<!-- JAVASCRIPT -->
+<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+<script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+<script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+
+<!-- Ion Range Slider-->
+<script src="assets/libs/ion-rangeslider/js/ion.rangeSlider.min.js"></script>
+
+<!-- init js -->
+<script src="assets/js/pages/product-filter-range.init.js"></script>
+
+<!-- apexcharts -->
+<script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+
+<!-- jquery.vectormap map -->
+<script src="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js"></script>
+<script src="assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js"></script>
+
+<!-- Required datatable js -->
+<script src="assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+
+<!-- Responsive examples -->
+<script src="assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+<script src="assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+
+<script src="assets/js/app.js"></script>
+
 
 <!-- Script -->
 <script>
