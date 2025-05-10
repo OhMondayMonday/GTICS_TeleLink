@@ -39,7 +39,7 @@ public class UsuarioController {
     public String mostrarPerfil(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
         if (usuario == null) {
-            return "redirect:/Vecino/vecino-index";
+            return "redirect:/usuarios/inicio";
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "perfil");
@@ -57,7 +57,7 @@ public class UsuarioController {
     public String mostrarPagos(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
         if (usuario == null) {
-            return "redirect:/Vecino/vecino-index";
+            return "redirect:/usuarios/inicio";
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "pagos");
@@ -68,7 +68,7 @@ public class UsuarioController {
     public String mostrarReservas(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
         if (usuario == null) {
-            return "redirect:/Vecino/vecino-index";
+            return "redirect:/usuarios/inicio";
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "reservas");
