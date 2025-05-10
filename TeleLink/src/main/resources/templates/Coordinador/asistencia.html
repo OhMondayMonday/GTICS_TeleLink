@@ -166,7 +166,7 @@
                                                     <label class="form-label">Servicio deportivo</label>
                                                     <input type="text" class="form-control" th:value="${servicioDeportivo}" readonly disabled>
                                                 </div>
-                                                <a th:href="${asistenciaActiva != null} ? @{/coordinador/observacionNewForm(asistenciaId=${asistenciaActiva.asistenciaId})} : @{/coordinador/observacionNewForm}"
+                                                <a th:if="${asistenciaActiva != null}" th:href="${asistenciaActiva != null} ? @{/coordinador/observacionNewForm(asistenciaId=${asistenciaActiva.asistenciaId})} : @{/coordinador/observacionNewForm}"
                                                    class="btn btn-primary waves-effect waves-light me-1">
                                                     Registrar observación
                                                 </a>

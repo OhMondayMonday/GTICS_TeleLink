@@ -194,7 +194,7 @@ WHERE espacio_deportivo_id = 4;
 
 -- Nuevas asistencias
 INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, fecha_creacion)
-VALUES (6, 1, 1, '2025-05-09 13:00:00', '2025-05-09 22:00:00', '2025-05-09 07:00:00');
+VALUES (4, 1, 1, '2025-05-10 16:00:00', '2025-05-10 20:00:00', '2025-05-09 07:00:00');
 
 
 -- coordenadas para los espacios deportivos

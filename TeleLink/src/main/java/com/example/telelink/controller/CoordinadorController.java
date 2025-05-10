@@ -3,11 +3,13 @@
     import com.example.telelink.entity.*;
     import com.example.telelink.repository.*;
     import jakarta.servlet.http.HttpSession;
+    import jakarta.validation.Valid;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.format.annotation.DateTimeFormat;
     import org.springframework.http.ResponseEntity;
     import org.springframework.stereotype.Controller;
     import org.springframework.ui.Model;
+    import org.springframework.validation.BindingResult;
     import org.springframework.web.bind.annotation.*;
     import org.springframework.web.multipart.MultipartFile;
     import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -43,6 +45,9 @@
 
         @Autowired
         private ReseniaRepository reseniaRepository;
+
+        @Autowired
+        private ObservacionRepository observacionRepository;
 
         @GetMapping("/inicio")
         public String mostrarInicio(Model model, HttpSession session) {
@@ -311,13 +316,6 @@
             return "Coordinador/notificaciones";
         }
 
-        @GetMapping("/observaciones")
-        public String mostrarObservaciones(Model model, HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
-            model.addAttribute("usuario", usuario);
-            return "Coordinador/observaciones";
-        }
-
         @GetMapping("/perfil")
         public String mostrarPerfil(Model model, HttpSession session) {
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
@@ -417,21 +415,148 @@
             return "Coordinador/espacioDetalle";
         }
 
-        @GetMapping("/observacionDetalle")
-        public String mostrarDetalleObservacion(Model model, HttpSession session) {
+        // Listar todas las observaciones del coordinador
+        @GetMapping("/observaciones")
+        public String mostrarObservaciones(Model model, HttpSession session) {
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            if (usuario == null) {
+                throw new IllegalArgumentException("Usuario no encontrado en la sesión");
+            }
+            List<Observacion> observaciones = observacionRepository.findByCoordinador_UsuarioId(usuario.getUsuarioId());
+            model.addAttribute("observaciones", observaciones);
+            model.addAttribute("usuario", usuario);
+            return "Coordinador/observaciones";
+        }
+
+        // Mostrar los detalles de una observación
+        @GetMapping("/observacionDetalle")
+        public String mostrarObservacionDetalle(@RequestParam("observacionId") Integer observacionId, Model model, HttpSession session) {
+            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            if (usuario == null) {
+                throw new IllegalArgumentException("Usuario no encontrado en la sesión");
+            }
+            Observacion observacion = observacionRepository.findById(observacionId)
+                    .orElseThrow(() -> new IllegalArgumentException("Observación no encontrada"));
+            model.addAttribute("observacion", observacion);
             model.addAttribute("usuario", usuario);
             return "Coordinador/observacionDetalle";
         }
 
+        // Mostrar formulario para crear una nueva observación (desde asistencias)
         @GetMapping("/observacionNewForm")
-        public String mostrarNewFormObservacion(
+        public String mostrarFormularioNuevaObservacion(
                 @RequestParam(value = "asistenciaId", required = false) Integer asistenciaId,
-                Model model, HttpSession session) {
+                Model model,
+                HttpSession session) {
+
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            if (usuario == null) {
+                throw new IllegalArgumentException("Usuario no encontrado en la sesión");
+            }
             model.addAttribute("usuario", usuario);
-            model.addAttribute("asistenciaId", asistenciaId);
+
+            Observacion observacionForm = new Observacion();
+            if (asistenciaId != null) {
+                Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
+                        .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
+                observacionForm.setEspacioDeportivo(asistencia.getEspacioDeportivo());
+            }
+
+            model.addAttribute("observacionForm", observacionForm);
             return "Coordinador/observacionNewForm";
+        }
+
+        // Mostrar formulario para editar una observación existente
+        @GetMapping("/observacionEditForm")
+        public String mostrarFormularioEditarObservacion(
+                @RequestParam("observacionId") Integer observacionId,
+                Model model,
+                HttpSession session) {
+
+            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            if (usuario == null) {
+                throw new IllegalArgumentException("Usuario no encontrado en la sesión");
+            }
+            model.addAttribute("usuario", usuario);
+
+            Observacion observacion = observacionRepository.findById(observacionId)
+                    .orElseThrow(() -> new IllegalArgumentException("Observación no encontrada"));
+            if (!"pendiente".equals(observacion.getEstado().name())) {
+                throw new IllegalArgumentException("Solo se pueden editar observaciones en estado 'pendiente'");
+            }
+
+            model.addAttribute("observacionForm", observacion);
+            return "Coordinador/observacionNewForm";
+        }
+
+        // Guardar una observación (creación o edición)
+        @PostMapping("/observacionGuardar")
+        public String guardarObservacion(
+                @Valid @ModelAttribute("observacionForm") Observacion observacionForm,
+                BindingResult result,
+                @RequestParam(value = "asistenciaId", required = false) Integer asistenciaId,
+                @RequestParam(value = "foto", required = false) MultipartFile foto,
+                HttpSession session,
+                RedirectAttributes redirectAttributes) {
+
+            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            if (usuario == null) {
+                redirectAttributes.addFlashAttribute("message", "Usuario no encontrado en la sesión");
+                redirectAttributes.addFlashAttribute("messageType", "error");
+                return "redirect:/coordinador/observaciones";
+            }
+
+            // Validar manualmente la foto al crear
+            if (observacionForm.getObservacionId() == null && (foto == null || foto.isEmpty())) {
+                result.rejectValue("fotoUrl", "NotBlank", "La foto es obligatoria al crear una observación");
+            }
+
+            if (result.hasErrors()) {
+                // Determinar a qué URL regresar en caso de error (creación o edición)
+                String redirectUrl = observacionForm.getObservacionId() != null ?
+                        "/coordinador/observacionEditForm?observacionId=" + observacionForm.getObservacionId() :
+                        "/coordinador/observacionNewForm" + (asistenciaId != null ? "?asistenciaId=" + asistenciaId : "");
+                return "Coordinador/observacionNewForm";
+            }
+
+            Observacion observacion;
+            if (observacionForm.getObservacionId() != null) {
+                // Edición
+                observacion = observacionRepository.findById(observacionForm.getObservacionId())
+                        .orElseThrow(() -> new IllegalArgumentException("Observación no encontrada"));
+                if (!"pendiente".equals(observacion.getEstado().name())) {
+                    redirectAttributes.addFlashAttribute("message", "Solo se pueden editar observaciones en estado 'pendiente'");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    return "redirect:/coordinador/observaciones";
+                }
+                observacion.setFechaActualizacion(LocalDateTime.now());
+                observacion.setDescripcion(observacionForm.getDescripcion());
+                observacion.setNivelUrgencia(observacionForm.getNivelUrgencia());
+            } else {
+                // Creación
+                observacion = new Observacion();
+                observacion.setCoordinador(usuario);
+                observacion.setFechaCreacion(LocalDateTime.now());
+                observacion.setEstado(Observacion.Estado.pendiente); // Estado por defecto
+                if (asistenciaId != null) {
+                    Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
+                            .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
+                    observacion.setEspacioDeportivo(asistencia.getEspacioDeportivo());
+                } else {
+                    observacion.setEspacioDeportivo(observacionForm.getEspacioDeportivo());
+                }
+            }
+
+            // Manejo de la foto
+            if (foto != null && !foto.isEmpty()) {
+                String fotoUrl = "https://example.com/fotos/observacion.jpg"; // URL predeterminada
+                observacion.setFotoUrl(fotoUrl);
+            }
+
+            observacionRepository.save(observacion);
+            redirectAttributes.addFlashAttribute("message", "Observación guardada exitosamente");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+            return "redirect:/coordinador/observaciones";
         }
 
         @GetMapping("/calendario")
