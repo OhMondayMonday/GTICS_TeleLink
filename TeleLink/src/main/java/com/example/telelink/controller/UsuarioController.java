@@ -14,7 +14,6 @@ import java.util.List;
 @Controller
 @RequestMapping("/usuarios")
 public class UsuarioController {
-
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -32,7 +31,7 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "inicio");
 
-        return "/Vecino/vecino-index";
+        return "Vecino/vecino-index";
     }
 
     @GetMapping("/perfil")
@@ -57,7 +56,7 @@ public class UsuarioController {
     public String mostrarPagos(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
         if (usuario == null) {
-            return "redirect:/usuarios/inicio";
+            return "redirect:/Vecino/vecino-index";
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "pagos");
@@ -68,7 +67,7 @@ public class UsuarioController {
     public String mostrarReservas(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
         if (usuario == null) {
-            return "redirect:/usuarios/inicio";
+            return "redirect:/Vecino/vecino-index";
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "reservas");
