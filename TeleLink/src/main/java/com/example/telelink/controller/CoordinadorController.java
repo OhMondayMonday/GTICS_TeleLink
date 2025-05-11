@@ -461,22 +461,27 @@
             }
             model.addAttribute("usuario", usuario);
 
-            // Si observacionForm no tiene datos (es la primera carga del formulario), inicializarlo
+            // Inicializar observacionForm si es la primera carga (no viene de un error de validación)
             if (observacionForm.getEspacioDeportivo() == null && observacionForm.getNivelUrgencia() == null && observacionForm.getDescripcion() == null) {
                 observacionForm = new Observacion();
+                if (asistenciaId != null) {
+                    Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
+                            .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
+                    observacionForm.setEspacioDeportivo(asistencia.getEspacioDeportivo());
+                    observacionForm.setCoordinador(usuario);
+                    observacionForm.setFechaCreacion(LocalDateTime.now());
+                }
+                model.addAttribute("observacionForm", observacionForm);
             }
 
-            // Si hay un asistenciaId (ya sea por parámetro o por RedirectAttributes), cargar el espacioDeportivo
-            if (asistenciaId != null) {
-                Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
-                        .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
-                observacionForm.setEspacioDeportivo(asistencia.getEspacioDeportivo());
-                observacionForm.setCoordinador(usuario);
-                observacionForm.setFechaCreacion(LocalDateTime.now());
-                model.addAttribute("asistenciaId", asistenciaId);
+            // Añadir asistenciaId al modelo
+            model.addAttribute("asistenciaId", asistenciaId);
+
+            // Si hay errores de validación, asegúrate de que estén disponibles
+            if (result.hasErrors()) {
+                model.addAttribute("org.springframework.validation.BindingResult.observacionForm", result);
             }
 
-            model.addAttribute("observacionForm", observacionForm);
             return "Coordinador/observacionNewForm";
         }
 
@@ -510,7 +515,8 @@
                 @RequestParam(value = "asistenciaId", required = false) Integer asistenciaId,
                 @RequestParam(value = "foto", required = false) MultipartFile foto,
                 HttpSession session,
-                RedirectAttributes redirectAttributes) {
+                RedirectAttributes redirectAttributes,
+                Model model) {
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
             if (usuario == null) {
                 redirectAttributes.addFlashAttribute("message", "Usuario no encontrado en la sesión");
@@ -530,7 +536,7 @@
             // Manejo de la foto y asignación de fotoUrl antes de la validación
             boolean isCreation = observacionForm.getObservacionId() == null;
             if (isCreation && (foto != null && !foto.isEmpty())) {
-                String fotoUrl = "https://example.com/fotos/observacion.jpg"; // URL predeterminada
+                String fotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg"; // URL predeterminada
                 observacionForm.setFotoUrl(fotoUrl);
             }
 
@@ -551,10 +557,14 @@
                     }
                 });
 
-                // Pasar los errores de validación a través de RedirectAttributes
-                redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.observacionForm", result);
-                // Pasar el asistenciaId para que el formulario pueda rellenar los campos
-                return "redirect:/coordinador/observacionNewForm?asistenciaId=" + asistenciaId;
+                // Añadir asistenciaId y usuario al modelo para renderizar el formulario
+                model.addAttribute("asistenciaId", asistenciaId);
+                model.addAttribute("usuario", usuario);
+                model.addAttribute("observacionForm", observacionForm);
+                model.addAttribute("org.springframework.validation.BindingResult.observacionForm", result);
+
+                // Retornar directamente la vista del formulario
+                return "Coordinador/observacionNewForm";
             }
 
             // Guardar la observación
