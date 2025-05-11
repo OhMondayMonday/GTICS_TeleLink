@@ -22,7 +22,7 @@ public interface AvisoRepository extends JpaRepository<Aviso, Integer> {
     List<Aviso> obtenerUltimosAvisos();
 
     @Query("SELECT a FROM Aviso a WHERE a.estadoAviso = 'activo' ORDER BY RAND() LIMIT 1")
-    Optional<Aviso> findAnyAvisoActivo();
+    Aviso findAnyAvisoActivo();
 
 
 }
