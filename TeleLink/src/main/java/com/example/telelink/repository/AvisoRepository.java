@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface AvisoRepository extends JpaRepository<Aviso, Integer> {
 
-    @Query("SELECT a FROM Aviso a WHERE a.fechaAviso = (SELECT MAX(a2.fechaAviso) FROM Aviso a2) ORDER BY a.avisoId ASC LIMIT 1")
+    @Query("SELECT a FROM Aviso a WHERE a.estadoAviso = 'activo' ORDER BY a.avisoId ASC LIMIT 1")
     Aviso findLatestAviso();
 
     @Query(value = "SELECT * FROM avisos " +
