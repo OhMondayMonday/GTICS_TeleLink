@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headList.html :: headList(title='Detalle de Observación')}">
+  <meta charset="UTF-8">
+</head>
+<body class="vertical-collpsed" data-sidebar="dark">
+<div id="layout-wrapper">
+  <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Detalle Observación')}"></div>
+
+  <div class="main-content">
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-body">
+
+                <h4 class="card-title mb-4">Detalle de Observación</h4>
+
+                <ul class="list-group list-group-flush mb-3">
+                  <li class="list-group-item"><strong>Descripción:</strong> <span th:text="${observacion.descripcion}"></span></li>
+                  <li class="list-group-item"><strong>Fecha de Creación:</strong> <span th:text="${#temporals.format(observacion.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span></li>
+                  <li class="list-group-item"><strong>Nivel de Urgencia:</strong> <span th:text="${observacion.nivelUrgencia}"></span></li>
+                  <li class="list-group-item"><strong>Espacio Deportivo:</strong> <span th:text="${observacion.espacioDeportivo.nombre}"></span></li>
+                  <li class="list-group-item"><strong>Coordinador:</strong> <span th:text="${observacion.coordinador.nombres}"></span></li>
+                </ul>
+
+                <div th:if="${observacion.estado.name() == 'en_proceso'}">
+                  <form method="post" th:action="@{/admin/observaciones/resolver}">
+                    <input type="hidden" name="id" th:value="${observacion.observacionId}" />
+                    <div class="form-group mb-3">
+                      <label for="comentarioAdministrador">Comentario del Administrador:</label>
+                      <textarea name="comentarioAdministrador" id="comentarioAdministrador" rows="4" class="form-control" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Marcar como Resuelto</button>
+                    <a th:href="@{/admin/observaciones}" class="btn btn-secondary">Cancelar</a>
+                  </form>
+                </div>
+                <div th:if="${observacion.estado.name() != 'en_proceso'}">
+                  <p class="text-muted">La observación ya fue resuelta.</p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+  </div>
+</div>
+
+<div class="sidebar-overlay"></div>
+<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+</body>
+</html>

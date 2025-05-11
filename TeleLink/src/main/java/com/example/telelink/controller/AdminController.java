@@ -249,8 +249,60 @@ public class AdminController {
     }
 
 
-
     @GetMapping("/observaciones")
+    public String listarObservaciones(
+            @RequestParam(required = false) String nivel,
+            Model model) {
+
+        List<Observacion.Estado> estadosVisibles = List.of(Observacion.Estado.pendiente, Observacion.Estado.en_proceso);
+        List<Observacion> observaciones;
+
+        if (nivel == null || nivel.equals("sin_filtro")) {
+            // Obtener todas las observaciones con estado pendiente o en_proceso
+            observaciones = observacionRepository.findByEstadoInOrderByEstadoAsc(estadosVisibles);
+        } else {
+            try {
+                Observacion.NivelUrgencia urgencia = Observacion.NivelUrgencia.valueOf(nivel);
+                observaciones = observacionRepository.findByEstadoInAndNivelUrgenciaOrderByEstadoAsc(estadosVisibles, urgencia);
+            } catch (IllegalArgumentException e) {
+                observaciones = observacionRepository.findByEstadoInOrderByEstadoAsc(estadosVisibles); // fallback si hay error
+            }
+        }
+
+        model.addAttribute("observaciones", observaciones);
+        model.addAttribute("nivelSeleccionado", nivel == null ? "sin_filtro" : nivel);
+        return "admin/observacionesList";
+    }
+
+    @GetMapping("/observaciones/info")
+    public String verInfoObservacion(@RequestParam("id") Integer id, Model model) {
+        Observacion observacion = observacionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID inválido"));
+
+        // Si está en estado 'pendiente', lo cambiamos a 'en_proceso'
+        if (observacion.getEstado() == Observacion.Estado.pendiente) {
+            observacion.setEstado(Observacion.Estado.en_proceso);
+            observacion.setFechaActualizacion(LocalDateTime.now());
+            observacionRepository.save(observacion);
+        }
+
+        model.addAttribute("observacion", observacion);
+        return "admin/observacionInfo";
+    }
+
+    @PostMapping("/observaciones/resolver")
+    public String resolverObservacion(@RequestParam("id") Integer id,
+                                      @RequestParam("comentarioAdministrador") String comentario) {
+        Observacion observacion = observacionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("ID inválido"));
+        observacion.setEstado(Observacion.Estado.resuelto);
+        observacion.setComentarioAdministrador(comentario);
+        observacion.setFechaActualizacion(LocalDateTime.now());
+        observacionRepository.save(observacion);
+        return "redirect:/admin/observaciones";
+    }
+
+
+    /*@GetMapping("/observaciones")
     public String listarObservaciones(
             @RequestParam(required = false) String nivel,
             Model model) {
@@ -275,55 +327,9 @@ public class AdminController {
         return "admin/observacionesList"; // tu HTML con la tabla
     }
 
-
-    /*
-    @GetMapping("dashboard")
-    public String estadisticas(Model model) {
-
-        model.addAttribute("reservasPorDia", usuarioRepository.obtenerCantidadReservasPorDia());
-
-        return "admin/dashboard";
-
-    }
-    */
-
-    /*@GetMapping("dashboard")
-    public String estadisticas(Model model) {
-        List<CantidadReservasPorDiaDto> reservasPorDia = usuarioRepository.obtenerCantidadReservasPorDia();
-
-        // Calcular el total de reservas
-        int totalReservas = reservasPorDia.stream()
-                .mapToInt(CantidadReservasPorDiaDto::getCantidadReservas)
-                .sum();
-
-        // Calcular porcentajes y preparar datos para el gráfico
-        List<Integer> chartData = new ArrayList<>();
-        List<String> chartLabels = new ArrayList<>();
-        List<Object[]> topDias = new ArrayList<>();
-
-        for (CantidadReservasPorDiaDto reserva : reservasPorDia) {
-            chartData.add(reserva.getCantidadReservas());
-            chartLabels.add(reserva.getDia());
-            double porcentaje = (reserva.getCantidadReservas() * 100.0) / totalReservas;
-            topDias.add(new Object[]{reserva.getDia(), String.format("%.1f%%", porcentaje)});
-        }
-
-        // Seleccionar los 3 días con más reservas para los col-4
-        topDias.sort((a, b) -> Double.compare(
-                Double.parseDouble(((String) b[1]).replace("%", "")),
-                Double.parseDouble(((String) a[1]).replace("%", ""))
-        ));
-        List<Object[]> top3Dias = topDias.size() > 3 ? topDias.subList(0, 3) : topDias;
-
-        model.addAttribute("reservasPorDia", reservasPorDia);
-        model.addAttribute("chartData", chartData);
-        model.addAttribute("chartLabels", chartLabels);
-        model.addAttribute("top3Dias", top3Dias);
-
-        return "admin/dashboard";
-    }
-
      */
+
+
     @GetMapping("dashboard")
     public String estadisticas(Model model) {
         List<CantidadReservasPorDiaDto> reservasPorDia = usuarioRepository.obtenerCantidadReservasPorDia();
