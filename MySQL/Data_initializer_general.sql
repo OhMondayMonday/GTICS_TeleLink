@@ -263,3 +263,6 @@ VALUES
     (4, 1, '2025-05-03 12:30:00', '2025-05-03 14:30:00', NULL, NULL, 'confirmada', NULL),
     (3, 2, '2025-05-04 13:00:00', '2025-05-04 15:00:00', NULL, NULL, 'confirmada', NULL),
     (2, 3, '2025-05-05 17:00:00', '2025-05-05 19:00:00', NULL, NULL, 'confirmada', NULL);
+
+INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, fecha_creacion)
+VALUES (4, 1, 1, '2025-05-10 16:00:00', '2025-05-10 23:00:00', '2025-05-09 07:00:00');
