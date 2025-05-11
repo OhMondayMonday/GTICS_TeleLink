@@ -536,7 +536,7 @@
             // Manejo de la foto y asignación de fotoUrl antes de la validación
             boolean isCreation = observacionForm.getObservacionId() == null;
             if (isCreation && (foto != null && !foto.isEmpty())) {
-                String fotoUrl = "https://example.com/fotos/observacion.jpg"; // URL predeterminada
+                String fotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg"; // URL predeterminada
                 observacionForm.setFotoUrl(fotoUrl);
             }
 
