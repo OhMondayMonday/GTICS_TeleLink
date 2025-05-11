@@ -39,6 +39,13 @@ public class SuperadminController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @GetMapping("/pagos")
+    public String listarPagos(Model model) {
+        List<Pago> pagos = pagoRepository.findAllWithRelations();
+        model.addAttribute("pagos", pagos);
+        return "Superadmin/verPagos";
+    }
+
     @GetMapping("/inicio")
     public String dashboard(Model model) {
 
@@ -54,7 +61,7 @@ public class SuperadminController {
         double promedioMensualPasado = montoMensualPasado/numeroReservasMesPasado;
         promedioMensualPasado = (montoMensualPasado == 0.0) ? 0.0 : promedioMensualPasado;
         List<Aviso> avisos = avisoRepository.obtenerUltimosAvisos();
-        Aviso ultimoAviso = avisoRepository.findByEstadoAviso("activo");
+        Optional<Aviso> avisoOpt = avisoRepository.findAnyAvisoActivo();
         Integer reservasFutbol = reservaRepository.obtenerNumeroReservasPorServicio(2);
         Integer reservasPiscina = reservaRepository.obtenerNumeroReservasPorServicio(4);
         Integer reservasGimnasio = reservaRepository.obtenerNumeroReservasPorServicio(1);
@@ -87,7 +94,7 @@ public class SuperadminController {
         model.addAttribute("promedioMensual", promedioMensual);
         model.addAttribute("montoMensualPasado", montoMensualPasado);
         model.addAttribute("avisos", avisos);
-        model.addAttribute("ultimoAviso", ultimoAviso);
+        model.addAttribute("ultimoAviso", avisoOpt);
         model.addAttribute("chartData", chartData);
         model.addAttribute("pagoPlinMensual", pagoPlinMensual);
         model.addAttribute("pagoYapeMensual", pagoYapeMensual);
@@ -243,6 +250,8 @@ public class SuperadminController {
 
         return "Superadmin/verPerfil";
     }
+
+
 
     @GetMapping("/transacciones")
     public String listarTransacciones() {

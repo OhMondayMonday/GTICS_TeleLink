@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AvisoRepository extends JpaRepository<Aviso, Integer> {
@@ -20,7 +21,8 @@ public interface AvisoRepository extends JpaRepository<Aviso, Integer> {
             nativeQuery = true)
     List<Aviso> obtenerUltimosAvisos();
 
-    Aviso findByEstadoAviso(String estadoAviso);
+    @Query("SELECT a FROM Aviso a WHERE a.estadoAviso = 'activo' ORDER BY RAND() LIMIT 1")
+    Optional<Aviso> findAnyAvisoActivo();
 
 
 }

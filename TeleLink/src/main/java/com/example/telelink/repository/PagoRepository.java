@@ -35,5 +35,13 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
             nativeQuery = true)
     Double obtenerMontoMensualPorMetodoPago(@Param("metodoPagoId") Integer metodoPagoId);
 
+    @Query("SELECT p FROM Pago p " +
+            "JOIN FETCH p.reserva r " +
+            "JOIN FETCH r.usuario " +
+            "JOIN FETCH r.espacioDeportivo ed " +
+            "JOIN FETCH ed.establecimientoDeportivo " +
+            "JOIN FETCH p.metodoPago")
+    List<Pago> findAllWithRelations();
+
 
 }
