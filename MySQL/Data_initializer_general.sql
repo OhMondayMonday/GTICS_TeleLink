@@ -164,7 +164,7 @@ INSERT INTO pagos (
     reserva_id, metodo_pago_id, monto, estado_transaccion, transaccion_id, foto_comprobante_url, fecha_pago, detalles_transaccion
 ) VALUES
 (1, 1, 100.00, 'completado', 'TXN001', NULL, NOW(), 'Pago por reserva de piscina.'),
-(2, 2, 240.00, 'pendiente', 'TXN002', 'https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?auto=format&fit=crop&w=600&q=80', NOW(), 'Depósito pendiente de verificación.'),
+(2, 1, 240.00, 'pendiente', 'TXN002', 'https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?auto=format&fit=crop&w=600&q=80', NOW(), 'Depósito pendiente de verificación.'),
 (3, 1, 80.00, 'completado', 'TXN003', NULL, NOW(), 'Pago por reserva de pista.'),
 (4, 1, 90.00, 'fallido', 'TXN004', NULL, NOW(), 'Error en el procesamiento del pago.');
 
@@ -263,3 +263,6 @@ VALUES
     (4, 1, '2025-05-03 12:30:00', '2025-05-03 14:30:00', NULL, NULL, 'confirmada', NULL),
     (3, 2, '2025-05-04 13:00:00', '2025-05-04 15:00:00', NULL, NULL, 'confirmada', NULL),
     (2, 3, '2025-05-05 17:00:00', '2025-05-05 19:00:00', NULL, NULL, 'confirmada', NULL);
+
+INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, fecha_creacion)
+VALUES (4, 1, 1, '2025-05-10 16:00:00', '2025-05-10 23:00:00', '2025-05-09 07:00:00');
