@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Pagos')}"></head>
-
     <body data-sidebar="dark" class="vertical-collpsed">
         <div id="layout-wrapper">
             <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Inicio')}"></div>
@@ -35,8 +34,6 @@
                             <p class="text-success">Sí hay pagos.</p>
                         </div>
 
-                        <p th:text="${pagos}">Aquí debería ir una lista</p>
-
 
                         <!-- end page title -->
 <!-----------------===================================================================================================----------------->
@@ -67,7 +64,6 @@
                                                     </thead>
 
                                                     <tbody>
-                                                    <!-- Ejemplo 1: Pagado con depósito -->
                                                     <tr th:each="pago, iStat : ${pagos}">
                                                         <td><input type="checkbox" class="form-check-input"/></td>
                                                         <td th:text="${pago.reserva.espacioDeportivo.nombre}">Nombre</td>
@@ -76,11 +72,11 @@
                                                         <td th:text="${pago.metodoPago.nombre}">Metodo</td>
                                                         <td th:text="'S/ ' + ${pago.monto}">Monto</td>
                                                         <td>
-                                                        <span th:classappend="${pago.estadoTransaccion == 'completado'} ? 'badge bg-success-subtle text-success' :
-                                                                              (pago.estadoTransaccion == 'pendiente') ? 'badge bg-warning-subtle text-warning' :
-                                                                              'badge bg-danger-subtle text-danger'"
-                                                              th:text="${pago.estadoTransaccion}">Estado
-                                                        </span>
+                                                            <span th:classappend="${pago.estadoTransaccion == 'completado'} ? 'badge bg-success-subtle text-success' :
+                                                                                 (pago.estadoTransaccion == 'pendiente') ? 'badge bg-warning-subtle text-warning' :
+                                                                                 'badge bg-danger-subtle text-danger'">
+                                                                ${pago.estadoTransaccion}
+                                                            </span>
                                                         </td>
                                                         <td>
                                                             <button class="btn btn-sm btn-outline-primary"
