@@ -500,7 +500,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 DROP TABLE IF EXISTS `db_gtics`.`observaciones` ;
 
 CREATE TABLE IF NOT EXISTS `db_gtics`.`observaciones` (
-  `observacion_id` INT NOT NULL,
+  `observacion_id` INT NOT NULL AUTO_INCREMENT,
   `fecha_creacion` TIMESTAMP NULL,
   `fecha_actualizacion` TIMESTAMP NULL,
   `descripcion` TEXT NULL,

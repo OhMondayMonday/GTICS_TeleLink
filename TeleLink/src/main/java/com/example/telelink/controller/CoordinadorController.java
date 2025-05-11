@@ -10,10 +10,12 @@
     import org.springframework.stereotype.Controller;
     import org.springframework.ui.Model;
     import org.springframework.validation.BindingResult;
+    import org.springframework.validation.FieldError;
     import org.springframework.web.bind.annotation.*;
     import org.springframework.web.multipart.MultipartFile;
     import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+    import java.security.Timestamp;
     import java.text.DecimalFormat;
     import java.time.LocalDateTime;
     import java.time.format.DateTimeFormatter;
@@ -439,6 +441,9 @@
                     .orElseThrow(() -> new IllegalArgumentException("Observación no encontrada"));
             model.addAttribute("observacion", observacion);
             model.addAttribute("usuario", usuario);
+            String nivelUrgenciaCapitalizado = observacion.getNivelUrgencia().name().substring(0, 1).toUpperCase() +
+                    observacion.getNivelUrgencia().name().substring(1).toLowerCase();
+            model.addAttribute("nivelUrgenciaCapitalizado", nivelUrgenciaCapitalizado);
             return "Coordinador/observacionDetalle";
         }
 
@@ -446,20 +451,29 @@
         @GetMapping("/observacionNewForm")
         public String mostrarFormularioNuevaObservacion(
                 @RequestParam(value = "asistenciaId", required = false) Integer asistenciaId,
+                @ModelAttribute("observacionForm") Observacion observacionForm,
+                BindingResult result,
                 Model model,
                 HttpSession session) {
-
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
             if (usuario == null) {
                 throw new IllegalArgumentException("Usuario no encontrado en la sesión");
             }
             model.addAttribute("usuario", usuario);
 
-            Observacion observacionForm = new Observacion();
+            // Si observacionForm no tiene datos (es la primera carga del formulario), inicializarlo
+            if (observacionForm.getEspacioDeportivo() == null && observacionForm.getNivelUrgencia() == null && observacionForm.getDescripcion() == null) {
+                observacionForm = new Observacion();
+            }
+
+            // Si hay un asistenciaId (ya sea por parámetro o por RedirectAttributes), cargar el espacioDeportivo
             if (asistenciaId != null) {
                 Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
                         .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
                 observacionForm.setEspacioDeportivo(asistencia.getEspacioDeportivo());
+                observacionForm.setCoordinador(usuario);
+                observacionForm.setFechaCreacion(LocalDateTime.now());
+                model.addAttribute("asistenciaId", asistenciaId);
             }
 
             model.addAttribute("observacionForm", observacionForm);
@@ -472,7 +486,6 @@
                 @RequestParam("observacionId") Integer observacionId,
                 Model model,
                 HttpSession session) {
-
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
             if (usuario == null) {
                 throw new IllegalArgumentException("Usuario no encontrado en la sesión");
@@ -486,7 +499,7 @@
             }
 
             model.addAttribute("observacionForm", observacion);
-            return "Coordinador/observacionNewForm";
+            return "Coordinador/observacionEditForm";
         }
 
         // Guardar una observación (creación o edición)
@@ -498,7 +511,6 @@
                 @RequestParam(value = "foto", required = false) MultipartFile foto,
                 HttpSession session,
                 RedirectAttributes redirectAttributes) {
-
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
             if (usuario == null) {
                 redirectAttributes.addFlashAttribute("message", "Usuario no encontrado en la sesión");
@@ -506,54 +518,47 @@
                 return "redirect:/coordinador/observaciones";
             }
 
+            // Asignar valores requeridos antes de la validación
+            observacionForm.setCoordinador(usuario);
+            observacionForm.setFechaCreacion(LocalDateTime.now());
+            if (asistenciaId != null) {
+                Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
+                        .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
+                observacionForm.setEspacioDeportivo(asistencia.getEspacioDeportivo());
+            }
+
+            // Manejo de la foto y asignación de fotoUrl antes de la validación
+            boolean isCreation = observacionForm.getObservacionId() == null;
+            if (isCreation && (foto != null && !foto.isEmpty())) {
+                String fotoUrl = "https://example.com/fotos/observacion.jpg"; // URL predeterminada
+                observacionForm.setFotoUrl(fotoUrl);
+            }
+
             // Validar manualmente la foto al crear
-            if (observacionForm.getObservacionId() == null && (foto == null || foto.isEmpty())) {
+            if (isCreation && (foto == null || foto.isEmpty())) {
                 result.rejectValue("fotoUrl", "NotBlank", "La foto es obligatoria al crear una observación");
             }
 
+            // Evaluar errores después de asignar los campos requeridos
             if (result.hasErrors()) {
-                // Determinar a qué URL regresar en caso de error (creación o edición)
-                String redirectUrl = observacionForm.getObservacionId() != null ?
-                        "/coordinador/observacionEditForm?observacionId=" + observacionForm.getObservacionId() :
-                        "/coordinador/observacionNewForm" + (asistenciaId != null ? "?asistenciaId=" + asistenciaId : "");
-                return "Coordinador/observacionNewForm";
+                // Imprimir los errores en la consola para depuración
+                System.out.println("Errores de validación encontrados:");
+                result.getAllErrors().forEach(error -> {
+                    System.out.println("Campo: " + error.getObjectName() + " - Mensaje: " + error.getDefaultMessage());
+                    if (error instanceof FieldError) {
+                        FieldError fieldError = (FieldError) error;
+                        System.out.println("Campo específico: " + fieldError.getField());
+                    }
+                });
+
+                // Pasar los errores de validación a través de RedirectAttributes
+                redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.observacionForm", result);
+                // Pasar el asistenciaId para que el formulario pueda rellenar los campos
+                return "redirect:/coordinador/observacionNewForm?asistenciaId=" + asistenciaId;
             }
 
-            Observacion observacion;
-            if (observacionForm.getObservacionId() != null) {
-                // Edición
-                observacion = observacionRepository.findById(observacionForm.getObservacionId())
-                        .orElseThrow(() -> new IllegalArgumentException("Observación no encontrada"));
-                if (!"pendiente".equals(observacion.getEstado().name())) {
-                    redirectAttributes.addFlashAttribute("message", "Solo se pueden editar observaciones en estado 'pendiente'");
-                    redirectAttributes.addFlashAttribute("messageType", "error");
-                    return "redirect:/coordinador/observaciones";
-                }
-                observacion.setFechaActualizacion(LocalDateTime.now());
-                observacion.setDescripcion(observacionForm.getDescripcion());
-                observacion.setNivelUrgencia(observacionForm.getNivelUrgencia());
-            } else {
-                // Creación
-                observacion = new Observacion();
-                observacion.setCoordinador(usuario);
-                observacion.setFechaCreacion(LocalDateTime.now());
-                observacion.setEstado(Observacion.Estado.pendiente); // Estado por defecto
-                if (asistenciaId != null) {
-                    Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
-                            .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
-                    observacion.setEspacioDeportivo(asistencia.getEspacioDeportivo());
-                } else {
-                    observacion.setEspacioDeportivo(observacionForm.getEspacioDeportivo());
-                }
-            }
-
-            // Manejo de la foto
-            if (foto != null && !foto.isEmpty()) {
-                String fotoUrl = "https://example.com/fotos/observacion.jpg"; // URL predeterminada
-                observacion.setFotoUrl(fotoUrl);
-            }
-
-            observacionRepository.save(observacion);
+            // Guardar la observación
+            observacionRepository.save(observacionForm);
             redirectAttributes.addFlashAttribute("message", "Observación guardada exitosamente");
             redirectAttributes.addFlashAttribute("messageType", "success");
             return "redirect:/coordinador/observaciones";

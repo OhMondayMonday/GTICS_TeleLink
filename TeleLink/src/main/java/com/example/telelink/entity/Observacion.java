@@ -3,8 +3,12 @@ package com.example.telelink.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,10 +28,10 @@ public class Observacion {
     private LocalDateTime fechaActualizacion;
 
     @NotBlank(message = "La descripción es obligatoria")
+    @Size(max = 255, message = "La descripción no puede exceder los 255 caracteres")
     @Column
     private String descripcion;
 
-    @NotBlank(message = "La foto es obligatoria al crear una observación")
     @Column(name = "foto_url", length = 255)
     private String fotoUrl;
 
@@ -36,12 +40,10 @@ public class Observacion {
     @Column(name = "nivel_urgencia")
     private NivelUrgencia nivelUrgencia;
 
-    @NotNull(message = "El espacio deportivo es obligatorio")
     @ManyToOne
     @JoinColumn(name = "espacio_deportivo_id", nullable = false)
     private EspacioDeportivo espacioDeportivo;
 
-    @NotNull(message = "El coordinador es obligatorio")
     @ManyToOne
     @JoinColumn(name = "coordinador_id", nullable = false)
     private Usuario coordinador;
@@ -52,6 +54,11 @@ public class Observacion {
     @Enumerated(EnumType.STRING)
     @Column(name = "estado")
     private Estado estado;
+
+    // Constructor por defecto para inicializar valores
+    public Observacion() {
+        this.estado = Estado.pendiente; // Estado por defecto
+    }
 
     public enum NivelUrgencia {
         alto, medio, bajo

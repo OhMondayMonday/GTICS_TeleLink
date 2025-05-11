@@ -1,31 +1,23 @@
-<!doctype html>
-<html lang="es">
-    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
-    <head th:replace="~{fragments/topbarCoordinador :: head(${observacionForm.observacionId != null ? 'Editar Observación' : 'Nueva Observación'})}"></head>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{fragments/topbarCoordinador :: head('Nueva Observación')}"></head>
     <body data-sidebar="dark" class="vertical-collpsed">
-        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
-        <!-- Begin page -->
         <div id="layout-wrapper">
             <div th:replace="fragments/topbarCoordinador :: topbar('Observación: Nuevo registro')"></div>
-            <!-- ========== Left Sidebar Start ========== -->
             <div th:replace="fragments/sidebarCoordinador :: sidebar('observaciones')"></div>
-            <!-- Left Sidebar End -->
 
-            <!-- ============================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content">
                     <div class="container-fluid">
-
                         <div class="row">
                             <div class="col-xl-12">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h4 class="card-title mb-3" th:text="${observacionForm.observacionId != null ? 'Editar Observación' : 'Nueva Observación'}">Datos de la observación</h4>
+                                        <h4 class="card-title mb-3">Nueva Observación</h4>
                                         <form th:action="@{/coordinador/observacionGuardar}" method="post" th:object="${observacionForm}" enctype="multipart/form-data">
                                             <input type="hidden" th:field="*{observacionId}" />
+                                            <input type="hidden" th:if="${asistenciaId != null}" th:name="asistenciaId" th:value="${asistenciaId}" />
+                                            <!-- Mostrar errores globales -->
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
@@ -44,11 +36,11 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="nivelUrgencia" class="form-label">Nivel de urgencia</label>
-                                                        <select id="nivelUrgencia" th:field="*{nivelUrgencia}" class="form-select" required th:classappend="${#fields.hasErrors('nivelUrgencia')} ? 'is-invalid' : ''">
+                                                        <select id="nivelUrgencia" th:field="*{nivelUrgencia}" class="form-select">
                                                             <option value="">Seleccione un nivel</option>
                                                             <option th:each="urgencia : ${T(com.example.telelink.entity.Observacion.NivelUrgencia).values()}" th:value="${urgencia}" th:text="${#strings.capitalize(urgencia)}" th:selected="${observacionForm.nivelUrgencia == urgencia}"></option>
                                                         </select>
-                                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nivelUrgencia')}" th:errors="*{nivelUrgencia}"></div>
+                                                        <div th:if="${#fields.hasErrors('nivelUrgencia')}" th:errors="*{nivelUrgencia}" class="text-danger"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -56,8 +48,8 @@
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="descripcion" class="form-label">Descripción</label>
-                                                        <textarea id="descripcion" th:field="*{descripcion}" required class="form-control" rows="5" style="height: 52px; resize: none;" th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid' : ''"></textarea>
-                                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
+                                                        <textarea id="descripcion" th:field="*{descripcion}" class="form-control" rows="5" style="height: 52px; resize: none;"></textarea>
+                                                        <div th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}" class="text-danger"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -65,9 +57,8 @@
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="foto" class="form-label">Evidencia fotográfica</label>
-                                                        <input id="foto" type="file" name="foto" class="form-control" th:classappend="${#fields.hasErrors('fotoUrl')} ? 'is-invalid' : ''" />
-                                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fotoUrl')}" th:errors="*{fotoUrl}"></div>
-                                                        <img th:if="${observacionForm.fotoUrl != null}" th:src="${observacionForm.fotoUrl}" style="max-height: 100px; margin-top: 10px;" />
+                                                        <input id="foto" type="file" name="foto" class="form-control" />
+                                                        <div th:if="${#fields.hasErrors('fotoUrl')}" th:errors="*{fotoUrl}" class="text-danger"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -78,35 +69,20 @@
                                         </form>
                                     </div>
                                 </div>
-                                <!-- end card -->
-                            </div> <!-- end col -->
+                            </div>
                         </div>
-                        <!-- end row -->
-                    </div> <!-- container-fluid -->
+                    </div>
                 </div>
-                <!-- End Page-content -->
-                    <!-- End Page-content -->
-
-                    <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
-
+                <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
             </div>
-                <!-- ============================================================== -->
-                <!-- End main content -->
-                <!-- ============================================================== -->
-
-
-
-            </div>
-            <!-- END layout-wrapper -->
+        </div>
 
         <div class="sidebar-overlay"></div>
 
-            <div th:replace="fragments/topbarCoordinador :: scripts"></div>
-            <script th:src="@{/assets/js/pages/form-validation.init.js}"></script>
-            <script th:src="@{/assets/libs/bs-custom-file-input/bs-custom-file-input.min.js}"></script>
-            <script th:src="@{/assets/js/pages/form-element.init.js}"></script>
-
-            <script th:src="@{/superadmin/assets/js/app.js}"></script>
+        <div th:replace="fragments/topbarCoordinador :: scripts"></div>
+        <script th:src="@{/assets/js/pages/form-validation.init.js}"></script>
+        <script th:src="@{/assets/libs/bs-custom-file-input/bs-custom-file-input.min.js}"></script>
+        <script th:src="@{/assets/js/pages/form-element.init.js}"></script>
+        <script th:src="@{/superadmin/assets/js/app.js}"></script>
     </body>
-    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>
