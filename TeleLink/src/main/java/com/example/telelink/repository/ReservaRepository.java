@@ -1,10 +1,12 @@
 package com.example.telelink.repository;
 
 import com.example.telelink.entity.Reserva;
+import com.example.telelink.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -13,12 +15,12 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     @Query("SELECT COUNT(r) FROM Reserva r " +
             "WHERE EXTRACT(MONTH FROM r.fechaCreacion) = EXTRACT(MONTH FROM CURRENT_DATE) " +
             "AND EXTRACT(YEAR FROM r.fechaCreacion) = EXTRACT(YEAR FROM CURRENT_DATE)")
-    int numeroReservasMes();
+    Integer numeroReservasMes();
 
     @Query("SELECT COUNT(r) FROM Reserva r " +
             "WHERE EXTRACT(MONTH FROM r.fechaCreacion) = EXTRACT(MONTH FROM CURRENT_DATE) - 1 " +
             "AND EXTRACT(YEAR FROM r.fechaCreacion) = EXTRACT(YEAR FROM CURRENT_DATE)")
-    long numeroReservasMesPasado();
+    Integer numeroReservasMesPasado();
 
     @Query(value = "SELECT SUM(COALESCE(e.precio_por_hora, 0) * TIMESTAMPDIFF(HOUR, r.inicio_reserva, r.fin_reserva)) " +
             "FROM reservas r " +
@@ -42,7 +44,22 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             "WHERE e.servicio_deportivo_id = ?1",
             nativeQuery = true)
     Integer obtenerNumeroReservasPorServicio(Integer servicioDeportivoId);
+    
+    Reserva findByReservaId(Integer reservaId);
 
+    @Query("SELECT r FROM Reserva r JOIN FETCH r.espacioDeportivo ed  WHERE r.usuario = :usuario ORDER BY r.inicioReserva DESC LIMIT 6")
+    List<Reserva> findTop6ByUsuarioOrderByInicioReservaDesc(@Param("usuario") Usuario usuario);
 
+    long countByUsuario(Usuario usuario);
+
+    @Query("SELECT COUNT(r) FROM Reserva r WHERE r.usuario = :usuario " +
+            "AND YEAR(r.fechaCreacion) = YEAR(CURRENT_DATE) " +
+            "AND MONTH(r.fechaCreacion) = MONTH(CURRENT_DATE)")
+    long countByUsuarioThisMonth(@Param("usuario") Usuario usuario);
+
+    @Query("SELECT COUNT(r) FROM Reserva r WHERE r.usuario = :usuario " +
+            "AND YEAR(r.fechaCreacion) = YEAR(CURRENT_DATE) " +
+            "AND WEEK(r.fechaCreacion) = WEEK(CURRENT_DATE)")
+    long countByUsuarioThisWeek(@Param("usuario") Usuario usuario);
 
 }

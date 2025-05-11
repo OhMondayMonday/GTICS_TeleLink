@@ -21,4 +21,6 @@ public interface AvisoRepository extends JpaRepository<Aviso, Integer> {
     List<Aviso> obtenerUltimosAvisos();
 
     Aviso findByEstadoAviso(String estadoAviso);
+
+
 }

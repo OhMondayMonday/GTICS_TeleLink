@@ -71,4 +71,17 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     Usuario findByUsuarioId(Integer usuarioId);
 
+    // Contar usuarios creados este mes
+    @Query("SELECT COUNT(u) FROM Usuario u WHERE YEAR(u.fechaCreacion) = YEAR(CURRENT_DATE) AND MONTH(u.fechaCreacion) = MONTH(CURRENT_DATE)")
+    long countUsuariosEsteMes();
+
+    long count();
+
+    // Contar usuarios por estado
+    long countByEstadoCuenta(Usuario.EstadoCuenta estado);
+
+    @Query("SELECT COUNT(u) FROM Usuario u WHERE YEAR(u.fechaCreacion) = YEAR(CURRENT_DATE - 1 MONTH) AND MONTH(u.fechaCreacion) = MONTH(CURRENT_DATE - 1 MONTH)")
+    long countUsuariosMesPasado();
+
+
 }

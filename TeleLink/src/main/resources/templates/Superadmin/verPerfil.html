@@ -1,30 +1,13 @@
 <!doctype html>
-<html lang="en">
-
-
-  <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
-  <head th:replace="~{Superadmin/fragments/head.html :: head(title='Perfil')}"></head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head th:replace="~{Superadmin/fragments/head :: head(title='Perfil')}"></head>
 
   <body data-sidebar="dark" class="vertical-collpsed">
+    <div id="layout-wrapper">
+      <header th:replace="~{Superadmin/fragments/header :: header(title='Perfil')}"></header>
+      <div th:replace="~{Superadmin/fragments/sidebar :: sidebar}"></div>
 
-    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
-
-    <!-- Begin page -->
-    <div id="layout-wrapper" >
-
-      <header th:replace="~{/Superadmin/fragments/header.html :: header(title='Perfil')}"></header>
-
-      <!-- ========== Left Sidebar Start ========== -->
-      <div th:replace="~{/Superadmin/fragments/sidebar.html :: sidebar}"></div>
-      <!-- Left Sidebar End -->
-
-
-
-      <!-- ============================================================== -->
-      <!-- Start right Content here -->
-      <!-- ============================================================== -->
       <div class="main-content">
-
         <div class="page-content" style="min-height: 100%;">
           <div class="container-fluid">
             <div class="row">
@@ -32,7 +15,9 @@
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                   <h4 class="mb-sm-0">Vista de perfil</h4>
                   <div class="page-title-right">
-                    <button type="button" class="btn ms-2 btn-outline-primary">< Regresar a lista de usuarios</button>
+                    <a th:href="@{/superadmin/usuarios}" class="btn ms-2 btn-outline-primary">
+                      < Regresar a lista de usuarios
+                    </a>
                   </div>
                 </div>
               </div>
@@ -43,49 +28,71 @@
                   <div class="card px-0 rounded-4" style="min-height: 40vh; background-color: #eff4fb;">
                     <div class="card-body px-4">
                       <div class="position-relative start-0 top-0 p-0 m-0">
-                        <a href="" class="me-2 btn btn-sm btn-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-pencil font-size-20"></i></a>
-                        <a href="" class="me-2 btn btn-sm btn-danger" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Banear usuario"><i class="mdi mdi-alert font-size-20"></i></a>
+                        <a th:href="@{'/superadmin/usuarios/editar/' + ${usuario.usuarioId}}"
+                           class="me-2 btn btn-sm btn-primary"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="center"
+                           title="Editar">
+                          <i class="mdi mdi-pencil font-size-20"></i>
+                        </a>
+                        <a th:if="${usuario.estadoCuenta.name() != 'baneado'}"
+                           th:href="@{'/superadmin/usuarios/banear/' + ${usuario.usuarioId}}"
+                           class="me-2 btn btn-sm btn-danger"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="center"
+                           title="Banear usuario">
+                          <i class="mdi mdi-alert font-size-20"></i>
+                        </a>
+                        <a th:if="${usuario.estadoCuenta.name() == 'baneado'}"
+                           th:href="@{'/superadmin/usuarios/activar/' + ${usuario.usuarioId}}"
+                           class="me-2 btn btn-sm btn-success"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="center"
+                           title="Activar usuario">
+                          <i class="mdi mdi-account-check font-size-20"></i>
+                        </a>
                       </div>
                       <div class="text-center mt-0">
                         <div class="chat-avtar d-inline-flex mx-auto">
                           <img class="rounded-circle img-fluid avatar-xl wid-70"
-                               src="assets/images/users/avatar-4.jpg" alt="User image">
+                               th:src="${usuario.fotoPerfilUrl != null ? usuario.fotoPerfilUrl : '/assets/images/users/avatar-4.jpg'}"
+                               alt="User image">
                         </div>
-                        <h5 class="mb-0">Kiara rata</h5>
-                        <p class="text-muted text-sm mb-1">74903212</p>
-                        <span class="badge bg-success font-size-14">Activo</span>
+                        <h5 class="mb-0" th:text="${usuario.nombres + ' ' + usuario.apellidos}">Nombre Usuario</h5>
+                        <p class="text-muted text-sm mb-1" th:text="${usuario.dni}">DNI</p>
+                        <span th:switch="${usuario.estadoCuenta.name()}" class="badge font-size-14">
+                          <span th:case="activo" class="badge bg-success">Activo</span>
+                          <span th:case="baneado" class="badge bg-danger">Baneado</span>
+                          <span th:case="pendiente" class="badge bg-warning">Pendiente</span>
+                        </span>
                         <hr class="my-2 border border-light-subtle">
                         <div class="row g-3">
                           <div class="col-4">
-                            <h5 class="mb-0">86</h5>
-                            <small class="text-muted">Post</small>
+                            <h5 class="mb-0" th:text="${#lists.size(ultimasReservas)}">0</h5>
+                            <small class="text-muted">Reservas</small>
                           </div>
                           <div class="col-4 border border-top-0 border-bottom-0">
-                            <h5 class="mb-0">40</h5>
-                            <small class="text-muted">Project</small>
+                            <h5 class="mb-0" th:text="${#lists.size(ultimasReservas)}">-</h5>
+                            <small class="text-muted">Reservas totales</small>
                           </div>
                           <div class="col-4">
-                            <h5 class="mb-0">4.5K</h5>
-                            <small class="text-muted">Members</small>
+                            <h5 class="mb-0">-</h5>
+                            <small class="text-muted">Baneos</small>
                           </div>
                         </div>
                         <hr class="my-2 border border-light-subtle">
 
-                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 mt-1">
+                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 mt-1" th:if="${usuario.telefono != null}">
                           <i class="ri-phone-fill me-2"></i>
-                          <p class="mb-0">(+1-876) 8654 239 581</p>
+                          <p class="mb-0" th:text="${usuario.telefono}">Teléfono</p>
                         </div>
-                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                          <i class="rti ri-map-pin-2-line me-2"></i>
-                          <p class="mb-0">Jr. Urubamba 298</p>
-                        </div>
-                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                          <i class="rti ri-map-pin-2-line me-2"></i>
-                          <p class="mb-0">Urbanización San Miguelito</p>
+                        <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3" th:if="${usuario.direccion != null}">
+                          <i class="ri-map-pin-2-line me-2"></i>
+                          <p class="mb-0" th:text="${usuario.direccion}">Dirección</p>
                         </div>
                         <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
                           <i class="ri-mail-fill me-2"></i>
-                          <p class="mb-0">diana@gmail.com</p>
+                          <p class="mb-0" th:text="${usuario.correoElectronico}">Email</p>
                         </div>
                       </div>
                     </div>
@@ -97,15 +104,20 @@
                     <div class="card-body py-2">
                       <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 mt-1">
                         <i class="ri-calendar-2-fill me-2"></i>
-                        <span class="mb-0">Creación de cuenta: </span><span class="px-1 mb-0"> 25/06/2003</span>
+                        <span class="mb-0">Creación de cuenta: </span>
+                        <span class="px-1 mb-0" th:text="${#temporals.format(usuario.fechaCreacion, 'dd/MM/yyyy')}">Fecha</span>
                       </div>
                       <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                        <i class="rti ri-calendar-2-fill  me-2"></i>
-                        <span class="mb-0">Última modificación: </span><span class="px-1 mb-0"> 25/06/2003</span>
+                        <i class="ri-calendar-2-fill me-2"></i>
+                        <span class="mb-0">Última modificación: </span>
+                        <span class="px-1 mb-0" th:text="${usuario.fechaActualizacion != null} ? ${#temporals.format(usuario.fechaActualizacion, 'dd/MM/yyyy')} : 'Sin modificaciones'">Fecha</span>
                       </div>
                       <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
-                        <i class="ri-calendar-2-fill  me-2"></i>
-                        <span class="mb-0">Rol: </span><span class="px-2 mb-0"><span class="badge bg-primary font-size-14">Vecino</span></span>
+                        <i class="ri-calendar-2-fill me-2"></i>
+                        <span class="mb-0">Rol: </span>
+                        <span class="px-2 mb-0">
+                          <span class="badge bg-primary font-size-14" th:text="${usuario.rol.getRol()}">Rol</span>
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -113,66 +125,52 @@
               </div>
               <div class="col-xxl-9 col-xl-8">
                 <div class="row">
-                  <div class="col-xxl-4">
-                    <div class="card" style="background: #bdcaff;">
-                      <div class="card-body">
-                        <div class="d-flex">
-                          <div class="flex-1 overflow-hidden">
-                            <p class="text-truncate font-size-15 mb-2">Number of Sales</p>
-                            <h4 class="mb-0">1452</h4>
-                          </div>
-                          <div class="text-primary ms-auto">
-                            <i class="ri-stack-line font-size-24"></i>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="card-body border-top py-3">
-                        <div class="text-truncate">
-                          <span class="badge bg-success-subtle text-success font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
-                          <span class="ms-2">From previous period</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <!-- Reservas esta semana -->
                   <div class="col-xxl-4">
                     <div class="card" style="background: #bdd4ff;">
                       <div class="card-body">
                         <div class="d-flex">
                           <div class="flex-1 overflow-hidden">
-                            <p class="text-truncate font-size-15 mb-2">Sales Revenue</p>
-                            <h4 class="mb-0">$ 38452</h4>
+                            <p class="text-truncate font-size-15 mb-2">Reservas esta semana</p>
+                            <h4 class="mb-0" th:text="${reservasEstaSemana}">0</h4>
                           </div>
                           <div class="text-primary ms-auto">
-                            <i class="ri-store-2-line font-size-24"></i>
+                            <i class="ri-calendar-event-line font-size-24"></i>
                           </div>
-                        </div>
-                      </div>
-                      <div class="card-body border-top py-3">
-                        <div class="text-truncate">
-                          <span class="badge bg-success-subtle text-success  font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
-                          <span class="ms-2">From previous period</span>
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  <!-- Reservas este mes -->
+                  <div class="col-xxl-4">
+                    <div class="card" style="background: #bdcaff;">
+                      <div class="card-body">
+                        <div class="d-flex">
+                          <div class="flex-1 overflow-hidden">
+                            <p class="text-truncate font-size-15 mb-2">Reservas este mes</p>
+                            <h4 class="mb-0" th:text="${reservasEsteMes}">0</h4>
+                          </div>
+                          <div class="text-primary ms-auto">
+                            <i class="ri-calendar-2-line font-size-24"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Reservas totales -->
                   <div class="col-xxl-4">
                     <div class="card" style="background: #bde1ff;">
                       <div class="card-body">
                         <div class="d-flex">
                           <div class="flex-1 overflow-hidden">
-                            <p class="text-truncate font-size-15 mb-2">Average Price</p>
-                            <h4 class="mb-0">$ 15.4</h4>
+                            <p class="text-truncate font-size-15 mb-2">Reservas totales</p>
+                            <h4 class="mb-0" th:text="${reservasTotales}">0</h4>
                           </div>
                           <div class="text-primary ms-auto">
-                            <i class="ri-briefcase-4-line font-size-24"></i>
+                            <i class="ri-stack-line font-size-24"></i>
                           </div>
-                        </div>
-                      </div>
-                      <div class="card-body border-top py-3">
-                        <div class="text-truncate">
-                          <span class="badge bg-success-subtle text-success font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
-                          <span class="ms-2">From previous period</span>
                         </div>
                       </div>
                     </div>
@@ -190,7 +188,10 @@
                             </p>
                           </div>
                           <div class="position-relative ms-auto">
-                            <a href="verActividadUsuario.html" class="btn btn-outline-primary btn-sm bg-primary-subtle ml-auto d-flex font-size-13 fw-bold">+ Ver historial completo</a>
+                            <a th:href="@{'/superadmin/usuarios/' + ${usuario.usuarioId} + '/reservas'}"
+                               class="btn btn-outline-primary btn-sm bg-primary-subtle ml-auto d-flex font-size-13 fw-bold">
+                              + Ver historial completo
+                            </a>
                           </div>
                         </div>
                         <div class="loader-container">
@@ -205,144 +206,71 @@
                               <th>Servicio deportivo</th>
                               <th>Hora de inicio</th>
                               <th>Hora de fin</th>
-                              <th>Estado</th> <!-- Pendiente, Realizado, Cancelado -->
+                              <th>Estado</th>
                               <th style="width: 20px">Acción</th>
                             </tr>
                           </thead>
                           <tbody>
-                            <tr>
-                              <td>1</td>
-                              <td>Polideportivo XYZ</td>
-                              <td>Pista 1</td>
-                              <td>Fútbol</td>
-                              <td>08:00 AM</td>
-                              <td>09:00 AM</td>
-                              <td>Pendiente</td>
+                            <tr th:each="reserva : ${ultimasReservas}">
+                              <td th:text="${reserva.reservaId}">ID</td>
+                              <td th:text="${reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}">Establecimiento</td>
+                              <td th:text="${reserva.espacioDeportivo.nombre}">Espacio</td>
+                              <td th:text="${reserva.espacioDeportivo.servicioDeportivo.getServicioDeportivo()}">Servicio</td>
+                              <td th:text="${#temporals.format(reserva.inicioReserva, 'HH:mm a')}">Hora inicio</td>
+                              <td th:text="${#temporals.format(reserva.finReserva, 'HH:mm a')}">Hora fin</td>
                               <td>
-                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                                <span th:switch="${reserva.estado.name()}" class="badge">
+                                  <span th:case="pendiente" class="badge  bg-warning-subtle text-warning font-size-12">Pendiente</span>
+                                  <span th:case="confirmada" class="badge  bg-success-subtle text-success font-size-12">Confirmada</span>
+                                  <span th:case="cancelada" class="badge bg-danger-subtle text-danger font-size-12">Cancelado</span>
+                                </span>
                               </td>
-                            </tr>
-                            <tr>
-                              <td>6</td>
-                              <td>Polideportivo XYZ</td>
-                              <td>Pista 1</td>
-                              <td>Fútbol</td>
-                              <td>08:00 AM</td>
-                              <td>09:00 AM</td>
-                              <td>Pendiente</td>
                               <td>
-                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>2</td>
-                              <td>Polideportivo PUCP</td>
-                              <td>Gimnasio A</td>
-                              <td>Gimnasio</td>
-                              <td>10:00 AM</td>
-                              <td>11:00 AM</td>
-                              <td>Realizado</td>
-                              <td>
-                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>3</td>
-                              <td>Centro Deportivo ABC</td>
-                              <td>Cancha 2</td>
-                              <td>Fútbol</td>
-                              <td>12:00 PM</td>
-                              <td>01:00 PM</td>
-                              <td>Cancelado</td>
-                              <td>
-                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>4</td>
-                              <td>Club Deportivo Elite</td>
-                              <td>Campo 3</td>
-                              <td>Voleibol</td>
-                              <td>02:00 PM</td>
-                              <td>03:00 PM</td>
-                              <td>Pendiente</td>
-                              <td>
-                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>5</td>
-                              <td>Estadio Municipal</td>
-                              <td>Campo 1</td>
-                              <td>Fútbol</td>
-                              <td>04:00 PM</td>
-                              <td>05:00 PM</td>
-                              <td>Realizado</td>
-                              <td>
-                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                                <a th:href="@{'/superadmin/reservas/' + ${reserva.reservaId}}"
+                                   class="me-2 text-primary"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="center"
+                                   title="Detalles">
+                                  <i class="mdi mdi-eye font-size-20"></i>
+                                </a>
                               </td>
                             </tr>
                           </tbody>
                         </table>
-
-                      </div> <!-- end card body-->
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div> <!-- container-fluid -->
+          </div>
         </div>
-        <!-- End Page-content -->
-
-        <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
+        <div th:replace="~{Superadmin/fragments/footer :: footer}"></div>
       </div>
-      <!-- end main content-->
-
     </div>
-    <!-- END layout-wrapper -->
 
-    <!-- Sidebar overlay-->
-    <div class="sidebar-overlay"></div>
-
-    <!-- JAVASCRIPT -->
-    <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+    <div th:replace="~{Superadmin/fragments/foot :: foot}"></div>
 
     <script>
       $(document).ready(function() {
-        // Muestra el símbolo de carga
-        $("#loading").show();
-
         // Inicializa DataTable
         var table = $('#alternative-page-datatable').DataTable({
           "columnDefs": [
             {
-              "targets": [-1], // Aplica a la última columna (puedes usar el índice adecuado si no es la última)
-              "orderable": false // Desactiva el ordenamiento
+              "targets": [-1],
+              "orderable": false
             },
           ],
           "paging": false,
-          "searching":false,
-          info: false,
-          "pageLength": 6,  // Fija el número de s a mostrar
-          "lengthChange": false,
+          "searching": false,
+          "info": false,
           "initComplete": function() {
-            // Oculta el símbolo de carga y muestra la tabla cuando los datos hayan sido procesados y renderizados
-            $(".loader-container").hide();  // Ocultamos el indicador de carga
-            $('#alternative-page-datatable').show();  // Mostramos la tabla
-          },
-          drawCallback: function () {
-            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            $(".loader-container").hide();
+            $('#alternative-page-datatable').show();
+            $('[data-bs-toggle="tooltip"]').tooltip();
           }
         });
-
-        // Asegúrate de que la tabla esté inicialmente oculta
-        table.hide();
       });
-
     </script>
   </body>
-
-
-  <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:03 GMT -->
 </html>

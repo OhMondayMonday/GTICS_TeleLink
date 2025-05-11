@@ -1,18 +1,29 @@
 package com.example.telelink.controller;
 
 import com.example.telelink.dto.Superadmin.AvisoDTO;
-import com.example.telelink.entity.Aviso;
+import com.example.telelink.entity.*;
+
 import com.example.telelink.repository.AvisoRepository;
 import com.example.telelink.repository.PagoRepository;
 import com.example.telelink.repository.ReservaRepository;
+import com.example.telelink.repository.UsuarioRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.TextStyle;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/superadmin")
@@ -25,15 +36,23 @@ public class SuperadminController {
     @Autowired
     private PagoRepository pagoRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     @GetMapping("/inicio")
     public String dashboard(Model model) {
 
         // Obtener los datos de reservas y pagos
-        long numeroReservasMes = reservaRepository.numeroReservasMes();
-        long numeroReservasMesPasado = reservaRepository.numeroReservasMesPasado();
+        Integer numeroReservasMes = reservaRepository.numeroReservasMes();
+        Integer numeroReservasMesPasado = reservaRepository.numeroReservasMesPasado();
         Double montoMensual = reservaRepository.obtenerMontoTotalDeReservasEsteMes();
+        montoMensual = montoMensual == null ? 0 : montoMensual;
         Double promedioMensual = montoMensual/numeroReservasMes;
+        promedioMensual =  montoMensual == 0.0 ? 0.0 : promedioMensual;
         Double montoMensualPasado = reservaRepository.obtenerMontoTotalDeReservasMesPasado();
+        montoMensualPasado = (montoMensualPasado == null) ? 0.0 : montoMensualPasado;
+        double promedioMensualPasado = montoMensualPasado/numeroReservasMesPasado;
+        promedioMensualPasado = (montoMensualPasado == 0.0) ? 0.0 : promedioMensualPasado;
         List<Aviso> avisos = avisoRepository.obtenerUltimosAvisos();
         Aviso ultimoAviso = avisoRepository.findByEstadoAviso("activo");
         Integer reservasFutbol = reservaRepository.obtenerNumeroReservasPorServicio(2);
@@ -54,13 +73,14 @@ public class SuperadminController {
         String badge;
         long diferencia = numeroReservasMes - numeroReservasMesPasado;
         if (diferencia < 0) {
-            badge = "bg-success-subtle text-danger";
+            badge = "badge bg-danger-subtle text-danger font-size-11";
         } else {
-            badge = "bg-success-subtle text-success";
+            badge = "badge bg-success-subtle text-success font-size-11";
         }
 
         // Agregar los datos al modelo
         model.addAttribute("numeroReservasMes", numeroReservasMes);
+        model.addAttribute("promedioMensualPasado", promedioMensualPasado);
         model.addAttribute("diferencia", diferencia);
         model.addAttribute("badge", badge);
         model.addAttribute("montoMensual", montoMensual);
@@ -82,15 +102,146 @@ public class SuperadminController {
         return "Superadmin/Dashboard";  // Nombre de la vista (dashboard.html)
     }
 
+    @GetMapping("/editarAviso/{id}")
+    public String mostrarFormularioEdicion(@PathVariable Integer id, Model model) {
+        Aviso aviso = avisoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Aviso no encontrado con ID: " + id));
+        model.addAttribute("aviso", aviso);
+        return "Superadmin/editarAviso";
+    }
+
+    @PostMapping("/actualizarAviso/{id}")
+    public String actualizarAviso(
+            @PathVariable Integer id,
+            @ModelAttribute("aviso") Aviso avisoActualizado,
+            RedirectAttributes redirectAttributes
+    ) {
+        Aviso avisoExistente = avisoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Aviso no encontrado con ID: " + id));
+
+        // Actualizar campos
+        avisoExistente.setTituloAviso(avisoActualizado.getTituloAviso());
+        avisoExistente.setTextoAviso(avisoActualizado.getTextoAviso());
+        avisoExistente.setFotoAvisoUrl(avisoActualizado.getFotoAvisoUrl());
+
+        avisoRepository.save(avisoExistente); // Guardar cambios
+
+        redirectAttributes.addFlashAttribute("exito", "Aviso actualizado correctamente");
+        return "redirect:/superadmin/avisos"; // Redirigir a la lista de avisos
+    }
+
+
 
     @GetMapping("/avisos")
-    public String listarAvisos() {
-        return "Superadmin/verAvisos";
+    public String listarAvisos(Model model) {
+        // Obtener todos los avisos ordenados por fecha descendente
+        List<Aviso> avisos = avisoRepository.findAll(Sort.by(Sort.Direction.DESC, "fechaAviso"));
+
+        // Obtener el último aviso (el más reciente)
+        Aviso ultimoAviso = avisos.isEmpty() ? null : avisos.get(0);
+
+        // Agregar atributos al modelo
+        model.addAttribute("avisos", avisos);
+        model.addAttribute("ultimoAviso", ultimoAviso);
+
+        return "Superadmin/verAvisos"; // Nombre de tu plantilla Thymeleaf
+    }
+
+    @GetMapping("/crearAviso")
+    public String mostrarFormularioCreacion(Model model) {
+        model.addAttribute("aviso", new Aviso());
+        model.addAttribute("modo", "crear");
+        return "Superadmin/crearAviso"; // Mismo formulario que para editar
+    }
+
+    // Procesar creación de aviso
+    @PostMapping("/guardarAviso")
+    public String guardarAviso(
+            @ModelAttribute("aviso") @Valid Aviso nuevoAviso,
+            BindingResult result,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (result.hasErrors()) {
+            return "Superadmin/crearAviso";
+        }
+
+        // Establecer fecha actual si no viene definida
+        if (nuevoAviso.getFechaAviso() == null) {
+            nuevoAviso.setFechaAviso(LocalDateTime.now());
+        }
+
+        // Establecer estado por defecto si no viene definido
+        if (nuevoAviso.getEstadoAviso() == null || nuevoAviso.getEstadoAviso().isEmpty()) {
+            nuevoAviso.setEstadoAviso("disponible");
+        }
+
+        avisoRepository.save(nuevoAviso);
+
+        redirectAttributes.addFlashAttribute("exito", "Aviso creado correctamente");
+        return "redirect:/superadmin/avisos";
     }
 
     @GetMapping("/reservas")
-    public String listarReservas() {
-        return "Superadmin/Reservas";
+    public String listarReservas(Model model) {
+        List<Reserva> reservas = reservaRepository.findAll();
+        model.addAttribute("reservas", reservas);
+        return "Superadmin/Reservas"; // Ruta de tu plantilla Thymeleaf
+    }
+
+    @GetMapping("reservas/{id}")
+    public String verDetalleReserva(@PathVariable Integer id, Model model) {
+        Reserva reserva = reservaRepository.findByReservaId(id);
+        if (reserva == null) {
+            // Manejar el caso cuando la reserva no existe
+            return "redirect:/superadmin/reservas";
+        }
+        model.addAttribute("reserva", reserva);
+        return "Superadmin/VerReserva"; // Plantilla para ver detalles
+    }
+
+
+    @GetMapping("/usuarios")
+    public String listarUsuarios(Model model) {
+        // Obtener estadísticas directamente desde el repositorio
+        long totalUsuarios = usuarioRepository.count();
+        long usuariosBaneados = usuarioRepository.countByEstadoCuenta(Usuario.EstadoCuenta.baneado);
+        long nuevosUsuariosEsteMes = usuarioRepository.countUsuariosEsteMes();
+
+        // Agregar datos al modelo
+        model.addAttribute("totalUsuarios", totalUsuarios);
+        model.addAttribute("usuariosBaneados", usuariosBaneados);
+        model.addAttribute("nuevosUsuariosEsteMes", nuevosUsuariosEsteMes);
+
+        // Obtener lista completa de usuarios
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        model.addAttribute("usuarios", usuarios);
+
+        return "Superadmin/Usuarios";
+    }
+
+    @GetMapping("usuarios/{id}")
+    public String verDetalleUsuario(@PathVariable Integer id, Model model) {
+        // Obtener el usuario por ID
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+        if (usuario == null) {
+            return "redirect:/superadmin/usuarios";
+        }
+
+        long reservasTotales = reservaRepository.countByUsuario(usuario);
+        long reservasEsteMes = reservaRepository.countByUsuarioThisMonth(usuario);
+        long reservasEstaSemana = reservaRepository.countByUsuarioThisWeek(usuario);
+
+        // Obtener las últimas 6 reservas del usuario
+        List<Reserva> ultimasReservas = reservaRepository.findTop6ByUsuarioOrderByInicioReservaDesc(usuario);
+
+        // Agregar datos al modelo
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("ultimasReservas", ultimasReservas);
+        model.addAttribute("reservasTotales", reservasTotales);
+        model.addAttribute("reservasEsteMes", reservasEsteMes);
+        model.addAttribute("reservasEstaSemana", reservasEstaSemana);
+
+        return "Superadmin/verPerfil";
     }
 
     @GetMapping("/transacciones")
@@ -108,8 +259,4 @@ public class SuperadminController {
         return "Superadmin/verPagosReservasPerfil";
     }
 
-    @GetMapping("/perfil")
-    public String verPerfil() {
-        return "Superadmin/verPerfil";
-    }
 }

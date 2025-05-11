@@ -12,7 +12,7 @@
                     <li class="menu-title">Menu</li>
 
                     <li>
-                        <a href="Dashboard.html" class="waves-effect">
+                        <a th:href="@{/superadmin/inicio}" class="waves-effect">
                             <i class="ri-dashboard-line"></i>
                             <span>Inicio</span>
                         </a>
@@ -21,48 +21,34 @@
                     <li class="menu-title">Avisos</li>
 
                     <li>
-                        <a href="crearAviso.html" class="waves-effect">
+                        <a th:href="@{/superadmin/avisos}" class="waves-effect">
                             <i class="mdi mdi-newspaper-plus"></i>
-                            <span>Crear avisos</span>
+                            <span>Ver avisos</span>
                         </a>
                     </li>
 
                     <li class="menu-title">Usuarios</li>
 
                     <li>
-                        <a href="Usuarios.html" class="waves-effect">
+                        <a th:href="@{/superadmin/usuarios}" class="waves-effect">
                             <i class="ri-account-circle-line"></i>
-                            <span>Usuarios activos</span>
+                            <span>Usuarios</span>
                         </a>
                     </li>
 
                     <li class="menu-title">Transacciones</li>
 
                     <li>
-                        <a href="Transacciones.html" class="waves-effect">
+                        <a href="javascript: void(0);" class="waves-effect">
                             <i class="ri-money-dollar-circle-line"></i>
                             <span>Pagos</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="javascript: void(0);" class="waves-effect">
-                            <i class="ri-refund-2-fill"></i>
-                            <span>Reembolsos</span>
                         </a>
                     </li>
 
                     <li class="menu-title">Servicios deportivos</li>
 
                     <li>
-                        <a href="javascript: void(0);" class="waves-effect">
-                            <i class="ri-football-fill"></i>
-                            <span>Espacios deportivos</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="Reservas.html" class="waves-effect">
+                        <a th:href="@{/superadmin/reservas}" class="waves-effect">
                             <i class="ri-football-fill"></i>
                             <span>Reservas</span>
                         </a>

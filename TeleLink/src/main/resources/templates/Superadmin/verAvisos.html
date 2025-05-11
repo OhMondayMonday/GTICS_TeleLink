@@ -25,7 +25,6 @@
             <!-- Start right Content here -->
             <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content" style="min-height: 100%;">
                     <div class="container-fluid">
                         <!-- end page title -->
@@ -43,7 +42,7 @@
                                         <h4 class="card-title">Configuración del aviso</h4>
                                         <p class="card-title-desc mb-3">Ingresa los datos del aviso</p>
                                         <div class="d-flex justify-content-start position-absolute mb-2 end-0 top-0 p-3">
-                                            <button type="submit" class="btn btn-success me-2">+ Crear nuevo aviso</button>
+                                            <a type="submit" th:href="@{/superadmin/crearAviso}" class="btn btn-success me-2">+ Crear nuevo aviso</a>
                                         </div>
                                         <div class="loader-container">
                                             <div class="loader"></div>
@@ -55,31 +54,33 @@
                                                     <th>Título</th>
                                                     <th>Fecha de creación</th>
                                                     <th>Última actualización</th>
-                                                    <th>Estado</th> <!-- Pendiente, Realizado, Cancelado -->
+                                                    <th>Estado</th>
                                                     <th style="width: 20px">Acción</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>Nuevas canchas</td>
-                                                    <td>28/06/2025</td>
-                                                    <td>28/08/2025</td>
-                                                    <td><div class="badge  bg-success-subtle text-success font-size-12">Activo</div></td>
+                                                <tr th:each="aviso : ${avisos}">
+                                                    <td th:text="${aviso.avisoId}"></td>
+                                                    <td th:text="${aviso.tituloAviso}"></td>
+                                                    <td th:text="${#temporals.format(aviso.fechaAviso, 'dd/MM/yyyy')}"></td>
+                                                    <td th:text="${#temporals.format(aviso.fechaAviso, 'dd/MM/yyyy')}"></td>
+                                                    <!-- Asumiendo que no tienes campo de actualización -->
                                                     <td>
-                                                        <a href="VerReserva.html" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
-                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                        <div th:switch="${aviso.estadoAviso}">
+                                                            <span th:case="'activo'" class="badge  bg-success-subtle text-success font-size-12">Activo</span>
+                                                            <span th:case="'disponible'" class="badge  bg-primary-subtle text-primary font-size-12">Disponible</span>
+                                                            <span th:case="'eliminado'" class="badge bg-danger-subtle text-danger font-size-12">Eliminado</span>
+                                                            <span th:case="*" class="bg-warning-subtle text-warning" th:text="${aviso.estadoAviso}">Estado</span>
+                                                        </div>
                                                     </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2</td>
-                                                    <td>Nuevas canchas</td>
-                                                    <td>28/06/2025</td>
-                                                    <td>28/08/2025</td>
-                                                    <td><div class="badge  bg-warning-subtle text-warning font-size-12">Inactivo</div></td>
                                                     <td>
-                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-toggle="modal" data-bs-target=".bs-example-modal-center" data-bs-placement="center"  title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
-                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-toggle="modal" data-bs-target=".bs-example-modal-center" title="Edit"><i class="mdi mdi-pencil font-size-18"></i></a>
+                                                        <a th:href="@{/superadmin/editarAviso/{id}(id=${aviso.avisoId})}"
+                                                           class="me-2 text-primary"
+                                                           data-bs-toggle="tooltip"
+                                                           data-bs-placement="top"
+                                                           title="Editar">
+                                                            <i class="mdi mdi-pencil font-size-18"></i>
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -117,21 +118,32 @@
                                         <div class="card">
                                             <div class="card-header pb-1">
                                                 <div class="d-flex">
-                                                    <h4 class="card-title my-2">Aviso actual</h4>
-                                                    <button class="btn btn-sm btn-outline-primary my-1 ms-auto">Editar aviso</button>
+                                                    <h4 class="card-title my-2">Último aviso</h4>
+                                                    <a th:if="${ultimoAviso != null}"
+                                                       th:href="@{/superadmin/editarAviso/{id}(id=${ultimoAviso.avisoId})}"
+                                                       class="btn btn-sm btn-outline-primary my-1 ms-auto">
+                                                        Editar aviso
+                                                    </a>
                                                 </div>
                                             </div>
-                                            <div class="card-body py-1">
-                                                <h4 class="card-title my-2">Actualización de Producto</h4>
-                                                <p class="card-text text-muted mb-1">Lanzamiento de producto con algunas características nuevas. Este contenido es un poco más largo para la descripción.</p>
+                                            <div class="card-body py-1" th:if="${ultimoAviso != null}">
+                                                <h4 class="card-title my-2" th:text="${ultimoAviso.tituloAviso}"></h4>
+                                                <p class="card-text text-muted mb-1" th:text="${ultimoAviso.textoAviso}"></p>
                                                 <p class="card-text mt-1">
-                                                    <small class="text-muted">Última actualización hace 3 minutos</small>
+                                                    <small>Última actualización: </small>
+                                                    <small class="text-muted"
+                                                           th:text="${#temporals.format(ultimoAviso.fechaAviso, 'dd/MM/yyyy HH:mm')}"></small>
                                                 </p>
                                             </div>
-                                            <div class="px-3">
-                                                <img class="card-img-bottom img-fluid object-fit-cover" style="max-height: 415px;" src="assets/images/small/img-7.jpg" alt="Card image cap">
+                                            <div class="px-3" th:if="${ultimoAviso != null}">
+                                                <img class="card-img-bottom img-fluid object-fit-cover"
+                                                     style="max-height: 415px;"
+                                                     th:src="${ultimoAviso.fotoAvisoUrl}"
+                                                     alt="Imagen del aviso actual">
                                             </div>
-                                            <div style="min-height: 10px; max-height: 40px"></div>
+                                            <div th:if="${ultimoAviso == null}" class="card-body">
+                                                <p class="text-muted">No hay avisos disponibles</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

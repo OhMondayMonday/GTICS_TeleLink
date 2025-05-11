@@ -1,29 +1,13 @@
-<!doctype html>
-<html lang="en"  xmlns:th="http://www.thymeleaf.org">
-
-
-    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
-    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Perfil')}"></head>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Crear Aviso')}"></head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
-
-        <!-- Begin page -->
         <div id="layout-wrapper">
-
-
-            <header th:replace="~{/Superadmin/fragments/header.html :: header(title='Perfil')}"></header>
-
-            <!-- ========== Left Sidebar Start ========== -->
+            <header th:replace="~{/Superadmin/fragments/header.html :: header(title='Crear Aviso')}"></header>
             <div th:replace="~{/Superadmin/fragments/sidebar.html :: sidebar}"></div>
-            <!-- Left Sidebar End -->
 
-
-
-            <!-- ============================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content" style="min-height: 100%;">
                     <div class="container-fluid">
                         <div class="row">
@@ -33,7 +17,11 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- end page title -->
+
+                        <!-- Mensajes de éxito/error -->
+                        <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
+                        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
                         <div class="row">
                             <div class="col-xl-6 col-lg-6">
                                 <div class="card">
@@ -41,135 +29,158 @@
                                         <h4 class="card-title">Configuración del aviso</h4>
                                         <p class="card-title-desc mb-3">Ingresa los datos del aviso</p>
 
-                                        <form class="custom-validation" id="myForm" action="#" method="post">
+                                        <form class="custom-validation" th:action="@{/superadmin/guardarAviso}" method="post" th:object="${aviso}" enctype="multipart/form-data">
+                                            <!-- Título -->
                                             <div class="mb-3">
-                                                <label for="title">Título</label>
-                                                <input type="text" id="title" class="form-control" required placeholder="Type something"/>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Single Select</label>
-                                                <select class="form-control select2">
-                                                    <option value="null">Select</option>
-                                                    <option value="1">Mantenimiento</option>
-                                                    <option value="2">Novedad</option>
-                                                    <option value="3">Alerta</option>
-                                                    <option value="4">Bienvenida</option>
-                                                    <option value="5">Reservas</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label for="switch4">Activo</label>
-                                                <div>
-                                                    <input type="checkbox" id="switch4" switch="primary"/>
-                                                    <label for="switch4" data-on-label="Sí" data-off-label="No"></label>
+                                                <label for="tituloAviso">Título</label>
+                                                <input type="text" id="tituloAviso" class="form-control"
+                                                       th:field="*{tituloAviso}"
+                                                       th:classappend="${#fields.hasErrors('tituloAviso')} ? 'is-invalid'"
+                                                       required placeholder="Ej: Mantenimiento programado"/>
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('tituloAviso')}">
+                                                    <span th:errors="*{tituloAviso}"></span>
                                                 </div>
                                             </div>
+
+                                            <script>
+                                                document.getElementById('activoSwitch').addEventListener('change', function() {
+                                                    document.getElementById('estadoAvisoHidden').value = this.checked ? 'activo' : 'disponible';
+                                                });
+                                            </script>
+
+                                            <!-- Información -->
                                             <div class="mb-3">
-                                                <label for="textarea">Información</label>
+                                                <label for="textoAviso">Información</label>
                                                 <div>
-                                                    <textarea required id="textarea" class="form-control" maxlength="225" rows="3"></textarea>
+                                                <textarea id="textoAviso" class="form-control"
+                                                          th:field="*{textoAviso}"
+                                                          th:classappend="${#fields.hasErrors('textoAviso')} ? 'is-invalid'"
+                                                          maxlength="225" rows="3" required></textarea>
+                                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('textoAviso')}">
+                                                        <span th:errors="*{textoAviso}"></span>
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            <!-- Imagen -->
                                             <div class="mb-3">
-                                                <label for="customFile" class="d-block">Insertar imagen</label>
+                                                <label for="imagenAviso" class="d-block">Insertar imagen</label>
                                                 <div class="d-block">
-                                                    <input type="file" class="form-control" id="customFile" required  accept=".jpg, .jpeg, .png">
+                                                    <!-- Campo para subir archivo -->
+                                                    <input type="file" class="form-control mb-2" id="imagenAviso"
+                                                           name="archivoImagen" accept=".jpg, .jpeg, .png"
+                                                           onchange="previewImage(this)">
+
+                                                    <!-- Campo oculto para la URL (se llenará automáticamente) -->
+                                                    <input type="hidden" id="fotoAvisoUrlHidden" name="fotoAvisoUrl">
+
+                                                    <!-- Campo para URL manual -->
+                                                    <div class="input-group mt-2">
+                                                        <span class="input-group-text">O ingresa URL</span>
+                                                        <input type="text" class="form-control" id="fotoAvisoUrlInput"
+                                                               placeholder="https://ejemplo.com/imagen.jpg">
+                                                    </div>
+
+                                                    <small class="text-muted">Formatos aceptados: JPG, JPEG, PNG o URL de imagen</small>
                                                 </div>
+                                            </div>
+
+                                            <div class="d-flex justify-content-start mb-1 mt-4">
+                                                <button type="submit" class="btn btn-success me-2">Guardar aviso</button>
+                                                <a th:href="@{/superadmin/avisos}" class="btn btn-secondary">Cancelar</a>
                                             </div>
                                         </form>
-
-                                        <div class="d-flex justify-content-start mb-1 mt-4">
-                                            <button type="submit" class="btn btn-success me-2" id="submitBtn" form="myForm">Guardar cambios</button>
-                                            <button type="button" class="btn btn-secondary" id="cancelBtn">Descartar cambios</button>
-                                        </div>
-
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Vista previa -->
                             <div class="col-xl-6 col-lg-6">
-                                <div class="card border border-primary"  style="max-height: 560px">
+                                <div class="card border border-primary" style="max-height: 560px">
                                     <div class="card-body">
-                                        <h4 id="titulo" class="card-title">Aquí va el nombre del titulo</h4>
-                                        <p id="informacion" class="card-text">Aquí se verá el contenido de la vista previa</p>
+                                        <h4 id="tituloPreview" th:text="${aviso?.tituloAviso} ?: 'Título del aviso'">Título del aviso</h4>
+                                        <p id="infoPreview" th:text="${aviso?.textoAviso} ?: 'Contenido del aviso aparecerá aquí'">Contenido del aviso</p>
                                     </div>
                                     <div class="px-3 justify-content-center" style="max-height: 450px; overflow: hidden">
-                                        <img class="card-img-bottom img-fluid" id="cardImagePreview" src="assets/images/small/img-7.jpg" alt="Card image cap">
+                                        <img class="card-img-bottom img-fluid" id="cardImagePreview"
+                                             th:src="${aviso?.fotoAvisoUrl} ?: 'assets/images/small/img-7.jpg'"
+                                             alt="Vista previa de imagen" style="object-fit: contain;">
                                     </div>
                                     <div class="row px-3 pb-2">
                                         <div class="mt-3">
+                                            <small class="text-muted">Fecha: [[${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}]]</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- end row -->
-
-                    </div> <!-- container-fluid -->
+                    </div>
                 </div>
-                <!-- End Page-content -->
 
                 <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
             </div>
-            <!-- end main content-->
-
         </div>
-        <!-- END layout-wrapper -->
 
-        <!-- Sidebar overlay-->
-        <div class="sidebar-overlay"></div>
-
-        <!-- JAVASCRIPT -->
+        <!-- Scripts -->
         <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
 
         <script>
-            document.getElementById('customFile').addEventListener('change', function(event) {
-                const file = event.target.files[0];  // Obtener el archivo seleccionado
-
+            // Vista previa de imagen
+            document.getElementById('imagenAviso').addEventListener('change', function(event) {
+                const file = event.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-
-                    // Cuando el archivo se haya leído, actualizar la imagen
                     reader.onload = function(e) {
-                        const imagePreview = document.getElementById('cardImagePreview');
-                        imagePreview.src = e.target.result;  // Establecer la nueva imagen como src
+                        document.getElementById('cardImagePreview').src = e.target.result;
                     };
-
-                    // Leer la imagen seleccionada como URL en base64
                     reader.readAsDataURL(file);
                 }
-                const titleInput = document.getElementById('title');
-                if (titleInput.value === '') {
-                    document.getElementById('titulo').textContent = "Titulo"// Puedes restablecer el placeholder si el título está vacío
-                }
-                const infoInput = document.getElementById('textarea');
-                if (infoInput.value === '') {
-                    document.getElementById('informacion').textContent = "Aquí se verá el contenido de la vista previa" // Puedes restablecer el placeholder si el título está vacío
-                }
             });
 
-            // Mostrar la vista previa de los campos de texto
-            document.getElementById('myForm').addEventListener('input', function() {
-                const title = document.getElementById('title').value;
-                const info = document.getElementById('textarea').value;
+            // Vista previa de texto en tiempo real
+            document.addEventListener('DOMContentLoaded', function() {
+                const tituloInput = document.getElementById('tituloAviso');
+                const infoInput = document.getElementById('textoAviso');
+                const activoSwitch = document.getElementById('activoSwitch');
 
-                // Crear contenido para la vista previa dentro de la card
-                // Actualizar el contenido de la card con la vista previa del título y la información
-                document.getElementById('titulo').textContent = title;
-                document.getElementById('informacion').textContent = info;
+                if (tituloInput && infoInput) {
+                    tituloInput.addEventListener('input', function() {
+                        document.getElementById('tituloPreview').textContent = this.value || 'Título del aviso';
+                    });
 
-                const titleInput = document.getElementById('title');
-                if (titleInput.value === '') {
-                    document.getElementById('titulo').textContent = "Aquí va el nombre del titulo"// Puedes restablecer el placeholder si el título está vacío
+                    infoInput.addEventListener('input', function() {
+                        document.getElementById('infoPreview').textContent = this.value || 'Contenido del aviso aparecerá aquí';
+                    });
                 }
-                const infoInput = document.getElementById('textarea');
-                if (infoInput.value === '') {
-                    document.getElementById('informacion').textContent = "Aquí se verá el cuerpo del aviso" // Puedes restablecer el placeholder si el título está vacío
+
+                if (activoSwitch) {
+                    activoSwitch.addEventListener('change', function() {
+                        const estadoSelect = document.querySelector('[th\\:field="*{estadoAviso}"]');
+                        if (estadoSelect) {
+                            estadoSelect.value = this.checked ? 'activo' : 'disponible';
+                        }
+                    });
                 }
             });
+        </script>
 
+
+        <script>
+            function previewImage(input) {
+                if (input.files && input.files[0]) {
+                    // Si se sube un archivo, limpia el campo de URL manual
+                    document.getElementById('fotoAvisoUrlInput').value = '';
+
+                    // Aquí iría tu lógica para previsualizar y subir la imagen
+                    // Al final, cuando tengas la URL, la asignas al campo hidden:
+                    // document.getElementById('fotoAvisoUrlHidden').value = urlDeLaImagenSubida;
+                }
+            }
+
+            // Cuando se escribe en el campo de URL manual
+            document.getElementById('fotoAvisoUrlInput').addEventListener('input', function() {
+                document.getElementById('fotoAvisoUrlHidden').value = this.value;
+            });
         </script>
     </body>
-
-
-    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:03 GMT -->
 </html>

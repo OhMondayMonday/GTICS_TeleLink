@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
     <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
-    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Perfil')}"></head>
+    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Inicio')}"></head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
 
@@ -36,17 +36,23 @@
                                                 <div class="d-flex">
                                                     <div class="flex-1 overflow-hidden">
                                                         <p class="text-truncate font-size-15 mb-2 text-white">Número de Reservas</p>
-                                                        <h4 class="mb-0 text-white" th:text="${numeroReservasMes}">1,452</h4>
+                                                        <h4 class="mb-0 text-white" th:text="${numeroReservasMes != null ? numeroReservasMes : '0'}"></h4>
                                                     </div>
                                                     <div class="text-primary ms-auto">
                                                         <i class="ri-stack-line font-size-24"></i>
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <div class="card-body border-top py-3">
                                                 <div class="text-truncate">
-                                                    <span class="badge font-size-11" th:class="${badge}" th:text="${diferencia}"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
+                                                    <span th:if="${diferencia != null}"
+                                                          th:class="${diferencia < 0 ? 'badge bg-danger-subtle text-danger font-size-11' : 'badge bg-success-subtle text-success font-size-11'}">
+                                                        <i th:class="${diferencia < 0 ? 'mdi mdi-menu-down' : 'mdi mdi-plus'}"></i>
+                                                        <span th:text="${diferencia}"></span>
+                                                    </span>
+                                                    <span th:if="${diferencia == null}" class="badge bg-secondary-subtle text-secondary font-size-11">
+                                                        <i class="mdi mdi-information-outline"></i> Sin datos
+                                                    </span>
                                                     <span class="text-white ms-2">Desde el periodo anterior</span>
                                                 </div>
                                             </div>
@@ -58,7 +64,10 @@
                                                 <div class="d-flex">
                                                     <div class="flex-1 overflow-hidden">
                                                         <p class="text-truncate font-size-15 mb-2 text-white">Monto de Reservas</p>
-                                                        <h4 class="mb-0 text-white" th:text="${montoMensual}"></h4>
+                                                        <h4 class="mb-0 text-white">
+                                                            <span th:if="${montoMensual != null}" th:text="'S/ ' + ${#numbers.formatDecimal(montoMensual, 1, 2, 'POINT')}"></span>
+                                                            <span th:if="${montoMensual == null}">S/ 0.00</span>
+                                                        </h4>
                                                     </div>
                                                     <div class="text-primary ms-auto">
                                                         <i class="ri-store-2-line font-size-24"></i>
@@ -67,8 +76,17 @@
                                             </div>
                                             <div class="card-body border-top py-3">
                                                 <div class="text-truncate">
-                                                    <span class="badge bg-success-subtle text-success font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
-                                                    <span class="ms-2 text-white">Desde el periodo anterior</span>
+                <span th:if="${montoMensual != null and montoMensualPasado != null}">
+                    <span th:class="${(montoMensual - montoMensualPasado) < 0? 'badge bg-danger-subtle text-danger font-size-11' : 'badge bg-success-subtle text-success font-size-11'}">
+                        <i th:class="${(montoMensual - montoMensualPasado) < 0 ? 'mdi mdi-menu-down' : 'mdi mdi-plus'}"></i>
+                        <span th:text="'S/ ' + ${#numbers.formatDecimal(montoMensual - montoMensualPasado, 1, 2, 'POINT')}"></span>
+                    </span>
+                </span>
+                                                    <span th:if="${montoMensual == null or montoMensualPasado == null}"
+                                                          class="badge bg-secondary-subtle text-secondary font-size-11">
+                    <i class="mdi mdi-information-outline"></i> Sin datos
+                </span>
+                                                    <span class="text-white ms-2">Desde el periodo anterior</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -79,7 +97,10 @@
                                                 <div class="d-flex">
                                                     <div class="flex-1 overflow-hidden">
                                                         <p class="text-truncate font-size-15 mb-2 text-white">Promedio por Reserva</p>
-                                                        <h4 class="mb-0 text-white" th:text="${promedioMensual}"></h4>
+                                                        <h4 class="mb-0 text-white">
+                                                            <span th:if="${promedioMensual != null}" th:text="'S/ ' + ${#numbers.formatDecimal(promedioMensual, 1, 2, 'POINT')}"></span>
+                                                            <span th:if="${promedioMensual == null}">S/ 0.00</span>
+                                                        </h4>
                                                     </div>
                                                     <div class="text-primary ms-auto">
                                                         <i class="ri-briefcase-4-line font-size-24"></i>
@@ -88,7 +109,16 @@
                                             </div>
                                             <div class="card-body border-top py-3">
                                                 <div class="text-truncate">
-                                                    <span class="badge bg-success-subtle text-success font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
+                <span th:if="${promedioMensual != null and promedioMensualPasado != null}">
+                    <span th:class="${(promedioMensual - promedioMensualPasado) < 0? 'badge bg-danger-subtle text-danger font-size-11' : 'badge bg-success-subtle text-success font-size-11'}">
+                        <i th:class="${(promedioMensual - promedioMensualPasado) < 0 ? 'mdi mdi-menu-down' : 'mdi mdi-plus'}"></i>
+                        <span th:text="'S/ ' + ${#numbers.formatDecimal(promedioMensual - promedioMensualPasado, 1, 2, 'POINT')}"></span>
+                    </span>
+                </span>
+                                                    <span th:if="${promedioMensual == null or promedioMensualPasado == null}"
+                                                          class="badge bg-secondary-subtle text-secondary font-size-11">
+                    <i class="mdi mdi-information-outline"></i> Sin datos
+                </span>
                                                     <span class="text-white ms-2">Desde el periodo anterior</span>
                                                 </div>
                                             </div>
@@ -97,36 +127,39 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xl-4">
-
                                         <div class="card">
                                             <div class="card-header pb-1">
                                                 <div class="d-flex">
                                                     <h4 class="card-title my-2">Últimos avisos</h4>
-                                                    <button class="btn btn-sm btn-outline-primary border-light my-1 ms-auto">Ver todo</button>
+                                                    <a th:href="@{/superadmin/avisos}" class="btn btn-sm btn-outline-primary border-light my-1 ms-auto">Ver todo</a>
                                                 </div>
                                             </div>
                                             <div class="card-body">
                                                 <div data-simplebar style="height: 475px;">
-                                                    <ul class="list-unstyled activity-wid" th:each="aviso : ${avisos}">
-                                                        <li>
+                                                    <ul class="list-unstyled activity-wid">
+                                                        <li th:if="${avisos == null or avisos.empty}">
+                                                            <p class="text-muted">No hay avisos recientes</p>
+                                                        </li>
+                                                        <li class="activity-list" th:each="aviso : ${avisos}" th:if="${avisos != null and not avisos.isEmpty()}">
                                                             <div class="activity-icon avatar-xs">
                                                                 <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                                                                    <i class="ri-news-line"></i> <!-- Icono de noticias -->
+                                                                    <i class="ri-newspaper-line"></i>
                                                                 </span>
                                                             </div>
                                                             <div>
+                                                                <h5 class="font-size-13" style="display: flex; align-items: end;">
+                                                                    <span th:text="${aviso.fechaAviso != null ? #temporals.format(aviso.fechaAviso, 'dd MMM, yyyy') : 'Fecha no disponible'}"></span>
+                                                                    <small class="ms-1 text-muted bold"
+                                                                           th:text="${aviso.fechaAviso != null ? #temporals.format(aviso.fechaAviso, 'hh:mm a') : ''}"></small>
+                                                                </h5>
                                                                 <div>
-                                                                    <h5 class="font-size-13" th:text="${aviso.getFechaAviso()}"></h5>
-                                                                </div>
-
-                                                                <div>
-                                                                    <p class="text-muted mb-0" th:text="${aviso.getTituloAviso()}"></p>
+                                                                    <p class="text-muted mb-0"
+                                                                       th:text="'Nueva noticia: ' + ${aviso.tituloAviso != null ? aviso.tituloAviso : 'Sin título'}"></p>
                                                                 </div>
                                                             </div>
                                                         </li>
                                                     </ul>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -137,20 +170,32 @@
                                                     <div class="card-header pb-1">
                                                         <div class="d-flex">
                                                             <h4 class="card-title my-2">Aviso actual</h4>
-                                                            <button class="btn btn-sm btn-outline-success my-1 ms-auto">Modificar aviso</button>
+                                                            <a th:if="${ultimoAviso != null}"
+                                                               th:href="@{'/superadmin/editarAviso/' + ${ultimoAviso.avisoId}}"
+                                                               class="btn btn-sm btn-outline-success my-1 ms-auto">
+                                                                Modificar aviso
+                                                            </a>
                                                         </div>
                                                     </div>
-                                                    <div class="card-body py-1">
-                                                        <h4 class="card-title my-2" th:text="${ultimoAviso.getTituloAviso()}"></h4>
-                                                        <p class="card-text text-muted mb-1" th:text="${ultimoAviso.getTextoAviso()}"></p>
+                                                    <div class="card-body py-1" th:if="${ultimoAviso != null}">
+                                                        <h4 class="card-title my-2" th:text="${ultimoAviso.tituloAviso} ?: 'Sin título'"></h4>
+                                                        <p class="card-text text-muted mb-1" th:text="${ultimoAviso.textoAviso} ?: 'No hay contenido disponible'"></p>
                                                         <p class="card-text mt-1">
-                                                            <small>Creado: </small><small class="text-muted" th:text="${ultimoAviso.getFechaAviso()}"></small>
+                                                            <small>Creado: </small>
+                                                            <small class="text-muted"
+                                                                   th:text="${ultimoAviso.fechaAviso != null ? #temporals.format(ultimoAviso.fechaAviso, 'dd/MM/yyyy HH:mm') : 'Fecha no disponible'}"></small>
                                                         </p>
                                                     </div>
-                                                    <div class="px-3">
-                                                        <img class="card-img-bottom img-fluid object-fit-cover" style="max-height: 415px;" th:src="${ultimoAviso.getFotoAvisoUrl()}" alt="Card image cap">
+                                                    <div class="px-3" th:if="${ultimoAviso != null and ultimoAviso.fotoAvisoUrl != null}">
+                                                        <img class="card-img-bottom img-fluid object-fit-cover"
+                                                             style="max-height: 415px;"
+                                                             th:src="${ultimoAviso.fotoAvisoUrl}"
+                                                             alt="Imagen del aviso"
+                                                             onerror="this.src='assets/images/default-aviso.jpg'">
                                                     </div>
-                                                    <div style="min-height: 10px; max-height: 40px"></div>
+                                                    <div th:if="${ultimoAviso == null}" class="card-body">
+                                                        <p class="text-muted">No hay avisos disponibles</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -161,14 +206,6 @@
                             <div class="col-xl-3">
                                 <div class="card">
                                     <div class="card-body">
-                                        <div class="float-end">
-                                            <select class="form-select form-select-sm">
-                                                <option selected>Abr</option>
-                                                <option value="1">Mar</option>
-                                                <option value="2">Feb</option>
-                                                <option value="3">Ene</option>
-                                            </select>
-                                        </div>
                                         <h4 class="card-title mb-4">Análisis de Ventas</h4>
 
                                         <div id="chart" class="apex-charts"></div>
@@ -206,68 +243,14 @@
                                                             <td>
                                                                 <h5 class="font-size-14 mb-0">Izipay</h5>
                                                             </td>
+                                                            <td>
+                                                                <p class="text-muted mb-0" th:text="${pagoIzipayMensual != null ? pagoIzipayMensual : 'S/ 0.00'}"></p>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoIzipayMensual}"></p>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoIzipaySemanal}"></p>
+                                                                <p class="text-muted mb-0" th:text="${pagoIzipaySemanal != null ? pagoIzipaySemanal : 'S/ 0.00'}"></p>
                                                             </td>
                                                         </tr>
-                                                        <tr>
-                                                            <td style="width: 60px;">
-                                                                <div class="avatar-xs">
-                                                                    <div class="avatar-title rounded-circle bg-light">
-                                                                        <img src="assets/images/companies/img-2.png" alt="img-2" height="20">
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <h5 class="font-size-14 mb-0">Yape</h5>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoYapeMensual}"></p>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoYapeSemanal}"></p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="width: 60px;">
-                                                                <div class="avatar-xs">
-                                                                    <div class="avatar-title rounded-circle bg-light">
-                                                                        <img src="assets/images/companies/img-1.png" alt="img-1" height="20">
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <h5 class="font-size-14 mb-0">Plin</h5>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoPlinMensual}"></p>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoPlinSemanal}"></p>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="width: 60px;">
-                                                                <div class="avatar-xs">
-                                                                    <div class="avatar-title rounded-circle bg-light">
-                                                                        <img src="assets/images/companies/img-1.png" alt="img-1" height="20">
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <h5 class="font-size-14 mb-0">Efectivo</h5>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoEfectivoMensual}"></p>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoEfectivoSemanal}"></p>
-                                                            </td>
-                                                        </tr>
+                                                        <!-- Repetir para los otros métodos de pago -->
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -296,48 +279,65 @@
         <!-- JAVASCRIPT -->
         <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
 
-        <script>
-            // Asumiendo que 'chartData' tiene los valores (número de reservas)
-            var chartData = [[${chartData}]]; // Los valores de las reservas, por ejemplo: [250, 300, 150, 400]
-            var chartLabels = ['Gimnasio', 'Futbol', 'Atletismo', 'Piscina']; // Las etiquetas correspondientes a cada sección
+        <script th:inline="javascript">
+            // Asegúrate de que chartData sea un array con 4 valores
+            var chartData = /*[[${chartData}]]*/ [0, 0, 0, 0];
+            var chartLabels = ['Gimnasio', 'Fútbol', 'Piscina', 'Cancha Multiusos'];
+
+            // Verifica los datos en consola para depuración
+            console.log("Datos del gráfico:", chartData);
 
             var options = {
-                series: chartData,           // Los valores para cada sección del gráfico
                 chart: {
-                    width: 380,
-                    type: 'donut',           // Tipo de gráfico: donut
-                },
-                labels: chartLabels,         // Asignación de las etiquetas a las secciones del gráfico
-                dataLabels: {
-                    enabled: true,           // Habilitar etiquetas dentro del gráfico
-                },
-                responsive: [{
-                    breakpoint: 480,
-                    options: {
-                        chart: {
-                            width: 200
-                        },
-                        legend: {
-                            show: false
-                        }
-                    }
-                }],
-                legend: {
-                    position: 'right',        // Ubicación de la leyenda
-                    offsetY: 0,
                     height: 230,
+                    type: 'line',
+                    zoom: { enabled: false },
+                    toolbar: { show: false }
+                },
+                colors: ["#5664d2", "#1cbb8c", "#ff6384", "#ffcd56"],
+                stroke: {
+                    width: [3, 3, 3, 3],
+                    curve: 'smooth',
+                    dashArray: [0, 0, 0, 0]
+                },
+                series: chartLabels.map(function(label, index) {
+                    return {
+                        name: label,
+                        data: [chartData[index] || 0] // Asegura un valor por defecto si es undefined
+                    };
+                }),
+                xaxis: {
+                    categories: ['Últimos 7 días']
+                },
+                yaxis: {
+                    title: { text: "Número de Reservas" },
+                    min: 0
+                },
+                markers: {
+                    size: 5,
+                    hover: { sizeOffset: 2 }
                 },
                 tooltip: {
                     y: {
                         formatter: function(val) {
-                            return val + " reservas";  // Mostrar las reservas en el tooltip
+                            return val + " reservas";
                         }
                     }
+                },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'center'
                 }
             };
 
-            var chart = new ApexCharts(document.querySelector("#chart"), options);
-            chart.render();
+            // Renderizar el gráfico solo si existe el contenedor
+            var chartElement = document.querySelector("#chart");
+            if (chartElement) {
+                var chart = new ApexCharts(chartElement, options);
+                chart.render();
+            } else {
+                console.error("No se encontró el elemento #line_chart_dashed");
+            }
         </script>
     </body>
 
