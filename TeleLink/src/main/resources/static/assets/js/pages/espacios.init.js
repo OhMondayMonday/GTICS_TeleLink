@@ -45,8 +45,9 @@ radialchart=new ApexCharts(document.querySelector("#radialchart-1"),radialoption
         // Inicializar DataTable con solo el buscador
         var table = $(".datatable").DataTable({
             lengthMenu: [5, 10, 25, 50],
-            pageLength: 15,
+            pageLength: 10,
             columns: [
+                {orderable: !0},
                 {orderable: !0},
                 {orderable: !0},
                 {orderable: !0},

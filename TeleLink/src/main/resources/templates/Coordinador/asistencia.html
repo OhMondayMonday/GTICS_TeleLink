@@ -1,29 +1,45 @@
 <!doctype html>
 <html lang="es">
-    <head th:replace="~{fragments/topbarCoordinador :: head('Asistencia')}">
-        <style>
-            #gmaps-markers {
-                height: 300px;
-                width: 100%;
-            }
-            .btn-disabled {
-                background-color: #d3d3d3 !important;
-                border-color: #d3d3d3 !important;
-                color: #6c757d !important;
-                cursor: not-allowed !important;
-            }
-            .error-message {
-                color: red;
-                margin-top: 10px;
-                text-align: center;
-            }
-            .success-message {
-                color: green;
-                margin-top: 10px;
-                text-align: center;
-            }
-        </style>
-    </head>
+    <head th:replace="~{fragments/topbarCoordinador :: head('Asistencia')}"></head>
+    <style>
+        #gmaps-markers {
+            height: 300px;
+            width: 100%;
+        }
+        .btn-disabled {
+            background-color: #d3d3d3 !important;
+            border-color: #d3d3d3 !important;
+            color: #6c757d !important;
+            cursor: not-allowed !important;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .success-message {
+            color: green;
+            margin-top: 10px;
+            text-align: center;
+        }
+        #loading-spinner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        #loading-spinner p {
+            color: white;
+            margin-top: 10px;
+        }
+    </style>
     <body data-sidebar="dark" class="vertical-collpsed"
           th:data-horario-entrada="${asistenciaActiva != null ? #temporals.format(asistenciaActiva.horarioEntrada, 'yyyy-MM-dd HH:mm:ss') : ''}"
           th:data-horario-salida="${asistenciaActiva != null ? #temporals.format(asistenciaActiva.horarioSalida, 'yyyy-MM-dd HH:mm:ss') : ''}">
@@ -34,6 +50,14 @@
             <div class="main-content">
                 <div class="page-content">
                     <div class="container-fluid">
+                        <!-- Spinner a pantalla completa -->
+                        <div id="loading-spinner">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p>Obteniendo ubicación...</p>
+                        </div>
+
                         <div class="row mb-4" style="display: flex; align-items: stretch;">
                             <div class="col-lg-5 d-flex">
                                 <div class="card mb-0 flex-grow-1">
@@ -252,6 +276,7 @@
                 var btnSalida = document.getElementById('btn-registrar-salida');
                 var formEntrada = document.getElementById('form-registrar-entrada');
                 var formSalida = document.getElementById('form-registrar-salida');
+                var loadingSpinner = document.getElementById('loading-spinner');
 
                 // Obtener horarios desde atributos de datos
                 var horarioEntradaStr = document.body.getAttribute('data-horario-entrada');
@@ -315,14 +340,20 @@
                 // Obtener coordenadas antes de enviar el formulario de entrada
                 formEntrada.addEventListener('submit', function(event) {
                     event.preventDefault();
+                    loadingSpinner.style.display = 'flex';
+                    btnEntrada.disabled = true;
+
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(
                             function(position) {
                                 document.getElementById('latitude-entrada').value = position.coords.latitude;
                                 document.getElementById('longitude-entrada').value = position.coords.longitude;
+                                loadingSpinner.style.display = 'none';
                                 formEntrada.submit();
                             },
                             function(error) {
+                                loadingSpinner.style.display = 'none';
+                                btnEntrada.disabled = false;
                                 alert("Error al obtener tu ubicación: " + error.message);
                             },
                             {
@@ -332,6 +363,8 @@
                             }
                         );
                     } else {
+                        loadingSpinner.style.display = 'none';
+                        btnEntrada.disabled = false;
                         alert("La geolocalización no está soportada por tu navegador.");
                     }
                 });
@@ -339,14 +372,20 @@
                 // Obtener coordenadas antes de enviar el formulario de salida
                 formSalida.addEventListener('submit', function(event) {
                     event.preventDefault();
+                    loadingSpinner.style.display = 'flex';
+                    btnSalida.disabled = true;
+
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(
                             function(position) {
                                 document.getElementById('latitude-salida').value = position.coords.latitude;
                                 document.getElementById('longitude-salida').value = position.coords.longitude;
+                                loadingSpinner.style.display = 'none';
                                 formSalida.submit();
                             },
                             function(error) {
+                                loadingSpinner.style.display = 'none';
+                                btnSalida.disabled = false;
                                 alert("Error al obtener tu ubicación: " + error.message);
                             },
                             {
@@ -356,6 +395,8 @@
                             }
                         );
                     } else {
+                        loadingSpinner.style.display = 'none';
+                        btnSalida.disabled = false;
                         alert("La geolocalización no está soportada por tu navegador.");
                     }
                 });

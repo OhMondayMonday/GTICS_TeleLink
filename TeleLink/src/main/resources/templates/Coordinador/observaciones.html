@@ -31,8 +31,8 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Fecha</th>
-                                                        <th>Nombre del establecimiento</th>
-                                                        <th>Tipo de servicio</th>
+                                                        <th>Espacio Deportivo</th>
+                                                        <th>Establecimiento</th>
                                                         <th>Descripción</th>
                                                         <th>Estado</th>
                                                         <th>Acciones</th>
@@ -40,8 +40,8 @@
                                                 <tbody>
                                                     <tr th:each="observacion : ${observaciones}">
                                                         <td th:text="${#temporals.format(observacion.fechaCreacion, 'dd/MM/yyyy')}"></td>
+                                                        <td th:text="${observacion.espacioDeportivo.nombre}"></td>
                                                         <td th:text="${observacion.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}"></td>
-                                                        <td th:text="${observacion.espacioDeportivo.servicioDeportivo.servicioDeportivo}"></td>
                                                         <td th:text="${observacion.descripcion}"></td>
                                                         <td>
                         <span th:switch="${observacion.estado.name()}">
@@ -54,7 +54,7 @@
                                                             <a th:href="@{/coordinador/observacionDetalle(observacionId=${observacion.observacionId})}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
                                                                 <i class="fas fa-eye"></i>
                                                             </a>
-                                                            <a th:href="@{/coordinador/observacionEditForm(observacionId=${observacion.observacionId})}" class="btn btn-outline-secondary btn-sm edit" title="Editar" th:unless="${observacion.estado != 'pendiente'}">
+                                                            <a th:href="@{/coordinador/observacionEditForm(observacionId=${observacion.observacionId})}" class="btn btn-outline-secondary btn-sm edit" title="Editar" th:unless="${observacion.estado.name() != 'pendiente'}">
                                                                 <i class="fas fa-pencil-alt"></i>
                                                             </a>
                                                         </td>

@@ -1,6 +1,8 @@
 package com.example.telelink.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
@@ -38,6 +40,8 @@ public class Usuario {
     private String direccion;
 
     @Column(length = 9)
+    @Size(min = 9, max = 9, message = "El teléfono debe tener exactamente 9 dígitos")
+    @Pattern(regexp = "^[0-9]+$", message = "El teléfono solo puede contener números")
     private String telefono;
 
     @Column(name = "foto_perfil_url", length = 255)

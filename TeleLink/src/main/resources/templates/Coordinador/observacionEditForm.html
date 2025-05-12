@@ -3,8 +3,8 @@
     <head th:replace="~{fragments/topbarCoordinador :: head('Editar Observación')}"></head>
     <body data-sidebar="dark" class="vertical-collpsed">
         <div id="layout-wrapper">
-            <div th:replace="fragments/topbarCoordinador :: topbar('Observación: Editar registro')"></div>
-            <div th:replace="fragments/sidebarCoordinador :: sidebar('observaciones')"></div>
+            <div th:replace="~{fragments/topbarCoordinador :: topbar('Editar Observación')}"></div>
+            <div th:replace="~{fragments/sidebarCoordinador :: sidebar('observaciones')}"></div>
 
             <div class="main-content">
                 <div class="page-content">
@@ -13,7 +13,7 @@
                             <div class="col-xl-12">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h4 class="card-title mb-3">Editar Observación</h4>
+                                        <h4 class="card-title mb-3 fw-semibold">Formulario de edición</h4>
                                         <form th:action="@{/coordinador/observacionGuardar}" method="post" th:object="${observacionForm}" enctype="multipart/form-data" novalidate>
                                             <input type="hidden" th:field="*{observacionId}" />
                                             <div class="row">
@@ -27,13 +27,13 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="servicioDeportivo" class="form-label">Tipo de servicio</label>
-                                                        <input id="servicioDeportivo" type="text" th:field="*{espacioDeportivo.servicioDeportivo.servicioDeportivo}" class="form-control" readonly disabled/>
+                                                        <label for="servicioDeportivo" class="form-label">Espacio deportivo</label>
+                                                        <input id="servicioDeportivo" type="text" th:field="*{espacioDeportivo.nombre}" class="form-control" readonly disabled/>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="nivelUrgencia" class="form-label">Nivel de urgencia</label>
+                                                        <label for="nivelUrgencia" class="form-label">Nivel de urgencia <span style="color: red;">*</span></label>
                                                         <select id="nivelUrgencia" th:field="*{nivelUrgencia}" class="form-select" required th:classappend="${#fields.hasErrors('nivelUrgencia')} ? 'is-invalid' : ''">
                                                             <option value="">Seleccione un nivel</option>
                                                             <option th:each="urgencia : ${T(com.example.telelink.entity.Observacion.NivelUrgencia).values()}" th:value="${urgencia}" th:text="${#strings.capitalize(urgencia)}" th:selected="${observacionForm.nivelUrgencia == urgencia}"></option>
@@ -45,7 +45,7 @@
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="descripcion" class="form-label">Descripción</label>
+                                                        <label for="descripcion" class="form-label">Descripción <span style="color: red;">*</span></label>
                                                         <textarea id="descripcion" th:field="*{descripcion}" required class="form-control" rows="5" style="height: 52px; resize: none;" th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid' : ''"></textarea>
                                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
                                                     </div>
@@ -72,13 +72,13 @@
                         </div>
                     </div>
                 </div>
-                <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
+                <footer th:replace="~{fragments/topbarCoordinador :: footer}"></footer>
             </div>
         </div>
 
         <div class="sidebar-overlay"></div>
 
-        <div th:replace="fragments/topbarCoordinador :: scripts"></div>
+        <div th:replace="~{fragments/topbarCoordinador :: scripts}"></div>
         <script th:src="@{/assets/js/pages/form-validation.init.js}"></script>
         <script th:src="@{/assets/libs/bs-custom-file-input/bs-custom-file-input.min.js}"></script>
         <script th:src="@{/assets/js/pages/form-element.init.js}"></script>

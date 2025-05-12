@@ -106,7 +106,7 @@ function loadDonutChartData(userId) {
 
             return [
                 `${establecimiento.establecimientoDeportivoNombre}: `,
-                `${servicio.servicioDeportivo}`
+                `${espacio.nombre}`
             ].join('\n');
         }
 
@@ -120,8 +120,9 @@ function loadDonutChartData(userId) {
             themeSystem: "bootstrap",
             allDaySlot: false,
             locale: 'es',
-            slotMinTime: "06:00:00",
+            slotMinTime: "08:00:00",
             slotMaxTime: "22:00:00",
+            scrollTime:"08:00:00",
             header: {
                 left: "prev,next today",
                 center: "title",

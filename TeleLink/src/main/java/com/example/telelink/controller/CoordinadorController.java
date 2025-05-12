@@ -338,35 +338,66 @@
 
         @PostMapping("/actualizar-perfil")
         public String actualizarPerfil(
+                @Valid @ModelAttribute("usuario") Usuario usuarioActualizado,
+                BindingResult result,
                 @RequestParam("fotoPerfil") MultipartFile fotoPerfil,
-                @ModelAttribute("usuario") Usuario usuarioActualizado,
                 HttpSession session,
+                Model model,
                 RedirectAttributes redirectAttributes) {
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
+
+            // Validar el formato de la foto si se subió una y asociar el error a fotoPerfilUrl
+            if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+                String contentType = fotoPerfil.getContentType();
+                if (contentType == null || !contentType.matches("^(image/(jpeg|png|gif|bmp|jpg))$")) {
+                    result.rejectValue("fotoPerfilUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG, GIF, BMP o JPG)");
+                }
+            }
+
+            // Si hay errores de validación, retornar directamente la vista con los errores
+            if (result.hasErrors()) {
+                result.getAllErrors().forEach(error -> {
+                    System.out.println("Error de validación: " + error.getDefaultMessage());
+                    if (error instanceof FieldError) {
+                        FieldError fieldError = (FieldError) error;
+                        System.out.println("Campo: " + fieldError.getField());
+                    }
+                });
+                model.addAttribute("usuario", usuario);
+                model.addAttribute("org.springframework.validation.BindingResult.usuario", result);
+                return "Coordinador/editarPerfil";
+            }
 
             // Actualizar los campos permitidos (teléfono)
             usuario.setTelefono(usuarioActualizado.getTelefono());
 
             // Manejar la subida de la foto al bucket S3
-            String defaultFotoPerfilUrl = "https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg";
+            String defaultFotoPerfilUrl = usuario.getFotoPerfilUrl() != null ? usuario.getFotoPerfilUrl() : "https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg";
             if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
-                try {
-                    // Subir la imagen al bucket S3 usando S3Service
-                    String uploadResult = s3Service.uploadFile(fotoPerfil);
-                    // El método uploadFile devuelve un mensaje con la URL al final (por ejemplo: "Archivo ... URL: <url>")
-                    // Extraemos la URL del mensaje
-                    String fotoPerfilUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5);
+                System.out.println("Intentando subir archivo a S3...");
+                String uploadResult = s3Service.uploadFile(fotoPerfil);
+                System.out.println("Resultado de la subida: " + uploadResult);
+
+                if (uploadResult != null && uploadResult.contains("URL:")) {
+                    // Extraer la URL si la subida fue exitosa
+                    String fotoPerfilUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
                     usuario.setFotoPerfilUrl(fotoPerfilUrl);
                     redirectAttributes.addFlashAttribute("message", "Foto de perfil subida exitosamente.");
                     redirectAttributes.addFlashAttribute("messageType", "success");
-                } catch (Exception e) {
-                    // Si falla la subida, usamos la URL por defecto y mostramos un mensaje de error
+                } else if (uploadResult != null && uploadResult.contains("Error:")) {
+                    // Manejar el caso de error (incluyendo ExpiredToken)
+                    System.out.println("Error detectado en el resultado: " + uploadResult);
                     usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
-                    redirectAttributes.addFlashAttribute("message", "Error al subir la foto de perfil: " + e.getMessage() + ". Se usó una imagen por defecto.");
+                    redirectAttributes.addFlashAttribute("message", "Error al subir la foto de perfil: " + uploadResult + ". Se usó una imagen por defecto.");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                } else {
+                    // Caso inesperado
+                    System.out.println("Resultado inválido de la subida: " + uploadResult);
+                    usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+                    redirectAttributes.addFlashAttribute("message", "Error desconocido al subir la foto. Se usó una imagen por defecto.");
                     redirectAttributes.addFlashAttribute("messageType", "error");
                 }
             } else {
-                // Si no se proporcionó una nueva foto, mantenemos la URL por defecto
                 usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
             }
 
@@ -531,11 +562,11 @@
                 throw new IllegalArgumentException("Solo se pueden editar observaciones en estado 'pendiente'");
             }
 
+            // Asegurarse de que el objeto se pase como "observacionForm" para que coincida con el @ModelAttribute en el POST
             model.addAttribute("observacionForm", observacion);
             return "Coordinador/observacionEditForm";
         }
 
-        // Guardar una observación (creación o edición)
         @PostMapping("/observacionGuardar")
         public String guardarObservacion(
                 @Valid @ModelAttribute("observacionForm") Observacion observacionForm,
@@ -552,47 +583,128 @@
                 return "redirect:/coordinador/observaciones";
             }
 
-            // Asignar valores requeridos antes de la validación
-            observacionForm.setCoordinador(usuario);
-            observacionForm.setFechaCreacion(LocalDateTime.now());
-            if (asistenciaId != null) {
-                Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
-                        .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
-                observacionForm.setEspacioDeportivo(asistencia.getEspacioDeportivo());
-            }
-
-            // Manejo de la foto y asignación de fotoUrl antes de la validación
+            // Determinar si es creación o edición
             boolean isCreation = observacionForm.getObservacionId() == null;
-            if (isCreation && (foto != null && !foto.isEmpty())) {
-                String fotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg"; // URL predeterminada
-                observacionForm.setFotoUrl(fotoUrl);
+
+            // Cargar el objeto original desde la base de datos si es edición
+            Observacion originalObservacion = null;
+            if (!isCreation) {
+                originalObservacion = observacionRepository.findById(observacionForm.getObservacionId())
+                        .orElseThrow(() -> new IllegalArgumentException("Observación no encontrada"));
             }
 
-            // Validar manualmente la foto al crear
-            if (isCreation && (foto == null || foto.isEmpty())) {
-                result.rejectValue("fotoUrl", "NotBlank", "La foto es obligatoria al crear una observación");
+            // Asignar valores requeridos antes de la validación
+            if (isCreation) {
+                observacionForm.setCoordinador(usuario);
+                observacionForm.setFechaCreacion(LocalDateTime.now());
+                if (asistenciaId != null) {
+                    Asistencia asistencia = asistenciaRepository.findById(asistenciaId)
+                            .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
+                    observacionForm.setEspacioDeportivo(asistencia.getEspacioDeportivo());
+                }
+            } else {
+                // En edición, preservar las relaciones y campos no modificados
+                observacionForm.setCoordinador(originalObservacion.getCoordinador());
+                observacionForm.setEspacioDeportivo(originalObservacion.getEspacioDeportivo());
+                observacionForm.setFechaCreacion(originalObservacion.getFechaCreacion());
+                observacionForm.setFechaActualizacion(LocalDateTime.now());
+                observacionForm.setEstado(originalObservacion.getEstado());
+                observacionForm.setComentarioAdministrador(originalObservacion.getComentarioAdministrador());
+            }
+
+            // Validar manualmente la foto
+            String defaultFotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg";
+            String existingFotoUrl = isCreation ? null : originalObservacion.getFotoUrl();
+            if (isCreation) {
+                if (foto == null || foto.isEmpty()) {
+                    result.rejectValue("fotoUrl", "NotBlank", "La foto es obligatoria al crear una observación");
+                } else {
+                    String contentType = foto.getContentType();
+                    if (contentType == null || !contentType.matches("^(image/(jpeg|png|gif|bmp|jpg))$")) {
+                        result.rejectValue("fotoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG, GIF, BMP o JPG)");
+                    }
+                }
+            } else if (foto != null && !foto.isEmpty()) {
+                String contentType = foto.getContentType();
+                if (contentType == null || !contentType.matches("^(image/(jpeg|png|gif|bmp|jpg))$")) {
+                    result.rejectValue("fotoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG, GIF, BMP o JPG)");
+                }
             }
 
             // Evaluar errores después de asignar los campos requeridos
             if (result.hasErrors()) {
-                // Imprimir los errores en la consola para depuración
                 System.out.println("Errores de validación encontrados:");
                 result.getAllErrors().forEach(error -> {
                     System.out.println("Campo: " + error.getObjectName() + " - Mensaje: " + error.getDefaultMessage());
                     if (error instanceof FieldError) {
                         FieldError fieldError = (FieldError) error;
-                        System.out.println("Campo específico: " + fieldError.getField());
+                        System.out.println("Campo específico: " + fieldError.getField() + " - Valor rechazado: " + fieldError.getRejectedValue());
                     }
                 });
 
-                // Añadir asistenciaId y usuario al modelo para renderizar el formulario
                 model.addAttribute("asistenciaId", asistenciaId);
                 model.addAttribute("usuario", usuario);
-                model.addAttribute("observacionForm", observacionForm);
-                model.addAttribute("org.springframework.validation.BindingResult.observacionForm", result);
 
-                // Retornar directamente la vista del formulario
-                return "Coordinador/observacionNewForm";
+                // Repoblar con el objeto original en caso de edición
+                if (!isCreation) {
+                    // Mantener los valores originales para los campos no modificados
+                    originalObservacion.setNivelUrgencia(observacionForm.getNivelUrgencia());
+                    originalObservacion.setDescripcion(observacionForm.getDescripcion());
+                    originalObservacion.setFotoUrl(observacionForm.getFotoUrl() != null ? observacionForm.getFotoUrl() : originalObservacion.getFotoUrl());
+                    model.addAttribute("observacionForm", originalObservacion); // Usar el objeto original con los valores actualizados
+                } else {
+                    model.addAttribute("observacionForm", observacionForm); // Usar el formulario enviado para creación
+                }
+                model.addAttribute("org.springframework.validation.BindingResult.observacionForm", result);
+                return isCreation ? "Coordinador/observacionNewForm" : "Coordinador/observacionEditForm";
+            }
+
+            // Manejar la subida de la foto al bucket S3
+            if (foto != null && !foto.isEmpty()) {
+                System.out.println("Intentando subir archivo a S3 para observación...");
+                String uploadResult = s3Service.uploadFile(foto);
+                System.out.println("Resultado de la subida: " + uploadResult);
+
+                if (uploadResult != null && uploadResult.contains("URL:")) {
+                    String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
+                    observacionForm.setFotoUrl(fotoUrl);
+                } else if (uploadResult != null && uploadResult.contains("Error:")) {
+                    System.out.println("Error detectado en el resultado: " + uploadResult);
+                    if (isCreation) {
+                        observacionForm.setFotoUrl(defaultFotoUrl);
+                    } else {
+                        observacionForm.setFotoUrl(existingFotoUrl != null ? existingFotoUrl : defaultFotoUrl);
+                    }
+                    redirectAttributes.addFlashAttribute("message", "Error al subir la foto de la observación: " + uploadResult + ". Se usó una imagen por defecto.");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    observacionRepository.save(observacionForm);
+                    return "redirect:/coordinador/observaciones";
+                } else {
+                    System.out.println("Resultado inválido de la subida: " + uploadResult);
+                    if (isCreation) {
+                        observacionForm.setFotoUrl(defaultFotoUrl);
+                    } else {
+                        observacionForm.setFotoUrl(existingFotoUrl != null ? existingFotoUrl : defaultFotoUrl);
+                    }
+                    redirectAttributes.addFlashAttribute("message", "Error desconocido al subir la foto. Se usó una imagen por defecto.");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                    observacionRepository.save(observacionForm);
+                    return "redirect:/coordinador/observaciones";
+                }
+            } else if (!isCreation && (foto == null || foto.isEmpty())) {
+                observacionForm.setFotoUrl(existingFotoUrl != null ? existingFotoUrl : defaultFotoUrl);
+            } else if (isCreation) {
+                observacionForm.setFotoUrl(defaultFotoUrl);
+            }
+
+            // Asegurarse de que los campos no modificados se mantengan antes de guardar
+            if (!isCreation) {
+                observacionForm.setCoordinador(originalObservacion.getCoordinador());
+                observacionForm.setEspacioDeportivo(originalObservacion.getEspacioDeportivo());
+                observacionForm.setFechaCreacion(originalObservacion.getFechaCreacion());
+                observacionForm.setFechaActualizacion(LocalDateTime.now());
+                observacionForm.setEstado(originalObservacion.getEstado());
+                observacionForm.setComentarioAdministrador(originalObservacion.getComentarioAdministrador());
             }
 
             // Guardar la observación

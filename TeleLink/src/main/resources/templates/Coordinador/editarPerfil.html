@@ -15,18 +15,25 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col-md-12">
                                             <div class="card-body">
-                                                <h4 class="card-title mb-4 fw-semibold mt-3">Editar Perfil</h4>
+                                                <h4 class="card-title mb-4 fw-semibold mt-3">Formulario de edición</h4>
 
-                                                <form th:action="@{/coordinador/actualizar-perfil}" th:object="${usuario}" method="post" class="custom-validation" enctype="multipart/form-data">
+                                                <form th:action="@{/coordinador/actualizar-perfil}" th:object="${usuario}" method="post" enctype="multipart/form-data">
+                                                    <!-- Mostrar errores globales (si los hay) -->
+                                                    <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+                                                        <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                                                    </div>
+
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label class="form-label" for="telefono">Teléfono</label>
+                                                                <label class="form-label" for="telefono">Teléfono <span class="text-danger">*</span></label>
                                                                 <input type="text"
                                                                        class="form-control"
                                                                        name="telefono"
                                                                        id="telefono"
-                                                                       th:field="*{telefono}">
+                                                                       th:field="*{telefono}"
+                                                                       th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''">
+                                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
@@ -35,7 +42,9 @@
                                                                 <input type="file"
                                                                        class="form-control"
                                                                        name="fotoPerfil"
-                                                                       id="fotoPerfil">
+                                                                       id="fotoPerfil"
+                                                                       th:classappend="${#fields.hasErrors('fotoPerfilUrl')} ? 'is-invalid' : ''">
+                                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('fotoPerfilUrl')}" th:errors="*{fotoPerfilUrl}"></div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -51,15 +60,12 @@
                                 </div>
                             </div>
                         </div>
-                    </div> <!-- container-fluid -->
+                    </div>
                 </div>
-                <!-- End Page-content -->
 
                 <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
             </div>
-            <!-- end main content-->
         </div>
-        <!-- END layout-wrapper -->
 
         <div class="sidebar-overlay"></div>
 
