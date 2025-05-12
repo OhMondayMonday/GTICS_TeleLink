@@ -14,6 +14,7 @@
     import org.springframework.web.bind.annotation.*;
     import org.springframework.web.multipart.MultipartFile;
     import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+    import com.example.telelink.service.S3Service;
 
     import java.security.Timestamp;
     import java.text.DecimalFormat;
@@ -50,6 +51,9 @@
 
         @Autowired
         private ObservacionRepository observacionRepository;
+
+        @Autowired
+        private S3Service s3Service;
 
         @GetMapping("/inicio")
         public String mostrarInicio(Model model, HttpSession session) {
@@ -333,14 +337,38 @@
         }
 
         @PostMapping("/actualizar-perfil")
-        public String actualizarPerfil(@RequestParam("fotoPerfil") MultipartFile fotoPerfil, @ModelAttribute("usuario") Usuario usuarioActualizado, HttpSession session) {
+        public String actualizarPerfil(
+                @RequestParam("fotoPerfil") MultipartFile fotoPerfil,
+                @ModelAttribute("usuario") Usuario usuarioActualizado,
+                HttpSession session,
+                RedirectAttributes redirectAttributes) {
             Usuario usuario = (Usuario) session.getAttribute("currentUser");
 
-            // Actualizar solo los campos permitidos (teléfono y foto)
+            // Actualizar los campos permitidos (teléfono)
             usuario.setTelefono(usuarioActualizado.getTelefono());
 
-            // Codigo provisional para cargar una imagen
-            usuario.setFotoPerfilUrl("https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg");
+            // Manejar la subida de la foto al bucket S3
+            String defaultFotoPerfilUrl = "https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg";
+            if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+                try {
+                    // Subir la imagen al bucket S3 usando S3Service
+                    String uploadResult = s3Service.uploadFile(fotoPerfil);
+                    // El método uploadFile devuelve un mensaje con la URL al final (por ejemplo: "Archivo ... URL: <url>")
+                    // Extraemos la URL del mensaje
+                    String fotoPerfilUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5);
+                    usuario.setFotoPerfilUrl(fotoPerfilUrl);
+                    redirectAttributes.addFlashAttribute("message", "Foto de perfil subida exitosamente.");
+                    redirectAttributes.addFlashAttribute("messageType", "success");
+                } catch (Exception e) {
+                    // Si falla la subida, usamos la URL por defecto y mostramos un mensaje de error
+                    usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+                    redirectAttributes.addFlashAttribute("message", "Error al subir la foto de perfil: " + e.getMessage() + ". Se usó una imagen por defecto.");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                }
+            } else {
+                // Si no se proporcionó una nueva foto, mantenemos la URL por defecto
+                usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+            }
 
             // Guardar los cambios en la base de datos
             usuarioRepository.save(usuario);
