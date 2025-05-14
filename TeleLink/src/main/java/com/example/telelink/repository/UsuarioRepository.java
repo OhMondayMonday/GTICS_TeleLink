@@ -84,4 +84,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     long countUsuariosMesPasado();
 
 
+
+    Usuario findByCorreoElectronico(String correo);
+
 }

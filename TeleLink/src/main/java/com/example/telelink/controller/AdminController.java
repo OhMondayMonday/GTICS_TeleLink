@@ -3,6 +3,8 @@ package com.example.telelink.controller;
 import com.example.telelink.dto.admin.CantidadReservasPorDiaDto;
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -180,24 +182,50 @@ public class AdminController {
 
 
 
-    @GetMapping("perfil")
-    public String perfilAdministrador(Model model) {
+    /*@GetMapping("perfil")
+    public String perfilAdministrador(Model model, HttpServletRequest session) {
 
-
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         // GIan: Hard rocked btw
-        Optional<Usuario> usuariosOptional = usuarioRepository.findById(10);
+        Optional<Usuario> usuariosOptional = usuarioRepository.findById();
         if (usuariosOptional.isPresent()) {
             model.addAttribute("usuario", usuariosOptional.get());
             return "admin/adminPerfil";
         }
         else {
-            return "redirect:/admin/establecimientos";
+            return "redirect:/openLoginWindow";
         }
 
+    }*/
 
+    /* Opcion 1:
+    @GetMapping("/perfil")
+    public String perfilAdministrador(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+
+        if (usuario != null) {
+            Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuario.getUsuarioId());
+            if (usuarioOptional.isPresent()) {
+                model.addAttribute("usuario", usuarioOptional.get());
+                return "admin/adminPerfil";
+            }
+        }
+
+        return "redirect:/admin/dashboard";
     }
+     */
 
+    @GetMapping("/perfil")
+    public String perfilAdministrador(@SessionAttribute("usuario") Usuario usuario, Model model) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuario.getUsuarioId());
 
+        if (usuarioOptional.isPresent()) {
+            model.addAttribute("usuario", usuarioOptional.get());
+            return "admin/adminPerfil";
+        }
+
+        return "redirect:/admin/dashboard";
+    }
 
 
 
@@ -330,7 +358,7 @@ public class AdminController {
      */
 
 
-    @GetMapping("dashboard")
+    @GetMapping("/dashboard")
     public String estadisticas(Model model) {
         List<CantidadReservasPorDiaDto> reservasPorDia = usuarioRepository.obtenerCantidadReservasPorDia();
 
