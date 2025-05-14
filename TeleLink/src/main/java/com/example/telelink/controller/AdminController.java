@@ -220,7 +220,7 @@ public class AdminController {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuario.getUsuarioId());
 
         if (usuarioOptional.isPresent()) {
-            model.addAttribute("usuario", usuarioOptional.get());
+            //model.addAttribute("usuario", usuarioOptional.get());
             return "admin/adminPerfil";
         }
 
