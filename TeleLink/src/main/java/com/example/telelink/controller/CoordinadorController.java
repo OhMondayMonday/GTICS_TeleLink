@@ -57,12 +57,8 @@
 
         @GetMapping("/inicio")
         public String mostrarInicio(Model model, HttpSession session) {
-            Usuario usuario = usuarioRepository.findFirstCoordinadorByOrderByUsuarioIdAsc()
-                    .orElseThrow(() -> new IllegalArgumentException("No se encontró ningún coordinador en la base de datos"));
-
-            // Almacenar el objeto Usuario en la sesión
-            session.setAttribute("currentUser", usuario);
-
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            
             // Obtener el aviso más reciente
             Aviso ultimoAviso = avisoRepository.findLatestAviso();
 
@@ -76,7 +72,7 @@
 
         @GetMapping("/asistencia")
         public String mostrarAsistencia(Model model, HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             if (usuario == null) {
                 throw new IllegalArgumentException("Usuario no encontrado en la sesión");
             }
@@ -143,7 +139,7 @@
                 HttpSession session,
                 RedirectAttributes redirectAttributes) {
             try {
-                Usuario usuario = (Usuario) session.getAttribute("currentUser");
+                Usuario usuario = (Usuario) session.getAttribute("usuario");
                 if (usuario == null) {
                     redirectAttributes.addFlashAttribute("message", "Usuario no encontrado en la sesión");
                     redirectAttributes.addFlashAttribute("messageType", "error");
@@ -232,7 +228,7 @@
                 HttpSession session,
                 RedirectAttributes redirectAttributes) {
             try {
-                Usuario usuario = (Usuario) session.getAttribute("currentUser");
+                Usuario usuario = (Usuario) session.getAttribute("usuario");
                 if (usuario == null) {
                     redirectAttributes.addFlashAttribute("message", "Usuario no encontrado en la sesión");
                     redirectAttributes.addFlashAttribute("messageType", "error");
@@ -317,21 +313,21 @@
 
         @GetMapping("/notificaciones")
         public String mostrarNotificaciones(Model model, HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             model.addAttribute("usuario", usuario);
             return "Coordinador/notificaciones";
         }
 
         @GetMapping("/perfil")
         public String mostrarPerfil(Model model, HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             model.addAttribute("usuario", usuario);
             return "Coordinador/perfil";
         }
 
         @GetMapping("/editar-perfil")
         public String mostrarEditarPerfil(@ModelAttribute("usuario") Usuario usuarioActualizado, Model model, HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             model.addAttribute("usuario", usuario);
             return "Coordinador/editarPerfil";
         }
@@ -344,13 +340,13 @@
                 HttpSession session,
                 Model model,
                 RedirectAttributes redirectAttributes) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
 
             // Validar el formato de la foto si se subió una y asociar el error a fotoPerfilUrl
             if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
                 String contentType = fotoPerfil.getContentType();
-                if (contentType == null || !contentType.matches("^(image/(jpeg|png|gif|bmp|jpg))$")) {
-                    result.rejectValue("fotoPerfilUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG, GIF, BMP o JPG)");
+                if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
+                    result.rejectValue("fotoPerfilUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
                 }
             }
 
@@ -405,7 +401,7 @@
             usuarioRepository.save(usuario);
 
             // Actualizar el objeto en la sesión
-            session.setAttribute("currentUser", usuario);
+            session.setAttribute("usuario", usuario);
 
             return "redirect:/coordinador/perfil";
         }
@@ -424,7 +420,7 @@
 
         @GetMapping("/espacios-deportivos")
         public String mostrarEspaciosDeportivos(Model model, HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             model.addAttribute("usuario", usuario);
 
             List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAll();
@@ -444,7 +440,7 @@
 
         @GetMapping("/espacioDetalle")
         public String mostrarDetalleEspacio(@RequestParam("espacioId") Integer espacioId, Model model, HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             model.addAttribute("usuario", usuario);
 
             EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId)
@@ -479,7 +475,7 @@
         // Listar todas las observaciones del coordinador
         @GetMapping("/observaciones")
         public String mostrarObservaciones(Model model, HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             if (usuario == null) {
                 throw new IllegalArgumentException("Usuario no encontrado en la sesión");
             }
@@ -492,7 +488,7 @@
         // Mostrar los detalles de una observación
         @GetMapping("/observacionDetalle")
         public String mostrarObservacionDetalle(@RequestParam("observacionId") Integer observacionId, Model model, HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             if (usuario == null) {
                 throw new IllegalArgumentException("Usuario no encontrado en la sesión");
             }
@@ -514,7 +510,7 @@
                 BindingResult result,
                 Model model,
                 HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             if (usuario == null) {
                 throw new IllegalArgumentException("Usuario no encontrado en la sesión");
             }
@@ -550,7 +546,7 @@
                 @RequestParam("observacionId") Integer observacionId,
                 Model model,
                 HttpSession session) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             if (usuario == null) {
                 throw new IllegalArgumentException("Usuario no encontrado en la sesión");
             }
@@ -576,7 +572,7 @@
                 HttpSession session,
                 RedirectAttributes redirectAttributes,
                 Model model) {
-            Usuario usuario = (Usuario) session.getAttribute("currentUser");
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
             if (usuario == null) {
                 redirectAttributes.addFlashAttribute("message", "Usuario no encontrado en la sesión");
                 redirectAttributes.addFlashAttribute("messageType", "error");
@@ -620,14 +616,14 @@
                     result.rejectValue("fotoUrl", "NotBlank", "La foto es obligatoria al crear una observación");
                 } else {
                     String contentType = foto.getContentType();
-                    if (contentType == null || !contentType.matches("^(image/(jpeg|png|gif|bmp|jpg))$")) {
-                        result.rejectValue("fotoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG, GIF, BMP o JPG)");
+                    if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
+                        result.rejectValue("fotoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
                     }
                 }
             } else if (foto != null && !foto.isEmpty()) {
                 String contentType = foto.getContentType();
-                if (contentType == null || !contentType.matches("^(image/(jpeg|png|gif|bmp|jpg))$")) {
-                    result.rejectValue("fotoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG, GIF, BMP o JPG)");
+                if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
+                    result.rejectValue("fotoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
                 }
             }
 

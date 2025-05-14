@@ -30,7 +30,7 @@
     <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
     <!-- App Css-->
     <!--<link th:href="@{/superadmin/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />-->
-    <link th:href="@{/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
+    <link th:href="@{/superadmin/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
   </head>
   <body data-sidebar="dark">
 
@@ -146,9 +146,13 @@
                 <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
               </button>
               <div class="dropdown-menu dropdown-menu-end">
-                <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                <a class="dropdown-item" th:href="@{/coordinador/perfil}"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                  <button type="submit" class="dropdown-item text-danger" style="background:none;border:none;">
+                    <i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión
+                  </button>
+                </form>
               </div>
             </div>
           </div>

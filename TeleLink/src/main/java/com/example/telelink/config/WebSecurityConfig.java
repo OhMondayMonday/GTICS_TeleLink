@@ -66,6 +66,11 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
+                        // Permitir acceso público a recursos estáticos
+                        .requestMatchers(
+                                "/assets/**",
+                                "/superadmin/assets/**"
+                        ).permitAll()
                         .requestMatchers("/superadmin", "/superadmin/**").hasAuthority("superadmin")
                         .requestMatchers("/admin", "/admin/**").hasAuthority("administrador")
                         .requestMatchers("/coordinador", "/coordinador/**").hasAuthority("coordinador")
