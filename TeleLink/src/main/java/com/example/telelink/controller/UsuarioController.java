@@ -17,7 +17,7 @@ public class UsuarioController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    @GetMapping("")
+    @GetMapping("/inicio")
     public String listarUsuarios(Model model) {
         //List<Usuario> usuarios = usuarioRepository.findAllByOrderByUsuarioIdAsc();
         List<Usuario> usuarios = usuarioRepository.findAll();

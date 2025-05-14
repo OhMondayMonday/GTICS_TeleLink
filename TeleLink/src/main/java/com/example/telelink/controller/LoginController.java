@@ -55,9 +55,9 @@ public class LoginController {
             redirectMap.put("superadmin", "/superadmin/inicio");
             redirectMap.put("administrador", "/admin/dashboard");
             redirectMap.put("coordinador", "/coordinador/inicio");
-            redirectMap.put("vecino", "/usuarios");
+            redirectMap.put("vecino", "/usuarios/inicio");
 
-            return "redirect:" + redirectMap.getOrDefault(rol, "/usuarios");
+            return "redirect:" + redirectMap.getOrDefault(rol, "/usuarios/inicio");
         }
         return "loginWindow";
     }

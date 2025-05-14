@@ -51,9 +51,9 @@ public class WebSecurityConfig {
                 redirectMap.put("superadmin", "/superadmin/inicio");
                 redirectMap.put("administrador", "/admin/dashboard");
                 redirectMap.put("coordinador", "/coordinador/inicio");
-                redirectMap.put("vecino", "/usuarios/");
+                redirectMap.put("vecino", "/usuarios/inicio");
 
-                String redirectUrl = redirectMap.getOrDefault(rol, "/usuarios/");
+                String redirectUrl = redirectMap.getOrDefault(rol, "/usuarios/inicio");
                 new DefaultRedirectStrategy().sendRedirect(request, response, redirectUrl);
             } else {
                 // Si no está autenticado, redirige al login
@@ -98,9 +98,9 @@ public class WebSecurityConfig {
                                 redirectMap.put("superadmin", "/superadmin/inicio");
                                 redirectMap.put("administrador", "/admin/dashboard");
                                 redirectMap.put("coordinador", "/coordinador/inicio");
-                                redirectMap.put("vecino", "/usuarios/");
+                                redirectMap.put("vecino", "/usuarios/inicio");
 
-                                String redirectUrl = redirectMap.getOrDefault(rol, "/usuarios/");
+                                String redirectUrl = redirectMap.getOrDefault(rol, "/usuarios/inicio");
                                 new DefaultRedirectStrategy().sendRedirect(request, response, redirectUrl);
                             }
                         })
