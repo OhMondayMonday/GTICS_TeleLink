@@ -64,7 +64,7 @@ public class LoginController {
 
             return "redirect:" + redirectMap.getOrDefault(rol, "/usuarios/inicio");
         }
-        return "loginWindow";
+        return "login";
     }
 
     @GetMapping("/acceso-denegado")
@@ -90,6 +90,12 @@ public class LoginController {
     @GetMapping("/register")
     public String registerForm() {
         return "registro";
+    }
+
+
+    @GetMapping("/register-success")
+    public String registerSuccess() {
+        return "register-success";
     }
 
     @PostMapping("/submitRegisterForm")
@@ -144,6 +150,13 @@ public class LoginController {
         // Guardar usuario
         usuarioRepository.save(usuario);
 
+        // Verificar límite de tokens de verificación activos
+        int activeVerificationTokens = tokenRepository.countActiveTokensByUsuarioId(usuario.getUsuarioId());
+        if (activeVerificationTokens >= 3) {
+            model.addAttribute("error", "Has alcanzado el límite de solicitudes de verificación. Intenta de nuevo más tarde o usa un enlace existente.");
+            return "registro";
+        }
+
         // Generar token de verificación
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = new VerificationToken(token, usuario);
@@ -158,11 +171,6 @@ public class LoginController {
         }
 
         return "redirect:/register-success";
-    }
-
-    @GetMapping("/register-success")
-    public String registerSuccess() {
-        return "register-success";
     }
 
     @GetMapping("/verify")
@@ -183,11 +191,11 @@ public class LoginController {
         return "redirect:/openLoginWindow?verified=true";
     }
 
-
     @GetMapping("/recuperar-contrasenia")
     public String recuperarContraseniaForm() {
         return "recuperar-contrasenia";
     }
+
 
     @PostMapping("/recuperar-contrasenia")
     public String recuperarContraseniaSubmit(@RequestParam String correoElectronico, Model model) {
@@ -199,6 +207,13 @@ public class LoginController {
 
         if (usuario.getEstadoCuenta() != Usuario.EstadoCuenta.activo) {
             model.addAttribute("error", "La cuenta no está activa. Verifica tu correo para activarla.");
+            return "recuperar-contrasenia";
+        }
+
+        // Verificar límite de tokens de recuperación activos
+        int activeResetTokens = passwordResetTokenRepository.countActiveTokensByUsuarioId(usuario.getUsuarioId());
+        if (activeResetTokens >= 3) {
+            model.addAttribute("error", "Has alcanzado el límite de solicitudes de restablecimiento. Intenta de nuevo más tarde o usa un enlace existente.");
             return "recuperar-contrasenia";
         }
 
@@ -225,7 +240,9 @@ public class LoginController {
             return "reset-password";
         }
 
+        long hoursRemaining = java.time.Duration.between(LocalDateTime.now(), resetToken.getExpiryDate()).toHours();
         model.addAttribute("token", token);
+        model.addAttribute("hoursRemaining", hoursRemaining);
         return "reset-password";
     }
 
@@ -240,13 +257,19 @@ public class LoginController {
             return "reset-password";
         }
 
+        long hoursRemaining = java.time.Duration.between(LocalDateTime.now(), resetToken.getExpiryDate()).toHours();
+
         if (contrasenia.length() < 8) {
             model.addAttribute("error", "La contraseña debe tener al menos 8 caracteres.");
+            model.addAttribute("token", token);
+            model.addAttribute("hoursRemaining", hoursRemaining);
             return "reset-password";
         }
 
         if (!contrasenia.equals(confirmarContrasenia)) {
             model.addAttribute("error", "Las contraseñas no coinciden.");
+            model.addAttribute("token", token);
+            model.addAttribute("hoursRemaining", hoursRemaining);
             return "reset-password";
         }
 

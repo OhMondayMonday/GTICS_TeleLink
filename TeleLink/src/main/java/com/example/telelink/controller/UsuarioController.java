@@ -19,8 +19,7 @@ public class UsuarioController {
 
     @GetMapping("/inicio")
     public String listarUsuarios(Model model) {
-        //List<Usuario> usuarios = usuarioRepository.findAllByOrderByUsuarioIdAsc();
-        List<Usuario> usuarios = usuarioRepository.findAll();
+        List<Usuario> usuarios = usuarioRepository.findAllByOrderByUsuarioIdAsc();
         model.addAttribute("usuarios", usuarios);
         return "lista-usuarios";
     }

@@ -21,7 +21,7 @@ public class EmailService {
 
     public void sendVerificationEmail(String to, String nombres, String token) throws MessagingException {
         String subject = "Verifica tu cuenta - Municipalidad de San Miguel";
-        String verificationUrl = "http://localhost:8080/verify?token=" + token;
+        String verificationUrl = "http://127.0.0.1:8080/verify?token=" + token;
         String content = """
         <!DOCTYPE html>
         <html>
@@ -124,7 +124,7 @@ public class EmailService {
 
     public void sendPasswordResetEmail(String to, String nombres, String token) throws MessagingException {
         String subject = "Restablece tu contraseña - Municipalidad de San Miguel";
-        String resetUrl = "http://localhost:8080/reset-password?token=" + token;
+        String resetUrl = "http://127.0.0.1:8080/reset-password?token=" + token;
         String content = """
         <!DOCTYPE html>
         <html>

@@ -16,7 +16,6 @@
     <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
     <!-- App Css -->
     <link th:href="@{/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
-
     <style>
         .authentication-bg {
             background-image: url('https://pbs.twimg.com/media/GDl_-_1XYAAuSBN.jpg');
@@ -25,6 +24,7 @@
             background-repeat: no-repeat;
             position: relative;
         }
+
         .bg-overlay {
             background: rgba(0, 0, 0, 0.5);
             position: absolute;
@@ -33,10 +33,74 @@
             right: 0;
             bottom: 0;
         }
+
         .auth-logo {
             max-width: 150px;
         }
+
+        /* Corrección de desborde horizontal */
+        html, body {
+            overflow-x: hidden;
+        }
+
+        .w-100 {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        .row.g-0 {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .col-lg-4 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        .auth-form-group-custom {
+            overflow: hidden;
+        }
+
+        /* Ajustes de espaciado vertical */
+        .authentication-page-content {
+            padding: 2rem 1rem !important;
+            min-height: auto !important;
+        }
+
+        .p-2.mt-5 {
+            margin-top: 1.5rem !important;
+        }
+
+        .mt-4, .mt-5 {
+            margin-top: 1rem !important;
+        }
+
+        .mb-4 {
+            margin-bottom: 0.75rem !important;
+        }
+
+        .text-center h4 {
+            margin-top: 1rem !important;
+        }
+
+        form .text-center {
+            margin-top: 1.5rem;
+        }
+
+        /* Tamaño de fuente ligeramente reducido */
+        .authentication-page-content label,
+        .authentication-page-content input,
+        .authentication-page-content button,
+        .authentication-page-content p {
+            font-size: 0.95rem;
+        }
     </style>
+
+
+
 </head>
 
 <body class="auth-body-bg">
@@ -100,9 +164,11 @@
                                                 <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Registrarse</button>
                                             </div>
 
+                                            <!--
                                             <div class="mt-4 text-center">
                                                 <p class="mb-0">Al registrarte, aceptas los <a href="#" class="text-primary">Términos de Uso</a> de la Municipalidad de San Miguel.</p>
                                             </div>
+                                            -->
                                         </form>
                                     </div>
 
