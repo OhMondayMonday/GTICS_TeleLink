@@ -517,6 +517,28 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
 
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`password_reset_tokens`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`password_reset_tokens` ;
+
+CREATE TABLE IF NOT EXISTS `db_gtics`.`password_reset_tokens` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `token` VARCHAR(255) NOT NULL,
+  `usuario_id` INT NOT NULL,
+  `expiry_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `token` (`token` ASC) VISIBLE,
+  CONSTRAINT `fk_password_reset_tokens_usuario`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
 -- -----------------------------------------------------
 -- Table `db_gtics`.`observaciones`
 -- -----------------------------------------------------
