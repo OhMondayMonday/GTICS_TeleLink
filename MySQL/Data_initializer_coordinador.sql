@@ -19,7 +19,7 @@ INSERT INTO usuarios (
     'José',
     'Guevara',
     'adminJose@telelink.com',
-    '$2a$10$N9qo8uLOickgx2ZMRZoMy.MrYV7Z1QljCzLf/6Xr8bsUQ7X1QJQb6',
+    '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq',
     2,
     NULL,
     'Av. Marino Cornejo 123',
@@ -32,25 +32,25 @@ INSERT INTO usuarios (
 INSERT INTO usuarios 
 (nombres, apellidos, correo_electronico, contrasenia_hash, rol_id, dni, direccion, telefono, estado_cuenta)
 VALUES 
-('Juan', 'Pérez', 'juan.perez@example.com', '$2a$10$ejemploDeHash1234567890', 3, '12345678', 'Calle Primavera 123', '987654321', 'activo');
+('Juan', 'Pérez', 'juan.perez@example.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 3, '12345678', 'Calle Primavera 123', '987654321', 'activo');
 
 -- Vecino 2
 INSERT INTO usuarios 
 (nombres, apellidos, correo_electronico, contrasenia_hash, rol_id, dni, direccion, telefono, estado_cuenta)
 VALUES 
-('María', 'Gómez', 'maria.gomez@example.com', '$2a$10$ejemploDeHash1234567890', 3, '23456789', 'Avenida Libertad 456', '987654322', 'activo');
+('María', 'Gómez', 'maria.gomez@example.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 3, '23456789', 'Avenida Libertad 456', '987654322', 'activo');
 
 -- Vecino 3
 INSERT INTO usuarios 
 (nombres, apellidos, correo_electronico, contrasenia_hash, rol_id, dni, direccion, telefono, estado_cuenta)
 VALUES 
-('Carlos', 'López', 'carlos.lopez@example.com', '$2a$10$ejemploDeHash1234567890', 3, '34567890', 'Jirón Sol 789', '987654323', 'activo');
+('Carlos', 'López', 'carlos.lopez@example.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 3, '34567890', 'Jirón Sol 789', '987654323', 'activo');
 
 -- Vecino 4
 INSERT INTO usuarios 
 (nombres, apellidos, correo_electronico, contrasenia_hash, rol_id, dni, direccion, telefono, estado_cuenta)
 VALUES 
-('Ana', 'Rodríguez', 'ana.rodriguez@example.com', '$2a$10$ejemploDeHash1234567890', 3, '45678901', 'Pasaje Luna 101', '987654324', 'activo');
+('Ana', 'Rodríguez', 'ana.rodriguez@example.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 3, '45678901', 'Pasaje Luna 101', '987654324', 'activo');
 
 -- 2. Insertar servicios deportivos
 INSERT INTO servicios_deportivos (servicio_deportivo_id, servicio_deportivo) VALUES 
@@ -97,8 +97,8 @@ INSERT INTO usuarios (
     telefono,
     estado_cuenta
 ) VALUES 
-('Carlos', 'Mendoza', 'coordinador1@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 4, '02345678','987654321', 'activo'),
-('Laura', 'García', 'coordinador2@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 4, '87654321', '987654320', 'activo');
+('Carlos', 'Mendoza', 'coordinador1@email.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 4, '02345678','987654321', 'activo'),
+('Laura', 'García', 'coordinador2@email.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 4, '87654321', '987654320', 'activo');
 
 -- 6. Insertar asistencias para la fecha actual y días cercanos
 INSERT INTO asistencias (

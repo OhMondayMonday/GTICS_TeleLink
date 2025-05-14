@@ -1,11 +1,13 @@
 package com.example.telelink.controller;
 
+import com.example.telelink.entity.PasswordResetToken;
 import com.example.telelink.entity.Rol;
 import com.example.telelink.entity.Usuario;
 import com.example.telelink.entity.VerificationToken;
 import com.example.telelink.repository.RolRepository;
 import com.example.telelink.repository.UsuarioRepository;
 import com.example.telelink.repository.VerificationTokenRepository;
+import com.example.telelink.repository.PasswordResetTokenRepository;
 import com.example.telelink.service.EmailService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,17 +28,20 @@ public class LoginController {
 
     private final UsuarioRepository usuarioRepository;
     private final VerificationTokenRepository tokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final RolRepository rolRepository;
 
     public LoginController(UsuarioRepository usuarioRepository,
                            VerificationTokenRepository tokenRepository,
+                           PasswordResetTokenRepository passwordResetTokenRepository,
                            EmailService emailService,
                            PasswordEncoder passwordEncoder,
                            RolRepository rolRepository) {
         this.usuarioRepository = usuarioRepository;
         this.tokenRepository = tokenRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.rolRepository = rolRepository;
@@ -177,4 +182,83 @@ public class LoginController {
 
         return "redirect:/openLoginWindow?verified=true";
     }
+
+
+    @GetMapping("/recuperar-contrasenia")
+    public String recuperarContraseniaForm() {
+        return "recuperar-contrasenia";
+    }
+
+    @PostMapping("/recuperar-contrasenia")
+    public String recuperarContraseniaSubmit(@RequestParam String correoElectronico, Model model) {
+        Usuario usuario = usuarioRepository.findByCorreoElectronico(correoElectronico);
+        if (usuario == null) {
+            model.addAttribute("error", "El correo electrónico no está registrado.");
+            return "recuperar-contrasenia";
+        }
+
+        if (usuario.getEstadoCuenta() != Usuario.EstadoCuenta.activo) {
+            model.addAttribute("error", "La cuenta no está activa. Verifica tu correo para activarla.");
+            return "recuperar-contrasenia";
+        }
+
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken(token, usuario);
+        passwordResetTokenRepository.save(resetToken);
+
+        try {
+            emailService.sendPasswordResetEmail(correoElectronico, usuario.getNombres(), token);
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al enviar el correo de restablecimiento. Intenta de nuevo.");
+            return "recuperar-contrasenia";
+        }
+
+        model.addAttribute("success", "Se ha enviado un enlace de restablecimiento a tu correo.");
+        return "recuperar-contrasenia";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPasswordForm(@RequestParam("token") String token, Model model) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token);
+        if (resetToken == null || resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            model.addAttribute("error", "Token inválido o expirado.");
+            return "reset-password";
+        }
+
+        model.addAttribute("token", token);
+        return "reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPasswordSubmit(@RequestParam String token,
+                                      @RequestParam String contrasenia,
+                                      @RequestParam String confirmarContrasenia,
+                                      Model model) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token);
+        if (resetToken == null || resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            model.addAttribute("error", "Token inválido o expirado.");
+            return "reset-password";
+        }
+
+        if (contrasenia.length() < 8) {
+            model.addAttribute("error", "La contraseña debe tener al menos 8 caracteres.");
+            return "reset-password";
+        }
+
+        if (!contrasenia.equals(confirmarContrasenia)) {
+            model.addAttribute("error", "Las contraseñas no coinciden.");
+            return "reset-password";
+        }
+
+        Usuario usuario = resetToken.getUsuario();
+        usuario.setContraseniaHash(passwordEncoder.encode(contrasenia));
+        usuario.setFechaActualizacion(LocalDateTime.now());
+        usuarioRepository.save(usuario);
+
+        passwordResetTokenRepository.delete(resetToken);
+
+        model.addAttribute("success", "Contraseña restablecida exitosamente. Inicia sesión.");
+        return "reset-password";
+    }
+
 }
