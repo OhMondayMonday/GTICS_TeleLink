@@ -1,7 +1,8 @@
-INSERT INTO roles (rol) VALUES ('superadmin');
-INSERT INTO roles (rol) VALUES ('administrador');
-INSERT INTO roles (rol) VALUES ('vecino');
-INSERT INTO roles (rol) VALUES ('coordinador');
+#Se crean roles en Data_initializer_general.sql, omitiremos esto si se ejecuta luego
+#INSERT INTO roles (rol) VALUES ('superadmin');
+#INSERT INTO roles (rol) VALUES ('administrador');
+#INSERT INTO roles (rol) VALUES ('vecino');
+#INSERT INTO roles (rol) VALUES ('coordinador');
 
 -- Admin
 INSERT INTO usuarios (
