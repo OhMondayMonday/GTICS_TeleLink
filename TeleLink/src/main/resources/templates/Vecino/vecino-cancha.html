@@ -202,7 +202,7 @@
                                                             </p>
 
                                                             <!-- Botón -->
-                                                            <a th:href="@{'/reservar/' + ${espacio.espacioDeportivoId}}"
+                                                            <a th:href="@{'/usuarios/reservas/' + ${espacio.espacioDeportivoId}}"
                                                                class="btn btn-sm btn-primary mt-2">Reservar</a>
                                                         </div>
                                                     </div>
@@ -229,22 +229,7 @@
 
                                             <!-- SCRIPT PARA PAGINAR TARJETAS -->
                                             <script>
-                                                /*
-                                                // Datos mejorados para las tarjetas de servicios deportivos
-                                                const tarjetas = [
-                                                    {
-                                                        titulo: "Piscina Olímpica San Miguel",
-                                                        descripcion: "Piscina olímpica de 50m con 8 carriles y agua temperada. Ideal para natación libre y entrenamiento profesional.",
-                                                        capacidad: "40 personas",
-                                                        precio: "S/ 30.00",
-                                                        tipo: "Piscina",
-                                                        imagen: "assets/images/small/Piscina_Olimpica1.jpg",
-                                                        enlace: "vecino-piscina.html",
-                                                        horario: "6:00 AM - 9:00 PM",
-                                                        caracteristicas: ["Agua temperada", "Duchas", "Vestidores", "Instructor disponible"]
-                                                    }
 
-                                                 */
                                                 let tarjetas = [];
 
                                                 fetch("/espacios")
