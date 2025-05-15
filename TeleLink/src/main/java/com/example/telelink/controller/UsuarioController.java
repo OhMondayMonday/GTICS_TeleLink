@@ -129,4 +129,10 @@ public class UsuarioController {
         return "Vecino/vecino-ayuda";
     }
 
+    @GetMapping("/calendario")
+    public String mostrarCalendario(Model model) {
+        // Aquí puedes agregar cualquier lógica que necesites
+        return "Vecino/vecino-calendario";
+    }
+
 }
