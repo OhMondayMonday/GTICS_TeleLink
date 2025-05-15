@@ -148,20 +148,62 @@
 
 <!-----==================================================================================================================================---->
                                             <div class="row g-0">
-                                                <!-- Piscina -->
-                                                <div class="col-xl-4 col-sm-6">
+                                                <div class="col-xl-4 col-sm-6" th:each="espacio : ${espacios}">
                                                     <div class="product-box">
                                                         <div class="product-img position-relative">
-                                                            <div class="product-ribbon badge bg-success">Disponible</div>
-                                                            <span class="badge bg-info position-absolute top-0 end-0 m-2">Piscina</span>
-                                                            <img src="../../static/assets/images/small/Piscina_Olimpica1.jpg" alt="piscina" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
+                                                            <!-- Estado -->
+                                                            <div th:if="${espacio.estadoServicio.name() == 'operativo'}"
+                                                                 class="product-ribbon badge bg-success">Disponible</div>
+                                                            <div th:if="${espacio.estadoServicio.name() == 'mantenimiento'}"
+                                                                 class="product-ribbon badge bg-warning">En Mantenimiento</div>
+                                                            <div th:if="${espacio.estadoServicio.name() == 'clausurado'}"
+                                                                 class="product-ribbon badge bg-danger">Clausurado</div>
+
+                                                            <!-- Tipo -->
+                                                            <span class="badge bg-info position-absolute top-0 end-0 m-2"
+                                                                  th:text="${espacio.servicioDeportivo.servicioDeportivo}">Tipo</span>
+
+                                                            <!-- Imagen -->
+                                                            <img th:src="@{${espacio.fotoEspacioDeportivoUrl}}"
+                                                                 alt="espacio" class="img-fluid mx-auto d-block"
+                                                                 style="height: 220px; object-fit: cover;">
                                                         </div>
+
                                                         <div class="text-center p-2">
-                                                            <p class="font-size-12 mb-1">Espacio para natación libre y entrenamiento individual.</p>
-                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Piscina Olímpica</a></h5>
-                                                            <p class="mb-1">Capacidad: 1 persona</p>
-                                                            <p class="mb-1">Precio: S/ 30.00</p>
-                                                            <a href="vecino-piscina.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
+                                                            <p class="font-size-12 mb-1"
+                                                               th:text="${espacio.descripcion}">Descripción</p>
+
+                                                            <h5 class="font-size-15">
+                                                                <a href="#" class="text-reset"
+                                                                   th:text="${espacio.nombre}">Nombre espacio</a>
+                                                            </h5>
+
+                                                            <!-- Detalles personalizados -->
+                                                            <div th:switch="${espacio.servicioDeportivo.servicioDeportivo}">
+                                                                <p class="mb-1" th:case="'Piscina'">Carriles:
+                                                                    <span th:text="${espacio.carrilesPiscina}">4</span>,
+                                                                    Longitud: <span th:text="${espacio.longitudPiscina}">50</span> m
+                                                                </p>
+                                                                <p class="mb-1" th:case="'Gimnasio'">Aforo:
+                                                                    <span th:text="${espacio.aforoGimnasio}">30</span> personas
+                                                                </p>
+                                                                <p class="mb-1" th:case="'Pista de Atletismo'">Carriles:
+                                                                    <span th:text="${espacio.carrilesPista}">8</span>,
+                                                                    Longitud: <span th:text="${espacio.longitudPista}">400</span> m
+                                                                </p>
+                                                                <p class="mb-1" th:case="*">Capacidad:
+                                                                    <span th:text="${espacio.maxPersonasPorCarril != null ? espacio.maxPersonasPorCarril : 1}">1</span> persona
+                                                                </p>
+                                                            </div>
+
+                                                            <!-- Precio -->
+                                                            <p class="mb-1">Precio:
+                                                                S/ <span th:text="${#numbers.formatDecimal(espacio.precioPorHora, 1, 'POINT', 2, 'POINT')}">00.00</span>
+                                                            </p>
+
+                                                            <!-- Botón -->
+                                                            <a th:href="@{'/reservar/' + ${espacio.espacioDeportivoId}}"
+                                                               class="btn btn-sm btn-primary mt-2">Reservar</a>
                                                         </div>
                                                     </div>
                                                 </div>
