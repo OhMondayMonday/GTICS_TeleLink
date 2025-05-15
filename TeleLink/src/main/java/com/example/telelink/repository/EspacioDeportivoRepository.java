@@ -17,23 +17,25 @@ public interface EspacioDeportivoRepository extends JpaRepository<EspacioDeporti
             @Param("establecimientoId") Integer establecimientoId,
             @Param("servicioId") Integer servicioId);
 
-    List<EspacioDeportivo> findByServicioDeportivoServicioDeportivoId(Integer servicioDeportivoId);
-
-    List<EspacioDeportivo> findByEstadoServicio(EspacioDeportivo.EstadoServicio estadoServicio);
-
-    // Mostrar solo los espacios operativos ordenados por nombre
-    List<EspacioDeportivo> findByEstadoServicioOrderByNombreAsc(EspacioDeportivo.EstadoServicio estadoServicio);
-
-    // Método para buscar canchas con filtros
-    /*
-    @Query("SELECT e FROM EspacioDeportivo e WHERE " +
-            "(?1 IS NULL OR e.tipo = ?1) AND " +
-            "(?2 IS NULL OR e.precio <= ?2) AND " +
-            "(?3 IS NULL OR e.zona = ?3) AND " +
-            "(?4 IS NULL OR e.rating >= ?4)")
-    Page<EspacioDeportivo> findByFilters(String tipo, Double precioMax, String zona, Integer rating, Pageable pageable);
-    */
-    // Método para obtener todas las canchas
+    @Query(value = "SELECT ed.* FROM espacios_deportivos ed " +
+            "WHERE (:servicioId IS NULL OR ed.servicio_deportivo_id = :servicioId) " +
+            "AND (:establecimientoId IS NULL OR ed.establecimiento_deportivo_id = :establecimientoId) " +
+            "AND (:estado IS NULL OR ed.estado_servicio = :estado) " +
+            "AND (:precioMinimo IS NULL OR ed.precio_por_hora >= :precioMinimo) " +
+            "AND (:precioMaximo IS NULL OR ed.precio_por_hora <= :precioMaximo) " +
+            "AND (:carrilesPiscina IS NULL OR ed.carriles_piscina >= :carrilesPiscina) " +
+            "AND (:aforoGimnasio IS NULL OR ed.aforo_gimnasio >= :aforoGimnasio) " +
+            "AND (:carrilesAtletismo IS NULL OR ed.carriles_pista >= :carrilesAtletismo) " +
+            "ORDER BY ed.nombre ASC", nativeQuery = true)
+    List<EspacioDeportivo> buscarConFiltros(
+            @Param("servicioId") Integer servicioId,
+            @Param("establecimientoId") Integer establecimientoId,
+            @Param("estado") String estado,
+            @Param("precioMinimo") Double precioMinimo,
+            @Param("precioMaximo") Double precioMaximo,
+            @Param("carrilesPiscina") Integer carrilesPiscina,
+            @Param("aforoGimnasio") Integer aforoGimnasio,
+            @Param("carrilesAtletismo") Integer carrilesAtletismo);
     Page<EspacioDeportivo> findAll(Pageable pageable);
 
 }
