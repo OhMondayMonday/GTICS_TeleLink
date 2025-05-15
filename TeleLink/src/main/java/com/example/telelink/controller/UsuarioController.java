@@ -97,10 +97,14 @@ public class UsuarioController {
         return "Vecino/vecino-pago";
     }
 
-
-    @GetMapping("/reserva")
-    public String mostrarReservas(Model model) {
-
+    @GetMapping("/mis-reservas")
+    public String mostrarReservas(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("activeItem", "reservas");
         return "Vecino/vecino-mis-reservas";
     }
 
