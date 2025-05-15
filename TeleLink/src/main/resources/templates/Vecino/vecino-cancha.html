@@ -12,33 +12,27 @@
             <div class="main-content">
                 <div class="page-content">
                     <div class="container-fluid">
-
                         <!-- start page title -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                                     <h4 class="mb-sm-0">Canchas Disponibles</h4>
-
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Servicios Deportivos</a></li>
+                                            <li class="breadcrumb-item"><a th:href="@{/usuarios/cancha}">Servicios Deportivos</a></li>
                                             <li class="breadcrumb-item active">Canchas Disponibles</li>
                                         </ol>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
                         <!-- end page title -->
-
                         <div class="row">
                             <div class="col-xl-3 col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
                                         <h5 class="font-size-14 mb-3">Filtrar por</h5>
-
                                         <div class="accordion" id="accordionCanchaFiltros">
-
                                             <!-- Servicios deportivos -->
                                             <div class="accordion-item">
                                                 <h2 class="accordion-header" id="serviciosHeading">
@@ -60,7 +54,6 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Precio -->
                                             <!-- Precio -->
                                             <div class="accordion-item">
                                                 <h2 class="accordion-header" id="precioHeading">
@@ -137,11 +130,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-
                                         </div>
                                     </div>
-
-
                                 </div>
                             </div>
                             <div class="col-lg-9">
@@ -152,21 +142,8 @@
                                                 <div class="col-md-6">
                                                     <div>
                                                         <h5>Servicio Deportivos</h5>
-
                                                     </div>
                                                 </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="form-inline float-md-end">
-                                                        <div class="search-box ms-2">
-                                                            <div class="position-relative">
-                                                                <input type="text" class="form-control rounded" placeholder="Search...">
-                                                                <i class="mdi mdi-magnify search-icon"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
                                             </div>
 
 <!-----==================================================================================================================================---->
@@ -185,96 +162,6 @@
                                                             <p class="mb-1">Capacidad: 1 persona</p>
                                                             <p class="mb-1">Precio: S/ 30.00</p>
                                                             <a href="vecino-piscina.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Gimnasio -->
-                                                <div class="col-xl-4 col-sm-6">
-                                                    <div class="product-box">
-                                                        <div class="product-img position-relative">
-                                                            <div class="product-ribbon badge bg-success">Disponible</div>
-                                                            <span class="badge bg-info position-absolute top-0 end-0 m-2">Gimnasio</span>
-                                                            <img src="../../static/assets/images/small/gym.jpg" alt="gimnasio" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
-                                                        </div>
-                                                        <div class="text-center p-2">
-                                                            <p class="font-size-12 mb-1">Entrena con máquinas modernas y pesas libres.</p>
-                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Gimnasio San Miguel</a></h5>
-                                                            <p class="mb-1">Capacidad: 15 personas</p>
-                                                            <p class="mb-1">Precio: S/ 20.00</p>
-                                                            <a href="vecino-gym.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Cancha de fútbol (loza) -->
-                                                <div class="col-xl-4 col-sm-6">
-                                                    <div class="product-box">
-                                                        <div class="product-img position-relative">
-                                                            <div class="product-ribbon badge bg-success">Disponible</div>
-                                                            <span class="badge bg-warning position-absolute top-0 end-0 m-2">Fútbol - Loza</span>
-                                                            <img src="../../static/assets/images/small/lozaDeportiva.jpg" alt="futbol-loza" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
-                                                        </div>
-                                                        <div class="text-center p-2">
-                                                            <p class="font-size-12 mb-1">Juega fútbol 5 en una cancha de loza de calidad.</p>
-                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Cancha de Fútbol (Loza)</a></h5>
-                                                            <p class="mb-1">Capacidad: 10 personas</p>
-                                                            <p class="mb-1">Precio: S/ 35.00</p>
-                                                            <a href="vecino-futbol-loza.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Cancha de fútbol (Grass sintético) -->
-                                                <div class="col-xl-4 col-sm-6">
-                                                    <div class="product-box">
-                                                        <div class="product-img position-relative">
-                                                            <div class="product-ribbon badge bg-success">Disponible</div>
-                                                            <span class="badge bg-warning position-absolute top-0 end-0 m-2">Fútbol - Grass</span>
-                                                            <img src="../../static/assets/images/small/Grass%20sintético_cf_3.jpg" alt="grass" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
-                                                        </div>
-                                                        <div class="text-center p-2">
-                                                            <p class="font-size-12 mb-1">Ideal para partidos de fútbol 7 con tus amigos.</p>
-                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Cancha Grass Sintético</a></h5>
-                                                            <p class="mb-1">Capacidad: 10 personas</p>
-                                                            <p class="mb-1">Precio: S/ 50.00</p>
-                                                            <a href="vecino-futbol-grass.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Pista de Atletismo -->
-                                                <div class="col-xl-4 col-sm-6">
-                                                    <div class="product-box">
-                                                        <div class="product-img position-relative">
-                                                            <div class="product-ribbon badge bg-success">Disponible</div>
-                                                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">Atletismo</span>
-                                                            <img src="../../static/assets/images/small/atletismo_pista.jpg" alt="pista" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
-                                                        </div>
-                                                        <div class="text-center p-2">
-                                                            <p class="font-size-12 mb-1">Corre y entrena en pista profesional de atletismo.</p>
-                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Pista de Atletismo</a></h5>
-                                                            <p class="mb-1">Capacidad: 20 personas</p>
-                                                            <p class="mb-1">Precio: S/ 15.00</p>
-                                                            <a href="vecino-atletismo.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Canchas Múltiples -->
-                                                <div class="col-xl-4 col-sm-6">
-                                                    <div class="product-box">
-                                                        <div class="product-img position-relative">
-                                                            <div class="product-ribbon badge bg-success">Disponible</div>
-                                                            <span class="badge bg-secondary position-absolute top-0 end-0 m-2">Multifuncional</span>
-                                                            <img src="../../static/assets/images/small/CanchasMultiples.jpg" alt="canchas-multiples" class="img-fluid mx-auto d-block" style="height: 220px; object-fit: cover;">
-                                                        </div>
-                                                        <div class="text-center p-2">
-                                                            <p class="font-size-12 mb-1">Espacio versátil para vóley, básquet y más.</p>
-                                                            <h5 class="font-size-15"><a href="#" class="text-reset">Canchas Múltiples</a></h5>
-                                                            <p class="mb-1">Capacidad: 20 personas</p>
-                                                            <p class="mb-1">Precio: S/ 50.00</p>
-                                                            <a href="vecino-multiple.html" class="btn btn-sm btn-primary mt-2">Reservar</a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -313,63 +200,7 @@
                                                         enlace: "vecino-piscina.html",
                                                         horario: "6:00 AM - 9:00 PM",
                                                         caracteristicas: ["Agua temperada", "Duchas", "Vestidores", "Instructor disponible"]
-                                                    },
-                                                    {
-                                                        titulo: "Gimnasio Municipal San Miguel",
-                                                        descripcion: "Gimnasio completamente equipado con máquinas modernas, pesas libres y área de cardio. Entrenadores disponibles.",
-                                                        capacidad: "25 personas",
-                                                        precio: "S/ 40.00",
-                                                        tipo: "Gimnasio",
-                                                        imagen: "assets/images/small/gym.jpg",
-                                                        enlace: "vecino-gym.html",
-                                                        horario: "5:00 AM - 11:00 PM",
-                                                        caracteristicas: ["Máquinas de pesas", "Zona cardio", "Instructor disponible", "Vestidores"]
-                                                    },
-                                                    {
-                                                        titulo: "Cancha de Fútbol Parque Juan Pablo II",
-                                                        descripcion: "Cancha de fútbol 5vs5 en superficie de loza. Perfecta para partidos amistosos y campeonatos barriales.",
-                                                        capacidad: "10 personas",
-                                                        precio: "S/ 135.00",
-                                                        tipo: "Fútbol - Loza",
-                                                        imagen: "assets/images/small/lozaDeportiva.jpg",
-                                                        enlace: "vecino-futbol-loza.html",
-                                                        horario: "8:00 AM - 10:00 PM",
-                                                        caracteristicas: ["Iluminación nocturna", "Arcos reglamentarios", "Graderías", "Alquiler de balones"]
-                                                    },
-                                                    {
-                                                        titulo: "Cancha Grass Sintético La Marina",
-                                                        descripcion: "Moderna cancha de fútbol 7 con grass sintético de última generación. Ideal para partidos competitivos y entrenamiento.",
-                                                        capacidad: "14 personas",
-                                                        precio: "S/ 50.00",
-                                                        tipo: "Fútbol - Grass",
-                                                        imagen: "assets/images/small/GrassSintetico_cf_3.jpg",
-                                                        enlace: "vecino-futbol-grass.html",
-                                                        horario: "7:00 AM - 11:00 PM",
-                                                        caracteristicas: ["Grass de alta calidad", "Iluminación LED", "Vestuarios", "Hidratación incluida"]
-                                                    },
-                                                    {
-                                                        titulo: "Pista de Atletismo PUCP",
-                                                        descripcion: "Pista profesional de atletismo con 8 carriles y superficie de tartán. Ideal para corredores amateurs y profesionales.",
-                                                        capacidad: "30 personas",
-                                                        precio: "S/ 65.00",
-                                                        tipo: "Atletismo",
-                                                        imagen: "assets/images/small/atletismo_pista.jpg",
-                                                        enlace: "vecino-atletismo.html",
-                                                        horario: "5:00 AM - 9:00 PM",
-                                                        caracteristicas: ["Pista reglamentaria", "Zona de salto", "Entrenadores certificados", "Cronometraje"]
-                                                    },
-                                                    {
-                                                        titulo: "Complejo Deportivo Multifuncional",
-                                                        descripcion: "Espacio versátil adaptado para múltiples deportes: vóley, básquet, balonmano y más en un solo lugar.",
-                                                        capacidad: "30 personas",
-                                                        precio: "S/ 150.00",
-                                                        tipo: "Multifuncional",
-                                                        imagen: "assets/images/small/CanchasMultiples.jpg",
-                                                        enlace: "vecino-multiple.html",
-                                                        horario: "8:00 AM - 10:00 PM",
-                                                        caracteristicas: ["Adaptable a varios deportes", "Equipamiento incluido", "Tribunas", "Cafetería"]
                                                     }
-                                                ];
 
                                                  */
                                                 let tarjetas = [];
@@ -401,68 +232,45 @@
 
                                                 // Función principal para manejar el filtrado
                                                 function aplicarFiltros() {
-                                                    // Obtener valores de filtros de servicios
-                                                    const filtrosServicios = {
-                                                        'piscina': document.getElementById('piscina').checked,
-                                                        'gimnasio': document.getElementById('gimnasio').checked,
-                                                        'futbol-loza': document.getElementById('futbol-loza').checked,
-                                                        'futbol-grass': document.getElementById('futbol-grass').checked,
-                                                        'atletismo': document.getElementById('atletismo').checked,
-                                                        'multiusos': document.getElementById('multiusos').checked
-                                                    };
-
-                                                    // Destacar visualmente los filtros activos
-                                                    Object.keys(filtrosServicios).forEach(key => {
-                                                        const element = document.getElementById(key);
-                                                        if (element) {
-                                                            const label = element.nextElementSibling;
-                                                            if (filtrosServicios[key]) {
-                                                                label.classList.add('fw-bold', 'text-primary');
-                                                            } else {
-                                                                label.classList.remove('fw-bold', 'text-primary');
-                                                            }
-                                                        }
-                                                    });
-
-                                                    // Obtener precio máximo seleccionado
+                                                    const textoBusqueda = document.querySelector('.search-box input').value.toLowerCase().trim();
+                                                    const filtrosServicios = { ... };
                                                     const precioMaximo = parseInt(document.getElementById('precioRange').value);
 
-                                                    // Filtrar el array de tarjetas
-                                                    const tarjetasFiltradas = tarjetas.filter(tarjeta => {
-                                                        // Filtrar por precio
+                                                    const algunFiltroActivo = Object.values(filtrosServicios).some(val => val);
+
+                                                    tarjetasActuales = tarjetas.filter(tarjeta => {
                                                         const precio = parseInt(tarjeta.precio.replace('S/ ', '').replace('.00', ''));
                                                         if (precio > precioMaximo) return false;
 
-                                                        // Verificar si hay algún filtro de servicio activo
-                                                        const algunFiltroActivo = Object.values(filtrosServicios).some(val => val);
+                                                        // Filtrado por tipo de servicio
+                                                        if (algunFiltroActivo) {
+                                                            const coincideTipo =
+                                                                (filtrosServicios['piscina'] && tarjeta.tipo === "Piscina") ||
+                                                                (filtrosServicios['gimnasio'] && tarjeta.tipo === "Gimnasio") ||
+                                                                (filtrosServicios['futbol-loza'] && tarjeta.tipo === "Fútbol - Loza") ||
+                                                                (filtrosServicios['futbol-grass'] && tarjeta.tipo === "Fútbol - Grass") ||
+                                                                (filtrosServicios['atletismo'] && tarjeta.tipo === "Atletismo") ||
+                                                                (filtrosServicios['multiusos'] && tarjeta.tipo === "Multifuncional");
+                                                            if (!coincideTipo) return false;
+                                                        }
 
-                                                        // Si no hay filtros activos, mostrar todas las tarjetas
-                                                        if (!algunFiltroActivo) return true;
+                                                        // Filtrado por texto
+                                                        if (textoBusqueda !== '') {
+                                                            const coincideTexto = tarjeta.titulo.toLowerCase().includes(textoBusqueda) ||
+                                                                tarjeta.descripcion.toLowerCase().includes(textoBusqueda) ||
+                                                                tarjeta.tipo.toLowerCase().includes(textoBusqueda) ||
+                                                                (tarjeta.caracteristicas && tarjeta.caracteristicas.some(c => c.toLowerCase().includes(textoBusqueda)));
+                                                            if (!coincideTexto) return false;
+                                                        }
 
-                                                        // Filtrar por tipo de servicio
-                                                        if (filtrosServicios['piscina'] && tarjeta.tipo === "Piscina") return true;
-                                                        if (filtrosServicios['gimnasio'] && tarjeta.tipo === "Gimnasio") return true;
-                                                        if (filtrosServicios['futbol-loza'] && tarjeta.tipo === "Fútbol - Loza") return true;
-                                                        if (filtrosServicios['futbol-grass'] && tarjeta.tipo === "Fútbol - Grass") return true;
-                                                        if (filtrosServicios['atletismo'] && tarjeta.tipo === "Atletismo") return true;
-                                                        if (filtrosServicios['multiusos'] && tarjeta.tipo === "Multifuncional") return true;
-
-                                                        // Si no coincide con ningún filtro activo, no mostrar
-                                                        return false;
+                                                        return true;
                                                     });
 
-                                                    // Actualizar variable global de tarjetas filtradas
-                                                    tarjetasActuales = tarjetasFiltradas;
-
-                                                    // Resetear a la primera página al filtrar
                                                     paginaActual = 1;
-
-                                                    // Mostrar tarjetas filtradas
                                                     mostrarTarjetas();
-
-                                                    // Mostrar contador de resultados
-                                                    mostrarContadorResultados(tarjetasFiltradas.length);
+                                                    mostrarContadorResultados(tarjetasActuales.length);
                                                 }
+
 
                                                 // Función para mostrar contador de resultados
                                                 function mostrarContadorResultados(cantidad) {
