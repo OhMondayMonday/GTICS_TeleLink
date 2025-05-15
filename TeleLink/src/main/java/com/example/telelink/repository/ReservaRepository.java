@@ -13,19 +13,6 @@ import java.util.List;
 
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
-    List<Reserva> findByEspacioDeportivoAndInicioReservaBetweenAndEstadoNot(
-            EspacioDeportivo espacioDeportivo,
-            LocalDateTime inicio,
-            LocalDateTime fin,
-            Reserva.Estado estado
-    );
-
-    List<Reserva> findByEspacioDeportivoAndEstadoNotAndFinReservaAfterAndInicioReservaBefore(
-            EspacioDeportivo espacioDeportivo,
-            Reserva.Estado estado,
-            LocalDateTime inicio,
-            LocalDateTime fin
-    );
 
     List<Reserva> findByUsuarioOrderByInicioReservaDesc(Usuario usuario);
 
