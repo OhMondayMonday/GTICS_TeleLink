@@ -6,42 +6,40 @@
           <!-- Begin page -->
         <div id="layout-wrapper">
             <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Mis Reservas')}"></div>
-            <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
-            <!-- ========== Left Sidebar Start ========== -->
+<!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
             <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Mis Reservas')}"></div>
  <!-- =============================================================================================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content">
                     <div class="container-fluid">
-
                         <!-- start page title -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                                     <h4 class="mb-sm-0">Mis Reservas</h4>
-
-                                    <div class="page-title-right">
-                                        <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Reserva</a></li>
-                                            <li class="breadcrumb-item active">Mis reservas</li>
-                                        </ol>
-                                    </div>
-
+                                        <div class="page-title-right">
+                                            <ol class="breadcrumb m-0">
+                                                <li class="breadcrumb-item"><a th:href="@{mis-reservas}">Reserva</a></li>
+                                                <li class="breadcrumb-item active">Mis reservas</li>
+                                            </ol>
+                                        </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- end page title -->
-
+<!--=============================================================================================================================================-->
+                        <div th:if="${#lists.isEmpty(reservas)}">
+                            <p class="text-danger">No se encontraron reservas para este usuario.</p>
+                        </div>
+                        <div th:if="${!#lists.isEmpty(reservas)}">
+                            <p class="text-success">Sí hay reservas.</p>
+                        </div>
+<!--=============================================================================================================================================-->
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="table-responsive">
                                             <table class="table table-centered mb-0 table-nowrap">
-
                                                 <thead class="bg-light">
                                                 <tr>
                                                     <th style="width: 120px">Espacio</th>
@@ -54,27 +52,16 @@
                                                     <th class="text-center">Acción</th>
                                                 </tr>
                                                 </thead>
+
                                                 <tbody>
-                                                <!-- Si no hay reservas -->
-                                                <tr th:if="${reservas.empty}">
-                                                    <td colspan="8" class="text-center">No tienes reservas registradas</td>
-                                                </tr>
                                                 <!-- Para cada reserva existente -->
                                                 <tr th:each="reserva : ${reservas}">
                                                     <td>
-                                                        <!-- Mostrar imagen según el tipo de servicio deportivo -->
-                                                        <img th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivoId == 1}"
-                                                             src="/assets/images/small/Grass%20sintético_cf_3.jpg" alt="Cancha fútbol"
-                                                             class="img-fluid rounded" style="max-width: 100px;" />
-                                                        <img th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivoId == 2}"
-                                                             src="/assets/images/small/Piscina_Olimpica1.jpg" alt="Piscina"
-                                                             class="img-fluid rounded" style="max-width: 100px;" />
-                                                        <img th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivoId == 3}"
-                                                             src="/assets/images/small/CanchasMultiples.jpg" alt="Cancha Múltiple"
-                                                             class="img-fluid rounded" style="max-width: 100px;" />
-                                                        <img th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivoId == 4}"
-                                                             src="/assets/images/small/gym.jpg" alt="Gimnasio"
-                                                             class="img-fluid rounded" style="max-width: 100px;" />
+                                                        <img th:if="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl != null}"
+                                                             th:src="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl}"
+                                                             th:alt="${reserva.espacioDeportivo.nombre}"
+                                                             class="img-fluid rounded"
+                                                             style="max-width: 100px;" />
                                                     </td>
 
                                                     <td>
@@ -198,7 +185,7 @@
 
                 <div class="p-4">
                     <div class="mb-2">
-                        <img src="/assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
+                        <img src="assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
                     </div>
 
                     <div class="form-check form-switch mb-3">
@@ -207,7 +194,7 @@
                     </div>
     
                     <div class="mb-2">
-                        <img src="/assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
+                        <img src="assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
                     </div>
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
@@ -215,7 +202,7 @@
                     </div>
     
                     <div class="mb-2">
-                        <img src="/assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
+                        <img src="assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
                     </div>
                     <div class="form-check form-switch mb-5">
                         <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
@@ -233,18 +220,18 @@
         <div class="rightbar-overlay"></div>
 
         <!-- JAVASCRIPT -->
-        <script src="/assets/libs/jquery/jquery.min.js"></script>
-        <script src="/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="/assets/libs/metismenu/metisMenu.min.js"></script>
-        <script src="/assets/libs/simplebar/simplebar.min.js"></script>
-        <script src="/assets/libs/node-waves/waves.min.js"></script>
+          <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+          <script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+          <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+          <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+          <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
 
         <!-- Bootrstrap touchspin -->
-        <script src="/assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js"></script>
+        <script src="assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js"></script>
 
-        <script src="/assets/js/pages/ecommerce-cart.init.js"></script>
+        <script src="assets/js/pages/ecommerce-cart.init.js"></script>
 
-        <script src="/assets/js/app.js"></script>
+        <script src="assets/js/app.js"></script>
 
 
     <script>

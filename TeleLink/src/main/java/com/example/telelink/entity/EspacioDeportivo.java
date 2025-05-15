@@ -43,6 +43,9 @@ public class EspacioDeportivo {
     @Lob
     private String descripcion;
 
+    @Column(name = "foto_espacio_deportivo_url", length = 255)
+    private String fotoEspacioDeportivoUrl;
+
     @Column(name = "aforo_gimnasio")
     private Integer aforoGimnasio;
 
