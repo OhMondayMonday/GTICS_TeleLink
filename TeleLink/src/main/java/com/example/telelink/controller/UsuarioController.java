@@ -48,6 +48,12 @@ public class UsuarioController {
         return "Vecino/vecino-index";
     }
 
+    @GetMapping("/reservas/{id}")
+    public String mostrarReservation(Model model) {
+        // Aquí puedes agregar cualquier lógica que necesites
+        return "Vecino/vecino-futbol"; // Nombre de la vista Thymeleaf para la cancha de fútbol
+    }
+
     @GetMapping("/reservas/futbol")
     public String mostrarFutbolReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites

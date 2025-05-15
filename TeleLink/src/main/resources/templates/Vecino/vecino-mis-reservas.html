@@ -66,7 +66,7 @@
 
                                                     <td>
                                                         <h5 class="font-size-14 text-truncate">
-                                                            <a th:href="@{'/vecino/espacios/' + ${reserva.espacioDeportivo.espacioDeportivoId}}"
+                                                            <a th:href="@{'/usuarios/reservas/' + ${reserva.espacioDeportivo.espacioDeportivoId}}"
                                                                class="text-reset text-decoration-none" th:text="${reserva.espacioDeportivo.nombre}">
                                                                 Nombre del Espacio
                                                             </a>
@@ -111,7 +111,7 @@
                                                     </td>
 
                                                     <td class="text-center">
-                                                        <a th:href="@{'/vecino/espacios/' + ${reserva.espacioDeportivo.espacioDeportivoId}}"
+                                                        <a th:href="@{'/usuarios/reservas/' + ${reserva.espacioDeportivo.espacioDeportivoId}}"
                                                            class="btn btn-sm btn-outline-primary mb-1">Ver detalles</a>
 
                                                         <!-- Mostrar botón de cancelar solo si la reserva no está ya cancelada -->
@@ -127,7 +127,7 @@
                                                              th:attr="aria-labelledby='cancelModalLabel' + ${reserva.reservaId}" aria-hidden="true">
                                                             <div class="modal-dialog modal-dialog-centered">
                                                                 <div class="modal-content border-0 shadow">
-                                                                    <form th:action="@{/vecino/reserva/cancelar/{id}(id=${reserva.reservaId})}" method="post">
+                                                                    <form th:action="@{/usuarios/reserva/cancelar/{id}(id=${reserva.reservaId})}" method="post">
                                                                         <div class="modal-header bg-light">
                                                                             <h5 class="modal-title" th:id="'cancelModalLabel' + ${reserva.reservaId}">
                                                                                 ¿Está seguro que quiere cancelar la reserva?
