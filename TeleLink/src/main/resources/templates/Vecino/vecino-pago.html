@@ -1,156 +1,162 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Pagos')}"></head>
-    <body data-sidebar="dark" class="vertical-collpsed">
-        <div id="layout-wrapper">
-            <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Pago')}"></div>
-            <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
-            <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Pago')}"></div>
-<!-- ===================================================================================================================================== -->
-            <div class="main-content">
-                <div class="page-content">
-                    <div class="container-fluid">
-                        <!-- start page title -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                    <h4 class="mb-sm-0">Mis Pagos</h4>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Pago')}"></div>
+    <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
+    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Pago')}"></div>
+    <!-- ===================================================================================================================================== -->
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                            <h4 class="mb-sm-0">Mis Pagos</h4>
 
-                                    <div class="page-title-right">
-                                        <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a th:href="@{usuarios/pagos}">Pagos</a></li>
-                                            <li class="breadcrumb-item active">Mis Pagos</li>
-                                        </ol>
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item"><a th:href="@{usuarios/pagos}">Pagos</a></li>
+                                    <li class="breadcrumb-item active">Mis Pagos</li>
+                                </ol>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!--=======================================================================-->
+                <div th:if="${#lists.isEmpty(pagos)}">
+                    <p class="text-danger">No se encontraron pagos para este usuario.</p>
+                </div>
+                <div th:if="${!#lists.isEmpty(pagos)}">
+                    <p class="text-success">Sí hay pagos.</p>
+                </div>
+
+
+                <!-- end page title -->
+                <!-----------------===================================================================================================----------------->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-body  pt-0">
+                                <ul class="nav nav-tabs nav-tabs-custom mb-4">
+                                    <li class="nav-item">
+                                        <a class="nav-link fw-bold p-3 active" href="#"> Mis pagos</a>
+                                    </li>
+                                </ul>
+                                <div class="table-responsive">
+                                    <div class="table-responsive">
+                                        <table id="tablaPagos" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                            <thead class="thead-light">
+                                            <tr>
+                                                <th></th>
+                                                <th>Servicio Deportivo</th>
+                                                <th>Fecha y Hora</th>
+                                                <th>Nombre de facturación</th>
+                                                <th>Método de Pago</th>
+                                                <th>Total</th>
+                                                <th>Estado</th>
+                                                <th>Factura</th>
+                                                <th>Detalles</th>
+                                            </tr>
+                                            </thead>
+
+                                            <tbody>
+                                            <tr th:each="pago, iStat : ${pagos}">
+                                                <td><input type="checkbox" class="form-check-input"/></td>
+                                                <td th:text="${pago.reserva.espacioDeportivo.nombre}">Nombre</td>
+                                                <td th:text="${#temporals.format(pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
+                                                <td th:text="${pago.reserva.usuario.nombres}">Usuario</td>
+                                                <td th:text="${pago.metodoPago.metodoPago}">Metodo</td>
+                                                <td th:text="'S/ ' + ${pago.monto}">Monto</td>
+                                                <td>
+                                                            <span th:if="${pago.estadoTransaccion == 'completado'}"
+                                                                  class="badge bg-success-subtle text-success"
+                                                                  th:text="${pago.estadoTransaccion}">
+                                                            </span>
+                                                    <span th:if="${pago.estadoTransaccion == 'pendiente'}"
+                                                          class="badge bg-warning-subtle text-warning"
+                                                          th:text="${pago.estadoTransaccion}">
+                                                            </span>
+                                                    <span th:if="${pago.estadoTransaccion != 'completado' and pago.estadoTransaccion != 'pendiente'}"
+                                                          class="badge bg-danger-subtle text-danger"
+                                                          th:text="${pago.estadoTransaccion}">
+                                                            </span>
+                                                </td>
+
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalFactura"
+                                                            th:attr="data-factura=${pago.fotoComprobanteUrl}">
+                                                        Ver imagen
+                                                    </button>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-warning"
+                                                            th:if="${pago.estadoTransaccion == 'fallido'}"
+                                                            data-bs-toggle="modal"
+                                                            th:attr="data-bs-target='#modalDetalles__${iStat.index}'">
+                                                        Ver detalles
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
 
-                                </div>
-                            </div>
-                        </div>
-<!--=======================================================================-->
-                        <div th:if="${#lists.isEmpty(pagos)}">
-                            <p class="text-danger">No se encontraron pagos para este usuario.</p>
-                        </div>
-                        <div th:if="${!#lists.isEmpty(pagos)}">
-                            <p class="text-success">Sí hay pagos.</p>
-                        </div>
-
-
-                        <!-- end page title -->
-<!-----------------===================================================================================================----------------->
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="card">
-                                    <div class="card-body  pt-0">
-                                        <ul class="nav nav-tabs nav-tabs-custom mb-4">
-                                            <li class="nav-item">
-                                                <a class="nav-link fw-bold p-3 active" href="#"> Mis pagos</a>
-                                            </li>
-                                        </ul>
-                                        <div class="table-responsive">
-                                            <div class="table-responsive">
-                                                <table id="tablaPagos" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                                    <thead class="thead-light">
-                                                    <tr>
-                                                        <th></th>
-                                                        <th>Servicio Deportivo</th>
-                                                        <th>Fecha y Hora</th>
-                                                        <th>Nombre de facturación</th>
-                                                        <th>Método de Pago</th>
-                                                        <th>Total</th>
-                                                        <th>Estado</th>
-                                                        <th>Factura</th>
-                                                        <th>Detalles</th>
-                                                    </tr>
-                                                    </thead>
-
-                                                    <tbody>
-                                                    <tr th:each="pago, iStat : ${pagos}">
-                                                        <td><input type="checkbox" class="form-check-input"/></td>
-                                                        <td th:text="${pago.reserva.espacioDeportivo.nombre}">Nombre</td>
-                                                        <td th:text="${#temporals.format(pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
-                                                        <td th:text="${pago.reserva.usuario.nombre}">Usuario</td>
-                                                        <td th:text="${pago.metodoPago.nombre}">Metodo</td>
-                                                        <td th:text="'S/ ' + ${pago.monto}">Monto</td>
-                                                        <td>
-                                                            <span th:classappend="${pago.estadoTransaccion == 'completado'} ? 'badge bg-success-subtle text-success' :
-                                                                                 (pago.estadoTransaccion == 'pendiente') ? 'badge bg-warning-subtle text-warning' :
-                                                                                 'badge bg-danger-subtle text-danger'">
-                                                                ${pago.estadoTransaccion}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-outline-primary"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#modalFactura"
-                                                                    th:attr="data-factura=${pago.fotoComprobanteUrl}">
-                                                                Ver imagen
-                                                            </button>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-outline-warning"
-                                                                    th:if="${pago.estadoTransaccion == 'fallido'}"
-                                                                    data-bs-toggle="modal"
-                                                                    th:attr="data-bs-target='#modalDetalles__${iStat.index}'">
-                                                                Ver detalles
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                            <!-- Modal Factura -->
-                                            <div class="modal fade" id="modalFactura" tabindex="-1" aria-labelledby="modalFacturaLabel" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="modalFacturaLabel">Imagen de la factura</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <img id="facturaImagen" src="" alt="Factura" class="img-fluid">
-                                                        </div>
-                                                    </div>
+                                    <!-- Modal Factura -->
+                                    <div class="modal fade" id="modalFactura" tabindex="-1" aria-labelledby="modalFacturaLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="modalFacturaLabel">Imagen de la factura</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <img id="facturaImagen" src="" alt="Factura" class="img-fluid">
                                                 </div>
                                             </div>
-
-                                            <!-- Modales de detalles por cada pago rechazado -->
-                                            <div th:each="pago, iStat : ${pagos}">
-                                                <div class="modal fade"
-                                                     th:id="'modalDetalles__' + ${iStat.index}"
-                                                     tabindex="-1"
-                                                     aria-labelledby="modalDetallesLabel"
-                                                     aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered">
-                                                        <div class="modal-content border-warning">
-                                                            <div class="modal-header bg-warning-subtle">
-                                                                <h5 class="modal-title" id="modalDetallesLabel">Motivo del rechazo</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <p><strong>Motivo:</strong> <span th:text="${pago.motivoRechazo}"></span></p>
-                                                                <p class="mt-2"><strong>¿Qué hacer?</strong> Vuelve a subir una imagen clara del comprobante o contacta con soporte.</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Script para mostrar la imagen en el modal -->
-                                            <script>
-                                                document.addEventListener('DOMContentLoaded', function () {
-                                                    const facturaButtons = document.querySelectorAll('[data-bs-target="#modalFactura"]');
-                                                    facturaButtons.forEach(button => {
-                                                        button.addEventListener('click', function () {
-                                                            const factura = this.getAttribute('data-factura');
-                                                            document.getElementById('facturaImagen').src = factura;
-                                                        });
-                                                    });
-                                                });
-                                            </script>
-
                                         </div>
                                     </div>
+
+                                    <!-- Modales de detalles por cada pago rechazado -->
+                                    <div th:each="pago, iStat : ${pagos}">
+                                        <div class="modal fade"
+                                             th:id="'modalDetalles__' + ${iStat.index}"
+                                             tabindex="-1"
+                                             aria-labelledby="modalDetallesLabel"
+                                             aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content border-warning">
+                                                    <div class="modal-header bg-warning-subtle">
+                                                        <h5 class="modal-title" id="modalDetallesLabel">Motivo del rechazo</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p><strong>Motivo:</strong> <span th:text="${pago.motivoRechazo}"></span></p>
+                                                        <p class="mt-2"><strong>¿Qué hacer?</strong> Vuelve a subir una imagen clara del comprobante o contacta con soporte.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Script para mostrar la imagen en el modal -->
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            const facturaButtons = document.querySelectorAll('[data-bs-target="#modalFactura"]');
+                                            facturaButtons.forEach(button => {
+                                                button.addEventListener('click', function () {
+                                                    const factura = this.getAttribute('data-factura');
+                                                    document.getElementById('facturaImagen').src = factura;
+                                                });
+                                            });
+                                        });
+                                    </script>
+
                                 </div>
                             </div>
                         </div>
@@ -158,94 +164,96 @@
                 </div>
             </div>
         </div>
-        <!-- END layout-wrapper -->
+    </div>
+</div>
+<!-- END layout-wrapper -->
 
-        <!-- Right Sidebar -->
-        <div class="right-bar">
-            <div data-simplebar class="h-100">
-                <div class="rightbar-title d-flex align-items-center px-3 py-4">
-            
-                    <h5 class="m-0 me-2">Settings</h5>
+<!-- Right Sidebar -->
+<div class="right-bar">
+    <div data-simplebar class="h-100">
+        <div class="rightbar-title d-flex align-items-center px-3 py-4">
 
-                    <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
-                        <i class="mdi mdi-close noti-icon"></i>
-                    </a>
-                </div>
+            <h5 class="m-0 me-2">Settings</h5>
 
-                <!-- Settings -->
-                <hr class="mt-0" />
-                <h6 class="text-center mb-0">Choose Layouts</h6>
-
-                <div class="p-4">
-                    <div class="mb-2">
-                        <img src="../../static/vecino.assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
-                    </div>
-
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input theme-choice" type="checkbox" id="light-mode-switch" checked>
-                        <label class="form-check-label" for="light-mode-switch">Light Mode</label>
-                    </div>
-    
-                    <div class="mb-2">
-                        <img src="../../static/vecino.assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
-                    </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
-                        <label class="form-check-label" for="dark-mode-switch">Dark Mode</label>
-                    </div>
-    
-                    <div class="mb-2">
-                        <img src="../../static/vecino.assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
-                    </div>
-                    <div class="form-check form-switch mb-5">
-                        <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
-                        <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
-                    </div>
-
-            
-                </div>
-
-            </div> <!-- end slimscroll-menu-->
+            <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
+                <i class="mdi mdi-close noti-icon"></i>
+            </a>
         </div>
-        <!-- /Right-bar -->
-        <!-- Right bar overlay-->
-        <div class="rightbar-overlay"></div>
 
-        <!-- JAVASCRIPT -->
-        <script src="../../static/vecino.assets/libs/jquery/jquery.min.js"></script>
-        <script src="../../static/vecino.assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../../static/vecino.assets/libs/metismenu/metisMenu.min.js"></script>
-        <script src="../../static/vecino.assets/libs/simplebar/simplebar.min.js"></script>
-        <script src="../../static/vecino.assets/libs/node-waves/waves.min.js"></script>
+        <!-- Settings -->
+        <hr class="mt-0" />
+        <h6 class="text-center mb-0">Choose Layouts</h6>
 
-        <!-- Required datatable js -->
-        <script src="../../static/vecino.assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-        <script src="../../static/vecino.assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-        
-        <!-- Responsive examples -->
-        <script src="../../static/vecino.assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-        <script src="../../static/vecino.assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+        <div class="p-4">
+            <div class="mb-2">
+                <img src="../../static/vecino.assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
+            </div>
 
-        <script src="../../static/vecino.assets/js/pages/ecommerce-order-datatables.init.js"></script>
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input theme-choice" type="checkbox" id="light-mode-switch" checked>
+                <label class="form-check-label" for="light-mode-switch">Light Mode</label>
+            </div>
 
-        <script src="../../static/vecino.assets/js/app.js"></script>
-        <script>
-            $(document).ready(function () {
-                $('#tablaPagos').DataTable({
-                    responsive: true
-                });
-            });
-        </script>
+            <div class="mb-2">
+                <img src="../../static/vecino.assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
+            </div>
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
+                <label class="form-check-label" for="dark-mode-switch">Dark Mode</label>
+            </div>
 
-        <!-- jQuery (requerido para DataTables) -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <div class="mb-2">
+                <img src="../../static/vecino.assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
+            </div>
+            <div class="form-check form-switch mb-5">
+                <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
+                <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
+            </div>
 
-        <!-- DataTables JS -->
-        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
-        <!-- DataTables CSS -->
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-        <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
-    </body>
+        </div>
+
+    </div> <!-- end slimscroll-menu-->
+</div>
+<!-- /Right-bar -->
+<!-- Right bar overlay-->
+<div class="rightbar-overlay"></div>
+
+<!-- JAVASCRIPT -->
+<script src="../../static/vecino.assets/libs/jquery/jquery.min.js"></script>
+<script src="../../static/vecino.assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../static/vecino.assets/libs/metismenu/metisMenu.min.js"></script>
+<script src="../../static/vecino.assets/libs/simplebar/simplebar.min.js"></script>
+<script src="../../static/vecino.assets/libs/node-waves/waves.min.js"></script>
+
+<!-- Required datatable js -->
+<script src="../../static/vecino.assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="../../static/vecino.assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+
+<!-- Responsive examples -->
+<script src="../../static/vecino.assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+<script src="../../static/vecino.assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+
+<script src="../../static/vecino.assets/js/pages/ecommerce-order-datatables.init.js"></script>
+
+<script src="../../static/vecino.assets/js/app.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tablaPagos').DataTable({
+            responsive: true
+        });
+    });
+</script>
+
+<!-- jQuery (requerido para DataTables) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+</body>
 </html>
