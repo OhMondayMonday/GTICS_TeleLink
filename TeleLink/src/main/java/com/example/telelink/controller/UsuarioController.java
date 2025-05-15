@@ -1,8 +1,10 @@
 package com.example.telelink.controller;
 
+import com.example.telelink.entity.EspacioDeportivo;
 import com.example.telelink.entity.Pago;
 import com.example.telelink.entity.Reserva;
 import com.example.telelink.entity.Usuario;
+import com.example.telelink.repository.EspacioDeportivoRepository;
 import com.example.telelink.repository.PagoRepository;
 import com.example.telelink.repository.ReservaRepository;
 import com.example.telelink.repository.UsuarioRepository;
@@ -30,6 +32,9 @@ public class UsuarioController {
 
     @Autowired
     private ReservaRepository reservaRepository;
+
+    @Autowired
+    private EspacioDeportivoRepository espacioDeportivoRepository;
 
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
@@ -187,7 +192,11 @@ public class UsuarioController {
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
+
+        List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAll();
+
         model.addAttribute("usuario", usuario);
+        model.addAttribute("espacios", espacios); // importante para mostrarlos en la vista
         model.addAttribute("activeItem", "canchas");
         return "Vecino/vecino-cancha";
     }
