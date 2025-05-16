@@ -137,7 +137,7 @@
                                             <div class="card-body">
                                                 <div data-simplebar style="height: 475px;">
                                                     <ul class="list-unstyled activity-wid">
-                                                        <li th:if="${avisos == null or avisos.empty}">
+                                                        <li th:if="${avisos == null or avisos.isEmpty()}">
                                                             <p class="text-muted">No hay avisos recientes</p>
                                                         </li>
                                                         <li class="activity-list" th:each="aviso : ${avisos}" th:if="${avisos != null and not avisos.isEmpty()}">
@@ -170,31 +170,47 @@
                                                     <div class="card-header pb-1">
                                                         <div class="d-flex">
                                                             <h4 class="card-title my-2">Aviso actual</h4>
-                                                            <a th:if="${ultimoAviso != null}"
-                                                               th:href="@{'/superadmin/editarAviso/' + ${ultimoAviso.avisoId}}"
+                                                            <!-- Mostrar botón de modificar solo si no es el default -->
+                                                            <a th:if="${avisoActivo != null and !avisoActivo.esEstadoDefault()}"
+                                                               th:href="@{'/superadmin/editarAviso/' + ${avisoActivo.avisoId}}"
                                                                class="btn btn-sm btn-outline-success my-1 ms-auto">
                                                                 Modificar aviso
                                                             </a>
+                                                            <!-- Opcional: Botón para editar el default (si lo permites) -->
+                                                            <a th:if="${avisoActivo != null and avisoActivo.esEstadoDefault()}"
+                                                               th:href="@{'/superadmin/editarAviso/' + ${avisoActivo.avisoId}}"
+                                                               class="btn btn-sm btn-outline-info my-1 ms-auto">
+                                                                Editar aviso default
+                                                            </a>
                                                         </div>
                                                     </div>
-                                                    <div class="card-body py-1" th:if="${ultimoAviso != null}">
-                                                        <h4 class="card-title my-2" th:text="${ultimoAviso.tituloAviso} ?: 'Sin título'"></h4>
-                                                        <p class="card-text text-muted mb-1" th:text="${ultimoAviso.textoAviso} ?: 'No hay contenido disponible'"></p>
+
+                                                    <!-- Contenido del aviso -->
+                                                    <div class="card-body py-1" th:if="${avisoActivo != null}">
+                                                        <!-- Badge para identificar el default -->
+                                                        <h4 class="card-title my-2" th:text="${avisoActivo.tituloAviso} ?: 'Sin título'"></h4>
+                                                        <p class="card-text text-muted mb-1" th:text="${avisoActivo.textoAviso} ?: 'No hay contenido disponible'"></p>
+                                                    </div>
+
+                                                    <!-- Imagen del aviso -->
+                                                    <div class="px-3 " th:if="${avisoActivo != null and avisoActivo.fotoAvisoUrl != null}">
+                                                        <img class="card-img-bottom img-fluid object-fit-cover"
+                                                             style="max-height: 393px;"
+                                                             th:src="${avisoActivo.fotoAvisoUrl}"
+                                                             alt="Imagen del aviso"
+                                                             onerror="this.src='/assets/images/BienvenidaSanMiguel.png'">
+                                                    </div>
+
+                                                    <!-- Mensaje cuando no hay avisos -->
+                                                    <div th:if="${avisoActivo == null}" class="card-body">
+                                                        <p class="text-muted">No hay avisos disponibles</p>
+                                                    </div>
+                                                    <div class="my-1 px-3">
                                                         <p class="card-text mt-1">
                                                             <small>Creado: </small>
                                                             <small class="text-muted"
-                                                                   th:text="${ultimoAviso.fechaAviso != null ? #temporals.format(ultimoAviso.fechaAviso, 'dd/MM/yyyy HH:mm') : 'Fecha no disponible'}"></small>
+                                                                   th:text="${avisoActivo.fechaAviso != null ? #temporals.format(avisoActivo.fechaAviso, 'dd/MM/yyyy HH:mm') : 'Fecha no disponible'}"></small>
                                                         </p>
-                                                    </div>
-                                                    <div class="px-3" th:if="${ultimoAviso != null and ultimoAviso.fotoAvisoUrl != null}">
-                                                        <img class="card-img-bottom img-fluid object-fit-cover"
-                                                             style="max-height: 415px;"
-                                                             th:src="${ultimoAviso.fotoAvisoUrl}"
-                                                             alt="Imagen del aviso"
-                                                             onerror="this.src='assets/images/default-aviso.jpg'">
-                                                    </div>
-                                                    <div th:if="${ultimoAviso == null}" class="card-body">
-                                                        <p class="text-muted">No hay avisos disponibles</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -205,11 +221,18 @@
 
                             <div class="col-xl-3">
                                 <div class="card">
+                                    <div class="card-header pb-1">
+                                        <div class="d-flex">
+                                            <h4 class="card-title my-2">Análisis de reservas</h4>
+                                            <!-- Opcional: Botón para editar el default (si lo permites) -->
+                                            <a th:href="@{'/superadmin/reservas'}"
+                                               class="btn btn-sm btn-outline-info my-1 ms-auto">
+                                                Ver todas las reservas
+                                            </a>
+                                        </div>
+                                    </div>
                                     <div class="card-body">
-                                        <h4 class="card-title mb-4">Análisis de Ventas</h4>
-
                                         <div id="chart" class="apex-charts"></div>
-
                                     </div>
                                 </div>
 
@@ -235,22 +258,79 @@
                                                         <tr>
                                                             <td style="width: 60px;">
                                                                 <div class="avatar-xs">
-                                                                    <div class="avatar-title rounded-circle bg-light">
-                                                                        <img src="assets/images/companies/img-1.png" alt="img-1" height="20">
-                                                                    </div>
+                                                                    <img src="/assets/images/companies/Yape.png"
+                                                                         class="img-fluid rounded-circle"
+                                                                         alt="Yape"
+                                                                         style="width: 30px; height: 30px; object-fit: contain;">
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <h5 class="font-size-14 mb-0">Yape</h5>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-muted mb-0" th:text="${pagoYapeMensual != null ? 'S/. ' + pagoYapeMensual : 'S/. 0.00'}"></p>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-muted mb-0" th:text="${pagoYapeSemanal != null ? 'S/. ' + pagoYapeSemanal : 'S/. 0.00'}"></p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 60px;">
+                                                                <div class="avatar-xs">
+                                                                    <img src="/assets/images/companies/Plin.png"
+                                                                         class="img-fluid rounded-circle"
+                                                                         alt="Plin"
+                                                                         style="width: 30px; height: 30px; object-fit: contain;">
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <h5 class="font-size-14 mb-0">Plin</h5>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-muted mb-0" th:text="${pagoPlinMensual != null ? 'S/. ' + pagoPlinMensual : 'S/. 0.00'}"></p>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-muted mb-0" th:text="${pagoPlinSemanal != null ? 'S/. ' + pagoPlinSemanal : 'S/. 0.00'}"></p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 60px;">
+                                                                <div class="avatar-xs">
+                                                                    <img src="/assets/images/companies/Izipay.jpg"
+                                                                         class="img-fluid rounded-circle"
+                                                                         alt="Izipay"
+                                                                         style="width: 30px; height: 30px; object-fit: contain;">
                                                                 </div>
                                                             </td>
                                                             <td>
                                                                 <h5 class="font-size-14 mb-0">Izipay</h5>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoIzipayMensual != null ? pagoIzipayMensual : 'S/ 0.00'}"></p>
+                                                                <p class="text-muted mb-0" th:text="${pagoIzipayMensual != null ? 'S/. ' + pagoIzipayMensual : 'S/. 0.00'}"></p>
                                                             </td>
                                                             <td>
-                                                                <p class="text-muted mb-0" th:text="${pagoIzipaySemanal != null ? pagoIzipaySemanal : 'S/ 0.00'}"></p>
+                                                                <p class="text-muted mb-0" th:text="${pagoIzipaySemanal != null ? 'S/. ' + pagoIzipaySemanal : 'S/. 0.00'}"></p>
                                                             </td>
                                                         </tr>
-                                                        <!-- Repetir para los otros métodos de pago -->
+                                                        <tr>
+                                                            <td style="width: 60px;">
+                                                                <div class="avatar-xs">
+                                                                    <img src="/assets/images/companies/Efectivo.png"
+                                                                         class="img-fluid"
+                                                                         alt="Efectivo"
+                                                                         style="width: 30px; height: 30px; object-fit: contain;">
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <h5 class="font-size-14 mb-0">Efectivo</h5>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-muted mb-0" th:text="${pagoEfectivoMensual != null ? 'S/. ' + pagoEfectivoMensual : 'S/. 0.00'}"></p>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-muted mb-0" th:text="${pagoEfectivoSemanal != null ? 'S/. ' + pagoEfectivoSemanal : 'S/. 0.00'}"></p>
+                                                            </td>
+                                                        </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -289,33 +369,40 @@
 
             var options = {
                 chart: {
-                    height: 230,
-                    type: 'line',
-                    zoom: { enabled: false },
-                    toolbar: { show: false }
+                    type: 'donut',
+                    height: 300
                 },
                 colors: ["#5664d2", "#1cbb8c", "#ff6384", "#ffcd56"],
-                stroke: {
-                    width: [3, 3, 3, 3],
-                    curve: 'smooth',
-                    dashArray: [0, 0, 0, 0]
+                series: chartData,
+                labels: chartLabels,
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '65%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Total Reservas',
+                                    formatter: function (w) {
+                                        return w.globals.seriesTotals.reduce((a, b) => {
+                                            return a + b
+                                        }, 0)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
-                series: chartLabels.map(function(label, index) {
-                    return {
-                        name: label,
-                        data: [chartData[index] || 0] // Asegura un valor por defecto si es undefined
-                    };
-                }),
-                xaxis: {
-                    categories: ['Últimos 7 días']
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val, { seriesIndex, w }) {
+                        return w.config.series[seriesIndex] + " (" + Math.round(val) + "%)";
+                    }
                 },
-                yaxis: {
-                    title: { text: "Número de Reservas" },
-                    min: 0
-                },
-                markers: {
-                    size: 5,
-                    hover: { sizeOffset: 2 }
+                legend: {
+                    position: 'bottom',
+                    horizontalAlign: 'center'
                 },
                 tooltip: {
                     y: {
@@ -324,10 +411,17 @@
                         }
                     }
                 },
-                legend: {
-                    position: 'top',
-                    horizontalAlign: 'center'
-                }
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }]
             };
 
             // Renderizar el gráfico solo si existe el contenedor
@@ -336,7 +430,7 @@
                 var chart = new ApexCharts(chartElement, options);
                 chart.render();
             } else {
-                console.error("No se encontró el elemento #line_chart_dashed");
+                console.error("No se encontró el elemento #chart");
             }
         </script>
     </body>

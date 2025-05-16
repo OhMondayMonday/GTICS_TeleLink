@@ -1,88 +1,135 @@
 <!doctype html>
-<html lang="en">
-
-
-    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
-    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Perfil')}"></head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+    <head th:replace="~{Superadmin/fragments/head :: head(title='Editar Perfil')}"></head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
+        <div id="layout-wrapper">
+            <div th:replace="~{Superadmin/fragments/header :: header(title='Editar Perfil')}"></div>
+            <div th:replace="~{Superadmin/fragments/sidebar :: sidebar}"></div>
 
-        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
-
-        <!-- Begin page -->
-        <div id="layout-wrapper" >
-
-
-            <div th:replace="~{/Superadmin/fragments/header.html :: header(title='Perfil')}"></div>
-
-            <!-- ========== Left Sidebar Start ========== -->
-            <div th:replace="~{/Superadmin/fragments/sidebar.html :: sidebar}"></div>
-            <!-- Left Sidebar End -->
-
-            <!-- ============================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content" style="min-height: 100%;">
                     <div class="container-fluid">
                         <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                    <h4 class="mb-sm-0 my-1">Editar perfil de usuario</h4>
+                                    <div class="page-title-right">
+                                        <a th:href="@{'/superadmin/usuarios/' + ${usuario.usuarioId}}" class="btn ms-2 btn-outline-primary">
+                                            < Cancelar y volver
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-xxl-3 col-xl-4">
-                                <div class="card rounded-3" style="min-height: 80vh; background: linear-gradient(90deg, rgba(12,57,106,0.51), rgba(155,215,241,0.4));" >
-                                    <div class="card-body">
-                                        <div class="profile-card">
-                                            <div class="profile-header mb-4 d-flex flex-row">
-                                                <div class="d-inline-block ms-2 me-4">
-                                                    <img src="assets/images/users/avatar-2.jpg" class="avatar-xl rounded-3 d-inline border-opacity-25 border-primary border border-2" alt="Perfil">
+                                <div class="row">
+                                    <div class="card px-0 rounded-4" style="min-height: 40vh; background-color: #eff4fb;">
+                                        <div class="card-body px-4">
+                                            <div class="position-relative start-0 top-0 p-0 m-0">
+                                                <form th:if="${usuario.estadoCuenta.name() != 'baneado'}"
+                                                      th:action="@{/superadmin/usuarios/{id}/banear(id=${usuario.usuarioId})}"
+                                                      method="post"
+                                                      class="formBanear d-inline">
+                                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                                    <button type="button"
+                                                            class="btn btn-sm bg-danger btnBanearUsuario"
+                                                            th:attr="
+                                                          data-id=${usuario.usuarioId},
+                                                          data-url=@{/superadmin/usuarios/{id}/banear(id=${usuario.usuarioId})},
+                                                          data-redirect=@{/superadmin/usuarios/editar/{id}(id=${usuario.usuarioId})}"
+                                                            data-bs-toggle="tooltip"
+                                                            title="Banear usuario">
+                                                        <i class="mdi mdi-account-cancel font-size-16"></i>
+                                                    </button>
+                                                </form>
+
+                                                <!-- Botón Activar (solo si está baneado) -->
+                                                <form th:if="${usuario.estadoCuenta.name() == 'baneado'}"
+                                                      th:action="@{/superadmin/usuarios/{id}/activar(id=${usuario.usuarioId})}"
+                                                      method="post"
+                                                      class="formActivar d-inline">
+                                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                                    <button type="button"
+                                                            class="btn btn-sm bg-success btnActivarUsuario"
+                                                            th:attr="
+                                              data-id=${usuario.usuarioId},
+                                              data-url=@{/superadmin/usuarios/{id}/activar(id=${usuario.usuarioId})},
+                                              data-redirect=@{/superadmin/usuarios/editar/{id}(id=${usuario.usuarioId})}"
+                                                            data-bs-toggle="tooltip"
+                                                            title="Activar usuario">
+                                                        <i class="mdi mdi-account-check font-size-16"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <div class="text-center mt-0">
+                                                <div class="chat-avtar d-inline-flex mx-auto">
+                                                    <img class="rounded-circle img-fluid avatar-xl wid-70"
+                                                         th:src="${usuario.fotoPerfilUrl != null ? usuario.fotoPerfilUrl : '/assets/images/users/avatar-4.jpg'}"
+                                                         alt="User image">
                                                 </div>
-                                                <div class="d-inline-flex mt-2">
-                                                    <div>
-                                                        <span class="badge font-size-14 bg-success-subtle text-success mb-2">Activo</span>
-                                                        <h4 class="font-size-20">Nicholas Swatz</h4>
-                                                        <p class="text-muted">#ERD246534</p>
+                                                <h5 class="mb-0" th:text="${usuario.nombres + ' ' + usuario.apellidos}">Nombre Usuario</h5>
+                                                <p class="text-muted text-sm mb-1" th:text="${usuario.dni}">DNI</p>
+                                                <span th:switch="${usuario.estadoCuenta.name()}" class="badge font-size-14">
+                                                  <span th:case="activo" class="badge bg-success">Activo</span>
+                                                  <span th:case="baneado" class="badge bg-danger">Baneado</span>
+                                                  <span th:case="pendiente" class="badge bg-warning">Pendiente</span>
+                                                </span>
+                                                <hr class="my-2 border border-light-subtle">
+                                                <div class="row g-3">
+                                                    <div class="col-4">
+                                                        <h5 class="mb-0" th:text="${#lists.size(reservas)}">0</h5>
+                                                        <small class="text-muted">Reservas</small>
                                                     </div>
+                                                    <div class="col-4 border border-top-0 border-bottom-0">
+                                                        <h5 class="mb-0" th:text="${#lists.size(reservas)}">-</h5>
+                                                        <small class="text-muted">Reservas totales</small>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <h5 class="mb-0">-</h5>
+                                                        <small class="text-muted">Baneos</small>
+                                                    </div>
+                                                </div>
+                                                <hr class="my-2 border border-light-subtle">
+
+                                                <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 mt-1" th:if="${usuario.telefono != null}">
+                                                    <i class="ri-phone-fill me-2"></i>
+                                                    <p class="mb-0" th:text="${usuario.telefono}">Teléfono</p>
+                                                </div>
+                                                <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3" th:if="${usuario.direccion != null}">
+                                                    <i class="ri-map-pin-2-line me-2"></i>
+                                                    <p class="mb-0" th:text="${usuario.direccion}">Dirección</p>
+                                                </div>
+                                                <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                                    <i class="ri-mail-fill me-2"></i>
+                                                    <p class="mb-0" th:text="${usuario.correoElectronico}">Email</p>
                                                 </div>
                                             </div>
-                                            <div class="profile-details d-flex flex-column justify-content-center align-content-center">
-                                                <div class="card-body py-1">
-                                                    <h5 class="font-size-14 fw-bold">Información personal</h5>
-                                                    <div class="detail mb-2 mt-3">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="ri-phone-line"></i> Celular: </span><span class="fw-bold">(+51) 949485349</span></span>
-                                                    </div>
-                                                    <div class="detail mb-2 mt-3">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="ri-mail-line"></i> Email: </span><span class="fw-bold">nicholasswatz@gmail.com</span></span>
-                                                    </div>
-                                                </div>
-                                                <div class="card-body border-top border-dark py-3">
-                                                    <h5 class="font-size-14 fw-bold">Dirección</h5>
-                                                    <div class="detail mb-2 mt-3">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="ri-map-pin-line"></i> Dirección: </span><span class="fw-bold">390 Market Street, Suite 200</span></span>
-                                                    </div>
-                                                    <div class="detail mb-2">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="ri-map-pin-line"></i> Urbanización: </span><span class="fw-bold">San Miguelito</span></span>
-                                                    </div>
-                                                    <div class="detail mb-2">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="ri-map-pin-line"></i> Código postal: </span><span class="fw-bold">15045</span></span>
-                                                    </div>
-                                                </div>
-                                                <div class="card-body border-top border-dark py-3">
-                                                    <h5 class="font-size-14 fw-bold">Información de usuario</h5>
-                                                    <div class="detail mb-2 mt-3">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="mdi mdi-account"></i> Rol: </span><span class="badge font-size-12 bg-primary-subtle text-primary my-0">Vecino</span></span>
-                                                    </div>
-                                                    <div class="detail mb-2 mt-0">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="ri-calendar-line"></i> Fecha de nacimiento: </span><span class="fw-bold">28/04/2002</span></span>
-                                                    </div>
-                                                    <div class="detail mb-2">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="ri-key-line"></i> DNI: </span><span class="fw-bold">76848590</span></span>
-                                                    </div>
-                                                    <div class="detail mb-2">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="ri-calendar-check-line"></i> Última actualización: </span><span class="fw-bold">23/02/2025</span></span>
-                                                    </div>
-                                                    <div class="detail mb-2">
-                                                        <span class="info font-size-15"><span class="text-muted"><i class="ri-calendar-check-line"></i> Creación de cuenta: </span><span class="fw-bold">15/04/2024</span></span>
-                                                    </div>
-                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="card px-0" style="background-color: #eff4fb;">
+                                        <div class="card-header mb-0">Información de cuenta</div>
+                                        <div class="card-body py-2">
+                                            <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 mt-1">
+                                                <i class="ri-calendar-2-fill me-2"></i>
+                                                <span class="mb-0">Creación de cuenta: </span>
+                                                <span class="px-1 mb-0" th:text="${#temporals.format(usuario.fechaCreacion, 'dd/MM/yyyy')}">Fecha</span>
+                                            </div>
+                                            <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                                <i class="ri-calendar-2-fill me-2"></i>
+                                                <span class="mb-0">Última modificación: </span>
+                                                <span class="px-1 mb-0" th:text="${usuario.fechaActualizacion != null} ? ${#temporals.format(usuario.fechaActualizacion, 'dd/MM/yyyy')} : 'Sin modificaciones'">Fecha</span>
+                                            </div>
+                                            <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                                <i class="ri-calendar-2-fill me-2"></i>
+                                                <span class="mb-0">Rol: </span>
+                                                <span class="px-2 mb-0">
+                                                  <span class="badge bg-primary font-size-14" th:text="${usuario.rol.getRol()}">Rol</span>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -91,109 +138,217 @@
                             <div class="col-xxl-9 col-xl-8">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h4 class="card-title">Configuración del aviso</h4>
-                                        <p class="card-title-desc mb-3">Ingresa los datos del aviso</p>
-                                        <form class="custom-validation" id="myForm" action="#" method="post">
-                                            <div class="mb-3">
-                                                <label for="celular">Celular</label>
-                                                <input type="text" id="celular" class="form-control" required placeholder="Ingresa el número"/>
+                                        <h4 class="card-title mb-4">Información básica</h4>
+
+                                        <form th:action="@{'/superadmin/usuarios/actualizar/' + ${usuario.usuarioId}}"
+                                              method="post"
+                                              enctype="multipart/form-data"
+                                              id="editProfileForm">
+
+                                            <div class="mb-4">
+                                                <label for="direccion" class="form-label">Dirección</label>
+                                                <input type="text" class="form-control" id="direccion"
+                                                       th:field="*{usuario.direccion}">
                                             </div>
-                                            <div class="mb-3">
-                                                <label for="email">Título</label>
-                                                <input type="email" id="email" class="form-control" required placeholder="Ingresa un correo"/>
+
+                                            <div class="mb-4">
+                                                <label for="correoElectronico" class="form-label">Correo Electrónico</label>
+                                                <input type="email" class="form-control" id="correoElectronico"
+                                                       th:field="*{usuario.correoElectronico}" required>
                                             </div>
-                                            <div class="mb-3">
-                                                <label for="title">Título</label>
-                                                <input type="text" id="title" class="form-control" required placeholder="Type something"/>
+
+                                            <div class="mb-4">
+                                                <label for="telefono" class="form-label">Número de celular</label>
+                                                <input type="text" class="form-control" id="telefono"
+                                                       th:field="*{usuario.telefono}" required>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Rol</label>
-                                                <select class="form-control select2">
-                                                    <option value="null">Elegir</option>
-                                                    <option value="1">Vecino</option>
-                                                    <option value="2">Coordinador</option>
-                                                    <option value="3">Admin</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="textarea">Información</label>
-                                                <div>
-                                                    <textarea required id="textarea" class="form-control" maxlength="225" rows="3"></textarea>
+
+                                            <div class="row mb-2">
+                                                <div class="col-md-6">
+                                                    <div class="mb-1">
+                                                        <label class="form-label">Foto de perfil</label>
+                                                        <input type="file" class="form-control" id="fotoPerfil"
+                                                               name="fotoPerfil" accept="image/*">
+                                                        <small class="text-muted">Formatos aceptados: JPG, PNG. Tamaño máximo: 2MB</small>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label for="customFile" class="d-block">Cambiar foto de perfil</label>
-                                                <div class="d-block">
-                                                    <input type="file" class="form-control" id="customFile" required  accept=".jpg, .jpeg, .png">
+                                            <div class="row mb-4">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="rol" class="form-label">Rol</label>
+                                                        <select class="form-select" id="rol" th:field="*{usuario.rol}" required>
+                                                            <option th:each="rol : ${roles}"
+                                                                    th:value="${rol.getRolId()}"
+                                                            th:text="${rol.getRol()}"
+                                                            th:selected="${rol == usuario.rol}">
+                                                            </option>
+                                                        </select>
+                                                    </div>
                                                 </div>
+                                            </div>
+
+                                            <div class="d-flex justify-content-end gap-2">
+                                                <button type="reset" class="btn btn-light">Restablecer</button>
+                                                <button type="submit" class="btn btn-primary">Guardar cambios</button>
                                             </div>
                                         </form>
-
-                                        <div class="d-flex justify-content-start mb-1 mt-4">
-                                            <button type="submit" class="btn btn-success me-2" id="submitBtn" form="myForm">Guardar cambios</button>
-                                            <button type="button" class="btn btn-secondary" id="cancelBtn">Descartar</button>
-                                        </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div> <!-- container-fluid -->
+                    </div>
                 </div>
-                <!-- End Page-content -->
-
-                <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
+                <div th:replace="~{Superadmin/fragments/footer :: footer}"></div>
             </div>
-            <!-- end main content-->
-
         </div>
-        <!-- END layout-wrapper -->
 
-        <!-- Sidebar overlay-->
-        <div class="sidebar-overlay"></div>
-
-        <!-- JAVASCRIPT -->
-        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+        <div th:replace="~{Superadmin/fragments/foot :: foot}"></div>
 
         <script>
-            $(document).ready(function() {
-                // Muestra el símbolo de carga
-                $("#loading").show();
-
-                // Inicializa DataTable
-                var table = $('#alternative-page-datatable').DataTable({
-                    "columnDefs": [
-                        {
-                            "targets": [-1], // Aplica a la última columna (puedes usar el índice adecuado si no es la última)
-                            "orderable": false // Desactiva el ordenamiento
-                        },
-                    ],
-                    "pageLength": 6,  // Fija el número de registros a mostrar
-                    "lengthChange": false,
-                    pagingType: "full_numbers",
-                    "info": true,  // Habilita la información de las entradas mostradas
-                    "language": {
-                        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
-                        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
-                        "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
-                    },
-                    "initComplete": function() {
-                        // Oculta el símbolo de carga y muestra la tabla cuando los datos hayan sido procesados y renderizados
-                        $(".loader-container").hide();  // Ocultamos el indicador de carga
-                        $('#alternative-page-datatable').show();  // Mostramos la tabla
-                    },
-                    drawCallback: function () {
-                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
-                    }
+            // Inicializar tooltips
+            document.addEventListener('DOMContentLoaded', function() {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
-
-                // Asegúrate de que la tabla esté inicialmente oculta
-                table.hide();
             });
 
+            function confirmarBaneo(button) {
+                const form = button.closest('form');
+                Swal.fire({
+                    title: '¿Confirmar baneo?',
+                    html: `<p>Se cancelarán todas sus reservas activas.</p>
+              <input type="text" id="motivo" class="swal2-input" placeholder="Motivo (opcional)">`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Banear',
+                    cancelButtonText: 'Cancelar',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const motivo = document.getElementById('motivo').value;
+                        if (motivo) {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'motivo';
+                            input.value = motivo;
+                            form.appendChild(input);
+                        }
+                        return true;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            }
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.btnBanearUsuario').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const form = this.closest('form');
+                        const actionUrl = this.getAttribute('data-url');
+                        const redirectUrl = this.getAttribute('data-redirect');
+                        const csrfToken = form.querySelector('input[name="_csrf"]').value;
+
+                        Swal.fire({
+                            title: '¿Estás segura/o?',
+                            text: 'Esta acción baneará al usuario.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí, banear',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#dc3545',
+                            cancelButtonColor: '#6c757d'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch(actionUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                        'X-CSRF-TOKEN': csrfToken
+                                    }
+                                })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error('Error al banear');
+                                        }
+                                        Swal.fire({
+                                            title: 'Baneado',
+                                            text: 'El usuario ha sido baneado correctamente.',
+                                            icon: 'success',
+                                            confirmButtonText: 'Aceptar'
+                                        }).then(() => {
+                                            window.location.href = redirectUrl;
+                                        });
+                                    })
+                                    .catch(() => {
+                                        Swal.fire({
+                                            title: 'Error',
+                                            text: 'Ocurrió un problema al intentar banear al usuario.',
+                                            icon: 'error'
+                                        });
+                                    });
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Activar usuario con SweetAlert
+                document.querySelectorAll('.btnActivarUsuario').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const form = this.closest('form');
+                        const actionUrl = this.getAttribute('data-url');
+                        const redirectUrl = this.getAttribute('data-redirect');
+                        const csrfToken = form.querySelector('input[name="_csrf"]').value;
+
+                        Swal.fire({
+                            title: '¿Activar este usuario?',
+                            text: 'El usuario volverá a tener acceso al sistema.',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí, activar',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#28a745',
+                            cancelButtonColor: '#6c757d'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch(actionUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                        'X-CSRF-TOKEN': csrfToken
+                                    }
+                                })
+                                    .then(response => {
+                                        if (!response.ok) throw new Error('Error al activar');
+                                        Swal.fire({
+                                            title: 'Activado',
+                                            text: 'El usuario ha sido activado correctamente.',
+                                            icon: 'success',
+                                            confirmButtonText: 'Aceptar'
+                                        }).then(() => {
+                                            window.location.href = redirectUrl;
+                                        });
+                                    })
+                                    .catch(() => {
+                                        Swal.fire({
+                                            title: 'Error',
+                                            text: 'No se pudo activar el usuario.',
+                                            icon: 'error'
+                                        });
+                                    });
+                            }
+                        });
+                    });
+                });
+            });
         </script>
     </body>
-
-
-    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:03 GMT -->
 </html>

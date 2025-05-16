@@ -27,7 +27,11 @@ public class Aviso {
     @Column(name = "fecha_aviso")
     private LocalDateTime fechaAviso;
 
-    @Column(name = "estado_aviso", nullable = false, columnDefinition = "ENUM('activo', 'disponible', 'eliminado') DEFAULT 'disponible'")
+    @Column(name = "estado_aviso", nullable = false, columnDefinition = "ENUM('activo', 'disponible', 'eliminado', 'default') DEFAULT 'disponible'")
     private String estadoAviso;
+
+    public boolean esEstadoDefault() {
+        return "default".equals(this.estadoAviso);
+    }
 
 }

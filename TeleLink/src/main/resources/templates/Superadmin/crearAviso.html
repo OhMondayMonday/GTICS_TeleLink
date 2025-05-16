@@ -29,7 +29,9 @@
                                         <h4 class="card-title">Configuración del aviso</h4>
                                         <p class="card-title-desc mb-3">Ingresa los datos del aviso</p>
 
-                                        <form class="custom-validation" th:action="@{/superadmin/guardarAviso}" method="post" th:object="${aviso}" enctype="multipart/form-data">
+                                        <form class="custom-validation" th:action="@{/superadmin/guardarAviso}"
+                                              method="post" th:object="${aviso}" enctype="multipart/form-data">
+
                                             <!-- Título -->
                                             <div class="mb-3">
                                                 <label for="tituloAviso">Título</label>
@@ -42,23 +44,15 @@
                                                 </div>
                                             </div>
 
-                                            <script>
-                                                document.getElementById('activoSwitch').addEventListener('change', function() {
-                                                    document.getElementById('estadoAvisoHidden').value = this.checked ? 'activo' : 'disponible';
-                                                });
-                                            </script>
-
                                             <!-- Información -->
                                             <div class="mb-3">
                                                 <label for="textoAviso">Información</label>
-                                                <div>
                                                 <textarea id="textoAviso" class="form-control"
                                                           th:field="*{textoAviso}"
                                                           th:classappend="${#fields.hasErrors('textoAviso')} ? 'is-invalid'"
                                                           maxlength="225" rows="3" required></textarea>
-                                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('textoAviso')}">
-                                                        <span th:errors="*{textoAviso}"></span>
-                                                    </div>
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('textoAviso')}">
+                                                    <span th:errors="*{textoAviso}"></span>
                                                 </div>
                                             </div>
 
@@ -71,7 +65,7 @@
                                                            name="archivoImagen" accept=".jpg, .jpeg, .png"
                                                            onchange="previewImage(this)">
 
-                                                    <!-- Campo oculto para la URL (se llenará automáticamente) -->
+                                                    <!-- Campo oculto para la URL final -->
                                                     <input type="hidden" id="fotoAvisoUrlHidden" name="fotoAvisoUrl">
 
                                                     <!-- Campo para URL manual -->
@@ -85,6 +79,7 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Botones -->
                                             <div class="d-flex justify-content-start mb-1 mt-4">
                                                 <button type="submit" class="btn btn-success me-2">Guardar aviso</button>
                                                 <a th:href="@{/superadmin/avisos}" class="btn btn-secondary">Cancelar</a>
@@ -96,20 +91,34 @@
 
                             <!-- Vista previa -->
                             <div class="col-xl-6 col-lg-6">
-                                <div class="card border border-primary" style="max-height: 560px">
-                                    <div class="card-body">
-                                        <h4 id="tituloPreview" th:text="${aviso?.tituloAviso} ?: 'Título del aviso'">Título del aviso</h4>
-                                        <p id="infoPreview" th:text="${aviso?.textoAviso} ?: 'Contenido del aviso aparecerá aquí'">Contenido del aviso</p>
-                                    </div>
-                                    <div class="px-3 justify-content-center" style="max-height: 450px; overflow: hidden">
-                                        <img class="card-img-bottom img-fluid" id="cardImagePreview"
-                                             th:src="${aviso?.fotoAvisoUrl} ?: 'assets/images/small/img-7.jpg'"
-                                             alt="Vista previa de imagen" style="object-fit: contain;">
-                                    </div>
-                                    <div class="row px-3 pb-2">
-                                        <div class="mt-3">
-                                            <small class="text-muted">Fecha: [[${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}]]</small>
+                                <div class="card border border-primary">
+                                    <div class="card-header pb-1">
+                                        <div class="d-flex">
+                                            <h4 class="card-title my-2">Vista previa del aviso</h4>
                                         </div>
+                                    </div>
+                                    <div class="card-body py-1">
+                                        <h4 class="card-title my-2" id="tituloPreview">Título del aviso</h4>
+                                        <p class="card-text text-muted mb-1" id="infoPreview">Contenido del aviso aparecerá aquí</p>
+                                    </div>
+                                    <div class="px-3">
+                                        <img class="card-img-bottom img-fluid object-fit-cover"
+                                             style="max-height: 393px;"
+                                             id="cardImagePreview"
+                                             src="/assets/images/BienvenidaSanMiguel.png"
+                                             alt="Imagen del aviso"
+                                             onerror="this.onerror=null; this.src='/assets/images/BienvenidaSanMiguel.png'">
+                                    </div>
+                                    <div class="mb-1 px-3">
+                                        <p class="card-text mt-1">
+                                            <small>Publicado: </small>
+                                            <small class="text-muted">
+                                                <script>
+                                                    // Mostrar fecha y hora actual
+                                                    document.write(new Date().toLocaleString("es-PE"));
+                                                </script>
+                                            </small>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -125,61 +134,66 @@
         <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
 
         <script>
-            // Vista previa de imagen
-            document.getElementById('imagenAviso').addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        document.getElementById('cardImagePreview').src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Vista previa de texto en tiempo real
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
+                const inputFile = document.getElementById('imagenAviso');
+                const inputUrl = document.getElementById('fotoAvisoUrlInput');
+                const hiddenInput = document.getElementById('fotoAvisoUrlHidden');
+                const previewImg = document.getElementById('cardImagePreview');
                 const tituloInput = document.getElementById('tituloAviso');
-                const infoInput = document.getElementById('textoAviso');
-                const activoSwitch = document.getElementById('activoSwitch');
+                const textoInput = document.getElementById('textoAviso');
+                const previewTitulo = document.getElementById('tituloPreview');
+                const previewTexto = document.getElementById('infoPreview');
 
-                if (tituloInput && infoInput) {
-                    tituloInput.addEventListener('input', function() {
-                        document.getElementById('tituloPreview').textContent = this.value || 'Título del aviso';
-                    });
+                // Previsualizar imagen al subir archivo
+                inputFile.addEventListener('change', function () {
+                    if (inputFile.files && inputFile.files.length > 0) {
+                        inputUrl.value = '';
+                        hiddenInput.value = '';
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            if (previewImg) previewImg.src = e.target.result;
+                        };
+                        reader.readAsDataURL(inputFile.files[0]);
+                    }
+                });
 
-                    infoInput.addEventListener('input', function() {
-                        document.getElementById('infoPreview').textContent = this.value || 'Contenido del aviso aparecerá aquí';
-                    });
-                }
+                // Previsualizar imagen al escribir URL
+                inputUrl.addEventListener('input', function () {
+                    inputFile.value = '';
+                    hiddenInput.value = this.value;
+                    if (previewImg) previewImg.src = this.value || '/assets/images/BienvenidaSanMiguel.png';
+                });
 
-                if (activoSwitch) {
-                    activoSwitch.addEventListener('change', function() {
-                        const estadoSelect = document.querySelector('[th\\:field="*{estadoAviso}"]');
-                        if (estadoSelect) {
-                            estadoSelect.value = this.checked ? 'activo' : 'disponible';
-                        }
-                    });
-                }
+                // Previsualizar título
+                tituloInput.addEventListener('input', function () {
+                    if (previewTitulo) previewTitulo.textContent = this.value || 'Título del aviso';
+                });
+
+                // Previsualizar texto
+                textoInput.addEventListener('input', function () {
+                    if (previewTexto) previewTexto.textContent = this.value || 'Contenido del aviso aparecerá aquí';
+                });
             });
         </script>
-
-
         <script>
-            function previewImage(input) {
-                if (input.files && input.files[0]) {
-                    // Si se sube un archivo, limpia el campo de URL manual
-                    document.getElementById('fotoAvisoUrlInput').value = '';
+            document.addEventListener('DOMContentLoaded', function () {
+                const inputFile = document.getElementById('imagenAviso');
+                const inputUrl = document.getElementById('fotoAvisoUrlInput');
+                const hiddenUrl = document.getElementById('fotoAvisoUrlHidden');
 
-                    // Aquí iría tu lógica para previsualizar y subir la imagen
-                    // Al final, cuando tengas la URL, la asignas al campo hidden:
-                    // document.getElementById('fotoAvisoUrlHidden').value = urlDeLaImagenSubida;
-                }
-            }
+                // Cuando se selecciona un archivo
+                inputFile.addEventListener('change', function () {
+                    if (inputFile.files && inputFile.files.length > 0) {
+                        inputUrl.value = '';           // limpiar campo de URL
+                        hiddenUrl.value = '';          // limpiar el input hidden
+                    }
+                });
 
-            // Cuando se escribe en el campo de URL manual
-            document.getElementById('fotoAvisoUrlInput').addEventListener('input', function() {
-                document.getElementById('fotoAvisoUrlHidden').value = this.value;
+                // Cuando se escribe una URL manualmente
+                inputUrl.addEventListener('input', function () {
+                    inputFile.value = '';              // limpiar archivo cargado
+                    hiddenUrl.value = this.value;      // actualizar el input hidden
+                });
             });
         </script>
     </body>

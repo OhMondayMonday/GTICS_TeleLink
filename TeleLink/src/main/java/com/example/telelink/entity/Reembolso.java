@@ -16,7 +16,7 @@ public class Reembolso {
     @Column(name = "reembolso_id")
     private Integer reembolsoId;
 
-    @Column(nullable = false, precision = 4, scale = 2)
+    @Column(nullable = false, precision = 6, scale = 2)
     private BigDecimal monto;
 
     @Enumerated(EnumType.STRING)

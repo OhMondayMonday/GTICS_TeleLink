@@ -57,11 +57,12 @@
                                                 <td th:text="${#temporals.format(reserva.inicioReserva, 'HH:mm a')}"></td>
                                                 <td th:text="${#temporals.format(reserva.finReserva, 'HH:mm a')}"></td>
                                                 <td>
-                                                <span th:switch="${reserva.estado.name()}" class="badge">
-                                                    <span th:case="pendiente" class="badge  bg-warning-subtle text-warning font-size-12">Pendiente</span>
-                                                    <span th:case="confirmada" class="badge  bg-success-subtle text-success font-size-12">Confirmada</span>
-                                                    <span th:case="cancelada" class="badge bg-danger-subtle text-danger font-size-12">Cancelado</span>
-                                                </span>
+                                                    <span th:switch="${reserva.estado.name()}" class="badge">
+                                                        <span th:case="pendiente" class="badge  bg-warning-subtle text-warning font-size-12">Pendiente</span>
+                                                        <span th:case="confirmada" class="badge  bg-primary-subtle text-primary font-size-12">Confirmada</span>
+                                                        <span th:case="cancelada" class="badge bg-danger-subtle text-danger font-size-12">Cancelado</span>
+                                                        <span th:case="completada" class="badge bg-success-subtle text-success font-size-12">Completado</span>
+                                                    </span>
                                                 </td>
                                                 <td>
                                                     <a th:href="@{'/superadmin/reservas/' + ${reserva.reservaId}}"
