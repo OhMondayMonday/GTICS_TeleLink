@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+
+
+  <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
+  <head th:replace="~{Superadmin/fragments/head.html :: head(title='Administradores y Coordinadores')}"></head>
+
+  <body data-sidebar="dark" class="vertical-collpsed">
+
+    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+
+      <div th:replace="~{/Superadmin/fragments/header.html :: header(title='Administradores y Coordinadores')}"></div>
+
+      <!-- ========== Left Sidebar Start ========== -->
+      <div th:replace="~{/Superadmin/fragments/sidebar.html :: sidebar}"></div>
+      <!-- Left Sidebar End -->
+
+
+      <!-- ============================================================== -->
+      <!-- Start right Content here -->
+      <!-- ============================================================== -->
+      <div class="main-content">
+
+        <div class="page-content" style="min-height: 100%;">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-12">
+                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                  <h4 class="mb-sm-0">Administradores y coordinadores</h4>
+                  <div class="page-title-right">
+                    <a th:href="@{/superadmin/inicio}" class="btn ms-2 btn-outline-primary">
+                      < Regresar a inicio
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xxl-12 col-xl-12">
+                <div class="card">
+                  <div class="card-header pb-1">
+                    <div class="d-flex">
+                      <h4 class="card-title my-2">Usuarios administrativos</h4>
+                    </div>
+                  </div>
+                  <div class="card-body pt-2">
+                    <div class="mb-2 ms-1">
+                      <ul class="nav nav-tabs nav-tabs-custom nav-justified" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <a class="nav-link active" id="administradores-tab" data-bs-toggle="tab"
+                             data-bs-target="#administradores" type="button" role="tab"
+                             aria-controls="administradores" aria-selected="true">Administradores
+                          </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <a class="nav-link" id="coordinadores-tab" data-bs-toggle="tab"
+                             data-bs-target="#coordinadores" type="button" role="tab"
+                             aria-controls="coordinadores" aria-selected="false">Coordinadores
+                          </a>
+                        </li>
+                      </ul>
+                      <div class="tab-content">
+                        <!-- TAB DE ADMINISTRADORES -->
+                        <div class="tab-pane fade show active" id="administradores" role="tabpanel" aria-labelledby="administradores-tab">
+                          <div class="mt-3 mb-3 d-inline-flex">
+                            <div class="justify-content-start start-0">
+                              <h4 class="card-title mb-1">Coordinadores</h4>
+                              <p class="card-title-desc mb-0 mt-0">Lista completa de usuarios coordinadores</p>
+                            </div>
+                            <div class="d-inline-block justify-content-end position-absolute mb-2 end-0 pb-3 pe-3">
+                              <a type="submit" th:href="@{/superadmin/crearAviso}" class="btn btn-success me-2 visually-hidden">+ Crear nuevo Administrador</a>
+                            </div>
+                          </div>
+
+                          <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100">
+                            <thead>
+                              <tr>
+                                <th style="width: 40px">ID</th>
+                                <th>Nombre</th>
+                                <th>Rol</th>
+                                <th>DNI</th>
+                                <th>Correo Electrónico</th>
+                                <th>Celular</th>
+                                <th>Fecha creación</th>
+                                <th>Estado</th>
+                                <th style="width: 100px">Acción</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr th:each="admin : ${administradores}">
+                                <td th:text="${admin.usuarioId}"></td>
+                                <td>
+                                  <div class="d-flex align-items-center">
+                                    <img th:src="${admin.fotoPerfilUrl != null} ? ${admin.fotoPerfilUrl} : '/assets/images/users/avatar-default.png'"
+                                         class="rounded-circle avatar-xs me-2">
+                                    <span th:text="${admin.nombres} + ' ' + ${admin.apellidos}"></span>
+                                  </div>
+                                </td>
+                                <td th:text="${admin.rol.getRol()}"></td>
+                                <td th:text="${admin.dni}"></td>
+                                <td th:text="${admin.correoElectronico}"></td>
+                                <td th:text="${admin.telefono}"></td>
+                                <td th:text="${#temporals.format(admin.fechaCreacion, 'dd/MM/yyyy')}"></td>
+                                <td>
+                                  <span th:switch="${admin.estadoCuenta.name()}" class="badge">
+                                    <span th:case="'activo'" class="badge  bg-success-subtle text-success font-size-12">Activo</span>
+                                    <span th:case="'baneado'" class="badge  bg-danger-subtle text-danger font-size-12">Baneado</span>
+                                    <span th:case="'pendiente'" class="badge bg-warning-subtle text-warning font-size-12">Pendiente</span>
+                                    <span th:case="'eliminado'" class="badge bg-secondary-subtle text-secondary font-size-12">Eliminado</span>
+                                  </span>
+                                </td>
+                                <td>
+                                  <div class="d-flex">
+                                    <!-- Botón Ver en tabla -->
+                                    <button class="btn btn-sm btn-outline-primary me-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalPerfilUsuario"
+                                            th:attr="
+                                            data-id=${admin.usuarioId},
+                                            data-nombre=${admin.nombres + ' ' + admin.apellidos},
+                                            data-dni=${admin.dni},
+                                            data-estado=${admin.estadoCuenta.name()},
+                                            data-telefono=${admin.telefono},
+                                            data-direccion=${admin.direccion},
+                                            data-email=${admin.correoElectronico},
+                                            data-foto=${admin.fotoPerfilUrl}
+                                            "
+                                            title="Ver detalles">
+                                      <i class="mdi mdi-eye-outline"></i>
+                                    </button>
+
+                                    <!-- Botón Editar -->
+                                    <!-- Botón Editar -->
+                                    <a th:href="@{'/superadmin/usuarios/editar/' + ${admin.usuarioId}}"
+                                       class="btn btn-sm btn-outline-warning me-1"
+                                       data-bs-toggle="tooltip"
+                                       title="Editar">
+                                      <i class="mdi mdi-pencil-outline"></i>
+                                    </a>
+
+                                    <!-- Botón Banear (solo si no está baneado) -->
+                                    <form th:if="${admin.estadoCuenta.name() != 'baneado'}"
+                                          th:action="@{/superadmin/usuarios/{id}/banear(id=${admin.usuarioId})}"
+                                          method="post"
+                                          class="d-inline">
+                                      <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                      <button type="submit"
+                                              class="btn btn-sm btn-outline-danger"
+                                              data-bs-toggle="tooltip"
+                                              title="Banear usuario">
+                                        <i class="mdi mdi-account-cancel-outline"></i>
+                                      </button>
+                                    </form>
+
+                                    <!-- Botón Activar (solo si está baneado) -->
+                                    <form th:if="${admin.estadoCuenta.name() == 'baneado'}"
+                                          th:action="@{/superadmin/usuarios/{id}/activar(id=${admin.usuarioId})}"
+                                          method="post"
+                                          class="d-inline">
+                                      <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                      <button type="submit"
+                                              class="btn btn-sm btn-outline-success"
+                                              data-bs-toggle="tooltip"
+                                              title="Activar usuario">
+                                        <i class="mdi mdi-account-check-outline"></i>
+                                      </button>
+                                    </form>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <!-- TAB DE COORDINADORES -->
+                        <div class="tab-pane fade" id="coordinadores" role="tabpanel" aria-labelledby="coordinadores-tab">
+                          <div class="mt-3 mb-3 d-inline-flex">
+                            <div class="justify-content-start start-0">
+                              <h4 class="card-title mb-1">Coordinadores</h4>
+                              <p class="card-title-desc mb-0 mt-0">Lista completa de usuarios coordinadores</p>
+                            </div>
+                            <div class="d-inline-block justify-content-end position-absolute mb-2 end-0 pb-3 pe-3">
+                              <a type="submit" th:href="@{/superadmin/crearAviso}" class="btn btn-success me-2 visually-hidden">+ Crear nuevo Coordinador</a>
+                            </div>
+                          </div>
+
+                          <table id="alternative-page-datatable2" class="table dt-responsive nowrap w-100">
+                            <thead>
+                              <tr>
+                                <th style="width: 40px">ID</th>
+                                <th>Nombre</th>
+                                <th>Rol</th>
+                                <th>DNI</th>
+                                <th>Correo Electrónico</th>
+                                <th>Celular</th>
+                                <th>Fecha creación</th>
+                                <th>Estado</th>
+                                <th style="width: 100px">Acción</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr th:each="coord : ${coordinadores}">
+                                <td th:text="${coord.usuarioId}"></td>
+                                <td>
+                                  <div class="d-flex align-items-center">
+                                    <img th:src="${coord.fotoPerfilUrl != null} ? ${coord.fotoPerfilUrl} : '/assets/images/users/avatar-default.png'"
+                                         class="rounded-circle avatar-xs me-2">
+                                    <span th:text="${coord.nombres} + ' ' + ${coord.apellidos}"></span>
+                                  </div>
+                                </td>
+                                <td th:text="${coord.rol.getRol()}"></td>
+                                <td th:text="${coord.dni}"></td>
+                                <td th:text="${coord.correoElectronico}"></td>
+                                <td th:text="${coord.telefono}"></td>
+                                <td th:text="${#temporals.format(coord.fechaCreacion, 'dd/MM/yyyy')}"></td>
+                                <td>
+                                  <span th:switch="${coord.estadoCuenta.name()}" class="badge">
+                                    <span th:case="'activo'" class="badge  bg-success-subtle text-success font-size-12">Activo</span>
+                                    <span th:case="'baneado'" class="badge  bg-danger-subtle text-danger font-size-12">Baneado</span>
+                                    <span th:case="'pendiente'" class="badge bg-warning-subtle text-warning font-size-12">Pendiente</span>
+                                    <span th:case="'eliminado'" class="badge bg-secondary-subtle text-secondary font-size-12">Eliminado</span>
+                                  </span>
+                                </td>
+                                <td>
+                                  <div class="d-flex">
+
+                                    <button class="btn btn-sm btn-outline-primary me-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalPerfilUsuario"
+                                            th:attr="
+                                            data-id=${coord.usuarioId},
+                                            data-nombre=${coord.nombres + ' ' + coord.apellidos},
+                                            data-dni=${coord.dni},
+                                            data-estado=${coord.estadoCuenta.name()},
+                                            data-telefono=${coord.telefono},
+                                            data-direccion=${coord.direccion},
+                                            data-email=${coord.correoElectronico},
+                                            data-foto=${coord.fotoPerfilUrl}
+                                            "
+                                            title="Ver detalles">
+                                      <i class="mdi mdi-eye-outline"></i>
+                                    </button>
+
+
+                                    <!-- Botón Editar -->
+                                    <!-- Botón Editar -->
+                                    <a th:href="@{'/superadmin/usuarios/editar/' + ${coord.usuarioId}}"
+                                       class="btn btn-sm btn-outline-warning me-1"
+                                       data-bs-toggle="tooltip"
+                                       title="Editar">
+                                      <i class="mdi mdi-pencil-outline"></i>
+                                    </a>
+
+                                    <form th:if="${coord.estadoCuenta.name() != 'baneado'}"
+                                            th:action="@{/superadmin/usuarios/{id}/banear(id=${coord.usuarioId})}"
+                                          method="post"
+                                          class="formBanear d-inline">
+                                      <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                      <button type="button"
+                                              class="btn btn-sm btn-outline-danger btnBanearUsuario"
+                                              th:attr="
+                                              data-id=${coord.usuarioId},
+                                              data-url=@{/superadmin/usuarios/{id}/banear(id=${coord.usuarioId})},
+                                              data-redirect='/superadmin/usuariosAdmin'"
+                                              data-bs-toggle="tooltip"
+                                              title="Banear usuario">
+                                        <i class="mdi mdi-account-cancel-outline"></i>
+                                      </button>
+                                    </form>
+
+                                    <!-- Botón Activar (solo si está baneado) -->
+                                    <form th:if="${coord.estadoCuenta.name() == 'baneado'}"
+                                          th:action="@{/superadmin/usuarios/{id}/activar(id=${coord.usuarioId})}"
+                                          method="post"
+                                          class="formActivar d-inline">
+                                      <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                      <button type="button"
+                                              class="btn btn-sm btn-outline-success btnActivarUsuario"
+                                              th:attr="
+                                              data-id=${coord.usuarioId},
+                                              data-url=@{/superadmin/usuarios/{id}/activar(id=${coord.usuarioId})},
+                                              data-redirect='/superadmin/usuariosAdmin'"
+                                              data-bs-toggle="tooltip"
+                                              title="Activar usuario">
+                                        <i class="mdi mdi-account-check-outline"></i>
+                                      </button>
+                                    </form>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <!-- Modal Perfil Usuario -->
+                        <!-- Modal Perfil del Usuario -->
+                        <div class="modal fade" id="modalPerfilUsuario" tabindex="-1" aria-labelledby="perfilUsuarioLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                              <div class="modal-header bg-secondary-subtle text-white">
+                                <h5 class="modal-title" id="perfilUsuarioLabel">Perfil del Usuario</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                              </div>
+
+                              <div class="modal-body px-4">
+                                <!-- Info de usuario -->
+                                <div class="text-center mt-2">
+                                  <div class="chat-avtar d-inline-flex mx-auto">
+                                    <img class="rounded-circle img-fluid avatar-xl wid-70"
+                                         id="modalFoto"
+                                         src="/assets/images/users/avatar-4.jpg"
+                                         alt="Foto de usuario">
+                                  </div>
+                                  <h5 class="mb-0 mt-2" id="modalNombre">Nombre Usuario</h5>
+                                  <p class="text-muted text-sm mb-1" id="modalDni">DNI</p>
+                                  <span id="modalEstado" class="badge font-size-14 bg-secondary">Estado</span>
+
+                                  <hr class="my-2 border border-light-subtle">
+
+                                  <div class="row g-3">
+                                    <div class="col-4">
+                                      <h5 class="mb-0" id="modalReservas">0</h5>
+                                      <small class="text-muted">Reservas</small>
+                                    </div>
+                                    <div class="col-4 border border-top-0 border-bottom-0">
+                                      <h5 class="mb-0" id="modalReservasTotales">-</h5>
+                                      <small class="text-muted">Reservas totales</small>
+                                    </div>
+                                    <div class="col-4">
+                                      <h5 class="mb-0" id="modalBaneos">-</h5>
+                                      <small class="text-muted">Baneos</small>
+                                    </div>
+                                  </div>
+
+                                  <hr class="my-2 border border-light-subtle">
+
+                                  <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3 mt-1">
+                                    <i class="ri-phone-fill me-2"></i>
+                                    <p class="mb-0" id="modalTelefono">Teléfono</p>
+                                  </div>
+                                  <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                    <i class="ri-map-pin-2-line me-2"></i>
+                                    <p class="mb-0" id="modalDireccion">Dirección</p>
+                                  </div>
+                                  <div class="d-inline-flex align-items-center justify-content-start w-100 mb-3">
+                                    <i class="ri-mail-fill me-2"></i>
+                                    <p class="mb-0" id="modalEmail">Email</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+
+                      </div>
+                    </div>
+                  </div>
+                </div> <!-- container-fluid -->
+              </div>
+              <!-- End Page-content -->
+            </div>
+            <!-- end main content-->
+          </div>
+        </div>
+
+        <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
+        <!-- END layout-wrapper -->
+      </div>
+    </div>
+    <!-- Sidebar overlay-->
+    <div class="sidebar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btnBanearUsuario').forEach(button => {
+          button.addEventListener('click', function () {
+            const form = this.closest('form');
+            const actionUrl = this.getAttribute('data-url');
+            const redirectUrl = this.getAttribute('data-redirect');
+            const csrfToken = form.querySelector('input[name="_csrf"]').value;
+
+            Swal.fire({
+              title: '¿Estás segura/o?',
+              text: 'Esta acción baneará al usuario.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Sí, banear',
+              cancelButtonText: 'Cancelar',
+              confirmButtonColor: '#dc3545',
+              cancelButtonColor: '#6c757d'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                fetch(actionUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': csrfToken
+                  }
+                })
+                        .then(response => {
+                          if (!response.ok) {
+                            throw new Error('Error al banear');
+                          }
+                          Swal.fire({
+                            title: 'Baneado',
+                            text: 'El usuario ha sido baneado correctamente.',
+                            icon: 'success',
+                            confirmButtonText: 'Aceptar'
+                          }).then(() => {
+                            window.location.href = redirectUrl;
+                          });
+                        })
+                        .catch(() => {
+                          Swal.fire({
+                            title: 'Error',
+                            text: 'Ocurrió un problema al intentar banear al usuario.',
+                            icon: 'error'
+                          });
+                        });
+              }
+            });
+          });
+        });
+      });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Activar usuario con SweetAlert
+        document.querySelectorAll('.btnActivarUsuario').forEach(button => {
+          button.addEventListener('click', function () {
+            const form = this.closest('form');
+            const actionUrl = this.getAttribute('data-url');
+            const redirectUrl = this.getAttribute('data-redirect');
+            const csrfToken = form.querySelector('input[name="_csrf"]').value;
+
+            Swal.fire({
+              title: '¿Activar este usuario?',
+              text: 'El usuario volverá a tener acceso al sistema.',
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'Sí, activar',
+              cancelButtonText: 'Cancelar',
+              confirmButtonColor: '#28a745',
+              cancelButtonColor: '#6c757d'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                fetch(actionUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': csrfToken
+                  }
+                })
+                        .then(response => {
+                          if (!response.ok) throw new Error('Error al activar');
+                          Swal.fire({
+                            title: 'Activado',
+                            text: 'El usuario ha sido activado correctamente.',
+                            icon: 'success',
+                            confirmButtonText: 'Aceptar'
+                          }).then(() => {
+                            window.location.href = redirectUrl;
+                          });
+                        })
+                        .catch(() => {
+                          Swal.fire({
+                            title: 'Error',
+                            text: 'No se pudo activar el usuario.',
+                            icon: 'error'
+                          });
+                        });
+              }
+            });
+          });
+        });
+      });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('modalPerfilUsuario');
+
+        modal.addEventListener('show.bs.modal', function (event) {
+          const btn = event.relatedTarget;
+
+          const usuarioId = btn.getAttribute('data-id');
+          const nombre = btn.getAttribute('data-nombre');
+          const dni = btn.getAttribute('data-dni');
+          const estado = btn.getAttribute('data-estado');
+          const telefono = btn.getAttribute('data-telefono') || '-';
+          const direccion = btn.getAttribute('data-direccion') || '-';
+          const email = btn.getAttribute('data-email') || '-';
+          const foto = btn.getAttribute('data-foto') || '/assets/images/users/avatar-4.jpg';
+          const reservas = btn.getAttribute('data-reservas') || '0';
+
+          // Llenar datos
+          document.getElementById('modalNombre').textContent = nombre;
+          document.getElementById('modalDni').textContent = dni;
+          document.getElementById('modalTelefono').textContent = telefono;
+          document.getElementById('modalDireccion').textContent = direccion;
+          document.getElementById('modalEmail').textContent = email;
+          document.getElementById('modalFoto').src = foto;
+          document.getElementById('modalReservas').textContent = reservas;
+          document.getElementById('modalReservasTotales').textContent = reservas;
+          document.getElementById('modalBaneos').textContent = (estado === 'baneado') ? '1' : '0';
+
+          // Estado
+          const estadoBadge = document.getElementById('modalEstado');
+          estadoBadge.textContent = estado;
+          estadoBadge.className = 'badge font-size-14 ' + (
+                  estado === 'activo' ? 'bg-success' :
+                          estado === 'baneado' ? 'bg-danger' :
+                                  estado === 'pendiente' ? 'bg-warning' : 'bg-secondary'
+          );
+
+          // Acciones
+          document.getElementById('btnEditarUsuario').setAttribute('href', '/superadmin/usuarios/editar/' + usuarioId);
+          document.getElementById('formBanearUsuario').setAttribute('action', '/superadmin/usuarios/' + usuarioId + '/banear');
+          document.getElementById('formActivarUsuario').setAttribute('action', '/superadmin/usuarios/' + usuarioId + '/activar');
+
+          // Mostrar solo el botón correspondiente
+          document.getElementById('formBanearUsuario').style.display = (estado !== 'baneado') ? 'inline' : 'none';
+          document.getElementById('formActivarUsuario').style.display = (estado === 'baneado') ? 'inline' : 'none';
+        });
+      });
+    </script>
+
+
+
+
+    <script>
+      $(document).ready(function () {
+        // Muestra el símbolo de carga
+        $("#loading").show();
+
+        // Inicializa la primera DataTable
+        var table1 = $('#alternative-page-datatable').DataTable({
+          "columnDefs": [
+            {
+              "targets": [-1], // Aplica a la última columna
+              "orderable": false // Desactiva el ordenamiento
+            },
+          ],
+          responsive: true,
+          "pageLength": 7,  // Fija el número de registros a mostrar
+          "lengthChange": false,
+          pagingType: "full_numbers",
+          "info": true,  // Habilita la información de las entradas mostradas
+          "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
+            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
+            "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+          },
+          "initComplete": function () {
+            $(".loader-container").hide();  // Ocultamos el indicador de carga
+            $('#alternative-page-datatable').show();  // Mostramos la tabla 1
+          },
+          drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+          }
+        });
+
+        // Inicializa la segunda DataTable
+        var table2 = $('#alternative-page-datatable2').DataTable({
+          "columnDefs": [
+            {
+              "targets": [-1], // Aplica a la última columna
+              "orderable": false // Desactiva el ordenamiento
+            },
+          ],
+          "pageLength": 7,  // Fija el número de registros a mostrar
+          "lengthChange": false,
+          responsive: true,
+          pagingType: "full_numbers",
+          "info": true,  // Habilita la información de las entradas mostradas
+          "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
+            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
+            "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+          },
+          "initComplete": function () {
+            $(".loader-container").hide();  // Ocultamos el indicador de carga
+            $('#alternative-page-datatable2').show();  // Mostramos la tabla 2
+          },
+          drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+          }
+        });
+
+        var table3 = $('#alternative-page-datatable3').DataTable({
+          "columnDefs": [
+            {
+              "targets": [-1], // Aplica a la última columna
+              "orderable": false // Desactiva el ordenamiento
+            },
+          ],
+          "pageLength": 7,  // Fija el número de registros a mostrar
+          "lengthChange": false,
+          responsive: true,
+          pagingType: "full_numbers",
+          "info": true,  // Habilita la información de las entradas mostradas
+          "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
+            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
+            "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+          },
+          "initComplete": function () {
+            $(".loader-container").hide();  // Ocultamos el indicador de carga
+            $('#alternative-page-datatable3').show();  // Mostramos la tabla 2
+          },
+          drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+          }
+        });
+
+        // Cuando se cambia de pestaña, recalcular la tabla si es necesario
+        $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) {
+          var tabID = $(event.target).attr('data-bs-target');
+
+          // Se ajustan las tablas con un pequeño retraso
+          setTimeout(function () {
+            if (tabID === '#administradores') {
+              table1.columns.adjust().responsive.recalc(); // Ajusta las columnas de la tabla 2
+            } else if (tabID === '#coordinadores') {
+              table2.columns.adjust().responsive.recalc(); // Ajusta las columnas de la tabla 1
+            }
+            else if (tabID === '#reembolsos') {
+              table3.columns.adjust().responsive.recalc(); // Ajusta las columnas de la tabla 1
+            }
+          }, 100);  // El retraso de 100ms es para asegurar que la pestaña se haya renderizado completamente
+        });
+      });
+
+    </script>
+  </body>
+
+
+  <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:03 GMT -->
+</html>

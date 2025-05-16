@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
-import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -92,6 +90,31 @@ public class S3Service {
             // Captura cualquier otra excepción inesperada
             logger.error("Error inesperado al subir el archivo '{}' a S3.", originalFilename, e);
             return "Error inesperado al subir el archivo: " + e.getMessage();
+        }
+    }
+
+    // Elimina una foto y retorna un mensaje de comprobación
+    public String deleteFile(String fileKey) {
+        try {
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileKey)
+                    .build();
+
+            DeleteObjectResponse response = s3Client.deleteObject(deleteRequest);
+
+            // Puedes verificar el ETag o la metadata, aunque para delete no siempre viene algo útil
+            logger.info("DeleteObjectResponse: {}", response);
+
+            return "Archivo '" + fileKey + "' eliminado exitosamente de S3.";
+
+        } catch (S3Exception e) {
+            logger.error("Error de S3 al eliminar el archivo '{}': Código [{}], Mensaje [{}]",
+                    fileKey, e.awsErrorDetails().errorCode(), e.awsErrorDetails().errorMessage(), e);
+            return "Error al eliminar el archivo: " + e.awsErrorDetails().errorMessage();
+        } catch (Exception e) {
+            logger.error("Error inesperado al eliminar el archivo '{}' de S3.", fileKey, e);
+            return "Error inesperado al eliminar el archivo: " + e.getMessage();
         }
     }
 }

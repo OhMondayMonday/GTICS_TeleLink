@@ -33,24 +33,40 @@
                            data-bs-toggle="tooltip"
                            data-bs-placement="center"
                            title="Editar">
-                          <i class="mdi mdi-pencil font-size-20"></i>
+                          <i class="mdi mdi-pencil font-size-18"></i>
                         </a>
-                        <a th:if="${usuario.estadoCuenta.name() != 'baneado'}"
-                           th:href="@{'/superadmin/usuarios/banear/' + ${usuario.usuarioId}}"
-                           class="me-2 btn btn-sm btn-danger"
-                           data-bs-toggle="tooltip"
-                           data-bs-placement="center"
-                           title="Banear usuario">
-                          <i class="mdi mdi-alert font-size-20"></i>
-                        </a>
-                        <a th:if="${usuario.estadoCuenta.name() == 'baneado'}"
-                           th:href="@{'/superadmin/usuarios/activar/' + ${usuario.usuarioId}}"
-                           class="me-2 btn btn-sm btn-success"
-                           data-bs-toggle="tooltip"
-                           data-bs-placement="center"
-                           title="Activar usuario">
-                          <i class="mdi mdi-account-check font-size-20"></i>
-                        </a>
+                        <div class="user-actions d-inline-block">
+                          <!-- Botón Banear (solo visible si no está baneado) -->
+                          <form th:if="${usuario.estadoCuenta.name() != 'baneado'}"
+                                th:action="@{/superadmin/usuarios/{id}/banear(id=${usuario.usuarioId})}"
+                                method="post"
+                                class="d-inline">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                            <button type="button"
+                                    class="me-2 btn btn-sm btn-danger"
+                                    onclick="confirmarBaneo(this)"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Banear usuario">
+                              <i class="mdi mdi-account-cancel-outline font-size-18"></i>
+                            </button>
+                          </form>
+
+                          <!-- Botón Activar (solo visible si está baneado) -->
+                          <form th:if="${usuario.estadoCuenta.name() == 'baneado'}"
+                                th:action="@{/superadmin/usuarios/{id}/activar(id=${usuario.usuarioId})}"
+                                method="post"
+                                class="d-inline">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                            <button type="submit"
+                                    class="me-2 btn btn-sm btn-success"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Activar usuario">
+                              <i class="mdi mdi-account-check-outline font-size-18"></i>
+                            </button>
+                          </form>
+                        </div>
                       </div>
                       <div class="text-center mt-0">
                         <div class="chat-avtar d-inline-flex mx-auto">
@@ -188,7 +204,7 @@
                             </p>
                           </div>
                           <div class="position-relative ms-auto">
-                            <a th:href="@{'/superadmin/usuarios/' + ${usuario.usuarioId} + '/reservas'}"
+                            <a th:href="@{'/superadmin/usuarios/' + ${usuario.usuarioId} + '/detalles'}"
                                class="btn btn-outline-primary btn-sm bg-primary-subtle ml-auto d-flex font-size-13 fw-bold">
                               + Ver historial completo
                             </a>
@@ -221,8 +237,9 @@
                               <td>
                                 <span th:switch="${reserva.estado.name()}" class="badge">
                                   <span th:case="pendiente" class="badge  bg-warning-subtle text-warning font-size-12">Pendiente</span>
-                                  <span th:case="confirmada" class="badge  bg-success-subtle text-success font-size-12">Confirmada</span>
+                                  <span th:case="confirmada" class="badge  bg-primary-subtle text-primary font-size-12">Confirmada</span>
                                   <span th:case="cancelada" class="badge bg-danger-subtle text-danger font-size-12">Cancelado</span>
+                                  <span th:case="completada" class="badge bg-success-subtle text-success font-size-12">Completado</span>
                                 </span>
                               </td>
                               <td>
@@ -271,6 +288,45 @@
           }
         });
       });
+    </script>
+
+    <script>
+      // Inicializar tooltips
+      document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+      });
+
+      function confirmarBaneo(button) {
+        const form = button.closest('form');
+        Swal.fire({
+          title: '¿Confirmar baneo?',
+          html: `<p>Se cancelarán todas sus reservas activas.</p>
+              <input type="text" id="motivo" class="swal2-input" placeholder="Motivo (opcional)">`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Banear',
+          cancelButtonText: 'Cancelar',
+          focusConfirm: false,
+          preConfirm: () => {
+            const motivo = document.getElementById('motivo').value;
+            if (motivo) {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = 'motivo';
+              input.value = motivo;
+              form.appendChild(input);
+            }
+            return true;
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      }
     </script>
   </body>
 </html>

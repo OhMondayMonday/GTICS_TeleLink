@@ -48,6 +48,6 @@ public class Reserva {
     private LocalDateTime fechaActualizacion;
 
     public enum Estado {
-        pendiente, confirmada, cancelada
+        pendiente, confirmada, cancelada, completada
     }
 }

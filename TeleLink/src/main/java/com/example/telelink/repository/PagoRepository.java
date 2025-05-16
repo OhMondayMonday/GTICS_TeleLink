@@ -1,12 +1,15 @@
 package com.example.telelink.repository;
 
 import com.example.telelink.entity.Pago;
+import com.example.telelink.entity.Reserva;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PagoRepository extends JpaRepository<Pago, Integer> {
@@ -17,31 +20,26 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
     List<Pago> findByEstadoTransaccionAndMetodoPago_MetodoPagoId(Pago.EstadoTransaccion estadoTransaccion, Integer metodoPagoId);
 
 
-    // Consulta SQL nativa para obtener el monto total semanal por metodo_pago_id
-    @Query(value = "SELECT SUM(p.monto) " +
+    @Query(value = "SELECT COALESCE(SUM(p.monto), 0) " +
             "FROM pagos p " +
             "WHERE p.metodo_pago_id = :metodoPagoId " +
+            "AND p.estado_transaccion = 'completado' " +  // Asegúrate que coincida con tu enum
             "AND EXTRACT(WEEK FROM p.fecha_pago) = EXTRACT(WEEK FROM CURRENT_DATE) " +
             "AND EXTRACT(YEAR FROM p.fecha_pago) = EXTRACT(YEAR FROM CURRENT_DATE)",
             nativeQuery = true)
-    Double obtenerMontoSemanalPorMetodoPago(@Param("metodoPagoId") Integer metodoPagoId);
+    BigDecimal obtenerMontoSemanalPorMetodoPago(@Param("metodoPagoId") Integer metodoPagoId);
 
-    // Consulta SQL nativa para obtener el monto total mensual por metodo_pago_id
-    @Query(value = "SELECT SUM(p.monto) " +
+    @Query(value = "SELECT COALESCE(SUM(p.monto), 0) " +
             "FROM pagos p " +
             "WHERE p.metodo_pago_id = :metodoPagoId " +
+            "AND p.estado_transaccion = 'completado' " +  // Asegúrate que coincida con tu enum
             "AND EXTRACT(MONTH FROM p.fecha_pago) = EXTRACT(MONTH FROM CURRENT_DATE) " +
             "AND EXTRACT(YEAR FROM p.fecha_pago) = EXTRACT(YEAR FROM CURRENT_DATE)",
             nativeQuery = true)
-    Double obtenerMontoMensualPorMetodoPago(@Param("metodoPagoId") Integer metodoPagoId);
+    BigDecimal obtenerMontoMensualPorMetodoPago(@Param("metodoPagoId") Integer metodoPagoId);
 
-    @Query("SELECT p FROM Pago p " +
-            "JOIN FETCH p.reserva r " +
-            "JOIN FETCH r.usuario " +
-            "JOIN FETCH r.espacioDeportivo ed " +
-            "JOIN FETCH ed.establecimientoDeportivo " +
-            "JOIN FETCH p.metodoPago")
-    List<Pago> findAllWithRelations();
+    List<Pago> findByReserva_Usuario_UsuarioId(Integer usuarioId);
 
+    Optional<Pago> findByReserva_ReservaId(Integer reservaId);
 
 }

@@ -54,24 +54,18 @@
 
                                             <div class="mb-3">
                                                 <label for="imagenAviso" class="d-block">Insertar imagen</label>
-                                                <div class="d-block">
-                                                    <!-- Campo para subir archivo -->
-                                                    <input type="file" class="form-control mb-2" id="imagenAviso"
-                                                           name="archivoImagen" accept=".jpg, .jpeg, .png"
-                                                           onchange="previewImage(this)">
+                                                <input type="file" class="form-control mb-2" id="imagenAviso"
+                                                       name="archivoImagen" accept=".jpg, .jpeg, .png" onchange="previewImage(this)"/>
 
-                                                    <!-- Campo oculto para la URL (se llenará automáticamente) -->
-                                                    <input type="hidden" id="fotoAvisoUrlHidden" name="fotoAvisoUrl">
+                                                <input type="hidden" id="fotoAvisoUrlHidden" name="fotoAvisoUrl" />
 
-                                                    <!-- Campo para URL manual -->
-                                                    <div class="input-group mt-2">
-                                                        <span class="input-group-text">O ingresa URL</span>
-                                                        <input type="text" class="form-control" id="fotoAvisoUrlInput"
-                                                               placeholder="https://ejemplo.com/imagen.jpg">
-                                                    </div>
-
-                                                    <small class="text-muted">Formatos aceptados: JPG, JPEG, PNG o URL de imagen</small>
+                                                <div class="input-group mt-2">
+                                                    <span class="input-group-text">O ingresa URL</span>
+                                                    <input type="text" class="form-control" id="fotoAvisoUrlInput"
+                                                           placeholder="https://ejemplo.com/imagen.jpg">
                                                 </div>
+
+                                                <small class="text-muted">Formatos aceptados: JPG, JPEG, PNG o URL de imagen</small>
                                             </div>
 
                                             <div class="d-flex justify-content-start mb-1 mt-4">
@@ -84,20 +78,30 @@
                             </div>
 
                             <div class="col-xl-6 col-lg-6">
-                                <div class="card border border-primary" style="max-height: 560px">
-                                    <div class="card-body">
-                                        <h4 id="titulo" th:text="${aviso.getTituloAviso()} ?: 'Título del aviso'">Título del aviso</h4>
-                                        <p id="informacion" th:text="${aviso.getTextoAviso()} ?: 'Contenido del aviso aparecerá aquí'">Contenido del aviso</p>
-                                    </div>
-                                    <div class="px-3 justify-content-center" style="max-height: 450px; overflow: hidden">
-                                        <img class="card-img-bottom img-fluid" id="cardImagePreview"
-                                             th:src="${aviso.getFotoAvisoUrl()} ?: 'assets/images/small/img-7.jpg'"
-                                             alt="Imagen del aviso" style="object-fit: contain; max-height: 100%; width: auto;">
-                                    </div>
-                                    <div class="row px-3 pb-2">
-                                        <div class="mt-3">
-                                            <small class="text-muted" th:text="'Publicado: ' + ${#temporals.format(aviso.getFechaAviso(), 'dd/MM/yyyy HH:mm')}"></small>
+                                <div class="card border border-primary">
+                                    <div class="card-header pb-1">
+                                        <div class="d-flex">
+                                            <h4 class="card-title my-2">Vista previa del aviso</h4>
                                         </div>
+                                    </div>
+                                    <div class="card-body py-1">
+                                        <h4 class="card-title my-2" id="titulo" th:text="${aviso.getTituloAviso()} ?: 'Título del aviso'">Título del aviso</h4>
+                                        <p class="card-text text-muted mb-1" id="informacion" th:text="${aviso.getTextoAviso()} ?: 'Contenido del aviso aparecerá aquí'">Contenido del aviso</p>
+                                    </div>
+                                    <div class="px-3">
+                                        <img class="card-img-bottom img-fluid object-fit-cover"
+                                             style="max-height: 393px;"
+                                             id="cardImagePreview"
+                                             th:src="${aviso.getFotoAvisoUrl()} ?: 'assets/images/BienvenidaSanMiguel.png'"
+                                             alt="Imagen del aviso"
+                                             onerror="this.onerror=null; this.src='/assets/images/BienvenidaSanMiguel.png'">
+                                    </div>
+                                    <div class="mb-1 px-3">
+                                        <p class="card-text mt-1">
+                                            <small>Publicado: </small>
+                                            <small class="text-muted"
+                                                   th:text="${aviso.getFechaAviso()} ? ${#temporals.format(aviso.getFechaAviso(), 'dd/MM/yyyy HH:mm')} : 'Fecha de creación'"></small>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -116,50 +120,68 @@
         <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
 
         <script>
-            // Vista previa de la imagen
-            function previewImage(input) {
-                if (input.files && input.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        document.getElementById('cardImagePreview').src = e.target.result;
-                    };
-                    reader.readAsDataURL(input.files[0]);
-                }
-            }
+            document.addEventListener('DOMContentLoaded', function () {
+                const inputFile = document.getElementById('imagenAviso');
+                const inputUrl = document.getElementById('fotoAvisoUrlInput');
+                const hiddenInput = document.getElementById('fotoAvisoUrlHidden');
+                const previewImg = document.getElementById('cardImagePreview');
 
-            // Actualización en tiempo real de los campos de texto
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.getElementById('myForm');
-                const titleInput = document.getElementById('tituloAviso');
-                const infoInput = document.getElementById('textoAviso');
+                const tituloInput = document.getElementById('tituloAviso');
+                const textoInput = document.getElementById('textoAviso');
+                const previewTitulo = document.getElementById('titulo'); // <- corregido
+                const previewTexto = document.getElementById('informacion'); // <- corregido
 
-                if(titleInput && infoInput) {
-                    titleInput.addEventListener('input', function() {
-                        document.getElementById('titulo').textContent = this.value || 'Título del aviso';
-                    });
+                // Previsualizar imagen al subir archivo
+                inputFile.addEventListener('change', function () {
+                    if (inputFile.files && inputFile.files.length > 0) {
+                        inputUrl.value = '';
+                        hiddenInput.value = '';
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            if (previewImg) previewImg.src = e.target.result;
+                        };
+                        reader.readAsDataURL(inputFile.files[0]);
+                    }
+                });
 
-                    infoInput.addEventListener('input', function() {
-                        document.getElementById('informacion').textContent = this.value || 'Contenido del aviso aparecerá aquí';
-                    });
-                }
+                // Previsualizar imagen al escribir URL
+                inputUrl.addEventListener('input', function () {
+                    inputFile.value = '';
+                    hiddenInput.value = this.value;
+                    if (previewImg) previewImg.src = this.value || '/assets/images/BienvenidaSanMiguel.png';
+                });
+
+                // Previsualizar título
+                tituloInput.addEventListener('input', function () {
+                    if (previewTitulo) previewTitulo.textContent = this.value || 'Título del aviso';
+                });
+
+                // Previsualizar texto
+                textoInput.addEventListener('input', function () {
+                    if (previewTexto) previewTexto.textContent = this.value || 'Contenido del aviso aparecerá aquí';
+                });
             });
         </script>
 
         <script>
-            function previewImage(input) {
-                if (input.files && input.files[0]) {
-                    // Si se sube un archivo, limpia el campo de URL manual
-                    document.getElementById('fotoAvisoUrlInput').value = '';
+            document.addEventListener('DOMContentLoaded', function () {
+                const inputFile = document.getElementById('imagenAviso');
+                const inputUrl = document.getElementById('fotoAvisoUrlInput');
+                const hiddenUrl = document.getElementById('fotoAvisoUrlHidden');
 
-                    // Aquí iría tu lógica para previsualizar y subir la imagen
-                    // Al final, cuando tengas la URL, la asignas al campo hidden:
-                    // document.getElementById('fotoAvisoUrlHidden').value = urlDeLaImagenSubida;
-                }
-            }
+                // Cuando se selecciona un archivo
+                inputFile.addEventListener('change', function () {
+                    if (inputFile.files && inputFile.files.length > 0) {
+                        inputUrl.value = '';           // limpiar campo de URL
+                        hiddenUrl.value = '';          // limpiar el input hidden
+                    }
+                });
 
-            // Cuando se escribe en el campo de URL manual
-            document.getElementById('fotoAvisoUrlInput').addEventListener('input', function() {
-                document.getElementById('fotoAvisoUrlHidden').value = this.value;
+                // Cuando se escribe una URL manualmente
+                inputUrl.addEventListener('input', function () {
+                    inputFile.value = '';              // limpiar archivo cargado
+                    hiddenUrl.value = this.value;      // actualizar el input hidden
+                });
             });
         </script>
     </body>

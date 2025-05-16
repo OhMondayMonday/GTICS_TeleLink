@@ -29,7 +29,7 @@
                                     <div class="loader-container">
                                         <div class="loader"></div>
                                     </div>
-                                    <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100 display" style="display: none;">
+                                    <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100">
                                         <thead>
                                             <tr>
                                                 <th style="width: 40px">ID</th>
@@ -46,43 +46,67 @@
                                             <tr th:each="pago : ${pagos}">
                                                 <td th:text="${pago.pagoId}"></td>
                                                 <td>
-                                                    <img th:src="${pago.reserva.usuario.fotoPerfilUrl != null} ? ${pago.reserva.usuario.fotoPerfilUrl} : '/assets/images/users/avatar-3.jpg'}"
+                                                    <img th:src="${pago.reserva.usuario.fotoPerfilUrl != null ? pago.reserva.usuario.fotoPerfilUrl : '/assets/images/users/avatar-3.jpg'}"
                                                          alt="foto_perfil" class="avatar-xs rounded-circle me-2">
                                                     <span th:text="${pago.reserva.usuario.nombres + ' ' + pago.reserva.usuario.apellidos}"></span>
                                                 </td>
                                                 <td th:text="${pago.reserva.espacioDeportivo.getNombre()}"></td>
-                                                <td th:text="${pago.metodoPago.getMetodoPago()}"></td>
+                                                <td>
+                                                    <!-- Imagen según método de pago -->
+                                                    <div class="d-flex align-items-center">
+                                                        <img th:src="${#strings.toLowerCase(pago.metodoPago.getMetodoPago()) == 'yape' ? '/assets/images/companies/Yape.png' :
+                                                                        (#strings.toLowerCase(pago.metodoPago.getMetodoPago()) == 'plin' ? '/assets/images/companies/Plin.png' :
+                                                                        (#strings.toLowerCase(pago.metodoPago.getMetodoPago()) == 'izipay' ? '/assets/images/companies/Izipay.jpg' :
+                                                                        '/assets/images/companies/Efectivo.png'))}"
+                                                             class="avatar-xs rounded-circle me-2"
+                                                             th:alt="${pago.metodoPago.getMetodoPago()}">
+                                                        <span th:text="${pago.metodoPago.getMetodoPago()}"></span>
+                                                    </div>
+                                                </td>
                                                 <td th:text="${'S/ ' + #numbers.formatDecimal(pago.monto, 1, 2)}"></td>
                                                 <td th:text="${pago.fechaPago != null} ? ${#temporals.format(pago.fechaPago, 'dd/MM/yyyy HH:mm')} : 'No pagado'"></td>
                                                 <td>
-                                                <span th:switch="${pago.estadoTransaccion.name()}" class="badge">
-                                                    <span th:case="completado" class="badge bg-success-subtle text-success font-size-12">Completado</span>
-                                                    <span th:case="pendiente" class="badge bg-warning-subtle text-warning font-size-12">Pendiente</span>
-                                                    <span th:case="fallido" class="badge bg-danger-subtle text-danger font-size-12">Fallido</span>
-                                                </span>
+                                                    <span th:switch="${pago.estadoTransaccion.name()}" class="badge">
+                                                        <span th:case="completado" class="badge bg-success-subtle text-success font-size-12">Completado</span>
+                                                        <span th:case="pendiente" class="badge bg-warning-subtle text-warning font-size-12">Pendiente</span>
+                                                        <span th:case="fallido" class="badge bg-danger-subtle text-danger font-size-12">Fallido</span>
+                                                    </span>
                                                 </td>
                                                 <td>
-                                                    <a th:href="@{'/superadmin/pagos/' + ${pago.pagoId}}"
-                                                       class="me-2 text-primary"
-                                                       data-bs-toggle="tooltip"
-                                                       data-bs-placement="top"
-                                                       title="Ver detalles">
-                                                        <i class="mdi mdi-eye-outline font-size-18"></i>
-                                                    </a>
-                                                    <a th:if="${pago.fotoComprobanteUrl != null}"
-                                                       th:href="@{${pago.fotoComprobanteUrl}}"
-                                                       class="me-2 text-info"
-                                                       data-bs-toggle="tooltip"
-                                                       data-bs-placement="top"
-                                                       title="Ver comprobante"
-                                                       target="_blank">
-                                                        <i class="mdi mdi-file-image-outline font-size-18"></i>
-                                                    </a>
+                                                    <!-- Botón para modal de detalles -->
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-primary"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#detallePagoModal"
+                                                            th:attr="data-pago-id=${pago.pagoId}">
+                                                        <i class="mdi mdi-eye-outline"></i> Ver detalles
+                                                    </button>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div> <!-- end card body-->
+                                <!-- Modal -->
+                                <div class="modal fade" id="detallePagoModal" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Detalles completos del pago</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body" id="detallePagoContent">
+                                                <!-- Contenido dinámico se insertará aquí -->
+                                                <div class="text-center py-4">
+                                                    <div class="spinner-border text-primary" role="status"></div>
+                                                    <p class="mt-2">Cargando detalles...</p>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -131,6 +155,35 @@
                 table.hide();
             });
 
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                $('#detallePagoModal').on('show.bs.modal', function(event) {
+                    const button = $(event.relatedTarget);
+                    const pagoId = button.data('pago-id');
+                    const modal = $(this);
+
+                    // Mostrar spinner mientras carga
+                    modal.find('#detallePagoContent').html(`
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2">Cargando detalles...</p>
+                        </div>
+                    `);
+
+                    // Cargar datos via AJAX
+                    $.get(`/superadmin/pagos/detalles/${pagoId}`, function(data) {
+                        modal.find('#detallePagoContent').html(data);
+                    }).fail(function() {
+                        modal.find('#detallePagoContent').html(`
+                <div class="alert alert-danger">
+                    Error al cargar los detalles. Intente nuevamente.
+                </div>
+            `);
+                    });
+                });
+            });
         </script>
     </body>
 </html>

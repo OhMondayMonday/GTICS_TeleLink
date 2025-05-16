@@ -4,6 +4,7 @@ import com.example.telelink.dto.admin.CantidadReservasPorDiaDto;
 import com.example.telelink.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -83,9 +84,25 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query("SELECT COUNT(u) FROM Usuario u WHERE YEAR(u.fechaCreacion) = YEAR(CURRENT_DATE - 1 MONTH) AND MONTH(u.fechaCreacion) = MONTH(CURRENT_DATE - 1 MONTH)")
     long countUsuariosMesPasado();
 
+    // Para validar unicidad del correo
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END " +
+            "FROM Usuario u WHERE u.correoElectronico = :correo AND u.usuarioId != :excludeId")
+    boolean existsByCorreoElectronicoAndUsuarioIdNot(
+            @Param("correo") String correoElectronico,
+            @Param("excludeId") Integer excludeId);
+
+    // Para validar unicidad del teléfono
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END " +
+            "FROM Usuario u WHERE u.telefono = :telefono AND u.usuarioId != :excludeId")
+    boolean existsByTelefonoAndUsuarioIdNot(
+            @Param("telefono") String telefono,
+            @Param("excludeId") Integer excludeId);
 
 
     Usuario findByCorreoElectronico(String correoElectronico);
     Usuario findByDni(String dni);
+
+    @Query("SELECT u FROM Usuario u WHERE u.rol.rolId = :rolId ORDER BY u.apellidos, u.nombres")
+    List<Usuario> findByRolId(@Param("rolId") Integer rolId);
 
 }
