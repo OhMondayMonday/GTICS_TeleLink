@@ -26,11 +26,9 @@
                     <button type="button"
                             class="btn header-item waves-effect"
                             style="cursor: default !important;
-                                        pointer-events: none;
-                                        box-shadow: none !important;
-                                        transform: none !important;">
-                        <!--Gian: Modifica esto como titulo de la pantalla-->
-                        <p th:text="${titulo}" class="h4"></p>
+                             pointer-events: none;
+                             box-shadow: none !important;
+                             transform: none !important;" th:text="${titulo}">
                     </button>
                 </div>
             </div>
@@ -81,7 +79,7 @@
                         <img class="rounded-circle header-profile-user"
                              th:src="@{${session.usuario.fotoPerfilUrl}}"
                              alt="Header Avatar">
-                        <span class="d-none d-xl-inline-block ms-1" th:text="${session.usuario.nombres}"></span>
+                        <span class="d-none d-xl-inline-block ms-1" th:text="${session.usuario.nombres.split(' ')[0]}"></span>
                         <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">

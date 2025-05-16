@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{admin/fragments/headList.html :: headList(title='Lista de observaciones de coordinador')}">
     <meta charset="UTF-8">
     <title>Title</title>
@@ -27,26 +27,10 @@
 
         <div class="page-content">
             <div class="container-fluid">
-                <div class="row justify-content-around">
-                    <div class="col-lg-11 align-items-center">
-                        <div class="card">
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <div class="card mb-0">
                             <div class="card-body">
-
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="card">
-                                            <div class="card-body">
-
-                                                <!-- Título y descripción con mayor tamaño -->
-                                                <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-                                                    <div class="mb-2">
-                                                        <h4 class="card-title" style="font-size: 1.8rem; font-weight: 600;">Lista de Observaciones</h4>
-                                                    </div>
-                                                    <div class="mb-2" style="font-size: 1.1rem; color: #6c757d;">
-                                                        Consulta la información de las observaciones asociadas
-                                                    </div>
-                                                </div>
-
                                                 <!-- Formulario para filtrar por nivel de urgencia -->
                                                 <!--<form action="/admin/observaciones" method="get">
                                                     <label for="nivel">Filtrar por Nivel de Urgencia:</label>
@@ -57,7 +41,7 @@
                                                         <option value="alto" th:selected="${nivel == 'alto'}">Alto</option>
                                                     </select>
                                                 </form>-->
-                                                <!-- Formulario para filtrar por nivel de urgencia -->
+                                                <!-- Formulario para filtrar por nivel de urgencia
                                                 <form action="/admin/observaciones" method="get">
                                                     <label for="nivel">Filtrar por Nivel de Urgencia:</label>
                                                     <select name="nivel" id="nivel" onchange="this.form.submit()">
@@ -66,51 +50,46 @@
                                                         <option value="medio" th:selected="${nivelSeleccionado == 'medio'}">Medio</option>
                                                         <option value="alto" th:selected="${nivelSeleccionado == 'alto'}">Alto</option>
                                                     </select>
-                                                </form>
+                                                </form>-->
 
-                                                <div class="table-responsive">
-
-                                                    <table id="establecimientosTable" class="table table-bordered nowrap w-100">
-                                                        <thead>
+                                            <div class="table-responsive">
+                                                <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="7" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                    <thead>
                                                         <tr>
-                                                            <th>ID</th>
-                                                            <th>Descripción</th>
-                                                            <th>Fecha de Creación</th>
-                                                            <th>Fecha de Actualización</th>
+                                                            <th>Fecha</th>
+                                                            <th>Espacio deportivo</th>
+                                                            <th>Establecimiento</th>
                                                             <th>Nivel de Urgencia</th>
-                                                            <th>Espacio Deportivo</th>
                                                             <th>Coordinador</th>
-                                                            <th>Comentario Administrador</th>
+                                                            <th>Estado</th>
                                                             <th>Acciones</th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
                                                         <tr th:each="observacion : ${observaciones}">
-                                                            <td th:text="${observacion.observacionId}"></td>
-                                                            <td th:text="${observacion.descripcion}"></td>
-                                                            <td th:text="${#temporals.format(observacion.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
-                                                            <td th:text="${#temporals.format(observacion.fechaActualizacion, 'dd/MM/yyyy HH:mm')}"></td>
-                                                            <td th:text="${#strings.capitalize(observacion.nivelUrgencia.name().toLowerCase())}"></td>
+                                                            <td th:text="${#temporals.format(observacion.fechaCreacion, 'dd/MM/yyyy')}"></td>
                                                             <td th:text="${observacion.espacioDeportivo.nombre}"></td>
-                                                            <td th:text="${observacion.coordinador.nombres}"></td>
-                                                            <td th:text="${observacion.comentarioAdministrador} ?: '---'"></td>
+                                                            <td th:text="${observacion.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}"></td>
+                                                            <td th:text="${#strings.capitalize(observacion.nivelUrgencia.name().toLowerCase())}"></td>
+                                                            <td th:text="${observacion.coordinador.nombres} + ' ' +${observacion.coordinador.apellidos}"></td>
                                                             <td>
-                                                                <a th:href="@{/admin/observaciones/info(id=${observacion.observacionId})}" class="btn btn-primary btn-sm">
-                                                                    <i class="mdi mdi-eye"></i> Ver Detalles
+                        <span th:switch="${observacion.estado.name()}">
+                            <span th:case="'pendiente'" class="badge bg-warning">Pendiente</span>
+                            <span th:case="'resuelto'" class="badge bg-success">Resuelto</span>
+                            <span th:case="'en_proceso'" class="badge bg-primary">En proceso</span>
+                        </span>
+                                                            </td>
+                                                            <td>
+                                                                <a th:href="@{/admin/observaciones/info(id=${observacion.observacionId})}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                    <i class="fas fa-eye"></i>
                                                                 </a>
                                                             </td>
+
                                                         </tr>
                                                         </tbody>
                                                     </table>
 
                                                 </div>
-
-
-
-                                            </div>
-                                        </div>
-                                    </div> <!-- end col -->
-                                </div> <!-- end row -->
 
                             </div>
                         </div>
@@ -139,6 +118,7 @@
 
 <!-- Incluir los scripts del listado -->
 <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+    <script th:src="@{/assets/js/pages/observacionesAdmin.init.js}"></script>
 
 
 

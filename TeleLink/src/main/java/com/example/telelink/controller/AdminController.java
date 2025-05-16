@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,7 +30,13 @@ public class AdminController {
     private EstablecimientoDeportivoRepository establecimientoDeportivoRepository;
 
     @Autowired
+    private AvisoRepository avisoRepository;
+
+    @Autowired
     private EspacioDeportivoRepository espacioDeportivoRepository;
+
+    @Autowired
+    private ReservaRepository reservaRepository;
 
     @Autowired
     private ServicioDeportivoRepository servicioDeportivoRepository;
@@ -41,6 +50,18 @@ public class AdminController {
     @Autowired
     private ObservacionRepository observacionRepository;
 
+    @Autowired
+    private AsistenciaRepository asistenciaRepository;
+
+    @GetMapping("/calendario")
+    public ResponseEntity<List<Asistencia>> getAsistenciasParaCalendario(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+            @RequestParam int userId) {
+
+        List<Asistencia> asistencias = asistenciaRepository.findForCalendarRange(start, end, userId);
+        return ResponseEntity.ok(asistencias);
+    }
 
     @GetMapping("establecimientos")
     public String listarEstablecimientos(Model model) {
@@ -360,6 +381,38 @@ public class AdminController {
 
     @GetMapping("/dashboard")
     public String estadisticas(Model model) {
+
+        // Obtener los datos de reservas y pagos
+        Integer numeroReservasMes = reservaRepository.numeroReservasMes();
+        Integer numeroReservasMesPasado = reservaRepository.numeroReservasMesPasado();
+        Double montoMensual = reservaRepository.obtenerMontoTotalDeReservasEsteMes();
+        montoMensual = montoMensual == null ? 0 : montoMensual;
+        Double promedioMensual = montoMensual / numeroReservasMes;
+        promedioMensual = montoMensual == 0.0 ? 0.0 : promedioMensual;
+        Double montoMensualPasado = reservaRepository.obtenerMontoTotalDeReservasMesPasado();
+        montoMensualPasado = (montoMensualPasado == null) ? 0.0 : montoMensualPasado;
+        double promedioMensualPasado = montoMensualPasado / numeroReservasMesPasado;
+        promedioMensualPasado = (montoMensualPasado == 0.0) ? 0.0 : promedioMensualPasado;
+
+        // Calcular la diferencia en las reservas y definir el badge
+        String badge;
+        long diferencia = numeroReservasMes - numeroReservasMesPasado;
+        if (diferencia < 0) {
+            badge = "badge bg-danger-subtle text-danger font-size-11";
+        } else {
+            badge = "badge bg-success-subtle text-success font-size-11";
+        }
+
+        // Agregar los datos al modelo
+        model.addAttribute("numeroReservasMes", numeroReservasMes);
+        model.addAttribute("promedioMensualPasado", promedioMensualPasado);
+        model.addAttribute("diferencia", diferencia);
+        model.addAttribute("badge", badge);
+        model.addAttribute("montoMensual", montoMensual);
+        model.addAttribute("promedioMensual", promedioMensual);
+        model.addAttribute("montoMensualPasado", montoMensualPasado);
+
+
         List<CantidadReservasPorDiaDto> reservasPorDia = usuarioRepository.obtenerCantidadReservasPorDia();
 
         // Calcular el total de reservas
@@ -390,6 +443,10 @@ public class AdminController {
         model.addAttribute("chartData", chartData);
         model.addAttribute("chartLabels", chartLabels);
         model.addAttribute("top3Dias", top3Dias);
+
+        // Obtener el aviso más reciente
+        Aviso ultimoAviso = avisoRepository.findLatestAviso();
+        model.addAttribute("ultimoAviso", ultimoAviso);
 
         return "admin/dashboard";
     }

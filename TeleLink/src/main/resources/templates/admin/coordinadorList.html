@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{admin/fragments/headList.html :: headList(title='Lista de coordinadores')}">
   <meta charset="UTF-8">
   <title>Title</title>
@@ -27,32 +27,17 @@
 
     <div class="page-content">
       <div class="container-fluid">
-        <div class="row justify-content-around">
-          <div class="col-lg-11 align-items-center">
-            <div class="card">
+        <div class="row mb-4">
+          <div class="col-lg-12">
+            <div class="card mb-0">
               <div class="card-body">
 
-                <div class="row">
-                  <div class="col-12">
-                    <div class="card">
-                      <div class="card-body">
-
-                        <!-- Título y descripción con mayor tamaño -->
-                        <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-                          <div class="mb-2">
-                            <h4 class="card-title" style="font-size: 1.8rem; font-weight: 600;">Lista de Coordinadores Deportivos</h4>
-                          </div>
-                          <div class="mb-2" style="font-size: 1.1rem; color: #6c757d;">
-                            Consulta la información de los trabajadores asignados a los establecimientos deportivos. Puedes acceder a su calendario o contactar directamente.
-                          </div>
-                        </div>
-
-                        <div class="table-responsive">
-                          <table id="establecimientosTable" class="table table-bordered nowrap w-100"> <!-- trabajadoresTable -->
-                            <thead>
+                <div class="table-responsive">
+                  <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="7" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                    <thead>
                             <tr>
-                              <th>Nombre</th>
-                              <th>Correo</th>
+                              <th>Nombre completo</th>
+                              <th>Correo electrónico</th>
                               <th>Teléfono</th>
                               <th>Acciones</th>
                             </tr>
@@ -63,8 +48,8 @@
                               <td th:text="${coordinador.correoElectronico}"></td>
                               <td th:text="${coordinador.telefono}"></td>
                               <td>
-                                <a th:href="@{/admin/coordinadores/calendario(id=${coordinador.usuarioId})}" class="btn btn-sm btn-primary">
-                                  <i class="mdi mdi-calendar"></i> Ver Calendario
+                                <a th:href="@{/admin/coordinadores/calendario(id=${coordinador.usuarioId})}"  class="btn btn-outline-secondary btn-sm edit" title="Calendario">
+                                  <i class="fas fa-calendar"></i>
                                 </a>
                               </td>
                             </tr>
@@ -72,13 +57,6 @@
                             </tbody>
                           </table>
                         </div>
-
-
-
-                      </div>
-                    </div>
-                  </div> <!-- end col -->
-                </div> <!-- end row -->
 
               </div>
             </div>
@@ -107,6 +85,7 @@
 
 <!-- Incluir los scripts del listado -->
 <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+  <script th:src="@{/assets/js/pages/coordinadoresAdmin.init.js}"></script>
 
 </body>
 </html>

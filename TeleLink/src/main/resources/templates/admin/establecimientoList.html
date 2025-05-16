@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{admin/fragments/headList.html :: headList(title='Lista de establecimientos deportivos')}">
     <meta charset="UTF-8">
     <title>Title</title>
@@ -27,31 +27,10 @@
 
     <div class="page-content">
         <div class="container-fluid">
-            <div class="row justify-content-around">
-                <div class="col-lg-11 align-items-center">
-                    <div class="card">
+            <div class="row mb-4">
+                <div class="col-lg-12">
+                    <div class="card mb-0">
                         <div class="card-body">
-
-                            <div th:if="${msg}" class="alert alert-success alert-dismissible fade show" role="alert">
-                                <span th:text="${msg}"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="card">
-                                        <div class="card-body">
-
-                                            <!-- Título y descripción con mayor tamaño -->
-                                            <div class="d-flex flex-wrap justify-content-between align-items-start mb-3">
-                                                <div class="mb-2">
-                                                    <h4 class="card-title" style="font-size: 1.8rem; font-weight: 600;">Lista de Establecimientos Deportivos</h4>
-                                                </div>
-                                                <div class="mb-2" style="font-size: 1.1rem; color: #6c757d;">
-                                                    Gestiona los establecimientos deportivos disponibles. Puedes ver más información o editar la configuración de cada uno.
-                                                </div>
-                                            </div>
-
                                             <!-- Contenedor de botones para "Nuevo Establecimiento" y "Nuevo Espacio Deportivo" con más espacio -->
                                             <div class="d-flex mb-3">
                                                 <a th:href="@{/admin/establecimientos/nuevo}" class="btn btn-primary me-3 mb-2">
@@ -64,16 +43,14 @@
 
                                             <!-- Tabla responsive -->
                                             <div class="table-responsive">
-                                                <table id="establecimientosTable" class="table table-bordered nowrap w-100">
+                                                <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="6" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                                     <thead>
                                                     <tr>
                                                         <th>Nombre</th>
                                                         <th>Dirección</th>
-                                                        <th>Estacionamiento</th>
                                                         <th>Teléfono</th>
                                                         <th>Correo</th>
-                                                        <th>Horario Apertura</th>
-                                                        <th>Horario Cierre</th>
+                                                        <th>Horario</th>
                                                         <th>Acciones</th>
                                                     </tr>
                                                     </thead>
@@ -81,31 +58,25 @@
                                                     <tr th:each="establecimiento : ${establecimientos}">
                                                         <td th:text="${establecimiento.establecimientoDeportivoNombre}"></td>
                                                         <td th:text="${establecimiento.direccion}"></td>
-                                                        <td th:text="${establecimiento.espaciosEstacionamiento}"></td>
                                                         <td th:text="${establecimiento.telefonoContacto}"></td>
                                                         <td th:text="${establecimiento.correoContacto}"></td>
-                                                        <td th:text="${establecimiento.horarioApertura}"></td>
-                                                        <td th:text="${establecimiento.horarioCierre}"></td>
+                                                        <td th:text="${establecimiento.horarioApertura} + ' - ' + ${establecimiento.horarioCierre}"></td>
+
                                                         <td>
-                                                            <a href="#" class="btn btn-sm btn-primary">
-                                                                <i class="mdi mdi-calendar-month-outline me-1"></i> Calendario
+                                                            <a href="#" class="btn btn-outline-secondary btn-sm edit" title="Calendario">
+                                                                <i class="fas fa-calendar"></i>
                                                             </a>
-                                                            <a th:href="@{/admin/establecimientos/info(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-sm btn-secondary">
-                                                                <i class="mdi mdi-calendar-month-outline me-1"></i> Detalles
+                                                            <a th:href="@{/admin/establecimientos/info(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                                <i class="fas fa-eye"></i>
                                                             </a>
-                                                            <a th:href="@{/admin/establecimientos/editar(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-sm btn-success me-1">
-                                                                <i class="mdi mdi-pencil me-1"></i> Editar
+                                                            <a th:href="@{/admin/establecimientos/editar(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-outline-secondary btn-sm edit" title="Editar">
+                                                                <i class="fas fa-pencil-alt"></i>
                                                             </a>
                                                         </td>
                                                     </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
-
-                                        </div>
-                                    </div>
-                                </div> <!-- end col -->
-                            </div> <!-- end row -->
 
                         </div>
                     </div>
@@ -134,6 +105,7 @@
 
 <!-- Incluir los scripts del listado -->
 <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+    <script th:src="@{/assets/js/pages/establecimientosAdmin.init.js}"></script>
 
 </body>
 </html>
