@@ -181,7 +181,7 @@ public class SuperadminController {
         List<Aviso> avisos = avisoRepository.findAll(Sort.by(Sort.Direction.DESC, "fechaAviso"));
 
         // Obtener el último aviso (el más reciente)
-        Aviso ultimoAviso = avisos.isEmpty() ? null : avisos.getFirst();
+        Aviso ultimoAviso = avisos.isEmpty() ? null : avisos.get(0);
 
         // Agregar atributos al modelo
         model.addAttribute("avisos", avisos);
