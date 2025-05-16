@@ -4,11 +4,14 @@ import com.example.telelink.entity.PasswordResetToken;
 import com.example.telelink.entity.Rol;
 import com.example.telelink.entity.Usuario;
 import com.example.telelink.entity.VerificationToken;
+import com.example.telelink.model.DniResponse;
 import com.example.telelink.repository.RolRepository;
 import com.example.telelink.repository.UsuarioRepository;
 import com.example.telelink.repository.VerificationTokenRepository;
 import com.example.telelink.repository.PasswordResetTokenRepository;
+import com.example.telelink.service.DniService;
 import com.example.telelink.service.EmailService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -32,19 +36,22 @@ public class LoginController {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final RolRepository rolRepository;
+    private final DniService dniService;
 
     public LoginController(UsuarioRepository usuarioRepository,
                            VerificationTokenRepository tokenRepository,
                            PasswordResetTokenRepository passwordResetTokenRepository,
                            EmailService emailService,
                            PasswordEncoder passwordEncoder,
-                           RolRepository rolRepository) {
+                           RolRepository rolRepository,
+                           DniService dniService) {
         this.usuarioRepository = usuarioRepository;
         this.tokenRepository = tokenRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.rolRepository = rolRepository;
+        this.dniService = dniService;
     }
 
     @GetMapping("/openLoginWindow")
@@ -92,7 +99,6 @@ public class LoginController {
         return "registro";
     }
 
-
     @GetMapping("/register-success")
     public String registerSuccess() {
         return "register-success";
@@ -117,7 +123,10 @@ public class LoginController {
             return "registro";
         }
 
-        // Validar DNI si se proporciona
+        String nombresFormateados = nombres;
+        String apellidosFormateados = apellidos;
+
+        // Validar DNI y consultar API si se proporciona
         if (dni != null && !dni.isEmpty()) {
             if (dni.length() != 8 || !dni.matches("^[0-9]+$")) {
                 model.addAttribute("error", "El DNI debe tener 8 dígitos numéricos.");
@@ -127,12 +136,27 @@ public class LoginController {
                 model.addAttribute("error", "El DNI ya está registrado.");
                 return "registro";
             }
+
+            // Consultar API de DNI
+            try {
+                DniResponse dniResponse = dniService.consultarDni(dni).block();
+                if (dniResponse != null && dniResponse.isSuccess() && dniResponse.getData() != null) {
+                    nombresFormateados = dniService.formatName(dniResponse.getData().getNombres());
+                    apellidosFormateados = dniService.formatName(dniResponse.getData().getApellido_paterno() + " " + dniResponse.getData().getApellido_materno());
+                } else {
+                    model.addAttribute("error", "No se encontraron datos para el DNI proporcionado.");
+                    return "registro";
+                }
+            } catch (Exception e) {
+                model.addAttribute("error", "Error al consultar el DNI. Verifica tu conexión o intenta de nuevo.");
+                return "registro";
+            }
         }
 
         // Crear nuevo usuario
         Usuario usuario = new Usuario();
-        usuario.setNombres(nombres);
-        usuario.setApellidos(apellidos);
+        usuario.setNombres(nombresFormateados);
+        usuario.setApellidos(apellidosFormateados);
         usuario.setCorreoElectronico(correoElectronico);
         usuario.setContraseniaHash(passwordEncoder.encode(contrasenia));
         usuario.setDni(dni);
@@ -164,13 +188,41 @@ public class LoginController {
 
         // Enviar correo de verificación
         try {
-            emailService.sendVerificationEmail(correoElectronico, nombres, token);
+            emailService.sendVerificationEmail(correoElectronico, nombresFormateados, token);
         } catch (Exception e) {
             model.addAttribute("error", "Error al enviar el correo de verificación. Intenta de nuevo.");
             return "registro";
         }
 
         return "redirect:/register-success";
+    }
+
+    @PostMapping("/consultar-dni")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> consultarDni(@RequestParam String dni) {
+        Map<String, String> response = new HashMap<>();
+        if (dni.length() != 8 || !dni.matches("^[0-9]+$")) {
+            response.put("error", "El DNI debe tener 8 dígitos numéricos.");
+            return ResponseEntity.badRequest().body(response);
+        }
+        if (usuarioRepository.findByDni(dni) != null) {
+            response.put("error", "El DNI ya está registrado.");
+            return ResponseEntity.badRequest().body(response);
+        }
+        try {
+            DniResponse dniResponse = dniService.consultarDni(dni).block();
+            if (dniResponse != null && dniResponse.isSuccess() && dniResponse.getData() != null) {
+                response.put("nombres", dniService.formatName(dniResponse.getData().getNombres()));
+                response.put("apellidos", dniService.formatName(dniResponse.getData().getApellido_paterno() + " " + dniResponse.getData().getApellido_materno()));
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("error", "No se encontraron datos para el DNI proporcionado.");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            response.put("error", "Error al consultar el DNI.");
+            return ResponseEntity.status(500).body(response);
+        }
     }
 
     @GetMapping("/verify")
@@ -195,7 +247,6 @@ public class LoginController {
     public String recuperarContraseniaForm() {
         return "recuperar-contrasenia";
     }
-
 
     @PostMapping("/recuperar-contrasenia")
     public String recuperarContraseniaSubmit(@RequestParam String correoElectronico, Model model) {
@@ -283,5 +334,4 @@ public class LoginController {
         model.addAttribute("success", "Contraseña restablecida exitosamente. Inicia sesión.");
         return "reset-password";
     }
-
 }
