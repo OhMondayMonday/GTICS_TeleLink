@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+
+
+  <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
+  <head>
+
+    <meta charset="utf-8" />
+    <title>Perfil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+    <meta content="Themesdesign" name="author" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="assets/images/logoCortado.png">
+
+
+
+    <!-- jquery.vectormap css -->
+    <link href="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+
+    <link href="assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <link href="assets/libs/spectrum-colorpicker2/spectrum.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css" rel="stylesheet">
+    <link href="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+
+    <!-- DataTables -->
+    <link href="assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Responsive datatable examples -->
+    <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Bootstrap Css -->
+    <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
+    <!-- App Css-->
+    <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css"/>
+    <!-- App Css-->
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+      /* Contenedor del loader */
+      .loader-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 75vh; /* Toma toda la altura de la pantalla */
+        background-color: #ffffff; /* Fondo oscuro */
+      }
+
+      /* Estilo del loader */
+      /* HTML: <div class="loader"></div> */
+      .loader {
+        width: 60px;
+        aspect-ratio: 1;
+        display: grid;
+        color: #094183;
+        background: radial-gradient(farthest-side, currentColor calc(100% - 6px),#0000 calc(100% - 5px));
+        -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 13px), #000 calc(100% - 12px));
+        border-radius: 50%;
+        animation: l19 2s infinite linear;
+      }
+      .loader::before,
+      .loader::after {
+        content: "";
+        grid-area: 1/1;
+        background:
+                linear-gradient(currentColor 0 0) center,
+                linear-gradient(currentColor 0 0) center;
+        background-size: 100% 12px,12px 100%;
+        background-repeat: no-repeat;
+      }
+      .loader::after {
+        transform: rotate(45deg);
+      }
+
+      @keyframes l19 {
+        100%{transform: rotate(1turn)}
+      }
+    </style>
+
+    <style>
+      input.parsley-success, textarea.parsley-success {
+        border-color: #1cbb8c;  /* Color de borde para campo válido */
+      }
+    </style>
+
+  </head>
+
+  <body data-sidebar="dark" class="vertical-collpsed">
+
+    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+    <!-- Begin page -->
+    <div id="layout-wrapper" >
+
+
+      <header id="page-topbar">
+        <div class="navbar-header">
+          <div class="d-flex">
+            <!-- LOGO -->
+            <div class="navbar-brand-box">
+              <a href="index.html" class="logo logo-light">
+                                <span class="logo-sm me-1">
+                                    <img src="assets/images/logoCortado.png" alt="logo-sm-light" height="25">
+                                </span>
+                <span class="logo-lg">
+                                    <img src="assets/images/logoCompleto.png" alt="logo-light" height="40">
+                                </span>
+              </a>
+            </div>
+
+            <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+              <i class="ri-menu-2-line align-middle"></i>
+            </button>
+
+            <div class="dropdown dropdown-mega d-none d-lg-block">
+              <button type="button" class="btn header-item waves-effect font-size-16" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false"> Ver perfil
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex">
+
+            <div class="dropdown d-inline-block">
+              <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
+                      data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="ri-notification-3-line"></i>
+                <span class="noti-dot"></span>
+              </button>
+              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                   aria-labelledby="page-header-notifications-dropdown">
+                <div class="p-3">
+                  <div class="row align-items-center">
+                    <div class="col">
+                      <h6 class="m-0"> Notificaciones </h6>
+                    </div>
+                    <div class="col-auto">
+                      <a href="#" class="small"> Ver todas</a>
+                    </div>
+                  </div>
+                </div>
+                <div data-simplebar style="max-height: 230px;">
+                  <a href="#" class="text-reset notification-item">
+                    <div class="d-flex">
+                      <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                                    <i class="ri-shopping-cart-line"></i>
+                                                </span>
+                      </div>
+                      <div class="flex-1">
+                        <h6 class="mb-1">Your order is placed</h6>
+                        <div class="font-size-12 text-muted">
+                          <p class="mb-1">If several languages coalesce the grammar</p>
+                          <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                  <a href="#" class="text-reset notification-item">
+                    <div class="d-flex">
+                      <img src="assets/images/users/avatar-3.jpg"
+                           class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                      <div class="flex-1">
+                        <h6 class="mb-1">James Lemire</h6>
+                        <div class="font-size-12 text-muted">
+                          <p class="mb-1">It will seem like simplified English.</p>
+                          <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                  <a href="#" class="text-reset notification-item">
+                    <div class="d-flex">
+                      <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-success rounded-circle font-size-16">
+                                                    <i class="ri-checkbox-circle-line"></i>
+                                                </span>
+                      </div>
+                      <div class="flex-1">
+                        <h6 class="mb-1">Your item is shipped</h6>
+                        <div class="font-size-12 text-muted">
+                          <p class="mb-1">If several languages coalesce the grammar</p>
+                          <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+
+                  <a href="#" class="text-reset notification-item">
+                    <div class="d-flex">
+                      <img src="assets/images/users/avatar-4.jpg"
+                           class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                      <div class="flex-1">
+                        <h6 class="mb-1">Salena Layfield</h6>
+                        <div class="font-size-12 text-muted">
+                          <p class="mb-1">As a skeptical Cambridge friend of mine occidental.</p>
+                          <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="dropdown d-inline-block user-dropdown">
+              <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                      data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-2.jpg"
+                     alt="Header Avatar">
+                <span class="d-none d-xl-inline-block ms-1">Kevin</span>
+                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-end">
+                <!-- item-->
+                <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
+              </div>
+            </div>
+
+
+
+          </div>
+        </div>
+      </header>
+
+      <!-- ========== Left Sidebar Start ========== -->
+      <div class="vertical-menu">
+
+        <div data-simplebar="init" class="h-100"><div class="simplebar-wrapper" style="margin: 0px;"><div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div><div class="simplebar-mask"><div class="simplebar-offset" style="right: 0px; bottom: 0px;"><div class="simplebar-content-wrapper" style="height: 100%; overflow: hidden;"><div class="simplebar-content" style="padding: 0px;">
+
+          <!--- Sidemenu -->
+          <div id="sidebar-menu">
+            <!-- Left Menu Start -->
+            <ul class="metismenu list-unstyled" id="side-menu">
+              <li class="menu-title">Menu</li>
+
+              <li>
+                <a href="index.html" class="waves-effect">
+                  <i class="ri-dashboard-line"></i>
+                  <span>Inicio</span>
+                </a>
+              </li>
+
+              <li class="menu-title">Avisos</li>
+
+              <li>
+                <a href="index.html" class="waves-effect">
+                  <i class="mdi mdi-newspaper"></i>
+                  <span>Ver avisos</span>
+                </a>
+              </li>
+
+              <li>
+                <a href="index.html" class="waves-effect">
+                  <i class="mdi mdi-newspaper-plus"></i>
+                  <span>Crear avisos</span>
+                </a>
+              </li>
+
+              <li class="menu-title">Usuarios</li>
+
+              <li>
+                <a href="javascript: void(0);" class="waves-effect">
+                  <i class="ri-account-circle-line"></i>
+                  <span>Usuarios activos</span>
+                </a>
+              </li>
+
+              <li>
+                <a href="javascript: void(0);" class="waves-effect">
+                  <i class="ri-alert-fill"></i>
+                  <span>Suspensiones</span>
+                </a>
+              </li>
+
+              <li class="menu-title">Transacciones</li>
+
+              <li>
+                <a href="index.html" class="waves-effect">
+                  <i class="ri-money-dollar-circle-line"></i>
+                  <span>Pagos</span>
+                </a>
+              </li>
+
+              <li>
+                <a href="index.html" class="waves-effect">
+                  <i class="ri-refund-2-fill"></i>
+                  <span>Reembolsos</span>
+                </a>
+              </li>
+
+              <li>
+                <a href="javascript: void(0);" class="waves-effect">
+                  <i class="ri-football-fill"></i>
+                  <span>Reservas</span>
+                </a>
+              </li>
+
+            </ul>
+          </div>
+          <!-- Sidebar -->
+        </div></div></div></div><div class="simplebar-placeholder" style="width: auto; height: 920px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div></div>
+      </div>
+      <!-- Left Sidebar End -->
+
+
+
+      <!-- ============================================================== -->
+      <!-- Start right Content here -->
+      <!-- ============================================================== -->
+      <div class="main-content">
+
+        <div class="page-content" style="min-height: 100%;">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-xxl-3 col-xl-4">
+                <div class="card rounded-3" style="min-height: 80vh; background: linear-gradient(90deg, rgba(12,57,106,0.51), rgba(155,215,241,0.4));" >
+                  <div class="card-body">
+                    <div class="profile-card">
+                      <div class="profile-header mb-4 d-flex flex-row">
+                        <div class="d-inline-block ms-2 me-4">
+                          <img src="assets/images/users/avatar-2.jpg" class="avatar-xl rounded-3 d-inline border-opacity-25 border-primary border border-2" alt="Perfil">
+                        </div>
+                        <div class="d-inline-flex mt-2">
+                          <div>
+                            <span class="badge font-size-14 bg-success-subtle text-success mb-2">Activo</span>
+                            <h4 class="font-size-20">Nicholas Swatz</h4>
+                            <p class="text-muted">#ERD246534</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="profile-details d-flex flex-column justify-content-center align-content-center">
+                        <div class="card-body py-1">
+                          <h5 class="font-size-14 fw-bold">Información personal</h5>
+                          <div class="detail mb-2 mt-3">
+                            <span class="info font-size-15"><span class="text-muted"><i class="ri-phone-line"></i> Celular: </span><span class="fw-bold">(+51) 949485349</span></span>
+                          </div>
+                          <div class="detail mb-2 mt-3">
+                            <span class="info font-size-15"><span class="text-muted"><i class="ri-mail-line"></i> Email: </span><span class="fw-bold">nicholasswatz@gmail.com</span></span>
+                          </div>
+                        </div>
+                        <div class="card-body border-top border-dark py-3">
+                          <h5 class="font-size-14 fw-bold">Dirección</h5>
+                          <div class="detail mb-2 mt-3">
+                            <span class="info font-size-15"><span class="text-muted"><i class="ri-map-pin-line"></i> Dirección: </span><span class="fw-bold">390 Market Street, Suite 200</span></span>
+                          </div>
+                          <div class="detail mb-2">
+                            <span class="info font-size-15"><span class="text-muted"><i class="ri-map-pin-line"></i> Urbanización: </span><span class="fw-bold">San Miguelito</span></span>
+                          </div>
+                          <div class="detail mb-2">
+                            <span class="info font-size-15"><span class="text-muted"><i class="ri-map-pin-line"></i> Código postal: </span><span class="fw-bold">15045</span></span>
+                          </div>
+                        </div>
+                        <div class="card-body border-top border-dark py-3">
+                          <h5 class="font-size-14 fw-bold">Información de usuario</h5>
+                          <div class="detail mb-2 mt-3">
+                            <span class="info font-size-15"><span class="text-muted"><i class="mdi mdi-account"></i> Rol: </span><span class="badge font-size-12 bg-primary-subtle text-primary my-0">Vecino</span></span>
+                          </div>
+                          <div class="detail mb-2 mt-0">
+                            <span class="info font-size-15"><span class="text-muted"><i class="ri-calendar-line"></i> Fecha de nacimiento: </span><span class="fw-bold">28/04/2002</span></span>
+                          </div>
+                          <div class="detail mb-2">
+                            <span class="info font-size-15"><span class="text-muted"><i class="ri-key-line"></i> DNI: </span><span class="fw-bold">76848590</span></span>
+                          </div>
+                          <div class="detail mb-2">
+                            <span class="info font-size-15"><span class="text-muted"><i class="ri-calendar-check-line"></i> Última actualización: </span><span class="fw-bold">23/02/2025</span></span>
+                          </div>
+                          <div class="detail mb-2">
+                            <span class="info font-size-15"><span class="text-muted"><i class="ri-calendar-check-line"></i> Creación de cuenta: </span><span class="fw-bold">15/04/2024</span></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="d-flex justify-content-center mt-4">
+                        <button type="submit" class="btn btn-primary me-2" id="submitBtn"><i class="mdi mdi-pencil me-1"></i>Editar perfil</button>
+                        <button type="button" class="btn btn-danger" id="cancelBtn"><i class="mdi mdi-alert me-1"></i>Banear usuario</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-9 col-xl-8">
+                <div class="row">
+                  <div class="col-xxl-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex">
+                          <div>
+                            <h4 class="card-title">Historial de Reservas de usuario</h4>
+                            <p class="card-title-desc mb-3">
+                              Historial completo de reservas por usuario
+                            </p>
+                          </div>
+                        </div>
+                        <div class="loader-container">
+                          <div class="loader"></div>
+                        </div>
+                        <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100 display" style="display: none;">
+                          <thead>
+                            <tr>
+                              <th style="width: 40px">ID</th>
+                              <th>Establecimiento deportivo</th>
+                              <th>Espacio</th>
+                              <th>Servicio deportivo</th>
+                              <th>Hora de inicio</th>
+                              <th>Hora de fin</th>
+                              <th>Estado</th> <!-- Pendiente, Realizado, Cancelado -->
+                              <th style="width: 20px">Acción</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>1</td>
+                              <td>Polideportivo XYZ</td>
+                              <td>Pista 1</td>
+                              <td>Fútbol</td>
+                              <td>08:00 AM</td>
+                              <td>09:00 AM</td>
+                              <td>Pendiente</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>6</td>
+                              <td>Polideportivo XYZ</td>
+                              <td>Pista 1</td>
+                              <td>Fútbol</td>
+                              <td>08:00 AM</td>
+                              <td>09:00 AM</td>
+                              <td>Pendiente</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>2</td>
+                              <td>Polideportivo PUCP</td>
+                              <td>Gimnasio A</td>
+                              <td>Gimnasio</td>
+                              <td>10:00 AM</td>
+                              <td>11:00 AM</td>
+                              <td>Realizado</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>3</td>
+                              <td>Centro Deportivo ABC</td>
+                              <td>Cancha 2</td>
+                              <td>Fútbol</td>
+                              <td>12:00 PM</td>
+                              <td>01:00 PM</td>
+                              <td>Cancelado</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>4</td>
+                              <td>Club Deportivo Elite</td>
+                              <td>Campo 3</td>
+                              <td>Voleibol</td>
+                              <td>02:00 PM</td>
+                              <td>03:00 PM</td>
+                              <td>Pendiente</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>5</td>
+                              <td>Estadio Municipal</td>
+                              <td>Campo 1</td>
+                              <td>Fútbol</td>
+                              <td>04:00 PM</td>
+                              <td>05:00 PM</td>
+                              <td>Realizado</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                      </div> <!-- end card body-->
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-xxl-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex">
+                          <div>
+                            <h4 class="card-title">Historial de pagos de usuario</h4>
+                            <p class="card-title-desc mb-3">
+                              Todo el registro de pagos realizado por el usuario.
+                            </p>
+                          </div>
+                        </div>
+                        <div class="loader-container">
+                          <div class="loader"></div>
+                        </div>
+                        <table id="alternative-page-datatable1" class="table dt-responsive nowrap w-100 display" style="display: none;">
+                          <thead>
+                            <tr>
+                              <th style="width: 40px">ID</th>
+                              <th>Establecimiento deportivo</th>
+                              <th>Espacio</th>
+                              <th>Servicio deportivo</th>
+                              <th>Hora de inicio</th>
+                              <th>Hora de fin</th>
+                              <th>Estado</th> <!-- Pendiente, Realizado, Cancelado -->
+                              <th style="width: 20px">Acción</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>1</td>
+                              <td>Polideportivo XYZ</td>
+                              <td>Pista 1</td>
+                              <td>Fútbol</td>
+                              <td>08:00 AM</td>
+                              <td>09:00 AM</td>
+                              <td>Pendiente</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>6</td>
+                              <td>Polideportivo XYZ</td>
+                              <td>Pista 1</td>
+                              <td>Fútbol</td>
+                              <td>08:00 AM</td>
+                              <td>09:00 AM</td>
+                              <td>Pendiente</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>2</td>
+                              <td>Polideportivo PUCP</td>
+                              <td>Gimnasio A</td>
+                              <td>Gimnasio</td>
+                              <td>10:00 AM</td>
+                              <td>11:00 AM</td>
+                              <td>Realizado</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>3</td>
+                              <td>Centro Deportivo ABC</td>
+                              <td>Cancha 2</td>
+                              <td>Fútbol</td>
+                              <td>12:00 PM</td>
+                              <td>01:00 PM</td>
+                              <td>Cancelado</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>4</td>
+                              <td>Club Deportivo Elite</td>
+                              <td>Campo 3</td>
+                              <td>Voleibol</td>
+                              <td>02:00 PM</td>
+                              <td>03:00 PM</td>
+                              <td>Pendiente</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>5</td>
+                              <td>Estadio Municipal</td>
+                              <td>Campo 1</td>
+                              <td>Fútbol</td>
+                              <td>04:00 PM</td>
+                              <td>05:00 PM</td>
+                              <td>Realizado</td>
+                              <td>
+                                <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-eye font-size-20"></i></a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                      </div> <!-- end card body-->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> <!-- container-fluid -->
+        </div>
+        <!-- End Page-content -->
+
+        <footer class="footer">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-sm-6">
+                <script>document.write(new Date().getFullYear())</script> © Nazox.
+              </div>
+              <div class="col-sm-6">
+                <div class="text-sm-end d-none d-sm-block">
+                  Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesdesign
+                </div>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+      <!-- end main content-->
+
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Sidebar overlay-->
+    <div class="sidebar-overlay"></div>
+
+    <!-- JAVASCRIPT -->
+    <script src="assets/libs/jquery/jquery.min.js"></script>
+    <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/libs/metismenu/metisMenu.min.js"></script>
+    <script src="assets/libs/simplebar/simplebar.min.js"></script>
+    <script src="assets/libs/node-waves/waves.min.js"></script>
+
+
+    <!-- apexcharts -->
+    <script src="assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
+
+    <!-- Buttons examples -->
+    <script src="assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+
+    <script src="assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
+    <script src="assets/libs/jszip/jszip.min.js"></script>
+    <script src="assets/libs/pdfmake/build/pdfmake.min.js"></script>
+    <script src="assets/libs/pdfmake/build/vfs_fonts.js"></script>
+    <script src="assets/libs/datatables.net-buttons/js/buttons.html5.min.js"></script>
+    <script src="assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
+    <script src="assets/libs/datatables.net-buttons/js/buttons.colVis.min.js"></script>
+
+
+    <script src="assets/libs/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
+    <script src="assets/libs/datatables.net-select/js/dataTables.select.min.js"></script>
+
+
+    <!-- Responsive examples -->
+    <script src="assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
+
+    <!-- Datatable init js -->
+    <script src="assets/js/app.js"></script>
+
+    <script>
+      $(document).ready(function() {
+        // Muestra el símbolo de carga
+        $("#loading").show();
+
+        // Inicializa la primera DataTable
+        var table1 = $('#alternative-page-datatable').DataTable({
+          "columnDefs": [
+            {
+              "targets": [-1], // Aplica a la última columna
+              "orderable": false // Desactiva el ordenamiento
+            },
+          ],
+          "pageLength": 5,  // Fija el número de registros a mostrar
+          "lengthChange": false,
+          pagingType: "full_numbers",
+          "info": true,  // Habilita la información de las entradas mostradas
+          "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
+            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
+            "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+          },
+          "initComplete": function() {
+            $(".loader-container").hide();  // Ocultamos el indicador de carga
+            $('#alternative-page-datatable').show();  // Mostramos la tabla
+          },
+          drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+          }
+        });
+
+        // Inicializa la segunda DataTable
+        var table2 = $('#alternative-page-datatable1').DataTable({
+          "columnDefs": [
+            {
+              "targets": [-1], // Aplica a la última columna
+              "orderable": false // Desactiva el ordenamiento
+            },
+          ],
+          "pageLength": 5,  // Fija el número de registros a mostrar
+          "lengthChange": false,
+          pagingType: "full_numbers",
+          "info": true,  // Habilita la información de las entradas mostradas
+          "language": {
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
+            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
+            "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+          },
+          "initComplete": function() {
+            $(".loader-container").hide();  // Ocultamos el indicador de carga
+            $('#alternative-page-datatable1').show();  // Mostramos la tabla
+          },
+          drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+          }
+        });
+
+        // Asegúrate de que las tablas estén inicialmente ocultas
+        table1.hide();
+        table2.hide();
+      });
+
+
+    </script>
+  </body>
+
+
+  <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:03 GMT -->
+</html>
