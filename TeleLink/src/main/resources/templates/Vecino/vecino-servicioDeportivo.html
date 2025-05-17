@@ -121,11 +121,11 @@
                                         <!-- Columna de imagen y botones -->
                                         <div class="col-md-5">
                                             <div class="card border-0 shadow-sm rounded-3" data-aos="fade-right">
-                                                <img src="/assets/images/small/GrassSintetico_cf_3.jpg" alt="Cancha de Fútbol San Miguel" class="img-fluid rounded-top" style="max-height: 220px; object-fit: cover;">
+                                                <img th:src="@{|/assets/images/small/${espacio.fotoEspacioDeportivoUrl}|}" alt="Espacio Deportivo" class="img-fluid rounded-top" style="max-height: 220px; object-fit: cover;">
                                                 <div class="card-body text-center py-3">
                                                     <h6 class="fw-semibold mb-3">Reserva tu horario</h6>
                                                     <div class="d-flex justify-content-center gap-2">
-                                                        <a href="vecino-calendario.html?servicio=futbol-grass" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
+                                                        <a th:src="@{${espacio.fotoEspacioDeportivoUrl}}" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
                                                             <i class="mdi mdi-calendar-clock me-1"></i> Ver horarios
                                                         </a>
                                                     </div>
@@ -137,7 +137,7 @@
                                         <div class="col-md-7">
                                             <div class="bg-white border rounded-3 shadow-sm p-3 h-100" data-aos="fade-left">
                                                 <span class="badge bg-primary mb-2">Cancha de Fútbol</span>
-                                                <h5 class="fw-bold mb-1">Cancha de Fútbol San Miguel</h5>
+                                                <h5 class="fw-bold mb-1" th:text="${espacio.nombre}"></h5>
 
                                                 <!-- Estrellas -->
                                                 <div class="mb-2">

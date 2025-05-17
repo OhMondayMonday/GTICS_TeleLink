@@ -16,7 +16,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -54,9 +53,13 @@ public class UsuarioController {
     }
 
     @GetMapping("/reservas/{id}")
-    public String mostrarReservation(Model model) {
-        // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-futbol"; // Nombre de la vista Thymeleaf para la cancha de fútbol
+    public String mostrarReservation(@PathVariable Integer id, Model model) {
+        EspacioDeportivo espacio = espacioDeportivoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se encontró el espacio deportivo"));
+
+        model.addAttribute("espacio", espacio);
+
+        return "Vecino/vecino-servicioDeportivo"; // Nombre de la vista Thymeleaf para la cancha de fútbol
     }
 
     @GetMapping("/reservas/futbol")
