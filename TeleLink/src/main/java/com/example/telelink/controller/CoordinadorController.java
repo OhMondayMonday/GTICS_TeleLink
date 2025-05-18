@@ -53,7 +53,25 @@
         private ObservacionRepository observacionRepository;
 
         @Autowired
+        private NotificacionRepository notificacionRepository;
+
+        @Autowired
         private S3Service s3Service;
+
+        @GetMapping("/notificaciones/list")
+        public ResponseEntity<List<Notificacion>> getNotificaciones(
+                @RequestParam("userId") Integer userId,
+                @SessionAttribute("usuario") Usuario usuario) {
+            // Verify the session user matches the requested userId for security
+            if (!usuario.getUsuarioId().equals(userId)) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Fetch the latest 3 notifications for the user
+            List<Notificacion> notificaciones = notificacionRepository
+                    .findTop3ByUsuarioUsuarioIdOrderByFechaCreacionDesc(userId);
+            return ResponseEntity.ok(notificaciones);
+        }
 
         @GetMapping("/inicio")
         public String mostrarInicio(Model model, HttpSession session) {
