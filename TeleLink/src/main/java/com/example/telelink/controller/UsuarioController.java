@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,7 +27,10 @@ import java.io.IOException;
 
 import java.io.*;
 import java.net.*;
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
+
 
 @Controller
 @RequestMapping("/usuarios")
@@ -207,10 +211,126 @@ public class UsuarioController {
         List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAll();
 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("espacios", espacios); // importante para mostrarlos en la vista
+        model.addAttribute("espacios", espacios);
         model.addAttribute("activeItem", "canchas");
         return "Vecino/vecino-cancha";
     }
+
+    // Endpoint para obtener espacios filtrados via AJAX
+    @GetMapping("/espacios")
+    @ResponseBody
+    public ResponseEntity<List<EspacioDeportivo>> obtenerEspacios(
+            @RequestParam(required = false) String servicios,
+            @RequestParam(required = false) BigDecimal precioMaximo,
+            @RequestParam(required = false) String zonas,
+            @RequestParam(required = false) Integer rating,
+            @RequestParam(required = false) String busqueda) {
+
+        List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAll();
+
+        // Filtrar por servicios deportivos
+        if (servicios != null && !servicios.isEmpty()) {
+            String[] tiposServicios = servicios.split(",");
+            espacios = espacios.stream()
+                    .filter(espacio -> {
+                        String tipoServicio = espacio.getServicioDeportivo().getServicioDeportivo();
+                        for (String tipo : tiposServicios) {
+                            if (coincideTipoServicio(tipoServicio, tipo.trim())) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        // Filtrar por precio
+        if (precioMaximo != null) {
+            espacios = espacios.stream()
+                    .filter(espacio -> espacio.getPrecioPorHora().compareTo(precioMaximo) <= 0)
+                    .collect(Collectors.toList());
+        }
+
+        // Filtrar por zonas (basado en la dirección del establecimiento)
+        if (zonas != null && !zonas.isEmpty()) {
+            String[] zonasArray = zonas.split(",");
+            espacios = espacios.stream()
+                    .filter(espacio -> {
+                        String direccion = espacio.getEstablecimientoDeportivo().getDireccion().toLowerCase();
+                        for (String zona : zonasArray) {
+                            if (coincideZona(direccion, zona.trim())) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        // Filtrar por búsqueda de texto
+        if (busqueda != null && !busqueda.trim().isEmpty()) {
+            String busquedaLower = busqueda.toLowerCase().trim();
+            espacios = espacios.stream()
+                    .filter(espacio ->
+                            espacio.getNombre().toLowerCase().contains(busquedaLower) ||
+                                    (espacio.getDescripcion() != null && espacio.getDescripcion().toLowerCase().contains(busquedaLower)) ||
+                                    espacio.getServicioDeportivo().getServicioDeportivo().toLowerCase().contains(busquedaLower) ||
+                                    espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre().toLowerCase().contains(busquedaLower)
+                    )
+                    .collect(Collectors.toList());
+        }
+
+        // Filtrar solo espacios operativos
+        espacios = espacios.stream()
+                .filter(espacio -> espacio.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(espacios);
+    }
+
+    // Método auxiliar para verificar coincidencia de tipo de servicio
+    private boolean coincideTipoServicio(String tipoServicio, String filtro) {
+        switch (filtro) {
+            case "futbol-loza":
+                return tipoServicio.toLowerCase().contains("fútbol") &&
+                        tipoServicio.toLowerCase().contains("loza");
+            case "futbol-grass":
+                return tipoServicio.toLowerCase().contains("fútbol") &&
+                        (tipoServicio.toLowerCase().contains("grass") ||
+                                tipoServicio.toLowerCase().contains("sintético"));
+            case "gimnasio":
+                return tipoServicio.toLowerCase().contains("gimnasio");
+            case "piscina":
+                return tipoServicio.toLowerCase().contains("piscina");
+            case "atletismo":
+                return tipoServicio.toLowerCase().contains("atletismo") ||
+                        tipoServicio.toLowerCase().contains("pista");
+            case "multiusos":
+                return tipoServicio.toLowerCase().contains("multiusos") ||
+                        tipoServicio.toLowerCase().contains("multifuncional");
+            default:
+                return false;
+        }
+    }
+
+    // Método auxiliar para verificar coincidencia de zona
+    private boolean coincideZona(String direccion, String zona) {
+        switch (zona) {
+            case "zona-costado":
+                return direccion.contains("upc");
+            case "zona-avla-marina":
+                return direccion.contains("marina");
+            case "zona-parque-zonal":
+                return direccion.contains("parque") && direccion.contains("zonal");
+            case "zona-plaza-sanmiguel":
+                return direccion.contains("plaza") && direccion.contains("san miguel");
+            case "zona-univcatolica":
+                return direccion.contains("pucp") || direccion.contains("católica");
+            default:
+                return false;
+        }
+    }
+
     @GetMapping("/ayuda")
     public String mostrarAyuda(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("currentUser");
