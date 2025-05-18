@@ -1,5 +1,6 @@
 package com.example.telelink.controller;
 
+import com.example.telelink.dto.vecino.PagoRequest;
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.EspacioDeportivoRepository;
 import com.example.telelink.repository.PagoRepository;
@@ -22,6 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.io.File;
 import java.io.IOException;
+
+import java.io.*;
+import java.net.*;
+import org.springframework.http.ResponseEntity;
 
 @Controller
 @RequestMapping("/usuarios")
@@ -224,24 +229,22 @@ public class UsuarioController {
     }
 
     @GetMapping("/reservar")
-    public String mostrarReservar(Model model, Principal principal) {
-        // Obtener el usuario actual
-        String username = principal.getName();
-        Usuario usuario = usuarioRepository.findByUsername(username);
+    public String mostrarReservar(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
 
-        // Obtener las reservas del usuario
-        List<Reserva> reservasUsuario = reservaRepository.findByUsuarioId(usuario.getUsuarioId());
-
-        // Obtener todos los servicios deportivos disponibles
+        List<Reserva> reservasUsuario = reservaRepository.findByUsuario_UsuarioId(usuario.getUsuarioId());
         List<EspacioDeportivo> espacioDeportivos = espacioDeportivoRepository.findAll();
 
-        // Añadir datos al modelo
         model.addAttribute("usuario", usuario);
         model.addAttribute("reservas", reservasUsuario);
         model.addAttribute("espacios", espacioDeportivos);
 
         return "Vecino/vecino-reservar";
     }
+
 
     @PostMapping("/confirmar-reserva")
     public String confirmarReserva(
@@ -254,8 +257,8 @@ public class UsuarioController {
             RedirectAttributes redirectAttributes) {
         try {
             // Obtener el usuario actual
-            String username = principal.getName();
-            Usuario usuario = usuarioRepository.findByUsername(username);
+            String nombres = principal.getName();
+            Usuario usuario = usuarioRepository.findByNombres(nombres);
 
             // Obtener el espacio deportivo
             EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId)
@@ -308,4 +311,36 @@ public class UsuarioController {
 
         return rutaCompleta;
     }
+
+    @PostMapping("/crear-link-pago")
+    public ResponseEntity<String> crearLinkPago(@RequestBody PagoRequest pagoRequest) throws IOException {
+        String apiKey = "TU_API_KEY_IZZIPAY";
+        String url = "https://api.izzypay.pe/api/v1/checkout/create";
+        String body = "{"
+                + "\"amount\":" + pagoRequest.getMonto() + ","
+                + "\"currency\":\"PEN\","
+                + "\"description\":\"" + pagoRequest.getDescripcion() + "\","
+                + "\"customer_email\":\"" + pagoRequest.getEmail() + "\""
+                + "}";
+
+        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Authorization", "Bearer " + apiKey);
+        con.setDoOutput(true);
+        con.getOutputStream().write(body.getBytes("UTF-8"));
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        // Extrae el link de pago de la respuesta JSON (usa una librería JSON en producción)
+        String linkPago = response.toString().split("\"checkout_url\":\"")[1].split("\"")[0].replace("\\/", "/");
+        return ResponseEntity.ok(linkPago);
+    }
+
 }

@@ -16,6 +16,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     List<Reserva> findByUsuarioOrderByInicioReservaDesc(Usuario usuario);
 
-    List<Reserva> findByUsuarioId(Integer usuarioId);
+    List<Reserva> findByUsuario_UsuarioId(Integer usuarioId);
 
 }

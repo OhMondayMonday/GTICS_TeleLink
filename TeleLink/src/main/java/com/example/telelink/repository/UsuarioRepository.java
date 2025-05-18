@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     List<Usuario> findAllByOrderByUsuarioIdAsc();
 
-    Usuario findByUsername(String nombres);
+    Usuario findByNombres(String nombres);
 
     // Para buscar un grupo de usuarios por Rol
     List<Usuario> findAllByRol_Rol(String rol);

@@ -56,18 +56,15 @@
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                             <h4 class="mb-sm-0">Reservar Cancha</h4>
-
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a href="javascript: void(0);">Canchas Disponible</a></li>
                                     <li class="breadcrumb-item active">Reservar</li>
                                 </ol>
                             </div>
-
                         </div>
                     </div>
                 </div>
-                <!-- end page title -->
 
                 <div class="row justify-content-center">
                     <div class="col-lg-8">
@@ -105,11 +102,10 @@
                                             <form>
                                                 <div>
                                                     <div>
-
                                                         <!-- Nombre completo -->
                                                         <div class="mb-4">
                                                             <label class="form-label" for="billing-name">Nombre completo</label>
-                                                            <input type="text" class="form-control" id="billing-name" placeholder="Enter name" required>
+                                                            <input type="text" class="form-control" id="billing-name" th:value="${usuario.nombres} + ' ' + ${usuario.apellidos}" readonly>
                                                         </div>
 
                                                         <div class="row">
@@ -117,7 +113,7 @@
                                                                 <!-- DNI o documento de identidad -->
                                                                 <div class="mb-4">
                                                                     <label class="form-label" for="dni">DNI</label>
-                                                                    <input type="text" class="form-control" id="dni" maxlength="8" required>
+                                                                    <input type="text" class="form-control" id="dni" maxlength="8" th:value="${usuario.dni}" readonly>
                                                                 </div>
                                                             </div>
 
@@ -125,7 +121,7 @@
                                                                 <!-- Teléfono de contacto -->
                                                                 <div class="mb-4">
                                                                     <label class="form-label" for="billing-phone">Teléfono</label>
-                                                                    <input type="tel" class="form-control" id="billing-phone" placeholder="Enter Phone no." required>
+                                                                    <input type="tel" class="form-control" id="billing-phone" th:value="${usuario.telefono}" required>
                                                                 </div>
                                                             </div>
 
@@ -133,7 +129,7 @@
                                                                 <!-- Cantidad de personas -->
                                                                 <div class="mb-4">
                                                                     <label class="form-label" for="cantidadPersonas">Cantidad de personas</label>
-                                                                    <input type="number" class="form-control" id="cantidadPersonas" min="1" required>
+                                                                    <input type="number" class="form-control" id="cantidadPersonas" name="cantidadPersonas" min="1" required>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -141,24 +137,21 @@
                                                         <!-- Correo electrónico -->
                                                         <div class="mb-4">
                                                             <label class="form-label" for="billing-email">Email</label>
-                                                            <input type="email" class="form-control" id="billing-email" placeholder="Enter email">
+                                                            <input type="email" class="form-control" id="billing-email" th:value="${usuario.correoElectronico}" readonly>
                                                         </div>
 
                                                         <div class="mb-4">
                                                             <label class="form-label" for="address">Dirección</label>
-                                                            <input type="text" class="form-control" id="address" placeholder="Enter address" required>
+                                                            <input type="text" class="form-control" id="address" th:value="${usuario.direccion}" required>
                                                         </div>
 
                                                     </div>
                                                 </div>
                                             </form>
                                         </div>
-
-        <!-------------------------------------------------------------------------------------------------------------------------->
-
+        <!---------------------------------------------------------------------------------------------------------------------------------------------------------------->
                                         <!-- Paso 2: Selección de cancha y horario -->
                                         <div class="tab-pane fade" id="court-selection">
-                                            <!-- Añade este código dentro del div con id="court-selection" -->
                                             <div class="card mb-4">
                                                 <div class="card-header bg-primary text-white">
                                                     <h5 class="mb-0">Detalles de la reserva seleccionada</h5>
@@ -166,14 +159,11 @@
                                                 <div class="card-body">
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <p><strong>Servicio:</strong> <span id="servicio-seleccionado">-</span></p>
-                                                            <p><strong>Fecha:</strong> <span id="fecha-seleccionada">-</span></p>
+                                                            <p><strong>Espacio Deportivo:</strong> <span id="espacio-seleccionado">-</span></p>
+                                                            <p><strong>Fecha y Hora:</strong> <span id="fecha-seleccionada">-</span></p>
                                                         </div>
-                                                        <div class="col-md-6">
-                                                            <p><strong>Horarios:</strong></p>
-                                                            <ul id="horas-seleccionadas" class="list-group">
-                                                                <!-- Las horas se cargarán automáticamente -->
-                                                            </ul>
+                                                        <div class="col-md-6" id="detalles-adicionales">
+                                                            <!-- Aquí se mostrarán detalles adicionales según el tipo de espacio -->
                                                         </div>
                                                     </div>
                                                 </div>
@@ -195,30 +185,56 @@
 
                                                             if (minutosTranscurridos <= 30) {
                                                                 // Mostrar información de la reserva
-                                                                document.getElementById('servicio-seleccionado').textContent = reserva.servicioNombre;
+                                                                document.getElementById('espacio-seleccionado').textContent = reserva.espacioNombre;
 
-                                                                // Formatear la fecha
-                                                                const fecha = new Date(reserva.fecha);
-                                                                const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                                                                document.getElementById('fecha-seleccionada').textContent = fecha.toLocaleDateString('es-ES', opciones);
+                                                                // Formatear las fechas
+                                                                const inicioReserva = new Date(reserva.inicioReserva);
+                                                                const finReserva = new Date(reserva.finReserva);
+                                                                const opciones = {
+                                                                    weekday: 'long',
+                                                                    year: 'numeric',
+                                                                    month: 'long',
+                                                                    day: 'numeric',
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit'
+                                                                };
 
-                                                                // Mostrar las horas seleccionadas
-                                                                const listaHoras = document.getElementById('horas-seleccionadas');
-                                                                listaHoras.innerHTML = '';
+                                                                document.getElementById('fecha-seleccionada').textContent =
+                                                                    `${inicioReserva.toLocaleDateString('es-ES', opciones)} a ${finReserva.toLocaleTimeString('es-ES')}`;
 
-                                                                reserva.horas.forEach(hora => {
-                                                                    const li = document.createElement('li');
-                                                                    li.className = 'list-group-item';
-                                                                    li.textContent = hora;
-                                                                    listaHoras.appendChild(li);
-                                                                });
+                                                                // Mostrar detalles adicionales según el tipo de espacio
+                                                                const detallesAdicionales = document.getElementById('detalles-adicionales');
+
+                                                                if (reserva.tipoEspacio === 'PISCINA' && reserva.numeroCarrilPiscina) {
+                                                                    detallesAdicionales.innerHTML = `
+                                                                        <p><strong>Tipo de Espacio:</strong> Piscina</p>
+                                                                        <p><strong>Carril Asignado:</strong> ${reserva.numeroCarrilPiscina}</p>
+                                                                    `;
+                                                                } else if (reserva.tipoEspacio === 'PISTA' && reserva.numeroCarrilPista) {
+                                                                    detallesAdicionales.innerHTML = `
+                                                                        <p><strong>Tipo de Espacio:</strong> Pista de Atletismo</p>
+                                                                        <p><strong>Carril Asignado:</strong> ${reserva.numeroCarrilPista}</p>
+                                                                    `;
+                                                                } else {
+                                                                    detallesAdicionales.innerHTML = `
+                                                                        <p><strong>Tipo de Espacio:</strong> ${reserva.tipoEspacio || 'General'}</p>
+                                                                    `;
+                                                                }
 
                                                                 // Agregar campos ocultos con la información (para el formulario)
                                                                 const camposOcultos = `
-                                                                <input type="hidden" name="servicio" value="${reserva.servicio}">
-                                                                <input type="hidden" name="fecha" value="${reserva.fecha}">
-                                                                <input type="hidden" name="horas" value="${reserva.horas.join(',')}">
-                                                              `;
+                                                                    <input type="hidden" id="espacio-id" name="espacio" value="${reserva.espacioId}">
+                                                                    <input type="hidden" id="fecha-inicio" name="fechaInicio" value="${reserva.inicioReserva}">
+                                                                    <input type="hidden" id="fecha-fin" name="fechaFin" value="${reserva.finReserva}">
+                                                                `;
+
+                                                                // Añadir campos específicos según el tipo de espacio
+                                                                if (reserva.tipoEspacio === 'PISCINA' && reserva.numeroCarrilPiscina) {
+                                                                    camposOcultos += `<input type="hidden" id="carril-piscina" name="numeroCarrilPiscina" value="${reserva.numeroCarrilPiscina}">`;
+                                                                } else if (reserva.tipoEspacio === 'PISTA' && reserva.numeroCarrilPista) {
+                                                                    camposOcultos += `<input type="hidden" id="carril-pista" name="numeroCarrilPista" value="${reserva.numeroCarrilPista}">`;
+                                                                }
+
                                                                 document.getElementById('court-selection').insertAdjacentHTML('beforeend', camposOcultos);
 
                                                             } else {
@@ -229,7 +245,6 @@
                                                                 </div>
                                                               `;
                                                             }
-
                                                         } catch (error) {
                                                             console.error("Error al procesar los datos de reserva:", error);
                                                             mostrarErrorReserva();
@@ -247,7 +262,6 @@
                                                     }
                                                 });
                                             </script>
-
                                         </div>
         <!-------------------------------------------------------------------------------------------------------------------------->
                                         <!-- Paso 3: Método de pago -->
@@ -281,18 +295,29 @@
                                             <!-- ONLINE -->
                                             <div id="online-info" class="mt-4" style="display:none;">
                                                 <p class="text-success">Serás redirigido a IzzyPay para finalizar el pago:</p>
-                                                <a href="https://sandbox.izzypay.pe/link-de-ejemplo" class="btn btn-success" target="_blank">Ir a IzzyPay</a>
+                                                <button id="btn-pagar-izzy" type="button" class="btn btn-success">Pagar con tarjeta</button>
                                             </div>
 
                                             <!-- DEPÓSITO -->
                                             <div id="deposit-info" class="mt-4" style="display:none;">
                                                 <p><strong>Sube el comprobante de tu depósito bancario:</strong></p>
                                                 <ul>
-                                                    <li>Debe ser una imagen clara (JPG o PNG).</li>
-                                                    <li>Debe mostrar el monto y número de operación.</li>
-                                                    <li>No debe pesar más de 5MB.</li>
+                                                    <li>Formatos aceptados: JPG, PNG y PDF</li>
+                                                    <li>Debe ser una imagen clara, mostrar el monto y número de operación</li>
+                                                    <li>No debe pesar más de 5MB</li>
                                                 </ul>
-                                                <input type="file" class="form-control-file" id="deposit-image" name="deposit-image" accept="image/*">
+
+                                                <input type="file" class="form-control-file" id="deposit-image" name="deposit-image" accept=".jpg,.jpeg,.png,.pdf">
+                                                <div id="error-message" class="error-message">Formato de archivo no válido. Por favor, sube solo archivos JPG, PNG o PDF.</div>
+                                                <div id="size-error" class="error-message">El archivo excede el tamaño máximo de 5MB.</div>
+                                                <div id="success-message" class="success-message">¡Archivo válido! Formato y tamaño correctos.</div>
+
+                                                <button id="upload-btn" disabled>Subir Comprobante</button>
+
+                                                <div id="preview-container" class="preview-container" style="margin-top: 15px;">
+                                                    <h4>Vista previa:</h4>
+                                                    <img id="image-preview" src="" alt="Vista previa del comprobante" style="display:none; max-width: 300px; max-height: 300px; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px;">
+                                                </div>
                                             </div>
 
 
@@ -371,14 +396,345 @@
                 <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
                 <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
             </div>
-
-            
         </div>
-
-    </div> <!-- end slimscroll-menu-->
+    </div>
 </div>
 <!-- /Right-bar -->
+<script>
+    // Script para corregir la funcionalidad del sistema de reservas
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Corregir el wizard de navegación
+        const wizardNav = document.querySelector('.twitter-bs-wizard-nav');
+        const wizardContent = document.querySelector('.twitter-bs-wizard-tab-content');
+        const prevBtn = document.querySelector('.pager.wizard .previous a');
+        const nextBtn = document.querySelector('.pager.wizard .next a');
 
+        if(wizardNav && wizardContent) {
+            // Inicializar el wizard correctamente
+            const wizardSteps = wizardNav.querySelectorAll('.nav-link');
+            const wizardPanes = wizardContent.querySelectorAll('.tab-pane');
+
+            // Activar el primer paso por defecto
+            wizardSteps[0].classList.add('active');
+            wizardPanes[0].classList.add('active', 'show');
+
+            // Habilitar el botón next para el primer paso
+            document.querySelector('.pager.wizard .next').classList.remove('disabled');
+
+            // Manejar la navegación entre pasos
+            for (let i = 0; i < wizardSteps.length; i++) {
+                wizardSteps[i].addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Desactivar todos los pasos
+                    wizardSteps.forEach(step => step.classList.remove('active'));
+                    wizardPanes.forEach(pane => pane.classList.remove('active', 'show'));
+
+                    // Activar el paso actual
+                    wizardSteps[i].classList.add('active');
+                    wizardPanes[i].classList.add('active', 'show');
+
+                    // Actualizar los botones prev/next
+                    if (i === 0) {
+                        document.querySelector('.pager.wizard .previous').classList.add('disabled');
+                    } else {
+                        document.querySelector('.pager.wizard .previous').classList.remove('disabled');
+                    }
+
+                    if (i === wizardSteps.length - 1) {
+                        document.querySelector('.pager.wizard .next').classList.add('disabled');
+                    } else {
+                        document.querySelector('.pager.wizard .next').classList.remove('disabled');
+                    }
+                });
+            }
+
+            // Botones Previous y Next
+            prevBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const activeStep = document.querySelector('.twitter-bs-wizard-nav .nav-link.active');
+                const prevStep = activeStep.parentElement.previousElementSibling;
+
+                if (prevStep) {
+                    prevStep.querySelector('.nav-link').click();
+                }
+            });
+
+            nextBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const activeStep = document.querySelector('.twitter-bs-wizard-nav .nav-link.active');
+                const nextStep = activeStep.parentElement.nextElementSibling;
+
+                if (nextStep) {
+                    nextStep.querySelector('.nav-link').click();
+                }
+            });
+        }
+
+        // 2. Corregir la selección del método de pago
+        const radios = document.getElementsByName("payment-method");
+        const labelOnline = document.getElementById("label-online");
+        const labelDeposit = document.getElementById("label-deposit");
+        const onlineInfo = document.getElementById("online-info");
+        const depositInfo = document.getElementById("deposit-info");
+
+        if(radios.length > 0 && labelOnline && labelDeposit) {
+            radios.forEach(r => {
+                r.addEventListener("change", function () {
+                    const isOnline = this.value === "online";
+
+                    if(onlineInfo) onlineInfo.style.display = isOnline ? "block" : "none";
+                    if(depositInfo) depositInfo.style.display = !isOnline ? "block" : "none";
+
+                    labelOnline.classList.toggle("payment-selected", isOnline);
+                    labelDeposit.classList.toggle("payment-selected", !isOnline);
+                });
+            });
+        }
+
+        // 3. Corregir el botón de pago con IzzyPay
+        const btnPagarIzzy = document.getElementById('btn-pagar-izzy');
+        if (btnPagarIzzy) {
+            btnPagarIzzy.addEventListener('click', function() {
+                // Obtener datos de la reserva desde localStorage
+                const reservaData = JSON.parse(localStorage.getItem('reserva_seleccionada'));
+
+                if (!reservaData) {
+                    alert('No se encontró información de la reserva');
+                    return;
+                }
+
+                // Recoger los datos del formulario necesarios
+                const email = document.getElementById('billing-email').value;
+                const cantidadPersonas = document.getElementById('cantidadPersonas').value || 1;
+
+                // Calcular el monto basado en el tipo de espacio (simulado)
+                let monto = 100.00; // Monto base
+                if (reservaData.tipoEspacio === 'PISCINA') {
+                    monto = 80.00;
+                } else if (reservaData.tipoEspacio === 'PISTA') {
+                    monto = 60.00;
+                }
+
+                // Ajustar por cantidad de personas
+                monto = monto * cantidadPersonas;
+
+                const descripcion = `Reserva de ${reservaData.espacioNombre} - ${new Date(reservaData.inicioReserva).toLocaleDateString()}`;
+
+                // Crear el formulario para enviar la solicitud de pago
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/usuarios/crear-link-pago'; // URL corregida según el controlador
+
+                // Campos del formulario
+                const montoField = document.createElement('input');
+                montoField.type = 'hidden';
+                montoField.name = 'monto';
+                montoField.value = monto;
+
+                const emailField = document.createElement('input');
+                emailField.type = 'hidden';
+                emailField.name = 'email';
+                emailField.value = email;
+
+                const descripcionField = document.createElement('input');
+                descripcionField.type = 'hidden';
+                descripcionField.name = 'descripcion';
+                descripcionField.value = descripcion;
+
+                // Agregar los campos al formulario
+                form.appendChild(montoField);
+                form.appendChild(emailField);
+                form.appendChild(descripcionField);
+
+                // Agregar el token CSRF si es necesario para Spring Security
+                const csrfToken = document.querySelector('meta[name="_csrf"]');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+
+                if (csrfToken && csrfHeader) {
+                    const tokenField = document.createElement('input');
+                    tokenField.type = 'hidden';
+                    tokenField.name = csrfHeader.content;
+                    tokenField.value = csrfToken.content;
+                    form.appendChild(tokenField);
+                }
+
+                // Agregar el formulario al documento y enviarlo
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
+
+        // 4. Corregir el envío del formulario de confirmación de reserva
+        const btnConfirmarReserva = document.getElementById('btn-next');
+        if (btnConfirmarReserva) {
+            btnConfirmarReserva.addEventListener('click', function() {
+                const activePane = document.querySelector('.tab-pane.active');
+
+                // Si estamos en el último paso (pago)
+                if (activePane.id === 'payment-info') {
+                    // Verificar que se haya seleccionado un método de pago
+                    const metodoPago = document.querySelector('input[name="payment-method"]:checked');
+                    if (!metodoPago) {
+                        alert('Por favor seleccione un método de pago');
+                        return;
+                    }
+
+                    // Si es depósito, verificar que se haya subido un comprobante
+                    if (metodoPago.value === 'deposit') {
+                        const fileInput = document.getElementById('deposit-image');
+                        if (fileInput && !fileInput.files[0]) {
+                            alert('Por favor suba un comprobante de pago');
+                            return;
+                        }
+                    }
+
+                    // Obtener los datos de la sesión y la reserva
+                    const reservaData = JSON.parse(localStorage.getItem('reserva_seleccionada'));
+                    if (!reservaData) {
+                        alert('No se encontró información de la reserva');
+                        return;
+                    }
+
+                    // Crear el formulario para enviar la confirmación
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/usuarios/confirmar-reserva'; // URL corregida según el controlador
+
+                    // Datos del formulario
+                    const camposRequeridos = [
+                        { name: 'espacio', value: reservaData.espacioId },
+                        { name: 'fechaInicio', value: reservaData.inicioReserva },
+                        { name: 'fechaFin', value: reservaData.finReserva },
+                        { name: 'cantidadPersonas', value: document.getElementById('cantidadPersonas').value || '1' }
+                    ];
+
+                    // Agregar campos específicos según el tipo de espacio
+                    if (reservaData.tipoEspacio === 'PISCINA' && reservaData.numeroCarrilPiscina) {
+                        camposRequeridos.push({ name: 'numeroCarrilPiscina', value: reservaData.numeroCarrilPiscina });
+                    } else if (reservaData.tipoEspacio === 'PISTA' && reservaData.numeroCarrilPista) {
+                        camposRequeridos.push({ name: 'numeroCarrilPista', value: reservaData.numeroCarrilPista });
+                    }
+
+                    // Agregar campos al formulario
+                    camposRequeridos.forEach(campo => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = campo.name;
+                        input.value = campo.value;
+                        form.appendChild(input);
+                    });
+
+                    // Agregar método de pago
+                    const metodoPagoInput = document.createElement('input');
+                    metodoPagoInput.type = 'hidden';
+                    metodoPagoInput.name = 'metodoPago';
+                    metodoPagoInput.value = metodoPago.value;
+                    form.appendChild(metodoPagoInput);
+
+                    // Agregar el token CSRF si es necesario para Spring Security
+                    const csrfToken = document.querySelector('meta[name="_csrf"]');
+                    const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+
+                    if (csrfToken && csrfHeader) {
+                        const tokenField = document.createElement('input');
+                        tokenField.type = 'hidden';
+                        tokenField.name = csrfHeader.content;
+                        tokenField.value = csrfToken.content;
+                        form.appendChild(tokenField);
+                    }
+
+                    // Mostrar resumen de la reserva
+                    const resumenReserva = document.getElementById('reserva-resumen');
+                    const resumenMetodo = document.getElementById('resumen-metodo');
+
+                    if (resumenReserva && resumenMetodo) {
+                        resumenMetodo.textContent = metodoPago.value === 'online' ? 'Pago en línea con tarjeta' : 'Depósito o transferencia bancaria';
+                        resumenReserva.style.display = 'block';
+                    }
+
+                    // Enviar el formulario después de un pequeño retraso para mostrar el resumen
+                    setTimeout(() => {
+                        document.body.appendChild(form);
+                        form.submit();
+                    }, 1500);
+                } else {
+                    // Navegar al siguiente paso
+                    nextBtn.click();
+                }
+            });
+        }
+
+        // 5. Corregir el validador de archivos para el comprobante de pago
+        const fileInput = document.getElementById('deposit-image');
+        const errorMessage = document.getElementById('error-message');
+        const sizeError = document.getElementById('size-error');
+        const successMessage = document.getElementById('success-message');
+        const uploadBtn = document.getElementById('upload-btn');
+        const previewContainer = document.getElementById('preview-container');
+        const imagePreview = document.getElementById('image-preview');
+
+        if (fileInput && errorMessage && sizeError && successMessage && uploadBtn) {
+            // Ocultar los mensajes inicialmente
+            errorMessage.style.display = 'none';
+            sizeError.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            if (previewContainer) {
+                previewContainer.style.display = 'none';
+            }
+
+            fileInput.addEventListener('change', function(event) {
+                // Ocultar mensajes anteriores
+                errorMessage.style.display = 'none';
+                sizeError.style.display = 'none';
+                successMessage.style.display = 'none';
+
+                if (previewContainer) {
+                    previewContainer.style.display = 'none';
+                }
+
+                uploadBtn.disabled = true;
+
+                const file = event.target.files[0];
+
+                if (!file) return;
+
+                // Validar el tipo de archivo
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                const fileType = file.type;
+
+                if (!validTypes.includes(fileType)) {
+                    errorMessage.style.display = 'block';
+                    fileInput.value = '';
+                    return;
+                }
+
+                // Validar el tamaño del archivo (5MB = 5 * 1024 * 1024 bytes)
+                const maxSize = 5 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    sizeError.style.display = 'block';
+                    fileInput.value = '';
+                    return;
+                }
+
+                // Mostrar mensaje de éxito
+                successMessage.style.display = 'block';
+                uploadBtn.disabled = false;
+
+                // Mostrar vista previa (solo para imágenes)
+                if (fileType !== 'application/pdf' && imagePreview && previewContainer) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
 <!-- Right bar overlay-->
 <div class="rightbar-overlay"></div>
 
@@ -388,71 +744,14 @@
 <script src="../../static/vecino.assets/libs/metismenu/metisMenu.min.js"></script>
 <script src="../../static/vecino.assets/libs/simplebar/simplebar.min.js"></script>
 <script src="../../static/vecino.assets/libs/node-waves/waves.min.js"></script>
-
 <!-- twitter-bootstrap-wizard js -->
 <script src="../../static/vecino.assets/libs/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js"></script>
-
 <script src="../../static/vecino.assets/libs/twitter-bootstrap-wizard/prettify.js"></script>
 <!-- ecommerce-checkout init -->
 <script src="../../static/vecino.assets/js/pages/ecommerce-checkout.init.js"></script>
-
 <script src="../../static/vecino.assets/js/app.js"></script>
-
-
 <!-- Script -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const radios = document.getElementsByName("payment-method");
-    const labelOnline = document.getElementById("label-online");
-    const labelDeposit = document.getElementById("label-deposit");
-
-    radios.forEach(r => {
-        r.addEventListener("change", function () {
-            const isOnline = this.value === "online";
-            document.getElementById("online-info").style.display = isOnline ? "block" : "none";
-            document.getElementById("deposit-info").style.display = !isOnline ? "block" : "none";
-            labelOnline.classList.toggle("payment-selected", isOnline);
-            labelDeposit.classList.toggle("payment-selected", !isOnline);
-        });
-    });
-
-    document.getElementById("btn-next").addEventListener("click", function () {
-        const active = document.querySelector(".twitter-bs-wizard-nav .nav-link.active");
-        const nextTab = active.closest("li").nextElementSibling;
-
-        if (nextTab) {
-            nextTab.querySelector("a").click();
-        } else {
-            const metodo = document.querySelector('input[name="payment-method"]:checked');
-            if (!metodo) {
-                alert("Por favor, selecciona un método de pago antes de continuar.");
-                return;
-            }
-
-            const resumenMetodo = metodo.value === "online"
-                ? "Pago en línea (validación automática)"
-                : "Depósito o transferencia bancaria (validación manual)";
-
-            document.getElementById("resumen-metodo").innerText = resumenMetodo;
-            document.getElementById("reserva-resumen").style.display = "block";
-
-            alert("✅ ¡Reserva registrada en local con éxito!");
-            window.location.href = "vecino-mis-reservas.html";
-        }
-    });
-
-    document.getElementById("btn-prev").addEventListener("click", function () {
-        const active = document.querySelector(".twitter-bs-wizard-nav .nav-link.active");
-        const prevTab = active.closest("li").previousElementSibling;
-
-        if (prevTab) {
-            prevTab.querySelector("a").click();
-        } else {
-            location.reload();
-        }
-    });
-</script>
-
 
 </body>
 </html>
