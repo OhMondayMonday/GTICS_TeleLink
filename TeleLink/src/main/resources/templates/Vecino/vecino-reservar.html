@@ -1,22 +1,32 @@
 <!doctype html>
 <html lang="en"  xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Realizar reservas')}">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         .payment-card {
-            border: 2px solid transparent;
+            border: 2px solid #e0e0e0;
             padding: 20px;
             border-radius: 10px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             background-color: white;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
         }
 
         .payment-card:hover,
         .payment-selected {
-            border-color: #007bff;
-            background-color: #f0f8ff;
+            border-color: #0d6efd;
+            background-color: #f0f7ff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .payment-card input[type="radio"] {
@@ -24,19 +34,108 @@
         }
 
         .payment-icons {
-            font-size: 4rem;
-            margin-bottom: 10px;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #333;
         }
 
-        .btn-group {
+        .payment-online-icon {
+            background-color: #FFF3E0;
+            color: #FF9800;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
             display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
+            margin: 0 auto 20px;
         }
 
-        body {
-            background-color: #f8f9fa;
+        .payment-deposit-icon {
+            background-color: #E3F2FD;
+            color: #2196F3;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .payment-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .payment-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .btn-confirm {
+            background-color: #212529;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .btn-confirm:hover {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .upload-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .file-requirements {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .file-requirements li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .file-input-container {
+            position: relative;
+            margin-top: 15px;
+        }
+
+        .error-message, .success-message {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .error-message {
+            background-color: #ffebee;
+            color: #d32f2f;
+            border: 1px solid #ffcdd2;
+        }
+
+        .success-message {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .preview-container {
+            margin-top: 20px;
+            display: none;
         }
     </style>
 </head>
@@ -309,17 +408,22 @@
 
                                                 <input type="file" class="form-control-file" id="deposit-image" name="deposit-image" accept=".jpg,.jpeg,.png,.pdf">
                                                 <div id="error-message" class="error-message">Formato de archivo no válido. Por favor, sube solo archivos JPG, PNG o PDF.</div>
-                                                <div id="size-error" class="error-message">El archivo excede el tamaño máximo de 5MB.</div>
-                                                <div id="success-message" class="success-message">¡Archivo válido! Formato y tamaño correctos.</div>
+                                                <div id="size-error" class="error-message">
+                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                    El archivo excede el tamaño máximo de 5MB.
+                                                </div>
 
+                                                <div id="success-message" class="success-message">
+                                                    <i class="bi bi-check-circle-fill me-2"></i>
+                                                    ¡Archivo válido! Formato y tamaño correctos.
+                                                </div>
                                                 <button id="upload-btn" disabled>Subir Comprobante</button>
 
-                                                <div id="preview-container" class="preview-container" style="margin-top: 15px;">
-                                                    <h4>Vista previa:</h4>
-                                                    <img id="image-preview" src="" alt="Vista previa del comprobante" style="display:none; max-width: 300px; max-height: 300px; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px;">
+                                                <div class="preview-container" id="preview-container">
+                                                    <h6 class="mb-2">Vista previa:</h6>
+                                                    <img id="image-preview" src="" alt="Vista previa del comprobante" style="max-width: 100%; max-height: 300px; border: 1px solid #ddd; border-radius: 5px;">
                                                 </div>
                                             </div>
-
 
                                             <div class="btn-group">
                                                 <button class="btn btn-dark" type="button" id="btn-next">Confirmar Reserva</button>
@@ -365,7 +469,7 @@
 
         <div class="p-4">
             <div class="mb-2">
-                <img src="../../static/vecino.assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
+                <img src="assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
             </div>
 
             <div class="form-check form-switch mb-3">
@@ -374,7 +478,7 @@
             </div>
     
             <div class="mb-2">
-                <img src="../../static/vecino.assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
+                <img src="assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
             </div>
             <div class="form-check form-switch mb-3">
                 <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
@@ -382,7 +486,7 @@
             </div>
     
             <div class="mb-2">
-                <img src="../../static/vecino.assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
+                <img src="assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
             </div>
             <div class="form-check form-switch mb-5">
                 <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
@@ -393,156 +497,106 @@
 </div>
 <!-- /Right-bar -->
 <script>
-    // Script para corregir la funcionalidad del sistema de reservas
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. Corregir el wizard de navegación
+        // 1. Wizard de navegación
         const wizardNav = document.querySelector('.twitter-bs-wizard-nav');
         const wizardContent = document.querySelector('.twitter-bs-wizard-tab-content');
         const prevBtn = document.querySelector('.pager.wizard .previous a');
         const nextBtn = document.querySelector('.pager.wizard .next a');
 
-        if(wizardNav && wizardContent) {
-            // Inicializar el wizard correctamente
+        if (wizardNav && wizardContent) {
             const wizardSteps = wizardNav.querySelectorAll('.nav-link');
             const wizardPanes = wizardContent.querySelectorAll('.tab-pane');
 
-            // Activar el primer paso por defecto
             wizardSteps[0].classList.add('active');
             wizardPanes[0].classList.add('active', 'show');
-
-            // Habilitar el botón next para el primer paso
             document.querySelector('.pager.wizard .next').classList.remove('disabled');
 
-            // Manejar la navegación entre pasos
-            for (let i = 0; i < wizardSteps.length; i++) {
-                wizardSteps[i].addEventListener('click', function(e) {
+            wizardSteps.forEach((step, i) => {
+                step.addEventListener('click', function(e) {
                     e.preventDefault();
+                    wizardSteps.forEach(s => s.classList.remove('active'));
+                    wizardPanes.forEach(p => p.classList.remove('active', 'show'));
 
-                    // Desactivar todos los pasos
-                    wizardSteps.forEach(step => step.classList.remove('active'));
-                    wizardPanes.forEach(pane => pane.classList.remove('active', 'show'));
-
-                    // Activar el paso actual
-                    wizardSteps[i].classList.add('active');
+                    step.classList.add('active');
                     wizardPanes[i].classList.add('active', 'show');
 
-                    // Actualizar los botones prev/next
-                    if (i === 0) {
-                        document.querySelector('.pager.wizard .previous').classList.add('disabled');
-                    } else {
-                        document.querySelector('.pager.wizard .previous').classList.remove('disabled');
-                    }
-
-                    if (i === wizardSteps.length - 1) {
-                        document.querySelector('.pager.wizard .next').classList.add('disabled');
-                    } else {
-                        document.querySelector('.pager.wizard .next').classList.remove('disabled');
-                    }
+                    document.querySelector('.pager.wizard .previous').classList.toggle('disabled', i === 0);
+                    document.querySelector('.pager.wizard .next').classList.toggle('disabled', i === wizardSteps.length - 1);
                 });
-            }
+            });
 
-            // Botones Previous y Next
             prevBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 const activeStep = document.querySelector('.twitter-bs-wizard-nav .nav-link.active');
                 const prevStep = activeStep.parentElement.previousElementSibling;
-
-                if (prevStep) {
-                    prevStep.querySelector('.nav-link').click();
-                }
+                if (prevStep) prevStep.querySelector('.nav-link').click();
             });
 
             nextBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 const activeStep = document.querySelector('.twitter-bs-wizard-nav .nav-link.active');
                 const nextStep = activeStep.parentElement.nextElementSibling;
-
-                if (nextStep) {
-                    nextStep.querySelector('.nav-link').click();
-                }
+                if (nextStep) nextStep.querySelector('.nav-link').click();
             });
         }
 
-        // 2. Corregir la selección del método de pago
+        // 2. Selección de método de pago
         const radios = document.getElementsByName("payment-method");
         const labelOnline = document.getElementById("label-online");
         const labelDeposit = document.getElementById("label-deposit");
         const onlineInfo = document.getElementById("online-info");
         const depositInfo = document.getElementById("deposit-info");
 
-        if(radios.length > 0 && labelOnline && labelDeposit) {
+        if (radios.length > 0 && labelOnline && labelDeposit) {
             radios.forEach(r => {
                 r.addEventListener("change", function () {
                     const isOnline = this.value === "online";
-
-                    if(onlineInfo) onlineInfo.style.display = isOnline ? "block" : "none";
-                    if(depositInfo) depositInfo.style.display = !isOnline ? "block" : "none";
-
+                    if (onlineInfo) onlineInfo.style.display = isOnline ? "block" : "none";
+                    if (depositInfo) depositInfo.style.display = !isOnline ? "block" : "none";
                     labelOnline.classList.toggle("payment-selected", isOnline);
                     labelDeposit.classList.toggle("payment-selected", !isOnline);
                 });
             });
         }
 
-        // 3. Corregir el botón de pago con IzzyPay
+        // 3. Botón de pago con IzzyPay
         const btnPagarIzzy = document.getElementById('btn-pagar-izzy');
         if (btnPagarIzzy) {
             btnPagarIzzy.addEventListener('click', function() {
-                // Obtener datos de la reserva desde localStorage
                 const reservaData = JSON.parse(localStorage.getItem('reserva_seleccionada'));
+                if (!reservaData) return alert('No se encontró información de la reserva');
 
-                if (!reservaData) {
-                    alert('No se encontró información de la reserva');
-                    return;
-                }
-
-                // Recoger los datos del formulario necesarios
                 const email = document.getElementById('billing-email').value;
                 const cantidadPersonas = document.getElementById('cantidadPersonas').value || 1;
 
-                // Calcular el monto basado en el tipo de espacio (simulado)
-                let monto = 100.00; // Monto base
-                if (reservaData.tipoEspacio === 'PISCINA') {
-                    monto = 80.00;
-                } else if (reservaData.tipoEspacio === 'PISTA') {
-                    monto = 60.00;
-                }
-
-                // Ajustar por cantidad de personas
-                monto = monto * cantidadPersonas;
+                let monto = 100.00;
+                if (reservaData.tipoEspacio === 'PISCINA') monto = 80.00;
+                else if (reservaData.tipoEspacio === 'PISTA') monto = 60.00;
+                monto *= cantidadPersonas;
 
                 const descripcion = `Reserva de ${reservaData.espacioNombre} - ${new Date(reservaData.inicioReserva).toLocaleDateString()}`;
 
-                // Crear el formulario para enviar la solicitud de pago
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '/usuarios/crear-link-pago'; // URL corregida según el controlador
+                form.action = '/usuarios/crear-link-pago';
 
-                // Campos del formulario
-                const montoField = document.createElement('input');
-                montoField.type = 'hidden';
-                montoField.name = 'monto';
-                montoField.value = monto;
+                const fields = [
+                    { name: 'monto', value: monto },
+                    { name: 'email', value: email },
+                    { name: 'descripcion', value: descripcion }
+                ];
 
-                const emailField = document.createElement('input');
-                emailField.type = 'hidden';
-                emailField.name = 'email';
-                emailField.value = email;
+                fields.forEach(f => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = f.name;
+                    input.value = f.value;
+                    form.appendChild(input);
+                });
 
-                const descripcionField = document.createElement('input');
-                descripcionField.type = 'hidden';
-                descripcionField.name = 'descripcion';
-                descripcionField.value = descripcion;
-
-                // Agregar los campos al formulario
-                form.appendChild(montoField);
-                form.appendChild(emailField);
-                form.appendChild(descripcionField);
-
-                // Agregar el token CSRF si es necesario para Spring Security
                 const csrfToken = document.querySelector('meta[name="_csrf"]');
                 const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
-
                 if (csrfToken && csrfHeader) {
                     const tokenField = document.createElement('input');
                     tokenField.type = 'hidden';
@@ -551,83 +605,59 @@
                     form.appendChild(tokenField);
                 }
 
-                // Agregar el formulario al documento y enviarlo
                 document.body.appendChild(form);
                 form.submit();
             });
         }
 
-        // 4. Corregir el envío del formulario de confirmación de reserva
+        // 4. Confirmación de reserva
         const btnConfirmarReserva = document.getElementById('btn-next');
         if (btnConfirmarReserva) {
             btnConfirmarReserva.addEventListener('click', function() {
                 const activePane = document.querySelector('.tab-pane.active');
-
-                // Si estamos en el último paso (pago)
                 if (activePane.id === 'payment-info') {
-                    // Verificar que se haya seleccionado un método de pago
                     const metodoPago = document.querySelector('input[name="payment-method"]:checked');
-                    if (!metodoPago) {
-                        alert('Por favor seleccione un método de pago');
-                        return;
-                    }
-
-                    // Si es depósito, verificar que se haya subido un comprobante
+                    if (!metodoPago) return alert('Por favor seleccione un método de pago');
                     if (metodoPago.value === 'deposit') {
                         const fileInput = document.getElementById('deposit-image');
-                        if (fileInput && !fileInput.files[0]) {
-                            alert('Por favor suba un comprobante de pago');
-                            return;
-                        }
+                        if (fileInput && !fileInput.files[0]) return alert('Por favor suba un comprobante de pago');
                     }
 
-                    // Obtener los datos de la sesión y la reserva
                     const reservaData = JSON.parse(localStorage.getItem('reserva_seleccionada'));
-                    if (!reservaData) {
-                        alert('No se encontró información de la reserva');
-                        return;
-                    }
+                    if (!reservaData) return alert('No se encontró información de la reserva');
 
-                    // Crear el formulario para enviar la confirmación
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = '/usuarios/confirmar-reserva'; // URL corregida según el controlador
+                    form.action = '/usuarios/confirmar-reserva';
 
-                    // Datos del formulario
-                    const camposRequeridos = [
+                    const campos = [
                         { name: 'espacio', value: reservaData.espacioId },
                         { name: 'fechaInicio', value: reservaData.inicioReserva },
                         { name: 'fechaFin', value: reservaData.finReserva },
                         { name: 'cantidadPersonas', value: document.getElementById('cantidadPersonas').value || '1' }
                     ];
 
-                    // Agregar campos específicos según el tipo de espacio
-                    if (reservaData.tipoEspacio === 'PISCINA' && reservaData.numeroCarrilPiscina) {
-                        camposRequeridos.push({ name: 'numeroCarrilPiscina', value: reservaData.numeroCarrilPiscina });
-                    } else if (reservaData.tipoEspacio === 'PISTA' && reservaData.numeroCarrilPista) {
-                        camposRequeridos.push({ name: 'numeroCarrilPista', value: reservaData.numeroCarrilPista });
-                    }
+                    if (reservaData.tipoEspacio === 'PISCINA' && reservaData.numeroCarrilPiscina)
+                        campos.push({ name: 'numeroCarrilPiscina', value: reservaData.numeroCarrilPiscina });
+                    if (reservaData.tipoEspacio === 'PISTA' && reservaData.numeroCarrilPista)
+                        campos.push({ name: 'numeroCarrilPista', value: reservaData.numeroCarrilPista });
 
-                    // Agregar campos al formulario
-                    camposRequeridos.forEach(campo => {
+                    campos.forEach(c => {
                         const input = document.createElement('input');
                         input.type = 'hidden';
-                        input.name = campo.name;
-                        input.value = campo.value;
+                        input.name = c.name;
+                        input.value = c.value;
                         form.appendChild(input);
                     });
 
-                    // Agregar método de pago
                     const metodoPagoInput = document.createElement('input');
                     metodoPagoInput.type = 'hidden';
                     metodoPagoInput.name = 'metodoPago';
                     metodoPagoInput.value = metodoPago.value;
                     form.appendChild(metodoPagoInput);
 
-                    // Agregar el token CSRF si es necesario para Spring Security
                     const csrfToken = document.querySelector('meta[name="_csrf"]');
                     const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
-
                     if (csrfToken && csrfHeader) {
                         const tokenField = document.createElement('input');
                         tokenField.type = 'hidden';
@@ -636,7 +666,6 @@
                         form.appendChild(tokenField);
                     }
 
-                    // Mostrar resumen de la reserva
                     const resumenReserva = document.getElementById('reserva-resumen');
                     const resumenMetodo = document.getElementById('resumen-metodo');
 
@@ -644,19 +673,18 @@
                         resumenMetodo.textContent = metodoPago.value === 'online' ? 'Pago en línea con tarjeta' : 'Depósito o transferencia bancaria';
                         resumenReserva.style.display = 'block';
                     }
-                    // Enviar el formulario después de un pequeño retraso para mostrar el resumen
+
                     setTimeout(() => {
                         document.body.appendChild(form);
                         form.submit();
                     }, 1500);
                 } else {
-                    // Navegar al siguiente paso
                     nextBtn.click();
                 }
             });
         }
 
-        // 5. Corregir el validador de archivos para el comprobante de pago
+        // 5. Validador de archivo comprobante
         const fileInput = document.getElementById('deposit-image');
         const errorMessage = document.getElementById('error-message');
         const sizeError = document.getElementById('size-error');
@@ -666,66 +694,61 @@
         const imagePreview = document.getElementById('image-preview');
 
         if (fileInput && errorMessage && sizeError && successMessage && uploadBtn) {
-            // Ocultar los mensajes inicialmente
             errorMessage.style.display = 'none';
             sizeError.style.display = 'none';
             successMessage.style.display = 'none';
+            if (previewContainer) previewContainer.style.display = 'none';
 
-            if (previewContainer) {
-                previewContainer.style.display = 'none';
-            }
-
-            fileInput.addEventListener('change', function(event) {
-                // Ocultar mensajes anteriores
+            fileInput.addEventListener('change', function() {
                 errorMessage.style.display = 'none';
                 sizeError.style.display = 'none';
                 successMessage.style.display = 'none';
+                if (previewContainer) previewContainer.style.display = 'none';
 
-                if (previewContainer) {
-                    previewContainer.style.display = 'none';
-                }
-
-                uploadBtn.disabled = true;
-
-                const file = event.target.files[0];
-
+                const file = this.files[0];
                 if (!file) return;
 
-                // Validar el tipo de archivo
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-                const fileType = file.type;
-
-                if (!validTypes.includes(fileType)) {
+                // Validar tipo de archivo: imagen o PDF
+                if (!(file.type.startsWith('image/') || file.type === 'application/pdf')) {
                     errorMessage.style.display = 'block';
-                    fileInput.value = '';
                     return;
                 }
 
-                // Validar el tamaño del archivo (5MB = 5 * 1024 * 1024 bytes)
-                const maxSize = 5 * 1024 * 1024;
-                if (file.size > maxSize) {
+                // Validar tamaño máximo (2 MB)
+                if (file.size > 2 * 1024 * 1024) {
                     sizeError.style.display = 'block';
-                    fileInput.value = '';
                     return;
                 }
 
                 // Mostrar mensaje de éxito
                 successMessage.style.display = 'block';
-                uploadBtn.disabled = false;
 
-                // Mostrar vista previa (solo para imágenes)
-                if (fileType !== 'application/pdf' && imagePreview && previewContainer) {
+                // Mostrar previsualización
+                if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        imagePreview.src = e.target.result;
-                        previewContainer.style.display = 'block';
+                        if (imagePreview) {
+                            imagePreview.src = e.target.result;
+                            imagePreview.style.display = 'block';
+                        }
+                        if (previewContainer) previewContainer.style.display = 'block';
                     };
                     reader.readAsDataURL(file);
+                } else if (file.type === 'application/pdf') {
+                    if (imagePreview) {
+                        imagePreview.style.display = 'none';
+                    }
+                    if (previewContainer) {
+                        previewContainer.innerHTML = '<p><i class="bi bi-file-earmark-pdf" style="font-size: 2rem; color: red;"></i> Archivo PDF seleccionado.</p>';
+                        previewContainer.style.display = 'block';
+                    }
                 }
             });
         }
+
     });
 </script>
+
 <!-- Right bar overlay-->
 <div class="rightbar-overlay"></div>
 <!-- JAVASCRIPT -->
