@@ -13,15 +13,16 @@
         <div class="page-content">
             <div class="container-fluid">
                 <div class="row justify-content-around">
-                    <div class="col-lg-11 align-items-center">
+                    <div class="col-lg-12 align-items-center">
                         <div class="card">
                             <div class="card-body">
 
-                                <h3 class="mt-3 mb-4" style="color: #003366;">Formulario de creación de Establecimiento Deportivo</h3>
+                                <h4 class="card-title mb-4 fw-semibold mt-3">Formulario de creación de Establecimiento Deportivo</h4>
+                                <!--<h3 class="mt-3 mb-4" style="color: #003366;">Formulario de creación de Establecimiento Deportivo</h3>-->
 
-                                <p class="card-title-desc text-muted fs-6">
+                                <!--<p class="card-title-desc text-muted fs-6">
                                     Crea un nuevo establecimiento deportivo con todos los datos necesarios para su correcta gestión.
-                                </p>
+                                </p>-->
 
                                 <form th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post">
 
@@ -159,14 +160,14 @@
                                     </div>
 
                                     <!-- Motivo de mantenimiento -->
-                                    <div class="mb-4">
+                                    <!--<div class="mb-4">
                                         <label class="form-label">Motivo de mantenimiento</label>
                                         <textarea class="form-control"
                                                   th:field="*{motivoMantenimiento}"
                                                   placeholder="Solo en caso de estado en mantenimiento"
                                                   th:classappend="${#fields.hasErrors('motivoMantenimiento')} ? 'is-invalid' : ''"></textarea>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('motivoMantenimiento')}" th:errors="*{motivoMantenimiento}"></div>
-                                    </div>
+                                    </div-->
 
 
                                     <!-- Botones -->
