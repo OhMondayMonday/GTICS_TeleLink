@@ -619,10 +619,10 @@
                                             // Actualizar la paginación en todos los contenedores
                                             paginacionElementos.forEach(paginacion => {
                                                 paginacion.innerHTML = `
-            <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
-                <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual - 1}); return false;"><i class="mdi mdi-chevron-left"></i></a>
-            </li>
-        `;
+                                                <li class="page-item ${paginaActual === 1 ? 'disabled' : ''}">
+                                                    <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual - 1}); return false;"><i class="mdi mdi-chevron-left"></i></a>
+                                                </li>
+                                            `;
 
                                                 // Mostrar máximo 5 páginas en la paginación
                                                 const maxPaginas = 5;
@@ -635,17 +635,17 @@
 
                                                 for (let i = startPage; i <= endPage; i++) {
                                                     paginacion.innerHTML += `
-                <li class="page-item ${i === paginaActual ? 'active' : ''}">
-                    <a href="#" class="page-link" onclick="cambiarPagina(${i}); return false;">${i}</a>
-                </li>
-            `;
+                                                    <li class="page-item ${i === paginaActual ? 'active' : ''}">
+                                                        <a href="#" class="page-link" onclick="cambiarPagina(${i}); return false;">${i}</a>
+                                                    </li>
+                                                `;
                                                 }
 
                                                 paginacion.innerHTML += `
-            <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
-                <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual + 1}); return false;"><i class="mdi mdi-chevron-right"></i></a>
-            </li>
-        `;
+                                                <li class="page-item ${paginaActual === totalPaginas ? 'disabled' : ''}">
+                                                    <a href="#" class="page-link" onclick="cambiarPagina(${paginaActual + 1}); return false;"><i class="mdi mdi-chevron-right"></i></a>
+                                                </li>
+                                            `;
                                             });
                                         }
 
