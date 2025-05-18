@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Detalle de Observación')}">
+<head th:replace="~{admin/fragments/headList.html :: headList(title='Detalle de Observación')}">
   <meta charset="UTF-8">
 </head>
 <body class="vertical-collpsed" data-sidebar="dark">
@@ -25,39 +25,109 @@
                             readonly disabled></textarea>
                 </div>
 
-                <!-- Fecha de Creación and Nivel de Urgencia -->
+                <!-- Fecha de Creación and Fecha de Actualización -->
                 <div class="row mb-4">
                   <div class="col-md-6">
                     <label class="form-label">Fecha de Creación</label>
                     <input type="text" class="form-control border-0 bg-light"
-                           th:value="${#temporals.format(observacion.fechaCreacion, 'dd/MM/yyyy HH:mm')}"
+                           th:value="${#temporals.format(observacion.fechaCreacion, 'dd/MM/yyyy HH:mm')} ?: 'N/A'"
                            readonly disabled />
                   </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Fecha de Actualización</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${#temporals.format(observacion.fechaActualizacion, 'dd/MM/yyyy HH:mm')} ?: 'N/A'"
+                           readonly disabled />
+                  </div>
+                </div>
+
+                <!-- Nivel de Urgencia and Estado -->
+                <div class="row mb-4">
                   <div class="col-md-6">
                     <label class="form-label">Nivel de Urgencia</label>
                     <input type="text" class="form-control border-0 bg-light"
                            th:value="${#strings.capitalize(observacion.nivelUrgencia.name())}"
                            readonly disabled />
                   </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Estado</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${#strings.capitalizeWords(#strings.replace(observacion.estado.name(), '_', ' '))}"
+                           readonly disabled />
+                  </div>
                 </div>
 
-                <!-- Espacio Deportivo -->
-                <div class="mb-4">
-                  <label class="form-label">Espacio Deportivo</label>
-                  <input type="text" class="form-control border-0 bg-light"
-                         th:value="${observacion.espacioDeportivo?.nombre} ?: 'N/A'"
-                         readonly disabled />
+                <!-- Espacio Deportivo and Establecimiento Deportivo -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Espacio Deportivo</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${observacion.espacioDeportivo?.nombre} ?: 'N/A'"
+                           readonly disabled />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Establecimiento Deportivo</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${observacion.espacioDeportivo?.establecimientoDeportivo?.establecimientoDeportivoNombre} ?: 'N/A'"
+                           readonly disabled />
+                  </div>
                 </div>
 
-                <!-- Coordinador -->
-                <div class="mb-4">
-                  <label class="form-label">Coordinador</label>
-                  <input type="text" class="form-control border-0 bg-light"
-                         th:value="${observacion.coordinador?.nombres} ?: 'N/A'"
-                         readonly disabled />
+                <!-- Dirección and Servicio Deportivo -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${observacion.espacioDeportivo?.establecimientoDeportivo?.direccion} ?: 'N/A'"
+                           readonly disabled />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Servicio Deportivo</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${observacion.espacioDeportivo?.servicioDeportivo?.servicioDeportivo} ?: 'N/A'"
+                           readonly disabled />
+                  </div>
                 </div>
 
-                <!-- Formulario para resolver observación -->
+                <!-- Coordinador and Teléfono del Coordinador -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Coordinador</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${observacion.coordinador?.nombres} ?: 'N/A'"
+                           readonly disabled />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Teléfono del Coordinador</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${observacion.coordinador?.telefono} ?: 'N/A'"
+                           readonly disabled />
+                  </div>
+                </div>
+
+                <!-- Foto -->
+                <div class="mb-4" th:if="${observacion.fotoUrl != null}">
+                  <label class="form-label">Foto</label>
+                  <!--<input type="text" class="form-control border-0 bg-light"
+                         th:value="${observacion.fotoUrl} ?: 'N/A'"
+                         readonly disabled />-->
+                  <div class="text-center mt-3">
+                    <img th:src="${observacion.fotoUrl} ?: '/assets/images/placeholder.png'"
+                         alt="Foto de la observación"
+                         class="img-fluid rounded border"
+                         style="max-height: 400px;" />
+                  </div>
+                </div>
+
+                <!-- Comentario del Administrador (if resolved) -->
+                <div class="mb-4" th:if="${observacion.estado.name() == 'resuelto' and observacion.comentarioAdministrador != null}">
+                  <label class="form-label">Comentario del Administrador</label>
+                  <textarea class="form-control border-0 bg-light" rows="3"
+                            th:text="${observacion.comentarioAdministrador}"
+                            readonly disabled></textarea>
+                </div>
+
+                <!-- Form for resolving observation -->
                 <div th:if="${observacion.estado.name() == 'en_proceso'}">
                   <form method="post" th:action="@{/admin/observaciones/resolver}">
                     <input type="hidden" name="id" th:value="${observacion.observacionId}" />
@@ -70,8 +140,11 @@
                     <a th:href="@{/admin/observaciones}" class="btn btn-secondary ms-2">Cancelar</a>
                   </form>
                 </div>
-                <div th:if="${observacion.estado.name() != 'en_proceso'}">
+                <div th:if="${observacion.estado.name() == 'resuelto'}">
                   <p class="text-muted">La observación ya fue resuelta.</p>
+                </div>
+                <div th:if="${observacion.estado.name() == 'pendiente'}">
+                  <p class="text-muted">La observación está pendiente de revisión.</p>
                 </div>
 
               </div>
@@ -86,6 +159,6 @@
 </div>
 
 <div class="sidebar-overlay"></div>
-<div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
 </body>
 </html>
