@@ -3,6 +3,8 @@
     <head th:replace="~{admin/fragments/headPage.html :: headPage(title='Nueva Asistencia')}">
         <meta charset="UTF-8">
         <title>Nueva Asistencia</title>
+        <!-- Flatpickr CSS -->
+        <link rel="stylesheet" th:href="@{/admin/assets/css/flatpickr.min.css}" />
     </head>
     <body data-sidebar="dark" class="vertical-collpsed">
         <div id="layout-wrapper">
@@ -16,7 +18,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <h4 class="card-title mb-3 fw-semibold">Formulario de Creación de Asistencia</h4>
-                                        <!-- Mostrar mensaje de éxito o error -->
+                                        <!-- Top-level error/success message -->
                                         <div th:if="${msg != null}" class="alert mb-3" th:class="${error != null} ? 'alert alert-danger' : 'alert alert-success'" th:text="${msg}"></div>
                                         <form th:action="@{/admin/asistencias/guardar}" method="post">
                                             <input type="hidden" name="coordinadorId" th:value="${coordinadorId}" />
@@ -29,6 +31,7 @@
                                                             <option value="">Seleccione un establecimiento</option>
                                                             <option th:each="establecimiento : ${establecimientos}" th:value="${establecimiento.establecimientoDeportivoId}" th:text="${establecimiento.establecimientoDeportivoNombre}"></option>
                                                         </select>
+                                                        <div th:if="${errors != null && errors['establecimientoDeportivoId'] != null}" class="invalid-feedback d-block" th:text="${errors['establecimientoDeportivoId']}"></div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -37,6 +40,7 @@
                                                         <select id="espacioDeportivo" name="espacioDeportivoId" class="form-select" required disabled>
                                                             <option value="">Seleccione un espacio</option>
                                                         </select>
+                                                        <div th:if="${errors != null && errors['espacioDeportivoId'] != null}" class="invalid-feedback d-block" th:text="${errors['espacioDeportivoId']}"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -44,19 +48,22 @@
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
                                                         <label for="fecha" class="form-label">Fecha <span style="color: red;">*</span></label>
-                                                        <input id="fecha" name="fecha" type="text" class="form-control" required />
+                                                        <input id="fecha" name="fecha" type="text" class="form-control" readonly required />
+                                                        <div th:if="${errors != null && errors['fecha'] != null}" class="invalid-feedback d-block" th:text="${errors['fecha']}"></div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
                                                         <label for="horarioEntrada" class="form-label">Horario de Entrada <span style="color: red;">*</span></label>
-                                                        <input id="horarioEntrada" name="horarioEntrada" type="text" class="form-control" required disabled />
+                                                        <input id="horarioEntrada" name="horarioEntrada" type="text" class="form-control" readonly required disabled />
+                                                        <div th:if="${errors != null && errors['horarioEntrada'] != null}" class="invalid-feedback d-block" th:text="${errors['horarioEntrada']}"></div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
                                                         <label for="horarioSalida" class="form-label">Horario de Salida <span style="color: red;">*</span></label>
-                                                        <input id="horarioSalida" name="horarioSalida" type="text" class="form-control" required disabled />
+                                                        <input id="horarioSalida" name="horarioSalida" type="text" class="form-control" readonly required disabled />
+                                                        <div th:if="${errors != null && errors['horarioSalida'] != null}" class="invalid-feedback d-block" th:text="${errors['horarioSalida']}"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -88,7 +95,6 @@
                         minDate: new Date().fp_incr(1), // Only allow dates from tomorrow
                         allowInput: false,
                         onChange: function(selectedDates, dateStr, instance) {
-                            // Enable time pickers only after date is selected
                             document.getElementById('horarioEntrada').disabled = false;
                             updateEntradaOptions();
                         }
@@ -103,7 +109,6 @@
                         time_24hr: true,
                         allowInput: false,
                         onChange: function(selectedDates, timeStr, instance) {
-                            // Enable salida picker and update its options
                             document.getElementById('horarioSalida').disabled = false;
                             updateSalidaOptions(timeStr);
                         }
@@ -119,7 +124,7 @@
                         allowInput: false
                     });
 
-                    // Load establecimientos (already loaded via Thymeleaf)
+                    // Load establecimientos
                     const establecimientoSelect = document.getElementById('establecimientoDeportivo');
                     const espacioSelect = document.getElementById('espacioDeportivo');
 
@@ -129,9 +134,11 @@
                         espacioSelect.innerHTML = '<option value="">Seleccione un espacio</option>';
 
                         if (establecimientoId) {
-                            // Fetch espacios deportivos via AJAX
                             fetch(`/admin/espacios-por-establecimiento?establecimientoId=${establecimientoId}`)
-                                .then(response => response.json())
+                                .then(response => {
+                                    if (!response.ok) throw new Error('Error fetching espacios');
+                                    return response.json();
+                                })
                                 .then(espacios => {
                                     espacios.forEach(espacio => {
                                         const option = document.createElement('option');
@@ -141,20 +148,28 @@
                                     });
                                     espacioSelect.disabled = false;
                                 })
-                                .catch(error => console.error('Error fetching espacios:', error));
+                                .catch(error => {
+                                    console.error('Error fetching espacios:', error);
+                                    alert('No se pudieron cargar los espacios deportivos.');
+                                });
                         }
                     });
 
                     espacioSelect.addEventListener('change', function() {
                         const espacioId = this.value;
                         if (espacioId) {
-                            // Fetch horario apertura and cierre
                             fetch(`/admin/espacio-horario?espacioId=${espacioId}`)
-                                .then(response => response.json())
+                                .then(response => {
+                                    if (!response.ok) throw new Error('Error fetching horario');
+                                    return response.json();
+                                })
                                 .then(data => {
                                     updateEntradaOptions(data.horarioApertura, data.horarioCierre);
                                 })
-                                .catch(error => console.error('Error fetching horario:', error));
+                                .catch(error => {
+                                    console.error('Error fetching horario:', error);
+                                    alert('No se pudo cargar el horario del espacio.');
+                                });
                         }
                     });
 
@@ -171,11 +186,12 @@
                         if (!entradaTime) return;
                         const [hours, minutes] = entradaTime.split(':').map(Number);
                         const minSalida = new Date();
-                        minSalida.setHours(hours, minutes + 30); // Minimum salida is 30 minutes after entrada
+                        minSalida.setHours(hours, minutes + 30);
                         salidaPicker.set('minTime', minSalida.toTimeString().slice(0, 5));
                         salidaPicker.clear();
                     }
                 });
             </script>
+        </div>
     </body>
 </html>

@@ -18,9 +18,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -101,22 +100,84 @@ public class AdminController {
             @RequestParam("coordinadorId") Integer coordinadorId,
             @RequestParam("administradorId") Integer administradorId,
             @RequestParam("espacioDeportivoId") Integer espacioDeportivoId,
-            @RequestParam("fecha") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fecha,
-            @RequestParam("horarioEntrada") String horarioEntradaStr,
-            @RequestParam("horarioSalida") String horarioSalidaStr,
-            RedirectAttributes attr) {
+            @RequestParam("establecimientoDeportivoId") Integer establecimientoDeportivoId,
+            @RequestParam(value = "fecha", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fecha,
+            @RequestParam(value = "horarioEntrada", required = false) String horarioEntradaStr,
+            @RequestParam(value = "horarioSalida", required = false) String horarioSalidaStr,
+            RedirectAttributes attr,
+            Model model) {
 
-        // Parse times
-        LocalTime horarioEntradaTime = LocalTime.parse(horarioEntradaStr);
-        LocalTime horarioSalidaTime = LocalTime.parse(horarioSalidaStr);
-        LocalDateTime horarioEntrada = LocalDateTime.of(fecha, horarioEntradaTime);
-        LocalDateTime horarioSalida = LocalDateTime.of(fecha, horarioSalidaTime);
+        // Initialize error map
+        Map<String, String> errors = new HashMap<>();
+
+        // Validate required fields
+        if (coordinadorId == null) {
+            errors.put("coordinadorId", "El ID del coordinador es requerido");
+        }
+        if (administradorId == null) {
+            errors.put("administradorId", "El ID del administrador es requerido");
+        }
+        if (establecimientoDeportivoId == null) {
+            errors.put("establecimientoDeportivoId", "Debe seleccionar un establecimiento deportivo");
+        }
+        if (espacioDeportivoId == null) {
+            errors.put("espacioDeportivoId", "Debe seleccionar un espacio deportivo");
+        }
+        if (fecha == null) {
+            errors.put("fecha", "La fecha es requerida");
+        }
+        if (horarioEntradaStr == null || horarioEntradaStr.trim().isEmpty()) {
+            errors.put("horarioEntrada", "El horario de entrada es requerido");
+        }
+        if (horarioSalidaStr == null || horarioSalidaStr.trim().isEmpty()) {
+            errors.put("horarioSalida", "El horario de salida es requerido");
+        }
+
+        // Validate date is tomorrow or later
+        if (fecha != null && fecha.isBefore(LocalDate.now().plusDays(1))) {
+            errors.put("fecha", "La fecha debe ser a partir de mañana");
+        }
+
+        // Parse times and validate format
+        LocalTime horarioEntradaTime = null;
+        LocalTime horarioSalidaTime = null;
+        LocalDateTime horarioEntrada = null;
+        LocalDateTime horarioSalida = null;
+
+        if (horarioEntradaStr != null && !horarioEntradaStr.trim().isEmpty()) {
+            try {
+                horarioEntradaTime = LocalTime.parse(horarioEntradaStr);
+            } catch (DateTimeParseException e) {
+                errors.put("horarioEntrada", "Formato de horario de entrada inválido");
+            }
+        }
+        if (horarioSalidaStr != null && !horarioSalidaStr.trim().isEmpty()) {
+            try {
+                horarioSalidaTime = LocalTime.parse(horarioSalidaStr);
+            } catch (DateTimeParseException e) {
+                errors.put("horarioSalida", "Formato de horario de salida inválido");
+            }
+        }
+
+        // If there are errors, return to form
+        if (!errors.isEmpty()) {
+            model.addAttribute("errors", errors);
+            model.addAttribute("coordinadorId", coordinadorId);
+            model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
+            return "admin/nuevaAsistencia";
+        }
+
+        // Combine date and times
+        horarioEntrada = LocalDateTime.of(fecha, horarioEntradaTime);
+        horarioSalida = LocalDateTime.of(fecha, horarioSalidaTime);
 
         // Validate time range
         if (!horarioSalida.isAfter(horarioEntrada)) {
-            attr.addFlashAttribute("msg", "El horario de salida debe ser posterior al de entrada");
-            attr.addFlashAttribute("error", true);
-            return "redirect:/admin/asistencias/nueva?coordinadorId=" + coordinadorId;
+            errors.put("horarioSalida", "El horario de salida debe ser posterior al de entrada");
+            model.addAttribute("errors", errors);
+            model.addAttribute("coordinadorId", coordinadorId);
+            model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
+            return "admin/nuevaAsistencia";
         }
 
         // Fetch entities
@@ -124,10 +185,33 @@ public class AdminController {
         Optional<Usuario> optAdministrador = usuarioRepository.findById(administradorId);
         Optional<EspacioDeportivo> optEspacio = espacioDeportivoRepository.findById(espacioDeportivoId);
 
-        if (!optCoordinador.isPresent() || !optAdministrador.isPresent() || !optEspacio.isPresent()) {
-            attr.addFlashAttribute("msg", "Datos inválidos");
-            attr.addFlashAttribute("error", true);
-            return "redirect:/admin/asistencias/nueva?coordinadorId=" + coordinadorId;
+        if (!optCoordinador.isPresent()) {
+            errors.put("coordinadorId", "Coordinador no encontrado");
+        }
+        if (!optAdministrador.isPresent()) {
+            errors.put("administradorId", "Administrador no encontrado");
+        }
+        if (!optEspacio.isPresent()) {
+            errors.put("espacioDeportivoId", "Espacio deportivo no encontrado");
+        }
+
+        // Validate space hours
+        if (optEspacio.isPresent()) {
+            EspacioDeportivo espacio = optEspacio.get();
+            if (horarioEntradaTime.isBefore(espacio.getHorarioApertura()) || horarioEntradaTime.isAfter(espacio.getHorarioCierre())) {
+                errors.put("horarioEntrada", "El horario de entrada debe estar dentro del horario del espacio (" + espacio.getHorarioApertura() + " - " + espacio.getHorarioCierre() + ")");
+            }
+            if (horarioSalidaTime.isBefore(espacio.getHorarioApertura()) || horarioSalidaTime.isAfter(espacio.getHorarioCierre())) {
+                errors.put("horarioSalida", "El horario de salida debe estar dentro del horario del espacio (" + espacio.getHorarioApertura() + " - " + espacio.getHorarioCierre() + ")");
+            }
+        }
+
+        // If there are errors, return to form
+        if (!errors.isEmpty()) {
+            model.addAttribute("errors", errors);
+            model.addAttribute("coordinadorId", coordinadorId);
+            model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
+            return "admin/nuevaAsistencia";
         }
 
         // Validate overlapping assistances and maintenances
