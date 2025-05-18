@@ -7,6 +7,20 @@
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
 
+    <!-- CSS Styles for Dynamic Transitions -->
+    <style>
+        #motivoMantenimientoField {
+            transition: all 0.3s ease;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+        }
+        #motivoMantenimientoField.show {
+            opacity: 1;
+            max-height: 200px; /* Adjust as needed for textarea */
+        }
+    </style>
+
     <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}"></div>
 
     <div class="main-content">
@@ -120,7 +134,7 @@
                                     <!-- Estado -->
                                     <div class="mb-4">
                                         <label class="form-label">Estado</label>
-                                        <select class="form-control"
+                                        <select class="form-control" id="estadoSelect"
                                                 th:field="*{estado}"
                                                 th:classappend="${#fields.hasErrors('estado')} ? 'is-invalid' : ''">
                                             <option value="" disabled selected>Seleccione una opción</option>
@@ -129,6 +143,16 @@
                                             <option value="clausurado">Clausurado</option>
                                         </select>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></div>
+                                    </div>
+
+                                    <!-- Motivo de mantenimiento -->
+                                    <div id="motivoMantenimientoField" class="mb-4">
+                                        <label class="form-label">Motivo de mantenimiento</label>
+                                        <textarea class="form-control" rows="2"
+                                                  th:field="*{motivoMantenimiento}"
+                                                  placeholder="Especifique el motivo del mantenimiento"
+                                                  th:classappend="${#fields.hasErrors('motivoMantenimiento')} ? 'is-invalid' : ''"></textarea>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('motivoMantenimiento')}" th:errors="*{motivoMantenimiento}"></div>
                                     </div>
 
                                     <!-- Botones -->
@@ -150,5 +174,31 @@
 
 <div class="sidebar-overlay"></div>
 <div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+
+<!-- JavaScript to Handle Conditional Motivo Mantenimiento Field -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const estadoSelect = document.getElementById('estadoSelect');
+        const motivoMantenimientoField = document.getElementById('motivoMantenimientoField');
+
+        function toggleMotivoField() {
+            const selectedValue = estadoSelect.value;
+
+            // Remove 'show' class by default
+            motivoMantenimientoField.classList.remove('show');
+
+            // Add 'show' class if estado is 'mantenimiento'
+            if (selectedValue === 'mantenimiento') {
+                motivoMantenimientoField.classList.add('show');
+            }
+        }
+
+        // Run on page load to handle pre-selected values (e.g., during form validation errors)
+        toggleMotivoField();
+
+        // Run on change of the select dropdown
+        estadoSelect.addEventListener('change', toggleMotivoField);
+    });
+</script>
 </body>
 </html>

@@ -79,9 +79,13 @@ public class AdminController {
 
 
     @GetMapping("establecimientos/info")
-    public String infoEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento, @RequestParam("id") Integer id, Model model) {
+    public String infoEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento,
+                                      @RequestParam("id") Integer id,
+                                      Model model) {
         establecimiento = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
+        List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAllByEstablecimientoDeportivo(establecimiento);
         model.addAttribute("establecimiento", establecimiento);
+        model.addAttribute("espacios", espacios);
         return "admin/establecimientoInfo";
     }
 

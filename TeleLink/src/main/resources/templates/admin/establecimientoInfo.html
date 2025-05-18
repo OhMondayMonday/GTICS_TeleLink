@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Información del Establecimiento Deportivo')}">
+<head th:replace="~{admin/fragments/headList.html :: headList(title='Información del Establecimiento Deportivo')}">
     <meta charset="UTF-8">
     <title>Información del Establecimiento</title>
 </head>
@@ -95,7 +95,7 @@
                                 <div class="mb-4">
                                     <label class="form-label">Estado</label>
                                     <input type="text" class="form-control border-0 bg-light"
-                                           th:value="${establecimiento.estado}"
+                                           th:value="${#strings.capitalize(establecimiento.estado.name())}"
                                            readonly disabled />
                                 </div>
 
@@ -105,6 +105,48 @@
                                     <textarea class="form-control border-0 bg-light" rows="2"
                                               th:text="${establecimiento.motivoMantenimiento}"
                                               readonly disabled></textarea>
+                                </div>
+
+                                <br>
+
+                                <!-- Lista de Espacios Deportivos -->
+                                <div class="mb-4">
+                                    <h4 class="card-title mb-4 fw-semibold mt-3">Espacios Deportivos Asociados</h4>
+                                    <!--<h5 class="card-title mb-3">Espacios Deportivos Asociados</h5>-->
+                                    <div class="table-responsive">
+                                        <table class="table table-centered datatable dt-responsive nowrap"
+                                               data-bs-page-length="6"
+                                               style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                            <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Servicio Deportivo</th>
+                                                <th>Estado</th>
+                                                <th>Acción</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="espacio : ${espacios}">
+                                                <td th:text="${espacio.nombre}"></td>
+                                                <td th:text="${espacio.servicioDeportivo?.servicioDeportivo} ?: 'N/A'"></td>
+                                                <td th:text="${#strings.capitalize(espacio.estadoServicio.name())}"> xd</td>
+
+                                                <td>
+                                                    <a th:href="@{/admin/espacios/calendario(id=${espacio.espacioDeportivoId})}"
+                                                       class="btn btn-outline-secondary btn-sm edit" title="Calendario">
+                                                        <i class="fas fa-calendar"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${espacios == null or #lists.isEmpty(espacios)}">
+                                                <td class="text-center">No hay espacios deportivos asociados.</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
 
                                 <!-- Botones -->
@@ -123,6 +165,7 @@
 </div>
 
 <div class="sidebar-overlay"></div>
-<div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+<script th:src="@{/assets/js/pages/espaciosAdmin.init.js}"></script>
 </body>
 </html>
