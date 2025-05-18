@@ -1,8 +1,7 @@
 package com.example.telelink.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class Usuario implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usuario_id")
@@ -25,6 +25,9 @@ public class Usuario implements Serializable {
     @Column(length = 100)
     private String apellidos;
 
+    @NotBlank(message = "El correo electrónico es obligatorio")
+    @Email(message = "Formato de correo inválido")
+    @Size(max = 100)
     @Column(name = "correo_electronico", nullable = false, length = 100, unique = true)
     private String correoElectronico;
 
@@ -38,10 +41,9 @@ public class Usuario implements Serializable {
     @Column(length = 8, unique = true)
     private String dni;
 
-    @Column(length = 255)
+    @Size(max = 255, message = "Máximo 255 caracteres")
     private String direccion;
 
-    @Column(length = 9)
     @Size(min = 9, max = 9, message = "El teléfono debe tener exactamente 9 dígitos")
     @Pattern(regexp = "^[0-9]+$", message = "El teléfono solo puede contener números")
     private String telefono;

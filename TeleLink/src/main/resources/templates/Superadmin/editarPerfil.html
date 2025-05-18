@@ -80,11 +80,11 @@
                                                 <hr class="my-2 border border-light-subtle">
                                                 <div class="row g-3">
                                                     <div class="col-4">
-                                                        <h5 class="mb-0" th:text="${#lists.size(reservas)}">0</h5>
+                                                        <h5 class="mb-0" th:text="${reservasTotales != null ? reservasTotales : 0}">0</h5>
                                                         <small class="text-muted">Reservas</small>
                                                     </div>
                                                     <div class="col-4 border border-top-0 border-bottom-0">
-                                                        <h5 class="mb-0" th:text="${#lists.size(reservas)}">-</h5>
+                                                        <h5 class="mb-0" th:text="${reservasTotales != null ? reservasTotales : 0}">-</h5>
                                                         <small class="text-muted">Reservas totales</small>
                                                     </div>
                                                     <div class="col-4">
@@ -141,49 +141,36 @@
                                         <h4 class="card-title mb-4">Información básica</h4>
 
                                         <form th:action="@{'/superadmin/usuarios/actualizar/' + ${usuario.usuarioId}}"
+                                              th:object="${usuarioForm}"
                                               method="post"
                                               enctype="multipart/form-data"
                                               id="editProfileForm">
 
                                             <div class="mb-4">
-                                                <label for="direccion" class="form-label">Dirección</label>
-                                                <input type="text" class="form-control" id="direccion"
-                                                       th:field="*{usuario.direccion}">
+                                                <label class="form-label">Dirección</label>
+                                                <input type="text" class="form-control" th:field="*{direccion}">
+                                                <div th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}" class="invalid-feedback d-block"></div>
                                             </div>
 
                                             <div class="mb-4">
-                                                <label for="correoElectronico" class="form-label">Correo Electrónico</label>
-                                                <input type="email" class="form-control" id="correoElectronico"
-                                                       th:field="*{usuario.correoElectronico}" required>
+                                                <label class="form-label">Correo Electrónico</label>
+                                                <input type="email" class="form-control" th:field="*{correoElectronico}">
+                                                <div th:if="${#fields.hasErrors('correoElectronico')}" th:errors="*{correoElectronico}" class="invalid-feedback d-block"></div>
                                             </div>
 
                                             <div class="mb-4">
-                                                <label for="telefono" class="form-label">Número de celular</label>
-                                                <input type="text" class="form-control" id="telefono"
-                                                       th:field="*{usuario.telefono}" required>
+                                                <label class="form-label">Número de celular</label>
+                                                <input type="text" class="form-control" th:field="*{telefono}">
+                                                <div th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="invalid-feedback d-block"></div>
                                             </div>
 
                                             <div class="row mb-2">
                                                 <div class="col-md-6">
                                                     <div class="mb-1">
                                                         <label class="form-label">Foto de perfil</label>
-                                                        <input type="file" class="form-control" id="fotoPerfil"
-                                                               name="fotoPerfil" accept="image/*">
+                                                        <input type="file" class="form-control" name="fotoPerfil" accept="image/*">
                                                         <small class="text-muted">Formatos aceptados: JPG, PNG. Tamaño máximo: 2MB</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row mb-4">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="rol" class="form-label">Rol</label>
-                                                        <select class="form-select" id="rol" th:field="*{usuario.rol}" required>
-                                                            <option th:each="rol : ${roles}"
-                                                                    th:value="${rol.getRolId()}"
-                                                            th:text="${rol.getRol()}"
-                                                            th:selected="${rol == usuario.rol}">
-                                                            </option>
-                                                        </select>
+                                                        <div th:if="${#fields.hasErrors('fotoPerfilUrl')}" th:errors="*{fotoPerfilUrl}" class="invalid-feedback d-block"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -193,6 +180,7 @@
                                                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
                                             </div>
                                         </form>
+
                                     </div>
                                 </div>
                             </div>

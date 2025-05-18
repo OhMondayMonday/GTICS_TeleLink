@@ -330,121 +330,100 @@ public class SuperadminController {
         return "Superadmin/verPerfil";
     }
 
-    @GetMapping("usuarios/editar/{usuarioId}")
-    public String mostrarEdicionUsuario(@PathVariable("usuarioId") Integer usuarioId, Model model) {
-        Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId));
-        List<Rol> roles = rolRepository.findAll();
-        model.addAttribute("roles", roles);
-        model.addAttribute("usuario", usuario);
+    @GetMapping("/usuarios/editar/{usuarioId}")
+    public String mostrarFormularioEdicionPerfil(@PathVariable Integer usuarioId, Model model) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        long reservasTotales = reservaRepository.countByUsuario(usuario);
-
-        model.addAttribute("reservas", reservasTotales);
+        model.addAttribute("usuario", usuario);       // Para mostrar perfil
+        model.addAttribute("usuarioForm", usuario);
+        long  reservasTotales = reservaRepository.countByUsuario(usuario);// Para editar campos
+        model.addAttribute("roles", rolRepository.findAll());
+        model.addAttribute("reservasTotales", reservasTotales);
 
         return "Superadmin/editarPerfil";
     }
 
-    @PostMapping("usuarios/actualizar/{usuarioId}")
+    @PostMapping("/usuarios/actualizar/{usuarioId}")
     public String actualizarUsuario(
             @PathVariable Integer usuarioId,
-            @ModelAttribute("usuario") @Valid Usuario usuario,
+            @ModelAttribute("usuarioForm") @Valid Usuario usuarioForm,
             BindingResult result,
             @RequestParam(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
             RedirectAttributes redirectAttributes,
             Model model) {
 
-        // 1. Obtener usuario existente
         Usuario usuarioExistente = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        // 2. Validación de unicidad del correo electrónico
-        if (!usuarioExistente.getCorreoElectronico().equals(usuario.getCorreoElectronico())) {
-            boolean correoEnUso = usuarioRepository.existsByCorreoElectronicoAndUsuarioIdNot(
-                    usuario.getCorreoElectronico(),
-                    usuarioId);
-
-            if (correoEnUso) {
-                result.rejectValue("correoElectronico", "duplicate.email",
-                        "El correo electrónico ya está registrado");
-            }
+        // Validación de correo electrónico único
+        if (!usuarioForm.getCorreoElectronico().equals(usuarioExistente.getCorreoElectronico()) &&
+                usuarioRepository.existsByCorreoElectronicoAndUsuarioIdNot(usuarioForm.getCorreoElectronico(), usuarioId)) {
+            result.rejectValue("correoElectronico", "duplicate.email", "El correo electrónico ya está registrado");
         }
 
-        // 3. Validación de unicidad del teléfono (si el campo no es nulo)
-        if (usuario.getTelefono() != null && !usuario.getTelefono().isEmpty()) {
-            if (!usuarioExistente.getTelefono().equals(usuario.getTelefono())) {
-                boolean telefonoEnUso = usuarioRepository.existsByTelefonoAndUsuarioIdNot(
-                        usuario.getTelefono(),
-                        usuarioId);
-
-                if (telefonoEnUso) {
-                    result.rejectValue("telefono", "duplicate.phone",
-                            "El número de teléfono ya está registrado");
-                }
-            }
+        // Validación de número de teléfono único
+        if (usuarioForm.getTelefono() != null &&
+                !usuarioForm.getTelefono().equals(usuarioExistente.getTelefono()) &&
+                usuarioRepository.existsByTelefonoAndUsuarioIdNot(usuarioForm.getTelefono(), usuarioId)) {
+            result.rejectValue("telefono", "duplicate.phone", "El número de teléfono ya está registrado");
         }
 
-        // 4. Validación del archivo de imagen
+        // Validación del archivo de imagen
         if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
-            // Validar tamaño (2MB máximo)
-            if (fotoPerfil.getSize() > 2097152) {
-                result.rejectValue("fotoPerfilUrl", "size.exceeded",
-                        "El tamaño de la imagen no debe exceder 2MB");
+
+            // Tamaño máximo: 5MB
+            if (fotoPerfil.getSize() > 5 * 1024 * 1024) {
+                result.rejectValue("fotoPerfilUrl", "size.exceeded", "La imagen no debe exceder los 5MB");
             }
 
-            // Validar tipo de archivo
+            String originalFilename = fotoPerfil.getOriginalFilename();
             String contentType = fotoPerfil.getContentType();
+
+            // Validación de tipo MIME
             if (contentType == null ||
                     (!contentType.equalsIgnoreCase("image/jpeg") &&
                             !contentType.equalsIgnoreCase("image/png"))) {
-                result.rejectValue("fotoPerfilUrl", "invalid.type",
-                        "Solo se aceptan imágenes en formato JPG o PNG");
+                result.rejectValue("fotoPerfilUrl", "invalid.type", "Solo se aceptan imágenes JPG o PNG");
+            }
+
+            // Validación de extensión
+            if (originalFilename == null ||
+                    (!originalFilename.toLowerCase().endsWith(".jpg") &&
+                            !originalFilename.toLowerCase().endsWith(".jpeg") &&
+                            !originalFilename.toLowerCase().endsWith(".png"))) {
+                result.rejectValue("fotoPerfilUrl", "invalid.extension", "El archivo debe tener extensión .jpg, .jpeg o .png");
             }
         }
 
-        // 5. Si hay errores, recargar el formulario
         if (result.hasErrors()) {
-            model.addAttribute("roles", rolRepository.findAll());
-            return "Superadmin/editarPerfil/" + usuarioId;
+            long  reservasTotales = reservaRepository.countByUsuario(usuarioExistente);
+            model.addAttribute("usuario", usuarioExistente);
+            model.addAttribute("reservasTotales", reservasTotales);
+            return "Superadmin/editarPerfil";
         }
 
-        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
-            // Eliminar la imagen anterior
-            if (usuarioExistente.getFotoPerfilUrl() != null) {
-                String keyAnterior = usuarioExistente.getFotoPerfilUrl();
-                s3Service.deleteFile(keyAnterior);
-            }
+        // Actualizar campos editables
+        usuarioExistente.setCorreoElectronico(usuarioForm.getCorreoElectronico());
+        usuarioExistente.setTelefono(usuarioForm.getTelefono());
+        usuarioExistente.setDireccion(usuarioForm.getDireccion());
+        usuarioExistente.setFechaActualizacion(LocalDateTime.now());
 
-            // Subir la nueva imagen
+        // Manejo de foto
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            if (usuarioExistente.getFotoPerfilUrl() != null) {
+                s3Service.deleteFile(usuarioExistente.getFotoPerfilUrl());
+            }
             String uploadResult = s3Service.uploadFile(fotoPerfil);
             String fotoPerfilUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
-
-            usuario.setFotoPerfilUrl(fotoPerfilUrl);
-        } else {
-            usuario.setFotoPerfilUrl(usuarioExistente.getFotoPerfilUrl());
+            usuarioExistente.setFotoPerfilUrl(fotoPerfilUrl);
         }
 
-        // Campos protegidos
-        usuario.setUsuarioId(usuarioId);
-        usuario.setContraseniaHash(usuarioExistente.getContraseniaHash());
-        usuario.setFechaCreacion(usuarioExistente.getFechaCreacion());
-        usuario.setFechaActualizacion(LocalDateTime.now());
-        usuario.setApellidos(usuarioExistente.getApellidos());
-        usuario.setNombres(usuarioExistente.getNombres());
-        usuario.setEstadoCuenta(usuarioExistente.getEstadoCuenta());
-        usuario.setDni(usuarioExistente.getDni());
-
-        // Rol
-        if (usuario.getRol() != null && usuario.getRol().getRolId() != null) {
-            Rol rolCompleto = rolRepository.findById(usuario.getRol().getRolId())
-                    .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado"));
-            usuario.setRol(rolCompleto);
-        }
-
-        usuarioRepository.save(usuario);
+        usuarioRepository.save(usuarioExistente);
         redirectAttributes.addFlashAttribute("successMessage", "Perfil actualizado exitosamente");
         return "redirect:/superadmin/usuarios/" + usuarioId;
-
     }
+
 
     @PostMapping("/usuarios/{id}/banear")
     public String banearUsuario(@PathVariable("id") Integer usuarioId,
