@@ -209,32 +209,31 @@ VALUES
 INSERT INTO `db_gtics`.`espacios_deportivos` 
 (`nombre`, `servicio_deportivo_id`, `establecimiento_deportivo_id`, `max_personas_por_carril`, `carriles_piscina`, `longitud_piscina`, `profundidad_piscina`, `descripcion`, `aforo_gimnasio`, `longitud_pista`, `carriles_pista`, `geolocalizacion`, `estado_servicio`, `numero_soporte`, `horario_apertura`, `horario_cierre`, `precio_por_hora`)
 VALUES
-    ('Cancha de Fútbol', 2, 1, NULL, NULL, NULL, NULL, 'Cancha de fútbol para 11 jugadores por lado', NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '123', '06:00', '22:00', 50.00),
-    ('Gimnasio 1', 1, 1, NULL, NULL, NULL, NULL, 'Gimnasio con equipos de pesas', 40, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '124', '06:00', '22:00', 20.00),
-    ('Piscina Olímpica', 4, 1, 10, 5, 50, 2.5, 'Piscina para entrenamiento profesional', NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '125', '06:00', '22:00', 30.00),
-    ('Pista de Atletismo', 3, 1, NULL, NULL, NULL, NULL, 'Pista para competencias y entrenamientos', NULL, 400, NULL, '(-12.04318, -77.03061)', 'operativo', '126', '06:00', '22:00', 25.00),
-    ('Cancha de Tenis', 2, 1, NULL, NULL, NULL, NULL, 'Cancha para partidos de tenis', NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '127', '06:00', '22:00', 15.00);
+    ('Cancha de Fútbol', 4, 1, NULL, NULL, NULL, NULL, 'Cancha de fútbol para 11 jugadores por lado', NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '123', '06:00', '22:00', 50.00),
+    ('Gimnasio 1', 3, 1, NULL, NULL, NULL, NULL, 'Gimnasio con equipos de pesas', 40, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '124', '06:00', '22:00', 20.00),
+    ('Piscina Olímpica', 1, 1, 10, 5, 50, 2.5, 'Piscina para entrenamiento profesional', NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '125', '06:00', '22:00', 30.00),
+    ('Pista de Atletismo', 2, 1, NULL, NULL, NULL, NULL, 'Pista para competencias y entrenamientos', NULL, 400, 6, '(-12.04318, -77.03061)', 'operativo', '126', '06:00', '22:00', 25.00),
+    ('Cancha de Tenis', 7, 1, NULL, NULL, NULL, NULL, 'Cancha para partidos de tenis', NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '127', '06:00', '22:00', 15.00); -- Assuming tennis is a multipurpose court; adjust if you add a specific service for tennis
 
 -- Insertar espacios deportivos para Polideportivo Sur
 INSERT INTO `db_gtics`.`espacios_deportivos` 
 (`nombre`, `servicio_deportivo_id`, `establecimiento_deportivo_id`, `max_personas_por_carril`, `carriles_piscina`, `longitud_piscina`, `profundidad_piscina`, `descripcion`, `aforo_gimnasio`, `longitud_pista`, `carriles_pista`, `geolocalizacion`, `estado_servicio`, `numero_soporte`, `horario_apertura`, `horario_cierre`, `precio_por_hora`)
 VALUES
-    ('Cancha de Fútbol', 2, 2, NULL, NULL, NULL, NULL, 'Cancha de fútbol para partidos recreativos', NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '223', '06:30', '23:00', 50.00),
-    ('Gimnasio 2', 1, 2, NULL, NULL, NULL, NULL, 'Gimnasio para ejercicios cardiovasculares', 50, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '224', '06:30', '23:00', 25.00),
-    ('Piscina Cubierta', 4, 2, 8, 4, 25, 1.8, 'Piscina cubierta para entrenamientos', NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '225', '06:30', '23:00', 35.00),
-    ('Pista de Atletismo', 3, 2, NULL, NULL, NULL, NULL, 'Pista para competencias locales', NULL, 400, NULL, '(-12.04622, -77.02837)', 'operativo', '226', '06:30', '23:00', 20.00),
-    ('Cancha de Basket', 2, 2, NULL, NULL, NULL, NULL, 'Cancha para partidos de baloncesto', NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '227', '06:30', '23:00', 15.00);
+    ('Cancha de Fútbol', 4, 2, NULL, NULL, NULL, NULL, 'Cancha de fútbol para partidos recreativos', NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '223', '06:30', '23:00', 50.00),
+    ('Gimnasio 2', 3, 2, NULL, NULL, NULL, NULL, 'Gimnasio para ejercicios cardiovasculares', 50, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '224', '06:30', '23:00', 25.00),
+    ('Piscina Cubierta', 1, 2, 8, 4, 25, 1.8, 'Piscina cubierta para entrenamientos', NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '225', '06:30', '23:00', 35.00),
+    ('Pista de Atletismo', 2, 2, NULL, NULL, NULL, NULL, 'Pista para competencias locales', NULL, 400, 6, '(-12.04622, -77.02837)', 'operativo', '226', '06:30', '23:00', 20.00),
+    ('Cancha de Basket', 5, 2, NULL, NULL, NULL, NULL, 'Cancha para partidos de baloncesto', NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '227', '06:30', '23:00', 15.00);
 
 -- Insertar espacios deportivos para Polideportivo Norte
 INSERT INTO `db_gtics`.`espacios_deportivos` 
 (`nombre`, `servicio_deportivo_id`, `establecimiento_deportivo_id`, `max_personas_por_carril`, `carriles_piscina`, `longitud_piscina`, `profundidad_piscina`, `descripcion`, `aforo_gimnasio`, `longitud_pista`, `carriles_pista`, `geolocalizacion`, `estado_servicio`, `numero_soporte`, `horario_apertura`, `horario_cierre`, `precio_por_hora`)
 VALUES
-    ('Cancha de Fútbol', 2, 3, NULL, NULL, NULL, NULL, 'Cancha de fútbol para partidos de campeonato', NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '323', '07:00', '22:00', 45.00),
-    ('Gimnasio 3', 1, 3, NULL, NULL, NULL, NULL, 'Gimnasio con zona de pesas y cardio', 60, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '324', '07:00', '22:00', 30.00),
-    ('Piscina Semi-Olímpica', 4, 3, 8, 4, 30, 2.0, 'Piscina para clases de natación', NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '325', '07:00', '22:00', 40.00),
-    ('Pista de Atletismo', 3, 3, NULL, NULL, NULL, NULL, 'Pista para carreras de 100m y 200m', NULL, 300, NULL, '(-12.04011, -77.01648)', 'operativo', '326', '07:00', '22:00', 25.00),
-    ('Cancha de Volleyball', 2, 3, NULL, NULL, NULL, NULL, 'Cancha para partidos de volleyball', NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '327', '07:00', '22:00', 15.00);
-
+    ('Cancha de Fútbol', 4, 3, NULL, NULL, NULL, NULL, 'Cancha de fútbol para partidos de campeonato', NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '323', '07:00', '22:00', 45.00),
+    ('Gimnasio 3', 3, 3, NULL, NULL, NULL, NULL, 'Gimnasio con zona de pesas y cardio', 60, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '324', '07:00', '22:00', 30.00),
+    ('Piscina Semi-Olímpica', 1, 3, 8, 4, 30, 2.0, 'Piscina para clases de natación', NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '325', '07:00', '22:00', 40.00),
+    ('Pista de Atletismo', 2, 3, NULL, NULL, NULL, NULL, 'Pista para carreras de 100m y 200m', NULL, 300, 6, '(-12.04011, -77.01648)', 'operativo', '326', '07:00', '22:00', 25.00),
+    ('Cancha de Volleyball', 6, 3, NULL, NULL, NULL, NULL, 'Cancha para partidos de volleyball', NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '327', '07:00', '22:00', 15.00);
 
 -- Insertar 5 reservas para cada usuario
 INSERT INTO `db_gtics`.`reservas` 

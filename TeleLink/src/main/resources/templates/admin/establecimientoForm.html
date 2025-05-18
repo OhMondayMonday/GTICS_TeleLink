@@ -7,21 +7,31 @@
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
 
+    <!-- CSS Styles for Dynamic Transitions -->
+    <style>
+        #motivoMantenimientoField {
+            transition: all 0.3s ease;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+        }
+        #motivoMantenimientoField.show {
+            opacity: 1;
+            max-height: 200px; /* Adjust as needed for textarea */
+        }
+    </style>
+
     <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}"></div>
 
     <div class="main-content">
         <div class="page-content">
             <div class="container-fluid">
                 <div class="row justify-content-around">
-                    <div class="col-lg-11 align-items-center">
+                    <div class="col-lg-12 align-items-center">
                         <div class="card">
                             <div class="card-body">
 
-                                <h3 class="mt-3 mb-4" style="color: #003366;">Formulario de creación de Establecimiento Deportivo</h3>
-
-                                <p class="card-title-desc text-muted fs-6">
-                                    Crea un nuevo establecimiento deportivo con todos los datos necesarios para su correcta gestión.
-                                </p>
+                                <h4 class="card-title mb-4 fw-semibold mt-3">Formulario de creación de Establecimiento Deportivo</h4>
 
                                 <form th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post">
 
@@ -68,54 +78,31 @@
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('espaciosEstacionamiento')}" th:errors="*{espaciosEstacionamiento}"></div>
                                     </div>
 
-                                    <!-- Teléfono de contacto -->
-                                    <!--<div class="mb-4">
-                                        <label class="form-label">Teléfono de contacto</label>
-                                        <input type="text" class="form-control"
-                                               th:field="*{telefonoContacto}"
-                                               placeholder="Ej. 014578963"
-                                               th:classappend="${#fields.hasErrors('telefonoContacto')} ? 'is-invalid' : ''">
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('telefonoContacto')}" th:errors="*{telefonoContacto}"></div>
-                                    </div>-->
-                                    <!-- Teléfono de contacto -->
-                                    <!--<div class="mb-4">
-                                        <label class="form-label">Teléfono de contacto</label>
-                                        <input type="text" class="form-control"
-                                               th:field="*{telefonoContacto}"
-                                               placeholder="Ej. 014578963"
-                                               maxlength="20"
-                                               pattern="^\d{1,20}$"
-                                               title="Ingrese solo números, máximo 20 dígitos"
-                                               th:classappend="${#fields.hasErrors('telefonoContacto')} ? 'is-invalid' : ''">
-                                        <div class="invalid-feedback"
-                                             th:if="${#fields.hasErrors('telefonoContacto')}"
-                                             th:errors="*{telefonoContacto}"></div>
-                                    </div>-->
-                                    <div class="mb-4">
-                                        <label class="form-label">Teléfono de contacto</label>
-                                        <input type="text"
-                                               class="form-control"
-                                               th:field="*{telefonoContacto}"
-                                               placeholder="Ej. 014578963"
-                                               maxlength="20"
-                                               pattern="[0-9]{1,20}"
-                                               inputmode="numeric"
-                                               title="Ingrese solo números, máximo 20 dígitos"
-                                               th:classappend="${#fields.hasErrors('telefonoContacto')} ? 'is-invalid' : ''">
-                                        <div class="invalid-feedback"
-                                             th:if="${#fields.hasErrors('telefonoContacto')}"
-                                             th:errors="*{telefonoContacto}"></div>
-                                    </div>
-
-
-                                    <!-- Correo de contacto -->
-                                    <div class="mb-4">
-                                        <label class="form-label">Correo electrónico</label>
-                                        <input type="email" class="form-control"
-                                               th:field="*{correoContacto}"
-                                               placeholder="Ej. contacto@estadio.gob.pe"
-                                               th:classappend="${#fields.hasErrors('correoContacto')} ? 'is-invalid' : ''">
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('correoContacto')}" th:errors="*{correoContacto}"></div>
+                                    <!-- Teléfono de contacto and Correo de contacto -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Teléfono de contacto</label>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   th:field="*{telefonoContacto}"
+                                                   placeholder="Ej. 014578963"
+                                                   maxlength="20"
+                                                   pattern="[0-9]{1,20}"
+                                                   inputmode="numeric"
+                                                   title="Ingrese solo números, máximo 20 dígitos"
+                                                   th:classappend="${#fields.hasErrors('telefonoContacto')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback"
+                                                 th:if="${#fields.hasErrors('telefonoContacto')}"
+                                                 th:errors="*{telefonoContacto}"></div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Correo electrónico</label>
+                                            <input type="email" class="form-control"
+                                                   th:field="*{correoContacto}"
+                                                   placeholder="Ej. contacto@estadio.gob.pe"
+                                                   th:classappend="${#fields.hasErrors('correoContacto')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('correoContacto')}" th:errors="*{correoContacto}"></div>
+                                        </div>
                                     </div>
 
                                     <!-- Geolocalización -->
@@ -128,26 +115,26 @@
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('geolocalizacion')}" th:errors="*{geolocalizacion}"></div>
                                     </div>
 
-                                    <!-- Horario de apertura -->
-                                    <div class="mb-4">
-                                        <label class="form-label">Horario de apertura</label>
-                                        <input type="time" class="form-control"
-                                               name="horarioApertura"
-                                               th:value="${establecimiento.horarioApertura?.toString()?.substring(0,5)}">
-                                    </div>
-
-                                    <!-- Horario de cierre -->
-                                    <div class="mb-4">
-                                        <label class="form-label">Horario de cierre</label>
-                                        <input type="time" class="form-control"
-                                               name="horarioCierre"
-                                               th:value="${establecimiento.horarioCierre?.toString()?.substring(0,5)}">
+                                    <!-- Horario de apertura and Horario de cierre -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Horario de apertura</label>
+                                            <input type="time" class="form-control"
+                                                   name="horarioApertura"
+                                                   th:value="${establecimiento.horarioApertura?.toString()?.substring(0,5)}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Horario de cierre</label>
+                                            <input type="time" class="form-control"
+                                                   name="horarioCierre"
+                                                   th:value="${establecimiento.horarioCierre?.toString()?.substring(0,5)}">
+                                        </div>
                                     </div>
 
                                     <!-- Estado -->
                                     <div class="mb-4">
                                         <label class="form-label">Estado</label>
-                                        <select class="form-control"
+                                        <select class="form-control" id="estadoSelect"
                                                 th:field="*{estado}"
                                                 th:classappend="${#fields.hasErrors('estado')} ? 'is-invalid' : ''">
                                             <option value="" disabled selected>Seleccione una opción</option>
@@ -159,15 +146,14 @@
                                     </div>
 
                                     <!-- Motivo de mantenimiento -->
-                                    <div class="mb-4">
+                                    <div id="motivoMantenimientoField" class="mb-4">
                                         <label class="form-label">Motivo de mantenimiento</label>
-                                        <textarea class="form-control"
+                                        <textarea class="form-control" rows="2"
                                                   th:field="*{motivoMantenimiento}"
-                                                  placeholder="Solo en caso de estado en mantenimiento"
+                                                  placeholder="Especifique el motivo del mantenimiento"
                                                   th:classappend="${#fields.hasErrors('motivoMantenimiento')} ? 'is-invalid' : ''"></textarea>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('motivoMantenimiento')}" th:errors="*{motivoMantenimiento}"></div>
                                     </div>
-
 
                                     <!-- Botones -->
                                     <button type="submit" class="btn btn-primary">Guardar establecimiento</button>
@@ -188,5 +174,31 @@
 
 <div class="sidebar-overlay"></div>
 <div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+
+<!-- JavaScript to Handle Conditional Motivo Mantenimiento Field -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const estadoSelect = document.getElementById('estadoSelect');
+        const motivoMantenimientoField = document.getElementById('motivoMantenimientoField');
+
+        function toggleMotivoField() {
+            const selectedValue = estadoSelect.value;
+
+            // Remove 'show' class by default
+            motivoMantenimientoField.classList.remove('show');
+
+            // Add 'show' class if estado is 'mantenimiento'
+            if (selectedValue === 'mantenimiento') {
+                motivoMantenimientoField.classList.add('show');
+            }
+        }
+
+        // Run on page load to handle pre-selected values (e.g., during form validation errors)
+        toggleMotivoField();
+
+        // Run on change of the select dropdown
+        estadoSelect.addEventListener('change', toggleMotivoField);
+    });
+</script>
 </body>
 </html>
