@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{admin/fragments/headList.html :: headList(title='Detalle de Observación')}">
+<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Detalle de Observación')}">
   <meta charset="UTF-8">
 </head>
 <body class="vertical-collpsed" data-sidebar="dark">
@@ -11,29 +11,63 @@
     <div class="page-content">
       <div class="container-fluid">
         <div class="row justify-content-center">
-          <div class="col-lg-8">
+          <div class="col-lg-12">
             <div class="card">
               <div class="card-body">
 
-                <h4 class="card-title mb-4">Detalle de Observación</h4>
+                <h4 class="card-title mb-4 fw-semibold mt-3">Detalle de Observación</h4>
 
-                <ul class="list-group list-group-flush mb-3">
-                  <li class="list-group-item"><strong>Descripción:</strong> <span th:text="${observacion.descripcion}"></span></li>
-                  <li class="list-group-item"><strong>Fecha de Creación:</strong> <span th:text="${#temporals.format(observacion.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span></li>
-                  <li class="list-group-item"><strong>Nivel de Urgencia:</strong> <span th:text="${observacion.nivelUrgencia}"></span></li>
-                  <li class="list-group-item"><strong>Espacio Deportivo:</strong> <span th:text="${observacion.espacioDeportivo.nombre}"></span></li>
-                  <li class="list-group-item"><strong>Coordinador:</strong> <span th:text="${observacion.coordinador.nombres}"></span></li>
-                </ul>
+                <!-- Descripción -->
+                <div class="mb-4">
+                  <label class="form-label">Descripción</label>
+                  <textarea class="form-control border-0 bg-light" rows="3"
+                            th:text="${observacion.descripcion}"
+                            readonly disabled></textarea>
+                </div>
 
+                <!-- Fecha de Creación and Nivel de Urgencia -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Fecha de Creación</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${#temporals.format(observacion.fechaCreacion, 'dd/MM/yyyy HH:mm')}"
+                           readonly disabled />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Nivel de Urgencia</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${#strings.capitalize(observacion.nivelUrgencia.name())}"
+                           readonly disabled />
+                  </div>
+                </div>
+
+                <!-- Espacio Deportivo -->
+                <div class="mb-4">
+                  <label class="form-label">Espacio Deportivo</label>
+                  <input type="text" class="form-control border-0 bg-light"
+                         th:value="${observacion.espacioDeportivo?.nombre} ?: 'N/A'"
+                         readonly disabled />
+                </div>
+
+                <!-- Coordinador -->
+                <div class="mb-4">
+                  <label class="form-label">Coordinador</label>
+                  <input type="text" class="form-control border-0 bg-light"
+                         th:value="${observacion.coordinador?.nombres} ?: 'N/A'"
+                         readonly disabled />
+                </div>
+
+                <!-- Formulario para resolver observación -->
                 <div th:if="${observacion.estado.name() == 'en_proceso'}">
                   <form method="post" th:action="@{/admin/observaciones/resolver}">
                     <input type="hidden" name="id" th:value="${observacion.observacionId}" />
-                    <div class="form-group mb-3">
-                      <label for="comentarioAdministrador">Comentario del Administrador:</label>
-                      <textarea name="comentarioAdministrador" id="comentarioAdministrador" rows="4" class="form-control" required></textarea>
+                    <div class="mb-4">
+                      <label for="comentarioAdministrador" class="form-label">Comentario del Administrador</label>
+                      <textarea name="comentarioAdministrador" id="comentarioAdministrador" rows="4"
+                                class="form-control" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-success">Marcar como Resuelto</button>
-                    <a th:href="@{/admin/observaciones}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Marcar como Resuelto</button>
+                    <a th:href="@{/admin/observaciones}" class="btn btn-secondary ms-2">Cancelar</a>
                   </form>
                 </div>
                 <div th:if="${observacion.estado.name() != 'en_proceso'}">
@@ -52,6 +86,6 @@
 </div>
 
 <div class="sidebar-overlay"></div>
-<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+<div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
 </body>
 </html>

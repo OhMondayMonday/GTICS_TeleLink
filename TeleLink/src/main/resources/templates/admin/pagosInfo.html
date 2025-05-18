@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Informacion de los pagos para el admin')}">
+<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Información de los Pagos')}">
   <meta charset="UTF-8">
-  <title>Creación de Establecimientos</title>
 </head>
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
@@ -17,135 +16,96 @@
             <div class="card">
               <div class="card-body">
 
-
                 <h4 class="card-title mb-4 fw-semibold mt-3">Detalles del Pago</h4>
-                <!--<h3 class="mt-3 mb-4" style="color: #003366;">Detalles del Pago</h3>-->
-                <!--<p class="card-title-desc text-muted fs-6">
-                  Aquí puedes ver la información detallada del pago realizado.
-                  Toda la información relacionada con el usuario, reserva y establecimiento está disponible.
-                </p>-->
 
-                <!-- Monto -->
-                <div class="mb-4">
-                  <label class="form-label">Monto pagado (S/)</label>
-                  <div class="input-group">
-                    <input type="text" class="form-control opacity-75"
+                <!-- Monto pagado and Fecha de pago -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Monto pagado (S/)</label>
+                    <input type="text" class="form-control border-0 bg-light"
                            th:value="${pago.monto}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-cash"></i></span>
+                           readonly disabled />
                   </div>
-                </div>
-
-                <!-- Fecha de pago -->
-                <div class="mb-4">
-                  <label class="form-label">Fecha de pago</label>
-                  <div class="input-group">
-                    <input type="text" class="form-control opacity-75"
+                  <div class="col-md-6">
+                    <label class="form-label">Fecha de pago</label>
+                    <input type="text" class="form-control border-0 bg-light"
                            th:value="${#temporals.format(pago.fechaPago, 'dd/MM/yyyy HH:mm')}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-calendar-clock"></i></span>
+                           readonly disabled />
                   </div>
                 </div>
 
                 <!-- Estado del pago -->
                 <div class="mb-4">
                   <label class="form-label">Estado del pago</label>
-                  <div class="input-group">
-                    <input type="text" class="form-control opacity-75"
-                           th:value="${pago.estadoTransaccion.name()}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-check-circle"></i></span>
+                  <input type="text" class="form-control border-0 bg-light"
+                         th:value="${#strings.capitalize(pago.estadoTransaccion.name())}"
+                         readonly disabled />
+                </div>
+
+                <!-- Usuario and Correo electrónico -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Usuario que realizó la reserva</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${pago.reserva?.usuario?.nombres + ' ' + pago.reserva?.usuario?.apellidos} ?: 'N/A'"
+                           readonly disabled />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Correo electrónico del usuario</label>
+                    <input type="email" class="form-control border-0 bg-light"
+                           th:value="${pago.reserva?.usuario?.correoElectronico} ?: 'N/A'"
+                           readonly disabled />
                   </div>
                 </div>
 
-                <!-- Usuario -->
-                <div class="mb-4">
-                  <label class="form-label">Usuario que realizó la reserva</label>
-                  <div class="input-group">
-                    <input type="text" class="form-control opacity-75"
-                           th:value="${pago.reserva.usuario.nombres + ' ' + pago.reserva.usuario.apellidos}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-account"></i></span>
+                <!-- Servicio deportivo and Espacio deportivo -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Servicio deportivo reservado</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${pago.reserva?.espacioDeportivo?.servicioDeportivo?.servicioDeportivo} ?: 'N/A'"
+                           readonly disabled />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Espacio deportivo</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${pago.reserva?.espacioDeportivo?.nombre} ?: 'N/A'"
+                           readonly disabled />
                   </div>
                 </div>
 
-                <!-- Correo del usuario -->
-                <div class="mb-4">
-                  <label class="form-label">Correo electrónico del usuario</label>
-                  <div class="input-group">
-                    <input type="email" class="form-control opacity-75"
-                           th:value="${pago.reserva.usuario.correoElectronico}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-email"></i></span>
+                <!-- Establecimiento deportivo and Dirección -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Establecimiento deportivo</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${pago.reserva?.espacioDeportivo?.establecimientoDeportivo?.establecimientoDeportivoNombre} ?: 'N/A'"
+                           readonly disabled />
                   </div>
-                </div>
-
-                <!-- Servicio deportivo -->
-                <div class="mb-4">
-                  <label class="form-label">Servicio deportivo reservado</label>
-                  <div class="input-group">
-                    <input type="text" class="form-control opacity-75"
-                           th:value="${pago.reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-swim"></i></span>
-                  </div>
-                </div>
-
-                <!-- Nombre del espacio deportivo -->
-                <div class="mb-4">
-                  <label class="form-label">Espacio deportivo</label>
-                  <div class="input-group">
-                    <input type="text" class="form-control opacity-75"
-                           th:value="${pago.reserva.espacioDeportivo.nombre}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-map"></i></span>
-                  </div>
-                </div>
-
-                <!-- Establecimiento deportivo -->
-                <div class="mb-4">
-                  <label class="form-label">Establecimiento deportivo</label>
-                  <div class="input-group">
-                    <input type="text" class="form-control opacity-75"
-                           th:value="${pago.reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-domain"></i></span>
-                  </div>
-                </div>
-
-                <!-- Dirección del establecimiento -->
-                <div class="mb-4">
-                  <label class="form-label">Dirección del establecimiento</label>
-                  <div class="input-group">
-                    <input type="text" class="form-control opacity-75"
-                           th:value="${pago.reserva.espacioDeportivo.establecimientoDeportivo.direccion}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-map-marker"></i></span>
+                  <div class="col-md-6">
+                    <label class="form-label">Dirección del establecimiento</label>
+                    <input type="text" class="form-control border-0 bg-light"
+                           th:value="${pago.reserva?.espacioDeportivo?.establecimientoDeportivo?.direccion} ?: 'N/A'"
+                           readonly disabled />
                   </div>
                 </div>
 
                 <!-- Fecha y hora de la reserva -->
                 <div class="mb-4">
                   <label class="form-label">Fecha y hora de la reserva</label>
-                  <div class="input-group">
-                    <input type="text" class="form-control opacity-75"
-                           th:value="${#temporals.format(pago.reserva.fechaCreacion, 'dd/MM/yyyy HH:mm')}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                  </div>
+                  <input type="text" class="form-control border-0 bg-light"
+                         th:value="${#temporals.format(pago.reserva?.fechaCreacion, 'dd/MM/yyyy HH:mm')} ?: 'N/A'"
+                         readonly disabled />
                 </div>
 
-                <!-- Foto comprobante -->
+                <!-- Foto del comprobante -->
                 <div class="mb-4">
                   <label class="form-label">Foto del comprobante de pago</label>
-                  <div class="input-group mb-2">
-                    <input type="text" class="form-control opacity-75"
-                           th:value="${pago.fotoComprobanteUrl}"
-                           disabled />
-                    <span class="input-group-text"><i class="mdi mdi-image"></i></span>
-                  </div>
-                  <div class="text-center">
-                    <img th:src="${pago.fotoComprobanteUrl}"
+                  <input type="text" class="form-control border-0 bg-light"
+                         th:value="${pago.fotoComprobanteUrl} ?: 'N/A'"
+                         readonly disabled />
+                  <div class="text-center mt-3">
+                    <img th:src="${pago.fotoComprobanteUrl} ?: '/assets/images/placeholder.png'"
                          alt="Comprobante de pago"
                          class="img-fluid rounded border"
                          style="max-height: 400px;" />
@@ -153,8 +113,7 @@
                 </div>
 
                 <!-- Botón de regreso -->
-                <a th:href="@{/admin/pagos}" class="btn btn-secondary">Volver a la lista</a>
-
+                <a th:href="@{/admin/pagos}" class="btn btn-secondary ms-2">Volver a la lista</a>
 
               </div>
             </div>
@@ -163,7 +122,6 @@
       </div>
     </div>
 
-    <!-- Footer -->
     <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
   </div>
 </div>
