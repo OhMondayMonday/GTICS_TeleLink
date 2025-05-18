@@ -1,6 +1,7 @@
 package com.example.telelink.repository;
 
 import com.example.telelink.entity.Asistencia;
+import com.example.telelink.entity.Mantenimiento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -49,13 +50,12 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
 
     List<Asistencia> findByCoordinador_UsuarioId(Integer usuarioId);
 
-    /*
-    @Query("SELECT a FROM Asistencia a WHERE a.coordinador.usuarioId = :coordinadorId " +
-            "AND a.horarioEntrada <= :horarioSalida " +
-            "AND a.horarioSalida >= :horarioEntrada")
+    @Query("SELECT a FROM Asistencia a " +
+            "WHERE a.coordinador.usuarioId = :coordinadorId " +
+            "AND a.horarioEntrada <= :endCheck " +
+            "AND a.horarioSalida >= :startCheck")
     List<Asistencia> findOverlappingAsistencias(
             @Param("coordinadorId") int coordinadorId,
-            @Param("horarioEntrada") LocalDateTime horarioEntrada,
-            @Param("horarioSalida") LocalDateTime horarioSalida);
-     */
+            @Param("startCheck") LocalDateTime startCheck,
+            @Param("endCheck") LocalDateTime endCheck);
 }

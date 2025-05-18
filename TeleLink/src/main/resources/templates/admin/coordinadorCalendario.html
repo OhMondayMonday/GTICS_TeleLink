@@ -47,7 +47,24 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-lg-3"></div>
+                  <div class="col-lg-3">
+                    <!-- Botón para crear nueva asistencia -->
+                    <div class="mb-4">
+                      <a th:href="@{/admin/asistencias/nueva(coordinadorId=${coordinador.usuarioId})}" class="btn btn-primary w-100">Crear Nueva Asistencia</a>
+                    </div>
+                    <!-- Leyenda de colores -->
+                    <div class="card">
+                      <div class="card-body">
+                        <h5 class="card-title">Leyenda de Colores</h5>
+                        <ul class="list-unstyled">
+                          <li><span class="badge bg-success me-2">Puntual</span></li>
+                          <li><span class="badge bg-warning me-2">Tardanza</span></li>
+                          <li><span class="badge bg-info me-2">Pendiente</span></li>
+                          <li><span class="badge bg-danger me-2">Inasistencia</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                   <div class="col-lg-9">
                     <div id="calendar"></div>
                   </div>
