@@ -12,12 +12,11 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     List<Usuario> findAllByOrderByUsuarioIdAsc();
-    Optional<Usuario> findByNombres(String nombres);
+
+    Usuario findByUsername(String nombres);
 
     // Para buscar un grupo de usuarios por Rol
     List<Usuario> findAllByRol_Rol(String rol);
-
-    Usuario findByCorreoElectronico(String correoElectronico);
 
     @Query(value = """
             SELECT 

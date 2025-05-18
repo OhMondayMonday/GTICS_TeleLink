@@ -1,9 +1,6 @@
 package com.example.telelink.controller;
 
-import com.example.telelink.entity.EspacioDeportivo;
-import com.example.telelink.entity.Pago;
-import com.example.telelink.entity.Reserva;
-import com.example.telelink.entity.Usuario;
+import com.example.telelink.entity.*;
 import com.example.telelink.repository.EspacioDeportivoRepository;
 import com.example.telelink.repository.PagoRepository;
 import com.example.telelink.repository.ReservaRepository;
@@ -14,11 +11,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.security.Principal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/usuarios")
@@ -59,30 +62,30 @@ public class UsuarioController {
 
         model.addAttribute("espacio", espacio);
 
-        return "Vecino/vecino-servicioDeportivo"; // Nombre de la vista Thymeleaf para la cancha de fútbol
+        return "Vecino/vecino-servicioDeportivo";
     }
 
     @GetMapping("/reservas/futbol")
     public String mostrarFutbolReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-futbol"; // Nombre de la vista Thymeleaf para la cancha de fútbol
+        return "Vecino/vecino-futbol";
     }
 
     @GetMapping("/reservas/piscina")
     public String mostrarPiscinaReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-piscina"; // Nombre de la vista Thymeleaf para la piscina
+        return "Vecino/vecino-piscina";
     }
     @GetMapping("/reservas/multiple")
     public String mostrarMultipleReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-multiple"; // Nombre de la vista Thymeleaf para la cancha múltiple
+        return "Vecino/vecino-multiple";
     }
 
     @GetMapping("/reservas/gym")
     public String mostrarGymReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-gym"; // Nombre de la vista Thymeleaf para la cancha múltiple
+        return "Vecino/vecino-gym";
     }
 
     @GetMapping("/perfil")
@@ -220,4 +223,89 @@ public class UsuarioController {
         return "Vecino/vecino-calendario";
     }
 
+    @GetMapping("/reservar")
+    public String mostrarReservar(Model model, Principal principal) {
+        // Obtener el usuario actual
+        String username = principal.getName();
+        Usuario usuario = usuarioRepository.findByUsername(username);
+
+        // Obtener las reservas del usuario
+        List<Reserva> reservasUsuario = reservaRepository.findByUsuarioId(usuario.getUsuarioId());
+
+        // Obtener todos los servicios deportivos disponibles
+        List<EspacioDeportivo> espacioDeportivos = espacioDeportivoRepository.findAll();
+
+        // Añadir datos al modelo
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("reservas", reservasUsuario);
+        model.addAttribute("espacios", espacioDeportivos);
+
+        return "Vecino/vecino-reservar";
+    }
+
+    @PostMapping("/confirmar-reserva")
+    public String confirmarReserva(
+            @RequestParam("espacio") Integer espacioId,
+            @RequestParam("fechaInicio") String fechaInicio,
+            @RequestParam("fechaFin") String fechaFin,
+            @RequestParam(value = "numeroCarrilPiscina", required = false) Integer numeroCarrilPiscina,
+            @RequestParam(value = "numeroCarrilPista", required = false) Integer numeroCarrilPista,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+        try {
+            // Obtener el usuario actual
+            String username = principal.getName();
+            Usuario usuario = usuarioRepository.findByUsername(username);
+
+            // Obtener el espacio deportivo
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId)
+                    .orElseThrow(() -> new RuntimeException("Espacio deportivo no encontrado"));
+
+            // Convertir las fechas de String a LocalDateTime
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+            LocalDateTime inicioReserva = LocalDateTime.parse(fechaInicio, formatter);
+            LocalDateTime finReserva = LocalDateTime.parse(fechaFin, formatter);
+
+            // Crear la reserva
+            Reserva reserva = new Reserva();
+            reserva.setUsuario(usuario);
+            reserva.setEspacioDeportivo(espacio);
+            reserva.setInicioReserva(inicioReserva);
+            reserva.setFinReserva(finReserva);
+            reserva.setNumeroCarrilPiscina(numeroCarrilPiscina);
+            reserva.setNumeroCarrilPista(numeroCarrilPista);
+            reserva.setEstado(Reserva.Estado.pendiente);
+            reserva.setFechaCreacion(LocalDateTime.now());
+
+            // Guardar la reserva
+            reservaRepository.save(reserva);
+
+            redirectAttributes.addFlashAttribute("mensaje", "Reserva realizada con éxito");
+            return "redirect:/usuario/mis-reservas";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
+            return "redirect:/usuario/reservar";
+        }
+    }
+
+    // Método auxiliar para guardar el comprobante
+    private String guardarComprobante(MultipartFile comprobante, Long usuarioId) throws IOException {
+        // Crear directorio si no existe
+        String directorioComprobantes = "uploads/comprobantes/" + usuarioId;
+        File directorio = new File(directorioComprobantes);
+        if (!directorio.exists()) {
+            directorio.mkdirs();
+        }
+
+        // Generar nombre único para el archivo
+        String nombreArchivo = System.currentTimeMillis() + "_" + comprobante.getOriginalFilename();
+        String rutaCompleta = directorioComprobantes + "/" + nombreArchivo;
+
+        // Guardar archivo
+        File archivoDestino = new File(rutaCompleta);
+        comprobante.transferTo(archivoDestino);
+
+        return rutaCompleta;
+    }
 }
