@@ -136,6 +136,10 @@
                                                        class="btn btn-outline-secondary btn-sm edit" title="Calendario">
                                                         <i class="fas fa-calendar"></i>
                                                     </a>
+                                                    <a th:href="@{/admin/espacios/detalle(id=${espacio.espacioDeportivoId})}"
+                                                       class="btn btn-outline-secondary btn-sm edit" title="Ver Detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
                                                 </td>
                                             </tr>
                                             <tr th:if="${espacios == null or #lists.isEmpty(espacios)}">

@@ -372,6 +372,14 @@ public class AdminController {
         }
     }
 
+    @GetMapping("espacios/detalle")
+    public String detalleEspacioDeportivo(@RequestParam Integer id, Model model) {
+        EspacioDeportivo espacio = espacioDeportivoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Espacio Deportivo no encontrado"));
+        model.addAttribute("espacio", espacio);
+        return "admin/espacioInfo";
+    }
+
     @GetMapping("coordinadores")
     public String listarCoordinadores(Model model) {
         List<Usuario> usuariosList = usuarioRepository.findAllByRol_Rol("coordinador");
