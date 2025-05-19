@@ -308,36 +308,16 @@ public class AdminController {
 
 
     @GetMapping("establecimientos/info")
-    public String infoEstablecimiento(@RequestParam("id") Integer id, Model model) {
+    public String infoEstablecimiento(@RequestParam("id") Integer id, Model model, RedirectAttributes attr) {
         EstablecimientoDeportivo establecimiento = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
         if (establecimiento == null) {
-            System.out.println("Establecimiento no encontrado para ID: " + id);
+            attr.addFlashAttribute("message", "Establecimiento no encontrado.");
+            attr.addFlashAttribute("messageType", "error");
             return "redirect:/admin/establecimientos";
         }
-        System.out.println("Establecimiento ID: " + id + ", Geolocalizacion: " + establecimiento.getGeolocalizacion());
         List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAllByEstablecimientoDeportivo(establecimiento);
         model.addAttribute("establecimiento", establecimiento);
         model.addAttribute("espacios", espacios);
-        // Split geolocalizacion into doubles
-        if (establecimiento.getGeolocalizacion() != null && establecimiento.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
-            String[] coords = establecimiento.getGeolocalizacion().split(",");
-            try {
-                model.addAttribute("latitude", Double.parseDouble(coords[0].trim()));
-                model.addAttribute("longitude", Double.parseDouble(coords[1].trim()));
-                System.out.println("Latitude: " + coords[0].trim() + ", Longitude: " + coords[1].trim());
-            } catch (NumberFormatException e) {
-                model.addAttribute("latitude", -12.043333);
-                model.addAttribute("longitude", -77.028333);
-                System.out.println("Error al parsear coordenadas, usando valores por defecto");
-            }
-        } else {
-            model.addAttribute("latitude", -12.043333);
-            model.addAttribute("longitude", -77.028333);
-            System.out.println("Geolocalizacion nula o inválida: " + establecimiento.getGeolocalizacion());
-        }
-        // Add debug attribute
-        model.addAttribute("debugController", "infoEstablecimiento_" + System.currentTimeMillis());
-        System.out.println("Model attributes set: establecimiento=" + establecimiento + ", latitude=" + model.getAttribute("latitude") + ", debugController=" + model.getAttribute("debugController"));
         return "admin/establecimientoInfo";
     }
 
@@ -583,36 +563,17 @@ public class AdminController {
 
 
 
+
     @GetMapping("espacios/detalle")
-    public String detalleEspacioDeportivo(@RequestParam Integer id, Model model) {
+    public String detalleEspacioDeportivo(@RequestParam Integer id, Model model, RedirectAttributes attr) {
         Optional<EspacioDeportivo> optEspacio = espacioDeportivoRepository.findById(id);
         if (optEspacio.isEmpty()) {
-            System.out.println("Espacio no encontrado para ID: " + id);
+            attr.addFlashAttribute("message", "Espacio no encontrado.");
+            attr.addFlashAttribute("messageType", "error");
             return "redirect:/admin/establecimientos";
         }
         EspacioDeportivo espacio = optEspacio.get();
-        System.out.println("Espacio ID: " + id + ", Geolocalizacion: " + espacio.getGeolocalizacion());
         model.addAttribute("espacio", espacio);
-        // Split geolocalizacion into doubles
-        if (espacio.getGeolocalizacion() != null && espacio.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
-            String[] coords = espacio.getGeolocalizacion().split(",");
-            try {
-                model.addAttribute("latitude", Double.parseDouble(coords[0].trim()));
-                model.addAttribute("longitude", Double.parseDouble(coords[1].trim()));
-                System.out.println("Latitude: " + coords[0].trim() + ", Longitude: " + coords[1].trim());
-            } catch (NumberFormatException e) {
-                model.addAttribute("latitude", -12.043333);
-                model.addAttribute("longitude", -77.028333);
-                System.out.println("Error al parsear coordenadas, usando valores por defecto");
-            }
-        } else {
-            model.addAttribute("latitude", -12.043333);
-            model.addAttribute("longitude", -77.028333);
-            System.out.println("Geolocalizacion nula o inválida: " + espacio.getGeolocalizacion());
-        }
-        // Add debug attribute
-        model.addAttribute("debugController", "detalleEspacioDeportivo_" + System.currentTimeMillis());
-        System.out.println("Model attributes set: espacio=" + espacio + ", latitude=" + model.getAttribute("latitude") + ", debugController=" + model.getAttribute("debugController"));
         return "admin/espacioInfo";
     }
 
