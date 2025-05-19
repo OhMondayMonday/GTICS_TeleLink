@@ -80,7 +80,7 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "inicio");
 
-        return "Vecino/vecino-index";
+        return "vecino/vecino-index";
     }
 
     @GetMapping("/reservas/{id}")
@@ -160,7 +160,7 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("reservas", reservas); // importante para mostrarlos en la vista
         model.addAttribute("activeItem", "reservas");
-        return "Vecino/vecino-mis-reservas";
+        return "vecino/vecino-mis-reservas";
     }
 
     @PostMapping("/reserva/cancelar/{id}")
