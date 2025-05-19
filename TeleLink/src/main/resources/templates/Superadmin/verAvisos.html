@@ -153,15 +153,18 @@
                                                      alt="Imagen del aviso actual"
                                                      onerror="this.onerror=null; this.src='/assets/images/BienvenidaSanMiguel.png'">
                                             </div>
+                                            <!-- Si NO hay aviso activo -->
                                             <div th:if="${ultimoAviso == null}" class="card-body">
                                                 <p class="text-muted">No hay avisos disponibles</p>
                                             </div>
 
-                                            <div class="my-1 px-3">
+                                            <!-- Si SÍ hay aviso activo -->
+                                            <div th:if="${ultimoAviso != null}" class="my-1 px-3">
                                                 <p class="card-text mt-1">
                                                     <small>Creado: </small>
                                                     <small class="text-muted"
-                                                           th:text="${ultimoAviso.fechaAviso != null ? #temporals.format(ultimoAviso.fechaAviso, 'dd/MM/yyyy HH:mm') : 'Fecha no disponible'}"></small>
+                                                           th:text="${ultimoAviso.fechaAviso != null ? #temporals.format(ultimoAviso.fechaAviso, 'dd/MM/yyyy HH:mm') : 'Fecha no disponible'}">
+                                                    </small>
                                                 </p>
                                             </div>
                                         </div>

@@ -76,16 +76,16 @@
                                             </div>
                                             <div class="card-body border-top py-3">
                                                 <div class="text-truncate">
-                <span th:if="${montoMensual != null and montoMensualPasado != null}">
-                    <span th:class="${(montoMensual - montoMensualPasado) < 0? 'badge bg-danger-subtle text-danger font-size-11' : 'badge bg-success-subtle text-success font-size-11'}">
-                        <i th:class="${(montoMensual - montoMensualPasado) < 0 ? 'mdi mdi-menu-down' : 'mdi mdi-plus'}"></i>
-                        <span th:text="'S/ ' + ${#numbers.formatDecimal(montoMensual - montoMensualPasado, 1, 2, 'POINT')}"></span>
-                    </span>
-                </span>
-                                                    <span th:if="${montoMensual == null or montoMensualPasado == null}"
-                                                          class="badge bg-secondary-subtle text-secondary font-size-11">
-                    <i class="mdi mdi-information-outline"></i> Sin datos
-                </span>
+                                                    <span th:if="${montoMensual != null and montoMensualPasado != null}">
+                                                        <span th:class="${(montoMensual - montoMensualPasado) < 0? 'badge bg-danger-subtle text-danger font-size-11' : 'badge bg-success-subtle text-success font-size-11'}">
+                                                            <i th:class="${(montoMensual - montoMensualPasado) < 0 ? 'mdi mdi-menu-down' : 'mdi mdi-plus'}"></i>
+                                                            <span th:text="'S/ ' + ${#numbers.formatDecimal(montoMensual - montoMensualPasado, 1, 2, 'POINT')}"></span>
+                                                        </span>
+                                                    </span>
+                                                                                        <span th:if="${montoMensual == null or montoMensualPasado == null}"
+                                                                                              class="badge bg-secondary-subtle text-secondary font-size-11">
+                                                        <i class="mdi mdi-information-outline"></i> Sin datos
+                                                    </span>
                                                     <span class="text-white ms-2">Desde el periodo anterior</span>
                                                 </div>
                                             </div>
@@ -109,16 +109,16 @@
                                             </div>
                                             <div class="card-body border-top py-3">
                                                 <div class="text-truncate">
-                <span th:if="${promedioMensual != null and promedioMensualPasado != null}">
-                    <span th:class="${(promedioMensual - promedioMensualPasado) < 0? 'badge bg-danger-subtle text-danger font-size-11' : 'badge bg-success-subtle text-success font-size-11'}">
-                        <i th:class="${(promedioMensual - promedioMensualPasado) < 0 ? 'mdi mdi-menu-down' : 'mdi mdi-plus'}"></i>
-                        <span th:text="'S/ ' + ${#numbers.formatDecimal(promedioMensual - promedioMensualPasado, 1, 2, 'POINT')}"></span>
-                    </span>
-                </span>
-                                                    <span th:if="${promedioMensual == null or promedioMensualPasado == null}"
-                                                          class="badge bg-secondary-subtle text-secondary font-size-11">
-                    <i class="mdi mdi-information-outline"></i> Sin datos
-                </span>
+                                                    <span th:if="${promedioMensual != null and promedioMensualPasado != null}">
+                                                        <span th:class="${(promedioMensual - promedioMensualPasado) < 0? 'badge bg-danger-subtle text-danger font-size-11' : 'badge bg-success-subtle text-success font-size-11'}">
+                                                            <i th:class="${(promedioMensual - promedioMensualPasado) < 0 ? 'mdi mdi-menu-down' : 'mdi mdi-plus'}"></i>
+                                                            <span th:text="'S/ ' + ${#numbers.formatDecimal(promedioMensual - promedioMensualPasado, 1, 2, 'POINT')}"></span>
+                                                        </span>
+                                                    </span>
+                                                                                        <span th:if="${promedioMensual == null or promedioMensualPasado == null}"
+                                                                                              class="badge bg-secondary-subtle text-secondary font-size-11">
+                                                        <i class="mdi mdi-information-outline"></i> Sin datos
+                                                    </span>
                                                     <span class="text-white ms-2">Desde el periodo anterior</span>
                                                 </div>
                                             </div>
@@ -201,15 +201,18 @@
                                                              onerror="this.src='/assets/images/BienvenidaSanMiguel.png'">
                                                     </div>
 
-                                                    <!-- Mensaje cuando no hay avisos -->
+                                                    <!-- Si NO hay aviso activo -->
                                                     <div th:if="${avisoActivo == null}" class="card-body">
                                                         <p class="text-muted">No hay avisos disponibles</p>
                                                     </div>
-                                                    <div class="my-1 px-3">
+
+                                                    <!-- Si SÍ hay aviso activo -->
+                                                    <div th:if="${avisoActivo != null}" class="my-1 px-3">
                                                         <p class="card-text mt-1">
                                                             <small>Creado: </small>
                                                             <small class="text-muted"
-                                                                   th:text="${avisoActivo.fechaAviso != null ? #temporals.format(avisoActivo.fechaAviso, 'dd/MM/yyyy HH:mm') : 'Fecha no disponible'}"></small>
+                                                                   th:text="${avisoActivo.fechaAviso != null ? #temporals.format(avisoActivo.fechaAviso, 'dd/MM/yyyy HH:mm') : 'Fecha no disponible'}">
+                                                            </small>
                                                         </p>
                                                     </div>
                                                 </div>
