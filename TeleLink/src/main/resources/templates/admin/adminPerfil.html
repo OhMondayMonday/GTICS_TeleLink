@@ -90,7 +90,7 @@
                                     <label class="form-label">Estado de cuenta</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control opacity-75"
-                                               th:value="${session.usuario.estadoCuenta}" disabled />
+                                               th:value="${#strings.capitalizeWords(#strings.replace(session.usuario.estadoCuenta, '_', ' '))}" disabled />
                                         <span class="input-group-text"><i class="mdi mdi-account-check"></i></span>
                                     </div>
                                 </div>
@@ -117,12 +117,13 @@
                                     </div>
                                 </div>
 
+
                                 <!-- Rol -->
                                 <div class="mb-3">
                                     <label class="form-label">Rol</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control opacity-75"
-                                               th:value="${session.usuario.rol.rol}" disabled />
+                                               th:value="${#strings.capitalizeWords(#strings.replace(session.usuario.rol.rol, '_', ' '))}" disabled />
                                         <span class="input-group-text"><i class="mdi mdi-shield-account"></i></span>
                                     </div>
                                 </div>
