@@ -8,7 +8,7 @@
         <meta name="keywords" content="deportes, san miguel, dashboard, eventos, animales">
 
         <!-- Favicon -->
-        <link rel="icon" type="image/x-icon" th:href="@{/assets/img/logo_Alianza_Animal_-removebg-preview.png}" />
+        <link rel="shortcut icon" th:href="@{/superadmin/assets/images/logoCortado.png}">
         <!-- Font Awesome -->
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
         <!-- Google Fonts -->
@@ -19,7 +19,9 @@
 
         <style>
             .masthead {
-                background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 75%, #000 100%), url("/assets/images/BienvenidaSanMiguel.png");
+                background-image:
+                        linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 75%, #000 100%),
+                        url("/assets/images/Landing.jpg");
             }
         </style>
     </head>
@@ -56,9 +58,9 @@
             <div class="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
                 <div class="d-flex justify-content-center">
                     <div class="text-center">
-                        <h1 class="mx-auto my-0 text">Alianza Animal</h1>
-                        <h2 class="text-white-50 mx-auto mt-2 mb-5">Buscando un refugio con amor y ternura para los animales.</h2>
-                        <a class="btn btn-primary" href="html/dentro/login.html">¡Adopta ya!</a>
+                        <h1 class="mx-auto my-0 text">Deportes San Miguel</h1>
+                        <h2 class="text-white-50 mx-auto mt-2 mb-5">Disfruta de tu deporte favorito con nosotros.</h2>
+                        <a class="btn btn-primary" th:href="@{/openLoginWindow}">¡Haz tu reserva ya!</a>
                     </div>
                 </div>
             </div>

@@ -11080,7 +11080,7 @@ body {
     padding: 0;
     background-position: center center;
     background-repeat: no-repeat;
-    background-size: cover;  /* ⭐ Esto estira la imagen sin perder proporción */
+    background-size: cover;
     background-attachment: scroll;
 }
 .masthead h1, .masthead .h1 {
