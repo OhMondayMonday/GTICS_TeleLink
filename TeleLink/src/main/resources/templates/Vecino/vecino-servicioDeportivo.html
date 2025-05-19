@@ -121,7 +121,7 @@
                                                     <li class="mb-2 d-flex align-items-start">
                                                         <i class="mdi mdi-credit-card-outline text-primary me-2 fs-5"></i>
                                                         <span><strong>Forma de Pago:</strong>
-                                                            <span><strong>Forma de Pago:</strong> Procede al pago (puede ser online o por depósito bancario).</span>
+                                                            <span>Procede al pago (puede ser online o por depósito bancario).</span>
                                                         </span>
                                                     </li>
                                                 </ul>
@@ -144,13 +144,15 @@
                                             <div class="tab-content border border-top-0 p-4">
                                                 <!-- Descripción -->
                                                 <div class="tab-pane fade show active" id="desc" role="tabpanel">
-                                                    <p th:text="${espacio.descripcion}">Aquí irá la descripción del espacio.</p>
+                                                    <p>Disfruta del deporte en cualquiera de nuestras canchas, una con superficie de loza y otra con césped sintético, ambas perfectamente equipadas para que juegues sin preocupaciones. Piscina climatizada y pista de atletismo en diversos establecimientos.</p>
+                                                    <p>Ya sea para un partido entre amigos o para entrenar tus habilidades, nuestras canchas son el lugar ideal para divertirte y mejorar tu técnica.</p>
                                                     <p>Visítanos en
                                                         <a th:href="'https://www.google.com/maps?q=' + ${espacio.establecimientoDeportivo.geolocalizacion}"
                                                            target="_blank">ver ubicación en el mapa</a>.
                                                     </p>
+                                                </div>
 
-                                                    <!-- Especificaciones -->
+                                                <!-- Especificaciones -->
                                                 <div class="tab-pane fade" id="specifi" role="tabpanel">
                                                     <div class="table-responsive">
                                                         <table class="table table-nowrap mb-0">
