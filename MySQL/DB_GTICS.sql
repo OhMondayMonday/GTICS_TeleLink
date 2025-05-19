@@ -166,6 +166,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`espacios_deportivos` (
   `longitud_piscina` INT NULL DEFAULT NULL,
   `profundidad_piscina` DECIMAL(6,2) NULL DEFAULT NULL,
   `descripcion` TEXT NULL DEFAULT NULL,
+  `foto_espacio_deportivo_url` VARCHAR(255) NULL DEFAULT NULL,
   `aforo_gimnasio` INT NULL DEFAULT NULL,
   `longitud_pista` DECIMAL(6,2) NULL DEFAULT NULL,
   `carriles_pista` INT NULL DEFAULT NULL,
@@ -243,7 +244,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`avisos` (
   `texto_aviso` TEXT NOT NULL,
   `foto_aviso_url` VARCHAR(255) NOT NULL,
   `fecha_aviso` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `estado_aviso` enum('activo', 'disponible', 'eliminado', 'default') NULL DEFAULT 'disponible',
+  `estado_aviso` enum('activo', 'disponible', 'eliminado') NULL DEFAULT 'disponible',
   PRIMARY KEY (`aviso_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
@@ -387,7 +388,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
   `fin_reserva` TIMESTAMP NOT NULL,
   `numero_carril_piscina` INT NULL DEFAULT NULL,
   `numero_carril_pista` INT NULL DEFAULT NULL,
-  `estado` ENUM('pendiente', 'confirmada', 'cancelada','completada') NULL DEFAULT 'pendiente',
+  `estado` ENUM('pendiente', 'confirmada', 'cancelada') NULL DEFAULT 'pendiente',
   `razon_cancelacion` TEXT NULL DEFAULT NULL,
   `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -405,7 +406,9 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
--------------------------------------
+
+
+-- -----------------------------------------------------
 -- Table `db_gtics`.`pagos`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `db_gtics`.`pagos` ;
@@ -492,51 +495,6 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
 
-
--- -----------------------------------------------------
--- Table `db_gtics`.`verification_tokens`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `db_gtics`.`verification_tokens`;
-
-CREATE TABLE `db_gtics`.`verification_tokens` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `token` VARCHAR(255) NOT NULL,
-  `usuario_id` INT NOT NULL,
-  `expiry_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `token` (`token` ASC) VISIBLE,
-  CONSTRAINT `fk_verification_tokens_usuario`
-    FOREIGN KEY (`usuario_id`)
-    REFERENCES `db_gtics`.`usuarios` (`usuario_id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-
-
--- -----------------------------------------------------
--- Table `db_gtics`.`password_reset_tokens`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `db_gtics`.`password_reset_tokens` ;
-
-CREATE TABLE IF NOT EXISTS `db_gtics`.`password_reset_tokens` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `token` VARCHAR(255) NOT NULL,
-  `usuario_id` INT NOT NULL,
-  `expiry_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `token` (`token` ASC) VISIBLE,
-  CONSTRAINT `fk_password_reset_tokens_usuario`
-    FOREIGN KEY (`usuario_id`)
-    REFERENCES `db_gtics`.`usuarios` (`usuario_id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
 -- -----------------------------------------------------
 -- Table `db_gtics`.`observaciones`
 -- -----------------------------------------------------
@@ -612,24 +570,5 @@ BEGIN
         horario_salida < CURRENT_TIMESTAMP
         AND estado_entrada = 'pendiente';
 END$$
-
-DELIMITER ;
-
-DELIMITER //
-
-CREATE EVENT IF NOT EXISTS `actualizar_reservas_completadas`
-ON SCHEDULE EVERY 1 MINUTE  -- Se ejecuta cada minuto (puedes cambiarlo a 1 HOUR si prefieres)
-STARTS CURRENT_TIMESTAMP
-DO
-BEGIN
-    -- Actualiza reservas CONFIRMADAS que ya pasaron su hora de fin
-    UPDATE `db_gtics`.`reservas`
-    SET 
-        `estado` = 'completada',
-        `fecha_actualizacion` = CURRENT_TIMESTAMP
-    WHERE 
-        `estado` = 'confirmada' 
-        AND `fin_reserva` < CURRENT_TIMESTAMP;  -- Si ya pasó la hora de fin
-END//
 
 DELIMITER ;

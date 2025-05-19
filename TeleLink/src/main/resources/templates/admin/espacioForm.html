@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Creación de espacios deportivos')}">
+<head th:replace="~{admin/fragments/headPage.html :: headPage(title=${espacio.espacioDeportivoId} ? 'Edición de Espacio Deportivo' : 'Creación de Espacio Deportivo')}">
   <meta charset="UTF-8">
-  <title>Creación de Espacios Deportivos</title>
+  <title th:text="${espacio.espacioDeportivoId} ? 'Edición de Espacio Deportivo' : 'Creación de Espacio Deportivo'"></title>
 </head>
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
@@ -16,11 +16,11 @@
     }
     #piscinaFields.show, #pistaFields.show, #gimnasioFields.show {
       opacity: 1;
-      max-height: 1000px; /* Adjust as needed; large enough to accommodate content */
+      max-height: 1000px; /* Adjust as needed */
     }
   </style>
 
-  <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}"></div>
+  <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Espacios deportivos')}"></div>
 
   <div class="main-content">
     <div class="page-content">
@@ -30,7 +30,8 @@
             <div class="card">
               <div class="card-body">
 
-                <h4 class="card-title mb-4 fw-semibold mt-3">Formulario de creación de Espacio Deportivo</h4>
+                <h4 class="card-title mb-4 fw-semibold mt-3"
+                    th:text="${espacio.espacioDeportivoId} ? 'Formulario de Edición de Espacio Deportivo' : 'Formulario de Creación de Espacio Deportivo'"></h4>
 
                 <form th:action="@{/admin/espacios/guardar}" th:object="${espacio}" method="post">
                   <input type="hidden" th:field="*{espacioDeportivoId}" />
@@ -55,10 +56,11 @@
                               th:field="*{servicioDeportivo}"
                               required
                               th:classappend="${#fields.hasErrors('servicioDeportivo')} ? 'is-invalid' : ''">
-                        <option value="" disabled selected>Seleccione una opción</option>
+                        <option value="" disabled>Seleccione una opción</option>
                         <option th:each="servicio : ${servicios}"
                                 th:value="${servicio.servicioDeportivoId}"
-                                th:text="${servicio.servicioDeportivo}">
+                                th:text="${servicio.servicioDeportivo}"
+                                th:selected="${espacio.servicioDeportivo?.servicioDeportivoId == servicio.servicioDeportivoId}">
                         </option>
                       </select>
                       <span class="input-group-text"><i class="mdi mdi-soccer"></i></span>
@@ -74,10 +76,11 @@
                               th:field="*{establecimientoDeportivo}"
                               required
                               th:classappend="${#fields.hasErrors('establecimientoDeportivo')} ? 'is-invalid' : ''">
-                        <option value="" disabled selected>Seleccione una opción</option>
+                        <option value="" disabled>Seleccione una opción</option>
                         <option th:each="establecimiento : ${establecimientos}"
                                 th:value="${establecimiento.establecimientoDeportivoId}"
-                                th:text="${establecimiento.establecimientoDeportivoNombre}">
+                                th:text="${establecimiento.establecimientoDeportivoNombre}"
+                                th:selected="${espacio.establecimientoDeportivo?.establecimientoDeportivoId == establecimiento.establecimientoDeportivoId}">
                         </option>
                       </select>
                       <span class="input-group-text"><i class="mdi mdi-domain"></i></span>
@@ -176,7 +179,8 @@
                   <div class="mb-4">
                     <label class="form-label">Descripción</label>
                     <textarea class="form-control" th:field="*{descripcion}" rows="3" maxlength="300"
-                              placeholder="Opcional. Observaciones o detalles relevantes." th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid' : ''">Espacio de alto rendimiento con equipamiento completo.</textarea>
+                              placeholder="Opcional. Observaciones o detalles relevantes."
+                              th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid' : ''"></textarea>
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
                   </div>
 
@@ -196,9 +200,9 @@
                     <label class="form-label">Estado del servicio</label>
                     <div class="input-group">
                       <select class="form-control" th:field="*{estadoServicio}">
-                        <option value="operativo" th:value="'operativo'" selected>Operativo</option>
-                        <option value="mantenimiento" th:value="'mantenimiento'">Mantenimiento</option>
-                        <option value="clausurado" th:value="'clausurado'">Clausurado</option>
+                        <option value="operativo" th:value="'operativo'" th:selected="${espacio.estadoServicio == 'operativo'}">Operativo</option>
+                        <option value="mantenimiento" th:value="'mantenimiento'" th:selected="${espacio.estadoServicio == 'mantenimiento'}">Mantenimiento</option>
+                        <option value="clausurado" th:value="'clausurado'" th:selected="${espacio.estadoServicio == 'clausurado'}">Clausurado</option>
                       </select>
                       <span class="input-group-text"><i class="mdi mdi-tools"></i></span>
                     </div>
@@ -231,22 +235,32 @@
                   <div class="row mb-4">
                     <div class="col-md-6">
                       <label class="form-label">Horario de apertura</label>
-                      <input type="time" class="form-control"
-                             name="horarioApertura"
-                             th:value="${espacio.horarioApertura?.toString()?.substring(0,5)}">
+                      <div class="input-group">
+                        <input type="time" class="form-control"
+                               th:field="*{horarioApertura}"
+                               th:classappend="${#fields.hasErrors('horarioApertura')} ? 'is-invalid' : ''">
+                        <span class="input-group-text"><i class="mdi mdi-clock-outline"></i></span>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('horarioApertura')}" th:errors="*{horarioApertura}"></div>
+                      </div>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Horario de cierre</label>
-                      <input type="time" class="form-control"
-                             name="horarioCierre"
-                             th:value="${espacio.horarioCierre?.toString()?.substring(0,5)}">
+                      <div class="input-group">
+                        <input type="time" class="form-control"
+                               th:field="*{horarioCierre}"
+                               th:classappend="${#fields.hasErrors('horarioCierre')} ? 'is-invalid' : ''">
+                        <span class="input-group-text"><i class="mdi mdi-clock-outline"></i></span>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('horarioCierre')}" th:errors="*{horarioCierre}"></div>
+                      </div>
                     </div>
                   </div>
 
                   <!-- Botones -->
                   <div class="d-flex justify-content-start">
-                    <button type="submit" class="btn btn-primary">Guardar espacio deportivo</button>
-                    <a th:href="@{/admin/establecimientos}" class="btn btn-secondary ms-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary"
+                            th:text="${espacio.espacioDeportivoId} ? 'Actualizar espacio deportivo' : 'Guardar espacio deportivo'"></button>
+                    <a th:href="${espacio.espacioDeportivoId} ? @{/admin/establecimientos/info(id=${espacio.establecimientoDeportivo?.establecimientoDeportivoId})} : @{/admin/establecimientos}"
+                       class="btn btn-secondary ms-2">Cancelar</a>
                   </div>
                 </form>
               </div>
@@ -289,7 +303,7 @@
         }
       }
 
-      // Run on page load to handle pre-selected values (e.g., during form validation errors)
+      // Run on page load to handle pre-selected values
       toggleFields();
 
       // Run on change of the select dropdown
