@@ -63,6 +63,9 @@ public class UsuarioController {
     @Autowired
     private EspacioDeportivoRepository espacioDeportivoRepository;
 
+    @Autowired
+    private PagoRepository pagoRepository;
+
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
         // Buscar usuario ID 6 (usuario por defecto)
@@ -479,7 +482,6 @@ public class UsuarioController {
         return ResponseEntity.ok(linkPago);
     }
 
-}
     @GetMapping("/calendario")
     public String verCalendario() {
         return "vecino/reservasVecino";
@@ -513,4 +515,6 @@ public class UsuarioController {
                         r.getFinReserva().toString()
                 )).collect(Collectors.toList());
     }
+
 }
+
