@@ -92,9 +92,10 @@
                                                 </td>
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-warning"
-                                                            th:if="${pago.estadoTransaccion == 'fallido'}"
+                                                            th:if="${#strings.equalsIgnoreCase(pago.estadoTransaccion, 'fallido')}"
                                                             data-bs-toggle="modal"
-                                                            th:attr="data-bs-target=${pago.motivoRechazo}">
+                                                            data-bs-target="#modalRechazo"
+                                                            th:attr="data-motivo=${pago.motivoRechazo}">
                                                         Ver detalles
                                                     </button>
                                                 </td>
@@ -118,27 +119,23 @@
                                         </div>
                                     </div>
 
-                                    <!-- Modales de detalles por cada pago rechazado -->
-                                    <div th:each="pago, iStat : ${pagos}">
-                                        <div class="modal fade"
-                                             th:id="'modalDetalles__' + ${iStat.index}"
-                                             tabindex="-1"
-                                             aria-labelledby="modalDetallesLabel"
-                                             aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content border-warning">
-                                                    <div class="modal-header bg-warning-subtle">
-                                                        <h5 class="modal-title" id="modalDetallesLabel">Motivo del rechazo</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>Motivo:</strong> <span th:text="${pago.motivoRechazo}"></span></p>
-                                                        <p class="mt-2"><strong>¿Qué hacer?</strong> Vuelve a subir una imagen clara del comprobante o contacta con soporte.</p>
-                                                    </div>
+                                    <!-- Modal Rechazo -->
+                                    <div class="modal fade" id="modalRechazo" tabindex="-1" aria-labelledby="modalRechazoLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-warning">
+                                                <div class="modal-header bg-warning-subtle">
+                                                    <h5 class="modal-title" id="modalRechazoLabel">Motivo del rechazo</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p><strong>Motivo:</strong></p>
+                                                    <p id="motivoRechazoTexto" class="fw-bold text-danger"></p>
+                                                    <p class="mt-2"><strong>¿Qué hacer?</strong> Vuelve a subir una imagen clara del comprobante o contacta con soporte.</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+
 
                                     <!-- Script para mostrar la imagen en el modal -->
                                     <script>
@@ -149,6 +146,15 @@
                                                     const factura = this.getAttribute('data-factura');
                                                     document.getElementById('facturaImagen').src = factura;
                                                 });
+                                            });
+
+                                            // Modal Rechazo
+                                            const modalRechazo = document.getElementById('modalRechazo');
+                                            modalRechazo.addEventListener('show.bs.modal', function (event) {
+                                                const button = event.relatedTarget;
+                                                const motivo = button.getAttribute('data-motivo');
+                                                const textoMotivo = modalRechazo.querySelector('#motivoRechazoTexto');
+                                                textoMotivo.textContent = motivo ? motivo : 'Sin motivo especificado.';
                                             });
                                         });
                                     </script>
