@@ -19,6 +19,13 @@
 
                                 <h4 class="card-title mb-4 fw-semibold mt-3">Información del Espacio Deportivo</h4>
 
+                                <!-- Foto del espacio deportivo -->
+                                <div class="mb-4">
+                                    <label class="form-label">Foto del espacio deportivo</label>
+                                    <img th:src="${espacio.fotoEspacioDeportivoUrl != null} ? ${espacio.fotoEspacioDeportivoUrl} : 'https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg'"
+                                         style="max-height: 200px; display: block;" alt="Foto del espacio"/>
+                                </div>
+
                                 <!-- Nombre -->
                                 <div class="mb-4">
                                     <label class="form-label">Nombre</label>
@@ -158,9 +165,6 @@
                                 <!-- Botones -->
                                 <a th:href="@{/admin/espacios/editar(id=${espacio.espacioDeportivoId})}" class="btn btn-primary">Editar información</a>
                                 <a th:href="@{/admin/establecimientos/info(id=${espacio.establecimientoDeportivo.establecimientoDeportivoId})}" class="btn btn-secondary ms-2">Volver al Establecimiento</a>
-                                <!--<a th:href="@{/admin/establecimientos/info(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
-                                    <i class="fas fa-eye"></i>
-                                </a>-->
 
                             </div>
                         </div>
