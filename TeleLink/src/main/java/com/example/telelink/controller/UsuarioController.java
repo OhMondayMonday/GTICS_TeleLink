@@ -3,11 +3,15 @@ package com.example.telelink.controller;
 import com.example.telelink.dto.vecino.PagoRequest;
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
+import com.example.telelink.service.S3Service;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -47,7 +51,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/usuarios")
+@RequestMapping(value={"/usuarios","usuario"})
 public class UsuarioController {
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -64,6 +68,9 @@ public class UsuarioController {
 
     @Autowired
     private AvisoRepository avisoRepository;
+
+    @Autowired
+    private S3Service s3Service;
 
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
@@ -124,12 +131,89 @@ public class UsuarioController {
     @GetMapping("/perfil")
     public String mostrarPerfil(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario == null) {
-            return "redirect:/usuarios/inicio";
-        }
         model.addAttribute("usuario", usuario);
-        model.addAttribute("activeItem", "perfil");
         return "vecino/vecino-perfil";
+    }
+
+    @GetMapping("/editar-perfil")
+    public String mostrarEditarPerfil(@ModelAttribute("usuario") Usuario usuarioActualizado, Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        model.addAttribute("usuario", usuario);
+        return "vecino/vecino-editarPerfil";
+    }
+
+    @PostMapping("/actualizar-perfil")
+    public String actualizarPerfil(
+            @Valid @ModelAttribute("usuario") Usuario usuarioActualizado,
+            BindingResult result,
+            @RequestParam("fotoPerfil") MultipartFile fotoPerfil,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+
+        // Validar el formato de la foto si se subió una y asociar el error a fotoPerfilUrl
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            String contentType = fotoPerfil.getContentType();
+            if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
+                result.rejectValue("fotoPerfilUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
+            }
+        }
+
+        // Si hay errores de validación, retornar directamente la vista con los errores
+        if (result.hasErrors()) {
+            result.getAllErrors().forEach(error -> {
+                System.out.println("Error de validación: " + error.getDefaultMessage());
+                if (error instanceof FieldError) {
+                    FieldError fieldError = (FieldError) error;
+                    System.out.println("Campo: " + fieldError.getField());
+                }
+            });
+            model.addAttribute("usuario", usuario);
+            model.addAttribute("org.springframework.validation.BindingResult.usuario", result);
+            return "vecino/vecino-editarPerfil";
+        }
+
+        // Actualizar los campos permitidos (teléfono)
+        usuario.setTelefono(usuarioActualizado.getTelefono());
+
+        // Manejar la subida de la foto al bucket S3
+        String defaultFotoPerfilUrl = usuario.getFotoPerfilUrl() != null ? usuario.getFotoPerfilUrl() : "https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg";
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            System.out.println("Intentando subir archivo a S3...");
+            String uploadResult = s3Service.uploadFile(fotoPerfil);
+            System.out.println("Resultado de la subida: " + uploadResult);
+
+            if (uploadResult != null && uploadResult.contains("URL:")) {
+                // Extraer la URL si la subida fue exitosa
+                String fotoPerfilUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
+                usuario.setFotoPerfilUrl(fotoPerfilUrl);
+                redirectAttributes.addFlashAttribute("message", "Foto de perfil subida exitosamente.");
+                redirectAttributes.addFlashAttribute("messageType", "success");
+            } else if (uploadResult != null && uploadResult.contains("Error:")) {
+                // Manejar el caso de error (incluyendo ExpiredToken)
+                System.out.println("Error detectado en el resultado: " + uploadResult);
+                usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+                redirectAttributes.addFlashAttribute("message", "Error al subir la foto de perfil: " + uploadResult + ". Se usó una imagen por defecto.");
+                redirectAttributes.addFlashAttribute("messageType", "error");
+            } else {
+                // Caso inesperado
+                System.out.println("Resultado inválido de la subida: " + uploadResult);
+                usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+                redirectAttributes.addFlashAttribute("message", "Error desconocido al subir la foto. Se usó una imagen por defecto.");
+                redirectAttributes.addFlashAttribute("messageType", "error");
+            }
+        } else {
+            usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+        }
+
+        // Guardar los cambios en la base de datos
+        usuarioRepository.save(usuario);
+
+        // Actualizar el objeto en la sesión
+        session.setAttribute("usuario", usuario);
+
+        return "redirect:/usuarios/perfil";
     }
 
     @GetMapping("")
