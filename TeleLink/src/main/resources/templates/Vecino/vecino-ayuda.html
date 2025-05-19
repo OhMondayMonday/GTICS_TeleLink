@@ -8,98 +8,22 @@
         <!-- Begin page -->
         <div id="layout-wrapper">
 
-            <!--==============================================================================================-->
-            <header id="page-topbar">
-                <div class="navbar-header">
-                    <div class="d-flex">
-                        <!-- LOGO -->
-                        <div class="navbar-brand-box">
-                            <a href="" class="logo logo-light">
-                                <span class="logo-sm">
-                                    <img th:src="@{/assets/images/logo-San-Miguel-1.webp}" alt="logo-sanmiguel" height="25">
-                                </span>
-                                <span class="logo-lg">
-                                    <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-sanmiguel" height="40" class="me-2">
-                                    <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
-                                </span>
-                            </a>
-                        </div>
-
-                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
-                            <i class="ri-menu-2-line align-middle"></i>
-                        </button>
-
-                    </div>
-
-                    <div class="d-flex">
-
-                        <div class="dropdown d-inline-block d-lg-none ms-2">
-                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="ri-search-line"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                                 aria-labelledby="page-header-search-dropdown">
-
-                                <form class="p-3">
-                                    <div class="mb-3 m-0">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Search ...">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-primary" type="submit"><i class="ri-search-line"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <div class="dropdown d-inline-block user-dropdown">
-                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img class="rounded-circle header-profile-user" src="/assets/images/users/user1.jfif" alt="Header Avatar">
-                                <span class="d-none d-xl-inline-block ms-1">Dorian</span>
-                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <!-- item-->
-                                <a class="dropdown-item" th:href="@{/usuarios/perfil}"><i class="ri-user-line align-middle me-1"></i>Mi perfil</a>
-                                <a class="dropdown-item d-block" href="#"><span class="badge bg-success float-end mt-1">11</span><i class="ri-settings-2-line align-middle me-1"></i> Settings</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a>
-                            </div>
-                        </div>
-
-                        <div class="dropdown d-inline-block">
-                            <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
-                                <i class="ri-settings-2-line"></i>
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-            </header>
-
+            <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Ayuda')}"></div>
             <!-- ========== Left Sidebar Start ========== -->
             <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Ayuda')}"></div>
 
             <!-- ============================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content">
                     <div class="container-fluid">
-
                         <!-- start page title -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                                     <h4 class="mb-sm-0">Ayuda</h4>
-
                                     <div class="page-title-right">
                                         <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="vecino-ayuda.html">Ayuda</a></li>
+                                            <li class="breadcrumb-item"><a th:href="@{/usuarios/ayuda}">Ayuda</a></li>
                                             <li class="breadcrumb-item active">Preguntas Frecuentes</li>
                                         </ol>
                                     </div>
@@ -121,10 +45,12 @@
                                                     <div class="mt-4">
 
                                                         <div>
-                                                            <a href="mailto:apalacios@pucp.edu.pe"
+                                                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=superadmin@gtics.com&su=Consulta%20sobre%20reservas&body=Hola,%20quisiera%20información%20sobre%20las%20reservas."
+                                                               target="_blank"
                                                                class="btn btn-primary mt-2 me-2 waves-effect waves-light">
                                                                 Escríbenos un correo
                                                             </a>
+
 
                                                             <a href="https://wa.me/51934390021?text=Hola,%20quisiera%20información%20sobre%20las%20reservas%20en%20San%20Miguel."
                                                                target="_blank"
@@ -132,8 +58,6 @@
                                                                 Envíanos un WhatsApp
                                                             </a>
                                                         </div>
-
-
                                                     </div>
                                                 </div>
 
@@ -417,7 +341,6 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-
                                                         </div>
                                                     </div>
                                                 </div>
@@ -427,14 +350,9 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- end row -->
-
-
-                    </div> <!-- container-fluid -->
+                    </div>
                 </div>
                 <!-- End Page-content -->
-
-                
             </div>
             <!-- end main content-->
 
@@ -498,6 +416,9 @@
         <script src="../../static/vecino.assets/libs/node-waves/waves.min.js"></script>
 
         <script src="../../static/vecino.assets/js/app.js"></script>
+    
+        <!-- Bootstrap JS (este es clave para que funcione lo interactivo) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     </body>
 </html>

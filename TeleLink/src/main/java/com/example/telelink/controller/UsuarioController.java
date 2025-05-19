@@ -84,14 +84,21 @@ public class UsuarioController {
     }
 
     @GetMapping("/reservas/{id}")
-    public String mostrarReservation(@PathVariable Integer id, Model model) {
+    public String mostrarReservation(@PathVariable Integer id, Model model, HttpSession session) {
         EspacioDeportivo espacio = espacioDeportivoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró el espacio deportivo"));
 
         model.addAttribute("espacio", espacio);
 
+        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
+        model.addAttribute("usuario", usuario);
+
         return "Vecino/vecino-servicioDeportivo";
     }
+
 
     @GetMapping("/reservas/futbol")
     public String mostrarFutbolReservation(Model model) {
@@ -326,7 +333,9 @@ public class UsuarioController {
                         tipoServicio.toLowerCase().contains("pista");
             case "multiusos":
                 return tipoServicio.toLowerCase().contains("multiusos") ||
-                        tipoServicio.toLowerCase().contains("multifuncional");
+                        tipoServicio.toLowerCase().contains("multipropósito") ||
+                        tipoServicio.toLowerCase().contains("básquet") ||
+                        tipoServicio.toLowerCase().contains("vóley");
             default:
                 return false;
         }

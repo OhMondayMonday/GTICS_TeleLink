@@ -33,7 +33,7 @@
 
                                 <h4 class="card-title mb-4 fw-semibold mt-3">Formulario de creación de Establecimiento Deportivo</h4>
 
-                                <form th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post">
+                                <form th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post" enctype="multipart/form-data">
 
                                     <input type="hidden" th:field="*{establecimientoDeportivoId}" />
 
@@ -120,14 +120,16 @@
                                         <div class="col-md-6">
                                             <label class="form-label">Horario de apertura</label>
                                             <input type="time" class="form-control"
-                                                   name="horarioApertura"
-                                                   th:value="${establecimiento.horarioApertura?.toString()?.substring(0,5)}">
+                                                   th:field="*{horarioApertura}"
+                                                   th:classappend="${#fields.hasErrors('horarioApertura')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('horarioApertura')}" th:errors="*{horarioApertura}"></div>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Horario de cierre</label>
                                             <input type="time" class="form-control"
-                                                   name="horarioCierre"
-                                                   th:value="${establecimiento.horarioCierre?.toString()?.substring(0,5)}">
+                                                   th:field="*{horarioCierre}"
+                                                   th:classappend="${#fields.hasErrors('horarioCierre')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('horarioCierre')}" th:errors="*{horarioCierre}"></div>
                                         </div>
                                     </div>
 
@@ -153,6 +155,19 @@
                                                   placeholder="Especifique el motivo del mantenimiento"
                                                   th:classappend="${#fields.hasErrors('motivoMantenimiento')} ? 'is-invalid' : ''"></textarea>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('motivoMantenimiento')}" th:errors="*{motivoMantenimiento}"></div>
+                                    </div>
+
+                                    <!-- Foto del establecimiento -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Foto del establecimiento</label>
+                                        <input type="file" name="fotoFile" class="form-control"
+                                               accept="image/jpeg,image/png,image/jpg"
+                                               th:classappend="${#fields.hasErrors('fotoEstablecimientoUrl')} ? 'is-invalid' : ''" />
+                                        <input type="hidden" th:field="*{fotoEstablecimientoUrl}" />
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fotoEstablecimientoUrl')}" th:errors="*{fotoEstablecimientoUrl}"></div>
+                                        <img th:if="${establecimiento.fotoEstablecimientoUrl != null}"
+                                             th:src="${establecimiento.fotoEstablecimientoUrl}"
+                                             style="max-height: 100px; margin-top: 10px;" alt="Foto actual"/>
                                     </div>
 
                                     <!-- Botones -->
