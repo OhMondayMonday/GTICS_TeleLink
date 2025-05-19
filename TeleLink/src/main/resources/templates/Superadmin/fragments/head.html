@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head th:fragment="headList(title)">
+    <head th:fragment="head(title)">
         <meta charset="utf-8" />
         <title th:text="${title}"></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,19 +9,17 @@
         <!-- App favicon -->
         <link rel="shortcut icon" th:href="@{/superadmin/assets/images/logoCortado.png}">
 
-        <!-- jquery.vectormap css -->
-        <link th:href="@{/superadmin/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css}" rel="stylesheet" type="text/css" />
+        <link th:href="@{/superadmin/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/superadmin/assets/libs/select2/css/select2.min.css}" rel="stylesheet" type="text/css"/>
 
-        <link th:href="@{/superadmin/assets/libs/select2/css/select2.min.css}" rel="stylesheet" type="text/css">
+        <link th:href="@{/superadmin/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/superadmin/assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/superadmin/assets/libs/datatables.net-select-bs4/css/select.bootstrap4.min.css}" rel="stylesheet" type="text/css"/>
+
+
         <link th:href="@{/superadmin/assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css}" rel="stylesheet">
         <link th:href="@{/superadmin/assets/libs/spectrum-colorpicker2/spectrum.min.css}" rel="stylesheet" type="text/css">
         <link th:href="@{/superadmin/assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css}" rel="stylesheet">
-        <link th:href="@{/superadmin/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css}" rel="stylesheet" type="text/css" />
-
-
-
-        <!-- DataTables -->
-        <link th:href="@{/superadmin/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
 
         <!-- Responsive datatable examples -->
         <link th:href="@{/superadmin/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
@@ -32,6 +30,12 @@
         <link th:href="@{/superadmin/assets/css/icons.min.css}" rel="stylesheet" type="text/css"/>
         <!-- App Css-->
         <link th:href="@{/superadmin/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" th:href="@{/superadmin/assets/libs/sweetalert2/sweetalert2.min.css}">
+        <!-- Plugin css -->
+        <link th:href="@{/superadmin/assets/libs/@fullcalendar/core/main.min.css}" rel="stylesheet" type="text/css" />
+        <link th:href="@{/superadmin/assets/libs/@fullcalendar/daygrid/main.min.css}" rel="stylesheet" type="text/css" />
+        <link th:href="@{/superadmin/assets/libs/@fullcalendar/bootstrap/main.min.css}" rel="stylesheet" type="text/css" />
+        <link th:href="@{/superadmin/assets/libs/@fullcalendar/timegrid/main.min.css}" rel="stylesheet" type="text/css" />
 
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 

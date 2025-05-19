@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+
+
+    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
+    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Perfil')}"></head>
+
+    <body data-sidebar="dark" class="vertical-collpsed">
+
+        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+        <!-- Begin page -->
+        <div id="layout-wrapper" >
+
+
+            <div th:replace="~{Superadmin/fragments/header.html :: header(title='Perfil')}"></div>
+
+            <!-- ========== Left Sidebar Start ========== -->
+            <div th:replace="~{Superadmin/fragments/sidebar.html :: sidebar}"></div>
+            <!-- Left Sidebar End -->
+
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+                <div class="page-content" style="min-height: 100%;">
+                    <div class="container-fluid">
+                        <!-- end page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                    <h4 class="mb-sm-0">Registro de avisos</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">Configuración del aviso</h4>
+                                        <p class="card-title-desc mb-3">Ingresa los datos del aviso</p>
+                                        <div class="d-flex justify-content-start position-absolute mb-2 end-0 top-0 p-3">
+                                            <a type="submit" th:href="@{/superadmin/crearAviso}" class="btn btn-success me-2">+ Crear nuevo aviso</a>
+                                        </div>
+                                        <div class="loader-container">
+                                            <div class="loader"></div>
+                                        </div>
+                                        <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100 display" style="display: none;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 30px">ID</th>
+                                                    <th>Título</th>
+                                                    <th>Fecha de creación</th>
+                                                    <th>Última actualización</th>
+                                                    <th>Estado</th>
+                                                    <th style="width: 20px">Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="aviso : ${avisos}">
+                                                    <td th:text="${aviso.avisoId}"></td>
+                                                    <td th:text="${aviso.tituloAviso}"></td>
+                                                    <td th:text="${#temporals.format(aviso.fechaAviso, 'dd/MM/yyyy')}"></td>
+                                                    <td th:text="${#temporals.format(aviso.fechaAviso, 'dd/MM/yyyy')}"></td>
+                                                    <td>
+                                                        <div th:switch="${aviso.estadoAviso}">
+                                                            <span th:case="'activo'" class="badge bg-success-subtle text-success font-size-12">Activo</span>
+                                                            <span th:case="'disponible'" class="badge bg-primary-subtle text-primary font-size-12">Disponible</span>
+                                                            <span th:case="'eliminado'" class="badge bg-danger-subtle text-danger font-size-12">Eliminado</span>
+                                                            <span th:case="'default'" class="badge bg-info-subtle text-info font-size-12">Default</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex">
+                                                            <a th:href="@{/superadmin/editarAviso/{id}(id=${aviso.avisoId})}"
+                                                               class="me-2 text-primary"
+                                                               data-bs-toggle="tooltip"
+                                                               data-bs-placement="top"
+                                                               title="Editar">
+                                                                <i class="mdi mdi-pencil font-size-18"></i>
+                                                            </a>
+
+                                                            <!-- Botón de Activar (solo para avisos no activos) -->
+                                                            <!-- Botón Activar (solo para disponibles no default) -->
+                                                            <th:block th:if="${aviso.estadoAviso == 'disponible' and aviso.estadoAviso != 'default'}">
+                                                                <form th:action="@{/superadmin/avisos/activar/{id}(id=${aviso.avisoId})}" method="post">
+                                                                    <button type="submit" class="btn btn-sm btn-success"><i class="mdi mdi-check font-size-12"></i></button>
+                                                                </form>
+                                                            </th:block>
+
+                                                            <!-- Botón Desactivar (solo para activos no default) -->
+                                                            <th:block th:if="${aviso.estadoAviso == 'activo' and aviso.estadoAviso != 'default'}">
+                                                                <form th:action="@{/superadmin/avisos/desactivar/{id}(id=${aviso.avisoId})}" method="post">
+                                                                    <button type="submit" class="btn btn-sm btn-warning"><i class="mdi mdi-close-circle-outline font-size-12"></i></button>
+                                                                </form>
+                                                            </th:block>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="modal fade bs-example-modal-center bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-xl">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Center modal</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Cras mattis consectetur purus sit amet fermentum.
+                                                            Cras justo odio, dapibus ac facilisis in,
+                                                            egestas eget quam. Morbi leo risus, porta ac
+                                                            consectetur ac, vestibulum at eros.</p>
+                                                        <p>Praesent commodo cursus magna, vel scelerisque
+                                                            nisl consectetur et. Vivamus sagittis lacus vel
+                                                            augue laoreet rutrum faucibus dolor auctor.</p>
+                                                        <p class="mb-0">Aenean lacinia bibendum nulla sed consectetur.
+                                                            Praesent commodo cursus magna, vel scelerisque
+                                                            nisl consectetur et. Donec sed odio dui. Donec
+                                                            ullamcorper nulla non metus auctor
+                                                            fringilla.</p>
+                                                    </div>
+                                                </div><!-- /.modal-content -->
+                                            </div><!-- /.modal-dialog -->
+                                        </div><!-- /.modal -->
+                                    </div> <!-- end card body-->
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-6">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="card">
+                                            <div class="card-header pb-1">
+                                                <div class="d-flex">
+                                                    <h4 class="card-title my-2">Último aviso</h4>
+                                                    <a th:if="${ultimoAviso != null}"
+                                                       th:href="@{/superadmin/editarAviso/{id}(id=${ultimoAviso.avisoId})}"
+                                                       class="btn btn-sm btn-outline-primary my-1 ms-auto">
+                                                        Editar aviso
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="card-body py-1" th:if="${ultimoAviso != null}">
+                                                <h4 class="card-title my-2" th:text="${ultimoAviso.tituloAviso}"></h4>
+                                                <p class="card-text text-muted mb-1" th:text="${ultimoAviso.textoAviso}"></p>
+                                            </div>
+                                            <div class="px-3" th:if="${ultimoAviso != null}">
+                                                <img class="card-img-bottom img-fluid object-fit-cover"
+                                                     style="max-height: 415px;"
+                                                     th:src="${ultimoAviso.fotoAvisoUrl}"
+                                                     alt="Imagen del aviso actual"
+                                                     onerror="this.onerror=null; this.src='/assets/images/BienvenidaSanMiguel.png'">
+                                            </div>
+                                            <div th:if="${ultimoAviso == null}" class="card-body">
+                                                <p class="text-muted">No hay avisos disponibles</p>
+                                            </div>
+
+                                            <div class="my-1 px-3">
+                                                <p class="card-text mt-1">
+                                                    <small>Creado: </small>
+                                                    <small class="text-muted"
+                                                           th:text="${ultimoAviso.fechaAviso != null ? #temporals.format(ultimoAviso.fechaAviso, 'dd/MM/yyyy HH:mm') : 'Fecha no disponible'}"></small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end row -->
+
+                    </div> <!-- container-fluid -->
+                </div>
+                <!-- End Page-content -->
+
+                <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
+            </div>
+            <!-- end main content-->
+
+        </div>
+        <!-- END layout-wrapper -->
+
+        <!-- Sidebar overlay-->
+        <div class="sidebar-overlay"></div>
+
+        <!-- JAVASCRIPT -->
+        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+
+        <script>
+            $(document).ready(function() {
+                // Muestra el símbolo de carga
+                $("#loading").show();
+
+                // Inicializa DataTable
+                var table = $('#alternative-page-datatable').DataTable({
+                    "columnDefs": [
+                        {
+                            "targets": [-1], // Aplica a la última columna (puedes usar el índice adecuado si no es la última)
+                            "orderable": false // Desactiva el ordenamiento
+                        },
+                    ],
+                    "pageLength": 5,  // Fija el número de registros a mostrar
+                    "lengthChange": false,
+                    pagingType: "full_numbers",
+                    "info": true,  // Habilita la información de las entradas mostradas
+                    "language": {
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
+                        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
+                        "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+                    },
+                    "initComplete": function() {
+                        // Oculta el símbolo de carga y muestra la tabla cuando los datos hayan sido procesados y renderizados
+                        $(".loader-container").hide();  // Ocultamos el indicador de carga
+                        $('#alternative-page-datatable').show();  // Mostramos la tabla
+                    },
+                    drawCallback: function () {
+                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                    }
+                });
+
+                // Asegúrate de que la tabla esté inicialmente oculta
+                table.hide();
+            });
+        </script>
+    </body>
+
+
+    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:03 GMT -->
+</html>

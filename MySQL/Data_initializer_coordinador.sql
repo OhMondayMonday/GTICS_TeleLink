@@ -1,7 +1,8 @@
-INSERT INTO roles (rol) VALUES ('superadmin');
-INSERT INTO roles (rol) VALUES ('administrador');
-INSERT INTO roles (rol) VALUES ('vecino');
-INSERT INTO roles (rol) VALUES ('coordinador');
+#Se crean roles en Data_initializer_general.sql, omitiremos esto si se ejecuta luego
+#INSERT INTO roles (rol) VALUES ('superadmin');
+#INSERT INTO roles (rol) VALUES ('administrador');
+#INSERT INTO roles (rol) VALUES ('vecino');
+#INSERT INTO roles (rol) VALUES ('coordinador');
 
 -- Admin
 INSERT INTO usuarios (
@@ -19,7 +20,7 @@ INSERT INTO usuarios (
     'José',
     'Guevara',
     'adminJose@telelink.com',
-    '$2a$10$N9qo8uLOickgx2ZMRZoMy.MrYV7Z1QljCzLf/6Xr8bsUQ7X1QJQb6',
+    '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq',
     2,
     NULL,
     'Av. Marino Cornejo 123',
@@ -32,25 +33,25 @@ INSERT INTO usuarios (
 INSERT INTO usuarios 
 (nombres, apellidos, correo_electronico, contrasenia_hash, rol_id, dni, direccion, telefono, estado_cuenta)
 VALUES 
-('Juan', 'Pérez', 'juan.perez@example.com', '$2a$10$ejemploDeHash1234567890', 3, '12345678', 'Calle Primavera 123', '987654321', 'activo');
+('Juan', 'Pérez', 'juan.perez@example.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 3, '12345678', 'Calle Primavera 123', '987654321', 'activo');
 
 -- Vecino 2
 INSERT INTO usuarios 
 (nombres, apellidos, correo_electronico, contrasenia_hash, rol_id, dni, direccion, telefono, estado_cuenta)
 VALUES 
-('María', 'Gómez', 'maria.gomez@example.com', '$2a$10$ejemploDeHash1234567890', 3, '23456789', 'Avenida Libertad 456', '987654322', 'activo');
+('María', 'Gómez', 'maria.gomez@example.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 3, '23456789', 'Avenida Libertad 456', '987654322', 'activo');
 
 -- Vecino 3
 INSERT INTO usuarios 
 (nombres, apellidos, correo_electronico, contrasenia_hash, rol_id, dni, direccion, telefono, estado_cuenta)
 VALUES 
-('Carlos', 'López', 'carlos.lopez@example.com', '$2a$10$ejemploDeHash1234567890', 3, '34567890', 'Jirón Sol 789', '987654323', 'activo');
+('Carlos', 'López', 'carlos.lopez@example.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 3, '34567890', 'Jirón Sol 789', '987654323', 'activo');
 
 -- Vecino 4
 INSERT INTO usuarios 
 (nombres, apellidos, correo_electronico, contrasenia_hash, rol_id, dni, direccion, telefono, estado_cuenta)
 VALUES 
-('Ana', 'Rodríguez', 'ana.rodriguez@example.com', '$2a$10$ejemploDeHash1234567890', 3, '45678901', 'Pasaje Luna 101', '987654324', 'activo');
+('Ana', 'Rodríguez', 'ana.rodriguez@example.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 3, '45678901', 'Pasaje Luna 101', '987654324', 'activo');
 
 -- 2. Insertar servicios deportivos
 INSERT INTO servicios_deportivos (servicio_deportivo_id, servicio_deportivo) VALUES 
@@ -72,7 +73,7 @@ INSERT INTO establecimientos_deportivos (
 (2, 'Polideportivo Villa El Salvador', 'Av. Central 456', '-12.234567,-77.234567', '07:00:00', '21:00:00');
 
 -- 4. Insertar espacios deportivos
-INSERT IGNORE INTO espacios_deportivos (
+INSERT INTO espacios_deportivos (
     espacio_deportivo_id, 
     nombre, 
     servicio_deportivo_id, 
@@ -93,11 +94,12 @@ INSERT INTO usuarios (
     correo_electronico, 
     contrasenia_hash, 
     rol_id, 
-    dni, 
+    dni,
+    telefono,
     estado_cuenta
 ) VALUES 
-('Carlos', 'Mendoza', 'coordinador1@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 2, '02345678', 'activo'),
-('Laura', 'García', 'coordinador2@email.com', '$2a$10$xJwL5v5Jz5U6Z5b5Z5b5Z.', 2, '87654321', 'activo');
+('Carlos', 'Mendoza', 'coordinador1@email.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 4, '02345678','987654321', 'activo'),
+('Laura', 'García', 'coordinador2@email.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 4, '87654321', '987654320', 'activo');
 
 -- 6. Insertar asistencias para la fecha actual y días cercanos
 INSERT INTO asistencias (
@@ -142,22 +144,67 @@ INSERT INTO asistencias (
  TIMESTAMP(DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY), '19:00:00'), 
  'inasistencia', 'inasistencia');
 
--- Eventos programados
 
-DELIMITER $$
+INSERT INTO db_gtics.avisos (titulo_aviso, texto_aviso, foto_aviso_url, fecha_aviso)
+VALUES ('Aviso de prueba 2', 'Este es un aviso de prueba para el coordinador.', 'https://static.vecteezy.com/system/resources/previews/004/431/172/non_2x/warning-notice-on-a-white-background-free-vector.jpg', CURRENT_TIMESTAMP);
 
-CREATE EVENT `actualizar_asistencias_inasistencia`
-ON SCHEDULE EVERY 1 MINUTE
-STARTS CURRENT_TIMESTAMP
-DO
-BEGIN
-    UPDATE asistencias
-    SET 
-        estado_entrada = 'inasistencia',
-        estado_salida = 'inasistencia'
-    WHERE 
-        horario_salida < CURRENT_TIMESTAMP
-        AND estado_entrada = 'pendiente';
-END$$
 
-DELIMITER ;
+-- 1. Insertar reseñas para probar el rating dinámico
+INSERT INTO resenias (usuario_id, calificacion, comentario, espacio_deportivo_id, fecha_creacion)
+VALUES 
+(2, 4, 'Buena cancha, pero necesita mantenimiento.', 2, NOW()),
+(3, 5, 'Excelente lugar para jugar fútbol.', 2, NOW()),
+(4, 3, 'Regular, el césped está desgastado.', 2, NOW()),
+(5, 5, 'La piscina está muy limpia.', 1, NOW()),
+(6, 4, 'Buena experiencia en la piscina.', 1, NOW());
+
+-- 2. Actualizar EspacioDeportivo para agregar precio_por_hora
+UPDATE espacios_deportivos 
+SET precio_por_hora = 100.00
+WHERE espacio_deportivo_id = 1;
+
+UPDATE espacios_deportivos 
+SET precio_por_hora = 120.00
+WHERE espacio_deportivo_id = 2;
+
+UPDATE espacios_deportivos 
+SET precio_por_hora = 80.00
+WHERE espacio_deportivo_id = 3;
+
+UPDATE espacios_deportivos 
+SET precio_por_hora = 150.00
+WHERE espacio_deportivo_id = 4;
+
+-- 3. Actualizar EstablecimientoDeportivo para agregar foto_establecimiento_url
+UPDATE establecimientos_deportivos 
+SET foto_establecimiento_url = 'https://i.ytimg.com/vi/3hXz2cSdYdI/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLANRtqmrsU0GKt1AhImtSNaMBz_YA'
+WHERE establecimiento_deportivo_id = 1;
+
+UPDATE establecimientos_deportivos 
+SET foto_establecimiento_url = 'https://i.ytimg.com/vi/3hXz2cSdYdI/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLANRtqmrsU0GKt1AhImtSNaMBz_YA'
+WHERE establecimiento_deportivo_id = 2;
+
+-- 4. Cambiar estado_servicio de algunos EspacioDeportivo para probar diferentes estados
+UPDATE espacios_deportivos 
+SET estado_servicio = 'mantenimiento'
+WHERE espacio_deportivo_id = 3;
+
+UPDATE espacios_deportivos 
+SET estado_servicio = 'clausurado'
+WHERE espacio_deportivo_id = 4;
+
+-- Nuevas asistencias
+INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, fecha_creacion)
+VALUES (4, 1, 1, '2025-05-10 16:00:00', '2025-05-10 23:00:00', '2025-05-09 07:00:00');
+
+
+-- coordenadas para los espacios deportivos
+UPDATE espacios_deportivos 
+SET geolocalizacion = 
+    CASE 
+        WHEN espacio_deportivo_id = 1 THEN '-12.098145,-77.035672' -- Piscina Olímpica (San Isidro)
+        WHEN espacio_deportivo_id = 2 THEN '-12.145123,-77.002345' -- Cancha de Fútbol 1 (Surco)
+        WHEN espacio_deportivo_id = 3 THEN '-12.076543,-77.054321' -- Pista de Atletismo (Jesús María)
+        WHEN espacio_deportivo_id = 4 THEN '-12.121987,-77.029876' -- Gimnasio Principal (Miraflores)
+    END
+WHERE espacio_deportivo_id IN (1, 2, 3, 4);

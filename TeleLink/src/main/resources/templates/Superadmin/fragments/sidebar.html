@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Fragmento del Sidebar -->
+    <div th:fragment="sidebar" class="vertical-menu">
+
+        <div data-simplebar="init" class="h-100"><div class="simplebar-wrapper" style="margin: 0px;"><div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div><div class="simplebar-mask"><div class="simplebar-offset" style="right: 0px; bottom: 0px;"><div class="simplebar-content-wrapper" style="height: 100%; overflow: hidden;"><div class="simplebar-content" style="padding: 0px;">
+
+            <!--- Sidemenu -->
+            <div id="sidebar-menu">
+                <!-- Left Menu Start -->
+                <ul class="metismenu list-unstyled" id="side-menu">
+                    <li class="menu-title">Menu</li>
+
+                    <li>
+                        <a th:href="@{/superadmin/inicio}" class="waves-effect">
+                            <i class="ri-dashboard-line"></i>
+                            <span>Inicio</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-title">Avisos</li>
+
+                    <li>
+                        <a th:href="@{/superadmin/avisos}" class="waves-effect">
+                            <i class="mdi mdi-newspaper-plus"></i>
+                            <span>Ver avisos</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-title">Usuarios</li>
+
+                    <li>
+                        <a th:href="@{/superadmin/usuarios}" class="waves-effect">
+                            <i class="ri-account-circle-line"></i>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a th:href="@{/superadmin/usuariosAdmin}" class="waves-effect">
+                            <i class="ri-account-circle-fill"></i>
+                            <span>Usuarios administrativos</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-title">Transacciones</li>
+
+                    <li>
+                        <a th:href="@{/superadmin/pagos}" class="waves-effect">
+                            <i class="ri-money-dollar-circle-line"></i>
+                            <span>Pagos</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-title">Servicios deportivos</li>
+
+                    <li>
+                        <a th:href="@{/superadmin/reservas}" class="waves-effect">
+                            <i class="ri-football-fill"></i>
+                            <span>Reservas</span>
+                        </a>
+                    </li>
+
+                    <!--
+                    <li>
+                        <a href="javascript: void(0);" class="waves-effect">
+                            <i class="ri-football-fill"></i>
+                            <span>Mantenimientos</span>
+                        </a>
+                    </li>
+                    -->
+
+                </ul>
+            </div>
+            <!-- Sidebar -->
+        </div></div></div></div><div class="simplebar-placeholder" style="width: auto; height: 920px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div></div>
+    </div>
+
+</html>

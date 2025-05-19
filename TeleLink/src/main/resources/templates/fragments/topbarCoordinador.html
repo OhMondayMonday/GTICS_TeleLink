@@ -29,28 +29,25 @@
     <!-- Icons Css -->
     <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
     <!-- App Css-->
-    <link th:href="@{/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
+    <!--<link th:href="@{/superadmin/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />-->
+    <link th:href="@{/superadmin/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
   </head>
   <body data-sidebar="dark">
 
-    <!-- <body data-layout="horizontal" data-topbar="dark"> -->
-
     <!-- Begin page -->
     <div id="layout-wrapper">
-
-
       <header id="page-topbar" th:fragment="topbar(pagina)">
         <div class="navbar-header">
           <div class="d-flex">
             <!-- LOGO -->
             <div class="navbar-brand-box">
               <a href="" class="logo logo-light">
-                    <span class="logo-sm">
-                        <img th:src="@{/assets/images/logoCortado.png}" alt="logo-sm-light" height="22">
-                    </span>
+                <span class="logo-sm">
+                  <img th:src="@{/assets/images/logoCortado.png}" alt="logo-sm-light" height="22">
+                </span>
                 <span class="logo-lg">
-                        <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-light" height="40">
-                    </span>
+                  <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-light" height="40">
+                </span>
               </a>
             </div>
 
@@ -62,10 +59,9 @@
               <button type="button"
                       class="btn header-item waves-effect"
                       style="cursor: default !important;
-                              pointer-events: none;
-                              box-shadow: none !important;
-                              transform: none !important;" th:text="${pagina}">
-
+                             pointer-events: none;
+                             box-shadow: none !important;
+                             transform: none !important;" th:text="${pagina}">
               </button>
             </div>
           </div>
@@ -85,63 +81,12 @@
                       <h6 class="m-0"> Notificaciones </h6>
                     </div>
                     <div class="col-auto">
-                      <a href="#!" class="small"> Ver todas</a>
+                      <a href="#" class="small"> Ver todas</a>
                     </div>
                   </div>
                 </div>
-                <div data-simplebar style="max-height: 230px;">
-                  <div data-simplebar style="max-height: 230px;">
-                    <a href="#" class="text-reset notification-item">
-                      <div class="d-flex">
-                        <div class="avatar-xs me-3">
-                                                    <span class="avatar-title bg-success rounded-circle font-size-16">
-                                                        <i class="ri-checkbox-circle-line"></i>
-                                                    </span>
-                        </div>
-                        <div class="flex-1">
-                          <h6 class="mb-1">Observación resuelta</h6>
-                          <div class="font-size-12 text-muted">
-                            <p class="mb-1">Complejo Deportivo Bancario: Cancha de fútbol</p>
-                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                    <a href="#" class="text-reset notification-item">
-                      <div class="d-flex">
-                        <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-warning rounded-circle font-size-16">
-                                                    <i class="ri-time-line"></i>
-                                                </span>
-                        </div>
-                        <div class="flex-1">
-                          <h6 class="mb-1">Observación en proceso de revisión</h6>
-                          <div class="font-size-12 text-muted">
-                            <p class="mb-1">Complejo Deportivo Bancario: Cancha de fútbol</p>
-                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-
-                    <a href="#" class="text-reset notification-item">
-                      <div class="d-flex">
-                        <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-danger rounded-circle font-size-16">
-                                                    <i class="ri-mail-send-line"></i>
-                                                </span>
-                        </div>
-                        <div class="flex-1">
-                          <h6 class="mb-1">Nueva observación registrada</h6>
-                          <div class="font-size-12 text-muted">
-                            <p class="mb-1">Complejo Deportivo Bancario: Cancha de fútbol</p>
-                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-
-                  </div>
+                <div data-simplebar style="max-height: 230px;" id="notification-list">
+                  <!-- Notifications will be loaded here via AJAX -->
                 </div>
               </div>
             </div>
@@ -149,22 +94,25 @@
             <div class="dropdown d-inline-block user-dropdown">
               <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img class="rounded-circle header-profile-user" th:src="@{/assets/images/users/avatar-2.jpg}" alt="Header Avatar">
-                <span class="d-none d-xl-inline-block ms-1">Kevin</span>
+                <img class="rounded-circle header-profile-user" style="object-fit: cover" th:src="${usuario.fotoPerfilUrl} ?: @{/assets/images/users/avatar-2.jpg}" alt="Header Avatar">
+                <span class="d-none d-xl-inline-block ms-1" th:text="${usuario.nombres.split(' ')[0]} ?: 'Usuario'"></span>
                 <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
               </button>
               <div class="dropdown-menu dropdown-menu-end">
-                <!-- item-->
-                <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                <a class="dropdown-item" th:href="@{/coordinador/perfil}"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                  <button type="submit" class="dropdown-item text-danger" style="background:none;border:none;">
+                    <i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión
+                  </button>
+                </form>
               </div>
             </div>
           </div>
         </div>
       </header>
     </div>
-    <!-- END layout-wrapper -->
+
     <div class="main-content">
       <footer class="footer" th:fragment="footer">
         <div class="container-fluid">
@@ -185,6 +133,83 @@
     <div th:fragment="scripts">
       <!-- Right bar overlay-->
       <div class="rightbar-overlay"></div>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const notificationList = document.getElementById('notification-list');
+          const userId = [[${session.usuario?.usuarioId}]]; // Get userId from session
+
+          function loadNotifications() {
+            if (!userId) {
+              notificationList.innerHTML = '<div class="text-center p-3"><p class="text-muted">Usuario no autenticado</p></div>';
+              return;
+            }
+
+            fetch(`/coordinador/notificaciones/list?userId=${userId}`, {
+              headers: {
+                'Accept': 'application/json'
+              }
+            })
+                    .then(response => {
+                      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                      return response.json();
+                    })
+                    .then(notifications => {
+                      notificationList.innerHTML = ''; // Clear existing notifications
+                      if (notifications.length === 0) {
+                        notificationList.innerHTML = '<div class="text-center p-3"><p class="text-muted">No hay notificaciones</p></div>';
+                        return;
+                      }
+                      notifications.forEach(notification => {
+                        const notificationItem = `
+                                    <a href="${notification.urlRedireccion || '#'}" class="text-reset notification-item">
+                                        <div class="d-flex">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                                    <i class="ri-notification-3-line"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">${notification.tituloNotificacion || 'Sin título'}</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">${notification.mensaje || 'Sin mensaje'}</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> ${formatTimeAgo(notification.fechaCreacion)}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>`;
+                        notificationList.insertAdjacentHTML('beforeend', notificationItem);
+                      });
+                    })
+                    .catch(error => {
+                      console.error('Error fetching notifications:', error);
+                      notificationList.innerHTML = '<div class="text-center p-3"><p class="text-danger">Error al cargar notificaciones</p></div>';
+                    });
+          }
+
+          // Format time ago (e.g., "3 min ago")
+          function formatTimeAgo(dateString) {
+            if (!dateString) return 'Desconocido';
+            const now = new Date();
+            const date = new Date(dateString);
+            if (isNaN(date)) return 'Desconocido';
+            const diffMs = now - date;
+            const diffMins = Math.round(diffMs / 60000); // Convert to minutes
+            if (diffMins < 1) return 'justo ahora';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            const diffDays = Math.floor(diffHours / 24);
+            return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+          }
+
+          // Load notifications initially
+          loadNotifications();
+
+          // Refresh every 60 seconds
+          setInterval(loadNotifications, 60000);
+        });
+      </script>
 
       <!-- JAVASCRIPT -->
       <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
@@ -218,6 +243,4 @@
       <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
     </div>
   </body>
-
-  <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{admin/fragments/headPage.html :: headPage(title='Nueva Asistencia')}">
+        <meta charset="UTF-8">
+        <title>Nueva Asistencia</title>
+        <!-- Flatpickr CSS -->
+        <link rel="stylesheet" th:href="@{/admin/assets/css/flatpickr.min.css}" />
+    </head>
+    <body data-sidebar="dark" class="vertical-collpsed">
+        <div id="layout-wrapper">
+            <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Nueva Asistencia')}"></div>
+
+            <div class="main-content">
+                <div class="page-content">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title mb-3 fw-semibold">Formulario de Creación de Asistencia</h4>
+                                        <!-- Top-level error/success message -->
+                                        <div th:if="${msg != null}" class="alert mb-3" th:class="${error != null} ? 'alert alert-danger' : 'alert alert-success'" th:text="${msg}"></div>
+                                        <form th:action="@{/admin/asistencias/guardar}" method="post">
+                                            <input type="hidden" name="coordinadorId" th:value="${coordinadorId}" />
+                                            <input type="hidden" name="administradorId" th:value="${session.usuario.usuarioId}" />
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="establecimientoDeportivo" class="form-label">Establecimiento Deportivo <span style="color: red;">*</span></label>
+                                                        <select id="establecimientoDeportivo" name="establecimientoDeportivoId" class="form-select" required>
+                                                            <option value="">Seleccione un establecimiento</option>
+                                                            <option th:each="establecimiento : ${establecimientos}" th:value="${establecimiento.establecimientoDeportivoId}" th:text="${establecimiento.establecimientoDeportivoNombre}"></option>
+                                                        </select>
+                                                        <div th:if="${errors != null && errors['establecimientoDeportivoId'] != null}" class="invalid-feedback d-block" th:text="${errors['establecimientoDeportivoId']}"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="espacioDeportivo" class="form-label">Espacio Deportivo <span style="color: red;">*</span></label>
+                                                        <select id="espacioDeportivo" name="espacioDeportivoId" class="form-select" required disabled>
+                                                            <option value="">Seleccione un espacio</option>
+                                                        </select>
+                                                        <div th:if="${errors != null && errors['espacioDeportivoId'] != null}" class="invalid-feedback d-block" th:text="${errors['espacioDeportivoId']}"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="fecha" class="form-label">Fecha <span style="color: red;">*</span></label>
+                                                        <input id="fecha" name="fecha" type="text" class="form-control" readonly required />
+                                                        <div th:if="${errors != null && errors['fecha'] != null}" class="invalid-feedback d-block" th:text="${errors['fecha']}"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="horarioEntrada" class="form-label">Horario de Entrada <span style="color: red;">*</span></label>
+                                                        <input id="horarioEntrada" name="horarioEntrada" type="text" class="form-control" readonly required disabled />
+                                                        <div th:if="${errors != null && errors['horarioEntrada'] != null}" class="invalid-feedback d-block" th:text="${errors['horarioEntrada']}"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="horarioSalida" class="form-label">Horario de Salida <span style="color: red;">*</span></label>
+                                                        <input id="horarioSalida" name="horarioSalida" type="text" class="form-control" readonly required disabled />
+                                                        <div th:if="${errors != null && errors['horarioSalida'] != null}" class="invalid-feedback d-block" th:text="${errors['horarioSalida']}"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="text-center">
+                                                <button class="btn btn-primary me-3" type="submit">Guardar</button>
+                                                <a th:href="@{/admin/coordinadores/calendario(id=${coordinadorId})}" class="btn btn-secondary ms-3">Cancelar</a>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+            </div>
+
+            <div class="sidebar-overlay"></div>
+
+            <div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+
+            <!-- Flatpickr JS -->
+            <script th:src="@{/admin/assets/js/flatpickr.min.js}"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Initialize Flatpickr for date
+                    const fechaPicker = flatpickr("#fecha", {
+                        dateFormat: "Y-m-d",
+                        minDate: new Date().fp_incr(1), // Only allow dates from tomorrow
+                        allowInput: false,
+                        onChange: function(selectedDates, dateStr, instance) {
+                            document.getElementById('horarioEntrada').disabled = false;
+                            updateEntradaOptions();
+                        }
+                    });
+
+                    // Initialize Flatpickr for entrada
+                    const entradaPicker = flatpickr("#horarioEntrada", {
+                        enableTime: true,
+                        noCalendar: true,
+                        dateFormat: "H:i",
+                        minuteIncrement: 30,
+                        time_24hr: true,
+                        allowInput: false,
+                        onChange: function(selectedDates, timeStr, instance) {
+                            document.getElementById('horarioSalida').disabled = false;
+                            updateSalidaOptions(timeStr);
+                        }
+                    });
+
+                    // Initialize Flatpickr for salida
+                    const salidaPicker = flatpickr("#horarioSalida", {
+                        enableTime: true,
+                        noCalendar: true,
+                        dateFormat: "H:i",
+                        minuteIncrement: 30,
+                        time_24hr: true,
+                        allowInput: false
+                    });
+
+                    // Load establecimientos
+                    const establecimientoSelect = document.getElementById('establecimientoDeportivo');
+                    const espacioSelect = document.getElementById('espacioDeportivo');
+
+                    establecimientoSelect.addEventListener('change', function() {
+                        const establecimientoId = this.value;
+                        espacioSelect.disabled = true;
+                        espacioSelect.innerHTML = '<option value="">Seleccione un espacio</option>';
+
+                        if (establecimientoId) {
+                            fetch(`/admin/espacios-por-establecimiento?establecimientoId=${establecimientoId}`)
+                                .then(response => {
+                                    if (!response.ok) throw new Error('Error fetching espacios');
+                                    return response.json();
+                                })
+                                .then(espacios => {
+                                    espacios.forEach(espacio => {
+                                        const option = document.createElement('option');
+                                        option.value = espacio.espacioDeportivoId;
+                                        option.textContent = espacio.nombre;
+                                        espacioSelect.appendChild(option);
+                                    });
+                                    espacioSelect.disabled = false;
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching espacios:', error);
+                                    alert('No se pudieron cargar los espacios deportivos.');
+                                });
+                        }
+                    });
+
+                    espacioSelect.addEventListener('change', function() {
+                        const espacioId = this.value;
+                        if (espacioId) {
+                            fetch(`/admin/espacio-horario?espacioId=${espacioId}`)
+                                .then(response => {
+                                    if (!response.ok) throw new Error('Error fetching horario');
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    updateEntradaOptions(data.horarioApertura, data.horarioCierre);
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching horario:', error);
+                                    alert('No se pudo cargar el horario del espacio.');
+                                });
+                        }
+                    });
+
+                    function updateEntradaOptions(horarioApertura, horarioCierre) {
+                        if (!horarioApertura || !horarioCierre) return;
+                        entradaPicker.set('minTime', horarioApertura);
+                        entradaPicker.set('maxTime', horarioCierre);
+                        entradaPicker.clear();
+                        salidaPicker.clear();
+                        document.getElementById('horarioSalida').disabled = true;
+                    }
+
+                    function updateSalidaOptions(entradaTime) {
+                        if (!entradaTime) return;
+                        const [hours, minutes] = entradaTime.split(':').map(Number);
+                        const minSalida = new Date();
+                        minSalida.setHours(hours, minutes + 30);
+                        salidaPicker.set('minTime', minSalida.toTimeString().slice(0, 5));
+                        salidaPicker.clear();
+                    }
+                });
+            </script>
+        </div>
+    </body>
+</html>

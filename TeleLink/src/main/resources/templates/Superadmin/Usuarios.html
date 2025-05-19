@@ -1,377 +1,116 @@
-<!doctype html>
-<html lang="en">
-
-
-    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
     <head>
-
-        <meta charset="utf-8" />
         <title>Lista de Usuarios</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-        <meta content="Themesdesign" name="author" />
-        <!-- App favicon -->
-        <link rel="shortcut icon" href="assets/images/logoCortado.png">
-
-
-
-        <!-- jquery.vectormap css -->
-        <link href="assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
-
-        <!-- DataTables -->
-        <link href="assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
-
-        <!-- Responsive datatable examples -->
-        <link href="assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css" />
-
-        <!-- Bootstrap Css -->
-        <link href="assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
-        <!-- Icons Css -->
-        <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
-        <!-- App Css-->
-        <link href="assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css"/>
-
-        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-        <style>
-            /* Contenedor del loader */
-            .loader-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 75vh; /* Toma toda la altura de la pantalla */
-                background-color: #ffffff; /* Fondo oscuro */
-            }
-
-            /* Estilo del loader */
-            /* HTML: <div class="loader"></div> */
-            .loader {
-                width: 60px;
-                aspect-ratio: 1;
-                display: grid;
-                color: #094183;
-                background: radial-gradient(farthest-side, currentColor calc(100% - 6px),#0000 calc(100% - 5px));
-                -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 13px), #000 calc(100% - 12px));
-                border-radius: 50%;
-                animation: l19 2s infinite linear;
-            }
-            .loader::before,
-            .loader::after {
-                content: "";
-                grid-area: 1/1;
-                background:
-                        linear-gradient(currentColor 0 0) center,
-                        linear-gradient(currentColor 0 0) center;
-                background-size: 100% 12px,12px 100%;
-                background-repeat: no-repeat;
-            }
-            .loader::after {
-                transform: rotate(45deg);
-            }
-
-            @keyframes l19 {
-                100%{transform: rotate(1turn)}
-            }
-        </style>
-
+        <th:block th:replace="~{Superadmin/fragments/head :: head(title='Usuarios')}"></th:block>
     </head>
-
     <body data-sidebar="dark" class="vertical-collpsed">
+        <div th:replace="~{Superadmin/fragments/header :: header(title='Gestión de Usuarios')}"></div>
+        <div th:replace="~{Superadmin/fragments/sidebar :: sidebar}"></div>
 
-        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
-
-        <!-- Begin page -->
-        <div id="layout-wrapper">
-
-
-            <header id="page-topbar">
-                <div class="navbar-header">
-                    <div class="d-flex">
-                        <!-- LOGO -->
-                        <div class="navbar-brand-box">
-                            <a href="index.html" class="logo logo-light">
-                                <span class="logo-sm me-1">
-                                    <img src="assets/images/logoCortado.png" alt="logo-sm-light" height="25">
-                                </span>
-                                <span class="logo-lg">
-                                    <img src="assets/images/logoCompleto.png" alt="logo-light" height="40">
-                                </span>
-                            </a>
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    <!-- Tarjetas de estadísticas -->
+                    <div class="row">
+                        <!-- Card Usuarios baneados -->
+                        <div class="col-md-4">
+                            <div class="card" style="background: linear-gradient(90deg, #f47d56, #ffb98a);">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-1 overflow-hidden">
+                                            <p class="text-truncate font-size-16 mb-2 text-white">Usuarios baneados</p>
+                                            <div>
+                                                <h4 class="mb-0 text-white d-inline-block me-2" th:text="${usuariosBaneados}">0</h4>
+                                                <span class="d-inline text-white">actualmente</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-white ms-auto">
+                                            <i class="ri-user-forbid-line font-size-24"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body border-top py-3">
+                                    <div class="text-truncate">
+                    <span class="badge bg-danger-subtle text-danger font-size-11">
+                        <i class="mdi mdi-menu-up"></i>
+                        <span>0%</span>
+                    </span>
+                                        <span class="text-white ms-2">Con respecto al mes pasado</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
-                            <i class="ri-menu-2-line align-middle"></i>
-                        </button>
+                        <!-- Card Nuevos usuarios -->
+                        <div class="col-md-4">
+                            <div class="card" style="background: linear-gradient(90deg, #40b370, #8df6b7);">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-1 overflow-hidden">
+                                            <p class="text-truncate font-size-16 mb-2 text-white">Nuevos usuarios</p>
+                                            <div>
+                                                <h4 class="mb-0 text-white d-inline-block me-2" th:text="${nuevosUsuariosEsteMes}">0</h4>
+                                                <span class="d-inline text-white">este mes</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-white ms-auto">
+                                            <i class="ri-user-add-line font-size-24"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body border-top py-3">
+                                    <div class="text-truncate">
+                                            <span class="badge bg-success-subtle text-success font-size-11">
+                                                <i class="mdi mdi-menu-up"></i>
+                                                <span>0%</span>
+                                            </span>
+                                        <span class="ms-2 text-white">Con respecto al mes pasado</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                        <div class="dropdown dropdown-mega d-none d-lg-block">
-                            <button type="button" class="btn header-item waves-effect font-size-16" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Inicio
-                            </button>
+                        <!-- Card Usuarios activos -->
+                        <div class="col-md-4">
+                            <div class="card" style="background: linear-gradient(90deg, #3ab2c3, #8ce5f3);">
+                                <div class="card-body">
+                                    <div class="d-flex">
+                                        <div class="flex-1 overflow-hidden">
+                                            <p class="text-truncate font-size-16 mb-2 text-white">Usuarios activos</p>
+                                            <div>
+                                                <h4 class="mb-0 text-white d-inline-block me-2" th:text="${totalUsuarios}">0</h4>
+                                                <span class="d-inline text-white">actualmente</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-white ms-auto">
+                                            <i class="ri-user-line font-size-24"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body border-top py-3">
+                                    <div class="text-truncate">
+                    <span class="badge bg-success-subtle text-success font-size-11">
+                        <i class="mdi mdi-menu-up"></i>
+                        <span>0%</span>
+                    </span>
+                                        <span class="text-white ms-2">Con respecto al mes pasado</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="d-flex">
-
-                        <div class="dropdown d-inline-block">
-                            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="ri-notification-3-line"></i>
-                                <span class="noti-dot"></span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                                 aria-labelledby="page-header-notifications-dropdown">
-                                <div class="p-3">
-                                    <div class="row align-items-center">
-                                        <div class="col">
-                                            <h6 class="m-0"> Notificaciones </h6>
-                                        </div>
-                                        <div class="col-auto">
-                                            <a href="#" class="small"> Ver todas</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div data-simplebar style="max-height: 230px;">
-                                    <a href="#" class="text-reset notification-item">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                    <i class="ri-shopping-cart-line"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-1">
-                                                <h6 class="mb-1">Has registrado una noticia</h6>
-                                                <div class="font-size-12 text-muted">
-                                                    <p class="mb-1">Creaste la noticia "Nuevos espacios"</p>
-                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 60 min ago</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="text-reset notification-item">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                    <i class="ri-shopping-cart-line"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-1">
-                                                <h6 class="mb-1">Has registrado una noticia</h6>
-                                                <div class="font-size-12 text-muted">
-                                                    <p class="mb-1">Creaste la noticia "Nuevos espacios"</p>
-                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 60 min ago</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="text-reset notification-item">
-                                        <div class="d-flex">
-                                            <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                    <i class="ri-shopping-cart-line"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-1">
-                                                <h6 class="mb-1">Has registrado una noticia</h6>
-                                                <div class="font-size-12 text-muted">
-                                                    <p class="mb-1">Creaste la noticia "Nuevos espacios"</p>
-                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 60 min ago</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div class="dropdown d-inline-block user-dropdown">
-                            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img class="rounded-circle header-profile-user" src="assets/images/users/avatar-2.jpg"
-                                     alt="Header Avatar">
-                                <span class="d-none d-xl-inline-block ms-1">Kevin</span>
-                                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <!-- item-->
-                                <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
-                            </div>
-                        </div>
-
-
-
-                    </div>
-                </div>
-            </header>
-
-            <!-- ========== Left Sidebar Start ========== -->
-            <div class="vertical-menu">
-
-                <div data-simplebar="init" class="h-100"><div class="simplebar-wrapper" style="margin: 0px;"><div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div><div class="simplebar-mask"><div class="simplebar-offset" style="right: 0px; bottom: 0px;"><div class="simplebar-content-wrapper" style="height: 100%; overflow: hidden;"><div class="simplebar-content" style="padding: 0px;">
-
-                    <!--- Sidemenu -->
-                    <div id="sidebar-menu">
-                        <!-- Left Menu Start -->
-                        <ul class="metismenu list-unstyled" id="side-menu">
-                            <li class="menu-title">Menu</li>
-
-                            <li>
-                                <a href="index.html" class="waves-effect">
-                                    <i class="ri-dashboard-line"></i>
-                                    <span>Inicio</span>
-                                </a>
-                            </li>
-
-                            <li class="menu-title">Avisos</li>
-
-                            <li>
-                                <a href="index.html" class="waves-effect">
-                                    <i class="mdi mdi-newspaper"></i>
-                                    <span>Ver avisos</span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="index.html" class="waves-effect">
-                                    <i class="mdi mdi-newspaper-plus"></i>
-                                    <span>Crear avisos</span>
-                                </a>
-                            </li>
-
-                            <li class="menu-title">Usuarios</li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="waves-effect">
-                                    <i class="ri-account-circle-line"></i>
-                                    <span>Usuarios activos</span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="waves-effect">
-                                    <i class="ri-alert-fill"></i>
-                                    <span>Suspensiones</span>
-                                </a>
-                            </li>
-
-                            <li class="menu-title">Transacciones</li>
-
-                            <li>
-                                <a href="index.html" class="waves-effect">
-                                    <i class="ri-money-dollar-circle-line"></i>
-                                    <span>Pagos</span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="index.html" class="waves-effect">
-                                    <i class="ri-refund-2-fill"></i>
-                                    <span>Pagos</span>
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="javascript: void(0);" class="waves-effect">
-                                    <i class="ri-football-fill"></i>
-                                    <span>Reservas</span>
-                                </a>
-                            </li>
-
-                        </ul>
-                    </div>
-                    <!-- Sidebar -->
-                </div></div></div></div><div class="simplebar-placeholder" style="width: auto; height: 920px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: hidden;"><div class="simplebar-scrollbar" style="transform: translate3d(0px, 0px, 0px); display: none;"></div></div></div>
-            </div>
-            <!-- Left Sidebar End -->
-
-
-
-            <!-- ============================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
-            <div class="main-content">
-
-                <div class="page-content">
-                    <div class="container-fluid">
-                        <!-- end page title -->
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="card" style="background: linear-gradient(90deg, #f47d56, #ffb98a);">
-                                    <div class="card-body">
-                                        <div class="d-flex">
-                                            <div class="flex-1 overflow-hidden">
-                                                <p class="text-truncate font-size-16 mb-2 text-white">Usuarios baneados</p>
-                                                <div><h4 class="mb-0 text-white d-inline-block me-2">10</h4><span class="d-inline text-white">este mes</span></div>
-                                            </div>
-                                            <div class="text-white ms-auto">
-                                                <i class="ri-stack-line font-size-24"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card-body border-top py-3">
-                                        <div class="text-truncate">
-                                            <span class="badge bg-danger-subtle text-danger  font-size-11"><i class="mdi mdi-menu-up"> </i> 10.4% </span>
-                                            <span class="text-white ms-2">Con respecto al mes pasado</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card" style="background: linear-gradient(90deg, #40b370, #8df6b7);">
-                                    <div class="card-body">
-                                        <div class="d-flex">
-                                            <div class="flex-1 overflow-hidden">
-                                                <p class="text-truncate font-size-16 mb-2 text-white">Nuevos usuarios</p>
-                                                <div><h4 class="mb-0 text-white d-inline-block me-2">50</h4><span class="d-inline text-white">este mes</span></div>
-                                            </div>
-                                            <div class="text-white ms-auto">
-                                                <i class="ri-store-2-line font-size-24"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-body border-top py-3">
-                                        <div class="text-truncate">
-                                            <span class="badge bg-success-subtle text-success  font-size-11"><i class="mdi mdi-menu-up"> </i> 2.4% </span>
-                                            <span class="ms-2 text-white">Con respecto al mes pasado</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card" style="background: linear-gradient(90deg, #3ab2c3, #8ce5f3);">
-                                    <div class="card-body">
-                                        <div class="d-flex">
-                                            <div class="flex-1 overflow-hidden">
-                                                <p class="text-truncate font-size-16 mb-2 text-white">Usuarios activos</p>
-                                                <div><h4 class="mb-0 text-white d-inline-block me-2">1457</h4><span class="d-inline text-white">este mes</span></div>
-                                            </div>
-                                            <div class="text-white ms-auto">
-                                                <i class="ri-stack-line font-size-24"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card-body border-top py-3">
-                                        <div class="text-truncate">
-                                            <span class="badge bg-success-subtle text-success  font-size-11"><i class="mdi mdi-menu-up"> </i> 5.1% </span>
-                                            <span class="text-white ms-2">Con respecto al mes pasado</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h4 class="card-title">Lista de usuarios</h4>
-                                        <p class="card-title-desc mb-0">
-                                            Lista de usuarios de la plataforma San Miguel
-                                        </p>
-                                        <div class="loader-container">
-                                            <div class="loader"></div>
-                                        </div>
+                    <!-- Tabla de usuarios -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Lista de Usuarios</h4>
+                                    <p class="card-title-desc mb-0">
+                                        Lista de usuarios de la plataforma San Miguel
+                                    </p>
+                                    <div class="table-responsive">
                                         <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100 display" style="display: none;">
                                             <thead>
                                                 <tr>
@@ -382,158 +121,63 @@
                                                     <th>Correo Electrónico</th>
                                                     <th>Celular</th>
                                                     <th>Fecha creación</th>
-                                                    <th>Acción</th>
+                                                    <th>Estado</th>
+                                                    <th style="width: 20px">Acción</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td><img src="assets/images/users/avatar-3.jpg" alt="foto_perfil" class="avatar-xs rounded-circle me-2">Tiger Nixon</td>
-                                                    <td>Vecino</td>
-                                                    <td>12345678</td>
-                                                    <td>tiger.nixon@example.com</td>
-                                                    <td>+123456789</td>
-                                                    <td>25/04/11</td>
+                                                <tr th:each="usuario : ${usuarios}">
+                                                    <td th:text="${usuario.usuarioId}"></td>
                                                     <td>
-                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-card-account-details font-size-20"></i></a>
-                                                        <a href="javascript:void(0);" class="text-warning" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Editar"><i class="mdi mdi-pencil font-size-20"></i></a>
+                                                        <img th:src="${usuario.fotoPerfilUrl != null ? usuario.fotoPerfilUrl : '/assets/images/users/avatar-3.jpg'}"
+                                                             alt="foto_perfil" class="avatar-xs rounded-circle me-2">
+                                                        <span th:text="${usuario.nombres + ' ' + usuario.apellidos}"></span>
+                                                    </td>
+                                                    <td th:text="${usuario.rol.getRol()}"></td>
+                                                    <td th:text="${usuario.dni}"></td>
+                                                    <td th:text="${usuario.correoElectronico}"></td>
+                                                    <td th:text="${usuario.telefono ?: 'No registrado'}"></td>
+                                                    <td th:text="${#temporals.format(usuario.fechaCreacion, 'dd/MM/yyyy')}"></td>
+                                                    <td>
+                                                    <span th:switch="${usuario.estadoCuenta.name()}">
+                                                        <span th:case="'activo'" class="badge  bg-success-subtle text-success font-size-12">Activo</span>
+                                                        <span th:case="'baneado'" class="badge  bg-danger-subtle text-danger font-size-12">Baneado</span>
+                                                        <span th:case="'pendiente'" class="badge bg-warning-subtle text-warning font-size-12">Pendiente</span>
+                                                    </span>
+                                                    </td>
+                                                    <td>
+                                                        <a th:href="@{'/superadmin/usuarios/' + ${usuario.usuarioId}}"
+                                                           class="me-2 text-primary"
+                                                           data-bs-container="#tooltip-container"
+                                                           data-bs-toggle="tooltip"
+                                                           data-bs-placement="center"
+                                                           title="Detalles">
+                                                            <i class="mdi mdi-eye font-size-20"></i>
+                                                        </a>
+                                                        <a th:href="@{'/superadmin/usuarios/editar/' + ${usuario.usuarioId}}"
+                                                           class="text-warning"
+                                                           data-bs-container="#tooltip-container"
+                                                           data-bs-toggle="tooltip"
+                                                           data-bs-placement="center"
+                                                           title="Editar">
+                                                            <i class="mdi mdi-pencil font-size-20"></i>
+                                                        </a>
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td><img src="assets/images/users/avatar-3.jpg" alt="foto_perfil" class="avatar-xs rounded-circle me-2">Garrett Winters</td>
-                                                    <td>Vecino</td>
-                                                    <td>23456789</td>
-                                                    <td>garrett.winters@example.com</td>
-                                                    <td>+987654321</td>
-                                                    <td>25/07/11</td>
-                                                    <td>
-                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-card-account-details font-size-20"></i></a>
-                                                        <a href="javascript:void(0);" class="text-warning" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Editar"><i class="mdi mdi-pencil font-size-20"></i></a>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td><img src="assets/images/users/avatar-3.jpg" alt="foto_perfil" class="avatar-xs rounded-circle me-2">Ashton Cox</td>
-                                                    <td>Vecino</td>
-                                                    <td>34567890</td>
-                                                    <td>ashton.cox@example.com</td>
-                                                    <td>+112233445</td>
-                                                    <td>12/01/09</td>
-                                                    <td>
-                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-card-account-details font-size-20"></i></a>
-                                                        <a href="javascript:void(0);" class="text-warning" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Editar"><i class="mdi mdi-pencil font-size-20"></i></a>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td><img src="assets/images/users/avatar-3.jpg" alt="foto_perfil" class="avatar-xs rounded-circle me-2">Cedric Kelly</td>
-                                                    <td>Vecino</td>
-                                                    <td>45678901</td>
-                                                    <td>cedric.kelly@example.com</td>
-                                                    <td>+223344556</td>
-                                                    <td>29/03/12</td>
-                                                    <td>
-                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-card-account-details font-size-20"></i></a>
-                                                        <a href="javascript:void(0);" class="text-warning" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Editar"><i class="mdi mdi-pencil font-size-20"></i></a>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td><img src="assets/images/users/avatar-3.jpg" alt="foto_perfil" class="avatar-xs rounded-circle me-2">Airi Satou</td>
-                                                    <td>Vecino</td>
-                                                    <td>56789012</td>
-                                                    <td>airi.satou@example.com</td>
-                                                    <td>+334455667</td>
-                                                    <td>28/11/08</td>
-                                                    <td>
-                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-card-account-details font-size-20"></i></a>
-                                                        <a href="javascript:void(0);" class="text-warning" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Editar"><i class="mdi mdi-pencil font-size-20"></i></a>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td><img src="assets/images/users/avatar-3.jpg" alt="foto_perfil" class="avatar-xs rounded-circle me-2">Brielle Williamson</td>
-                                                    <td>Administrador</td>
-                                                    <td>67890123</td>
-                                                    <td>brielle.williamson@example.com</td>
-                                                    <td>+445566778</td>
-                                                    <td>02/12/12</td>
-                                                    <td>
-                                                        <a href="javascript:void(0);" class="me-2 text-primary" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Detalles"><i class="mdi mdi-card-account-details font-size-20"></i></a>
-                                                        <a href="javascript:void(0);" class="text-warning" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="center" title="Editar"><i class="mdi mdi-pencil font-size-20"></i></a>
-                                                    </td>
-                                                </tr>
-                                                <!-- Puedes seguir agregando más filas con los mismos datos. -->
                                             </tbody>
                                         </table>
-
-                                    </div> <!-- end card body-->
-                                </div>
-                            </div>
-                        </div>
-                        <!-- end row -->
-
-                    </div> <!-- container-fluid -->
-                </div>
-                <!-- End Page-content -->
-
-                <footer class="footer">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © Nazox.
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="text-sm-end d-none d-sm-block">
-                                    Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesdesign
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </footer>
+                </div>
             </div>
-            <!-- end main content-->
-
         </div>
-        <!-- END layout-wrapper -->
 
-        <!-- Sidebar overlay-->
-        <div class="sidebar-overlay"></div>
+        <th:block th:replace="~{Superadmin/fragments/footer :: footer}"></th:block>
+        <th:block th:replace="~{Superadmin/fragments/foot :: foot}"></th:block>
 
-        <!-- JAVASCRIPT -->
-        <script src="assets/libs/jquery/jquery.min.js"></script>
-        <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="assets/libs/metismenu/metisMenu.min.js"></script>
-        <script src="assets/libs/simplebar/simplebar.min.js"></script>
-        <script src="assets/libs/node-waves/waves.min.js"></script>
-
-
-        <!-- apexcharts -->
-        <script src="assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-        <script src="assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-
-        <!-- Buttons examples -->
-        <script src="assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-
-        <script src="assets/libs/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js"></script>
-        <script src="assets/libs/jszip/jszip.min.js"></script>
-        <script src="assets/libs/pdfmake/build/pdfmake.min.js"></script>
-        <script src="assets/libs/pdfmake/build/vfs_fonts.js"></script>
-        <script src="assets/libs/datatables.net-buttons/js/buttons.html5.min.js"></script>
-        <script src="assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
-        <script src="assets/libs/datatables.net-buttons/js/buttons.colVis.min.js"></script>
-
-
-        <script src="assets/libs/datatables.net-keytable/js/dataTables.keyTable.min.js"></script>
-        <script src="assets/libs/datatables.net-select/js/dataTables.select.min.js"></script>
-
-
-        <!-- Responsive examples -->
-        <script src="assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-        <script src="assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
-
-        <!-- Datatable init js -->
         <script>
 
 
@@ -549,7 +193,7 @@
                             "orderable": false // Desactiva el ordenamiento
                         },
                     ],
-                    "pageLength": 10,  // Fija el número de registros a mostrar
+                    "pageLength": 5,  // Fija el número de registros a mostrar
                     "lengthChange": false,
                     pagingType: "full_numbers",
                     "info": true,  // Habilita la información de las entradas mostradas
@@ -573,83 +217,5 @@
             });
 
         </script>
-
-        <script src="assets/js/app.js"></script>
-
-        <script>
-            var options = {
-                series: [44, 55, 13, 33],
-                chart: {
-                    width: 380,
-                    type: 'donut',
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                responsive: [{
-                    breakpoint: 480,
-                    options: {
-                        chart: {
-                            width: 200
-                        },
-                        legend: {
-                            show: false
-                        }
-                    }
-                }],
-                legend: {
-                    position: 'right',
-                    offsetY: 0,
-                    height: 230,
-                }
-            };
-
-            var chart = new ApexCharts(document.querySelector("#chart"), options);
-            chart.render();
-        </script>
-
-        <script>
-            var options = {
-                chart: {height: 400, type: "line", zoom: {enabled: !1}, toolbar: {show: !1}},
-                colors: ["#5664d2", "#fcb92c", "#1cbb8c"],
-                dataLabels: {enabled: !1},
-                stroke: {width: [3, 4, 3], curve: "straight", dashArray: [0, 8, 5]},
-                series: [{name: "Session Duration", data: [45, 52, 38, 24, 33, 26, 21, 20, 6, 8, 15, 10]}, {
-                    name: "Page Views",
-                    data: [36, 42, 60, 42, 13, 18, 29, 37, 36, 51, 32, 35]
-                }, {name: "Total Visits", data: [89, 56, 74, 98, 72, 38, 64, 46, 84, 58, 46, 49]}],
-                title: {text: "Page Statistics", align: "left"},
-                markers: {size: 0, hover: {sizeOffset: 6}},
-                xaxis: {categories: ["01 Jan", "02 Jan", "03 Jan", "04 Jan", "05 Jan", "06 Jan", "07 Jan", "08 Jan", "09 Jan", "10 Jan", "11 Jan", "12 Jan"]},
-                tooltip: {
-                    y: [{
-                        title: {
-                            formatter: function (e) {
-                                return e + " (mins)"
-                            }
-                        }
-                    }, {
-                        title: {
-                            formatter: function (e) {
-                                return e + " per session"
-                            }
-                        }
-                    }, {
-                        title: {
-                            formatter: function (e) {
-                                return e
-                            }
-                        }
-                    }]
-                },
-                grid: {borderColor: "#f1f1f1", padding: {bottom: 5}},
-                legend: {offsetY: 5}
-            }
-            var chart = new ApexCharts(document.querySelector("#line_chart_dashed"), options);
-            chart.render();
-        </script>
     </body>
-
-
-    <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:03 GMT -->
 </html>

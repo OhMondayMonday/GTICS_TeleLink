@@ -2,7 +2,7 @@
 <html lang="es">
     <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
     <head th:replace="~{fragments/topbarCoordinador :: head('Perfil')}"></head>
-    <body data-sidebar="dark">
+    <body data-sidebar="dark" class="vertical-collpsed">
         <!-- <body data-layout="horizontal" data-topbar="dark"> -->
         <!-- Begin page -->
         <div id="layout-wrapper">
@@ -10,8 +10,6 @@
             <!-- ========== Left Sidebar Start ========== -->
             <div th:replace="fragments/sidebarCoordinador :: sidebar('perfil')"></div>
             <!-- Left Sidebar End -->
-
-
 
             <!-- ============================================================== -->
             <!-- Start right Content here -->
@@ -25,35 +23,71 @@
                                 <div class="card">
                                     <div class="row no-gutters align-items-center">
                                         <div class="col-md-4">
-                                            <img  style="padding: 30px;" class="rounded-circle card-img img-fluid" th:src="@{/assets/images/users/avatar-2.jpg}" alt="Card image">
+                                            <style>
+                                                .perfil-circular {
+                                                    padding: 30px;
+                                                    aspect-ratio: 1 / 1;
+                                                    width: 100%;
+                                                    object-fit: cover;
+                                                }
+                                            </style>
+
+                                            <img class="rounded-circle perfil-circular img-fluid"
+                                                 th:src="${usuario.fotoPerfilUrl != null} ? ${usuario.fotoPerfilUrl} : @{/assets/images/users/avatar-2.jpg}"
+                                                 alt="Foto de perfil">
                                         </div>
                                         <div class="col-md-8">
                                             <div class="card-body">
-                                                <h4 class="card-title mb-4">Información personal</h4>
+                                                <h4 class="card-title mb-4 fw-semibold mt-3">Información personal</h4>
 
                                                 <form class="custom-validation" action="#" novalidate="">
                                                     <div class="mb-3">
                                                         <label>Nombres</label>
-                                                        <input type="text" class="form-control" required="" name="nombres" id="nombres" value="Kevin Eduardo" readonly disabled>
+                                                        <input type="text"
+                                                               class="form-control border-0 bg-light"
+                                                               required=""
+                                                               name="nombres"
+                                                               id="nombres"
+                                                               th:value="${usuario.nombres != null} ? ${usuario.nombres} : ''"
+                                                               readonly disabled>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label>Apellidos</label>
-                                                        <input type="text" class="form-control" required="" name="apellidos" id="apellidos" value="Campos Estrada" readonly disabled>
+                                                        <input type="text"
+                                                               class="form-control border-0 bg-light"
+                                                               required=""
+                                                               name="apellidos"
+                                                               id="apellidos"
+                                                               th:value="${usuario.apellidos != null} ? ${usuario.apellidos} : ''"
+                                                               readonly disabled>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label>Correo electrónico</label>
-                                                        <input type="email" class="form-control" required="" name="correoElectronico" id="correoElectronico" value="kavincampos@gmail.com" readonly disabled>
+                                                        <input type="email"
+                                                               class="form-control border-0 bg-light"
+                                                               required=""
+                                                               name="correoElectronico"
+                                                               id="correoElectronico"
+                                                               th:value="${usuario.correoElectronico != null} ? ${usuario.correoElectronico} : ''"
+                                                               readonly disabled>
                                                     </div>
 
                                                     <div class="mb-3">
                                                         <label>Teléfono</label>
-                                                        <input type="text" class="form-control" required="" name="telefono" id="telefono" value="987654321" readonly disabled>
+                                                        <input type="text"
+                                                               class="form-control border-0 bg-light"
+                                                               required=""
+                                                               name="telefono"
+                                                               id="telefono"
+                                                               th:value="${usuario.telefono != null} ? ${usuario.telefono} : ''"
+                                                               readonly disabled>
                                                     </div>
-
+                                                    <div class="text-center">
+                                                        <a th:href="@{/coordinador/editar-perfil}" class="btn btn-primary">Editar</a>
+                                                    </div>
                                                 </form>
-
                                             </div>
                                         </div>
                                     </div>
@@ -75,11 +109,14 @@
 
         </div>
         <!-- END layout-wrapper -->
+
+        <div class="sidebar-overlay"></div>
+
         <div th:replace="fragments/topbarCoordinador :: scripts"></div>
         <!-- Init js -->
         <!-- <script th:src="@{/assets/js/pages/perfil.init.js}"></script> -->
         <!-- App js -->
-        <script th:src="@{/assets/js/app.js}"></script>
+        <script th:src="@{/superadmin/assets/js/app.js}"></script>
     </body>
     <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>

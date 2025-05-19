@@ -2,16 +2,14 @@
 <html lang="es">
     <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
     <head th:replace="~{fragments/topbarCoordinador :: head('Detalle de espacio deportivo')}"></head>
-    <body data-sidebar="dark">
+    <body data-sidebar="dark" class="vertical-collpsed">
         <!-- <body data-layout="horizontal" data-topbar="dark"> -->
         <!-- Begin page -->
         <div id="layout-wrapper">
             <div th:replace="fragments/topbarCoordinador :: topbar('Espacio deportivo: Detalle')"></div>
             <!-- ========== Left Sidebar Start ========== -->
-            <div th:replace="fragments/sidebarCoordinador :: sidebar('')"></div>
+            <div th:replace="fragments/sidebarCoordinador :: sidebar('espacios')"></div>
             <!-- Left Sidebar End -->
-
-
 
             <!-- ============================================================== -->
             <!-- Start right Content here -->
@@ -24,48 +22,44 @@
                             <div class="col-lg-12">
                                 <div class="card mb-0">
                                     <div class="card-body">
-
                                         <div class="container mt-0 mb-0">
                                             <div class="row align-items-center">
-
-                                                <!-- Columna de imagen y botones -->
                                                 <div class="col-md-5">
-                                                    <div class="card border-0 rounded-3" data-aos="fade-right">
-                                                        <img th:src="@{/assets/images/small/Grass.jpg}" alt="Cancha de Fútbol " class="img-fluid rounded" style="max-height: 220px; object-fit: cover;">
+                                                    <div class="card border-0 rounded-3 mt-3 mb-3" data-aos="fade-right">
+                                                        <img th:src="${espacio.establecimientoDeportivo.fotoEstablecimientoUrl != null} ? ${espacio.establecimientoDeportivo.fotoEstablecimientoUrl} : @{/assets/images/small/Grass.jpg}"
+                                                             alt="Imagen del espacio" class="img-fluid rounded" style="max-height: 220px; object-fit: cover;">
                                                     </div>
                                                 </div>
-
-                                                <!-- Columna de información -->
                                                 <div class="col-md-7 mt-0 mb-0 ps-3">
-                                                    <div class="bg-white  h-100" data-aos="fade-left">
-                                                        <span class="badge bg-primary mb-2">Cancha de fútbol</span>
-                                                        <h5 class="fw-bold mb-1">Complejo Deportivo Bancario</h5>
-
-                                                        <!-- Estrellas -->
+                                                    <div class="bg-white h-100" data-aos="fade-left">
+                                                        <span class="badge bg-primary mb-2" th:text="${espacio.servicioDeportivo.servicioDeportivo}"></span>
+                                                        <h5 class="fw-bold mb-1" th:text="${espacio.establecimientoDeportivo.establecimientoDeportivoNombre}"></h5>
                                                         <div class="mb-2">
-                                                      <span class="text-warning small">
-                                                        <i class="mdi mdi-star"></i>
-                                                        <i class="mdi mdi-star"></i>
-                                                        <i class="mdi mdi-star"></i>
-                                                        <i class="mdi mdi-star"></i>
-                                                        <i class="mdi mdi-star-half-full"></i>
-                                                      </span>
-                                                            <small class="text-muted ms-1">4.7 / 5.0</small>
+                                                            <span class="text-warning small">
+                                                                <i th:class="${promedioCalificacion >= 1 ? 'mdi mdi-star' : promedioCalificacion >= 0.5 ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline'}"></i>
+                                                                <i th:class="${promedioCalificacion >= 2 ? 'mdi mdi-star' : promedioCalificacion >= 1.5 ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline'}"></i>
+                                                                <i th:class="${promedioCalificacion >= 3 ? 'mdi mdi-star' : promedioCalificacion >= 2.5 ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline'}"></i>
+                                                                <i th:class="${promedioCalificacion >= 4 ? 'mdi mdi-star' : promedioCalificacion >= 3.5 ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline'}"></i>
+                                                                <i th:class="${promedioCalificacion >= 5 ? 'mdi mdi-star' : promedioCalificacion >= 4.5 ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline'}"></i>
+                                                            </span>
+                                                            <small class="text-muted ms-1" th:text="${formattedPromedioCalificacion}"></small>
                                                         </div>
-
-                                                        <!-- Info tipo lista con íconos -->
                                                         <ul class="list-unstyled small mb-0">
                                                             <li class="mb-2 d-flex align-items-start">
                                                                 <i class="mdi mdi-map-marker text-danger me-2 fs-5"></i>
-                                                                <span><strong>Ubicación:</strong> Av. La Marina 1234, San Miguel</span>
+                                                                <span><strong>Ubicación:</strong> <span th:text="${espacio.establecimientoDeportivo.direccion}"></span></span>
                                                             </li>
                                                             <li class="mb-2 d-flex align-items-start">
                                                                 <i class="mdi mdi-currency-usd text-success me-2 fs-5"></i>
-                                                                <span><strong>Precio:</strong> S/ 100.00 por hora</span>
+                                                                <span><strong>Precio:</strong> <span th:text="${formattedPrecioPorHora}"></span> por hora</span>
                                                             </li>
                                                             <li class="mb-2 d-flex align-items-start">
                                                                 <i class="mdi mdi-timer-sand text-warning me-2 fs-5"></i>
-                                                                <span><strong>Estado:</strong> <span class="text-success">Disponible</span></span>
+                                                                <span><strong>Estado:</strong> <span th:switch="${espacio.estadoServicio.name()}">
+                                                                <span th:case="'operativo'">Operativo</span>
+                                                                <span th:case="'mantenimiento'">En mantenimiento</span>
+                                                                <span th:case="'clausurado'">Clausurado</span>
+                                                            </span></span>
                                                             </li>
                                                             <li class="mb-1 d-flex align-items-start">
                                                                 <i class="mdi mdi-cancel text-muted me-2 fs-5"></i>
@@ -78,11 +72,8 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-
                                             </div>
-
                                         </div>
-
                                     </div>
                                 </div>
                                 <!-- end card -->
@@ -106,6 +97,9 @@
 
         </div>
             <!-- END layout-wrapper -->
+
+        <div class="sidebar-overlay"></div>
+
         <div th:replace="fragments/topbarCoordinador :: scripts"></div>
         <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
         <script>
@@ -113,7 +107,7 @@
         </script>
             <!-- google maps api -->
 
-        <script th:src="@{/assets/js/app.js}"></script>
+        <script th:src="@{/superadmin/assets/js/app.js}"></script>
     </body>
     <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>

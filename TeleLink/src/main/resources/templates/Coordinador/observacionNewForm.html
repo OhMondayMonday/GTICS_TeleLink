@@ -1,125 +1,91 @@
-<!doctype html>
-<html lang="es">
-    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
-    <head th:replace="~{fragments/topbarCoordinador :: head('Nueva observación')}"></head>
-    <body data-sidebar="dark">
-        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
-        <!-- Begin page -->
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{fragments/topbarCoordinador :: head('Nueva Observación')}"></head>
+    <body data-sidebar="dark" class="vertical-collpsed">
         <div id="layout-wrapper">
-            <div th:replace="fragments/topbarCoordinador :: topbar('Observación: Nuevo registro')"></div>
-            <!-- ========== Left Sidebar Start ========== -->
-            <div th:replace="fragments/sidebarCoordinador :: sidebar('')"></div>
-            <!-- Left Sidebar End -->
+            <div th:replace="~{fragments/topbarCoordinador :: topbar('Nueva Observación')}"></div>
+            <div th:replace="~{fragments/sidebarCoordinador :: sidebar('observaciones')}"></div>
 
-
-
-            <!-- ============================================================== -->
-            <!-- Start right Content here -->
-            <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content">
                     <div class="container-fluid">
-
                         <div class="row">
                             <div class="col-xl-12">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h4 class="card-title mb-3">Datos de la observación</h4>
-                                        <form class="needs-validation" novalidate>
+                                        <h4 class="card-title mb-3 fw-semibold">Formulario de creación</h4>
+                                        <form th:action="@{/coordinador/observacionGuardar}" method="post" th:object="${observacionForm}" enctype="multipart/form-data">
+                                            <input type="hidden" th:field="*{observacionId}" />
+                                            <input type="hidden" th:if="${asistenciaId != null}" th:name="asistenciaId" th:value="${asistenciaId}" />
+                                            <!-- Mostrar errores globales -->
+                                            <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+                                                <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                                            </div>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="establecimientoDeportivo" class="form-label">Establecimiento deportivo</label>
-                                                        <select class="form-select" aria-label="Default select example" name="establecimientoDeportivo" id="establecimientoDeportivo">
-
-                                                            <option value="1">Complejo Deportivo Bancario</option>
-                                                            <option value="2">Two</option>
-                                                            <option value="3">Three</option>
-                                                        </select>
+                                                        <input id="establecimientoDeportivo" type="text" th:field="*{espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}" class="form-control" readonly disabled/>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="servicioDeportivo" class="form-label">Tipo de servicio</label>
-                                                        <select class="form-select" aria-label="Default select example" name="servicioDeportivo" id="servicioDeportivo">
-
-                                                            <option value="1">Cancha de fútbol</option>
-                                                            <option value="2">Two</option>
-                                                            <option value="3">Three</option>
-                                                        </select>
+                                                        <label for="servicioDeportivo" class="form-label">Espacio deportivo</label>
+                                                        <input id="servicioDeportivo" type="text" th:field="*{espacioDeportivo.nombre}" class="form-control" readonly disabled/>
                                                     </div>
                                                 </div>
-
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="nivelUrgencia" class="form-label">Nivel de urgencia</label>
-                                                        <select class="form-select" aria-label="Default select example" name="nivelUrgencia" id="nivelUrgencia">
-
-                                                            <option value="1">Alto</option>
-                                                            <option value="2">Two</option>
-                                                            <option value="3">Three</option>
+                                                        <label for="nivelUrgencia" class="form-label">Nivel de urgencia <span style="color: red;">*</span></label>
+                                                        <select id="nivelUrgencia" th:field="*{nivelUrgencia}" class="form-select" th:classappend="${#fields.hasErrors('nivelUrgencia')} ? 'is-invalid' : ''">
+                                                            <option value="">Seleccione un nivel</option>
+                                                            <option th:each="urgencia : ${T(com.example.telelink.entity.Observacion.NivelUrgencia).values()}" th:value="${urgencia}" th:text="${#strings.capitalize(urgencia)}"></option>
                                                         </select>
+                                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nivelUrgencia')}" th:errors="*{nivelUrgencia}"></div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="descripcion" class="form-label">Textarea</label>
-                                                        <div>
-                                                            <textarea id="descripcion" name="descripcion" required="" class="form-control" rows="5" style="height: 52px; resize: none;"></textarea>
-                                                        </div>
+                                                        <label for="descripcion" class="form-label">Descripción <span style="color: red;">*</span></label>
+                                                        <textarea id="descripcion" th:field="*{descripcion}" class="form-control" rows="5" style="resize: none;" th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid' : ''"></textarea>
+                                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}"></div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="foto" class="form-label">Evidencia fotográfica</label>
-                                                        <div class="input-group">
-                                                            <input id="foto" name="foto" type="file" class="form-control">
-                                                        </div>
+                                                        <label for="foto" class="form-label">Evidencia fotográfica <span style="color: red;">*</span></label>
+                                                        <input id="foto" type="file" name="foto" class="form-control" th:classappend="${#fields.hasErrors('fotoUrl')} ? 'is-invalid' : ''" />
+                                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fotoUrl')}" th:errors="*{fotoUrl}"></div>
                                                     </div>
                                                 </div>
-
                                             </div>
-
                                             <div class="text-center">
                                                 <button class="btn btn-primary me-3" type="submit">Guardar</button>
-                                                <button class="btn btn-secondary ms-3">Cancelar</button>
+                                                <a th:href="@{/coordinador/observaciones}" class="btn btn-secondary ms-3">Cancelar</a>
                                             </div>
                                         </form>
                                     </div>
                                 </div>
-                                <!-- end card -->
-                            </div> <!-- end col -->
+                            </div>
                         </div>
-                        <!-- end row -->
-                    </div> <!-- container-fluid -->
+                    </div>
                 </div>
-                <!-- End Page-content -->
-                    <!-- End Page-content -->
-
-                    <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
-
+                <footer th:replace="~{fragments/topbarCoordinador :: footer}"></footer>
             </div>
-                <!-- ============================================================== -->
-                <!-- End main content -->
-                <!-- ============================================================== -->
 
+            <div class="sidebar-overlay"></div>
 
-
-            </div>
-            <!-- END layout-wrapper -->
-            <div th:replace="fragments/topbarCoordinador :: scripts"></div>
+            <div th:replace="~{fragments/topbarCoordinador :: scripts}"></div>
             <script th:src="@{/assets/js/pages/form-validation.init.js}"></script>
             <script th:src="@{/assets/libs/bs-custom-file-input/bs-custom-file-input.min.js}"></script>
             <script th:src="@{/assets/js/pages/form-element.init.js}"></script>
-
-            <script th:src="@{/assets/js/app.js}"></script>
+            <script th:src="@{/superadmin/assets/js/app.js}"></script>
+        </div>
     </body>
-    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:20 GMT -->
 </html>

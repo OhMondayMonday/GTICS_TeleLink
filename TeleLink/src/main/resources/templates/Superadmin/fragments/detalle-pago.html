@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <div th:fragment="detallePagoFragment">
+    <div class="row">
+      <div class="col-md-6">
+        <p><strong>ID Pago:</strong> <span th:text="${pago.pagoId}"></span></p>
+        <p><strong>Reserva ID:</strong> <span th:text="${pago.reserva.reservaId}"></span></p>
+        <p><strong>Método:</strong>
+          <img th:src="${#strings.toLowerCase(pago.metodoPago.metodoPago) == 'yape' ? '/assets/images/companies/Yape.png' :
+                            (#strings.toLowerCase(pago.metodoPago.metodoPago) == 'plin' ? '/assets/images/companies/Plin.png' :
+                            '/assets/images/companies/Izipay.jpg')}"
+               class="avatar-xs rounded-circle me-2">
+          <span th:text="${pago.metodoPago.metodoPago}"></span>
+        </p>
+      </div>
+      <div class="col-md-6">
+        <p><strong>Monto:</strong> S/ <span th:text="${#numbers.formatDecimal(pago.monto, 1, 2)}"></span></p>
+        <p><strong>Estado:</strong>
+          <span th:switch="${pago.estadoTransaccion.name()}" class="badge">
+                    <span th:case="completado" class="badge bg-success">Completado</span>
+                    <span th:case="pendiente" class="badge bg-warning">Pendiente</span>
+                    <span th:case="fallido" class="badge bg-danger">Fallido</span>
+                </span>
+        </p>
+      </div>
+    </div>
+    <div th:if="${pago.fotoComprobanteUrl != null}" class="mt-3">
+      <hr>
+      <p><strong>Comprobante:</strong></p>
+      <img th:src="${pago.fotoComprobanteUrl}" class="img-fluid rounded border" style="max-height: 200px;">
+    </div>
+  </div>
+</html>
