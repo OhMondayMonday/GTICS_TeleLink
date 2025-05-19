@@ -20,8 +20,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -57,7 +56,7 @@ public class UsuarioController {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-  
+
     private ReservaRepository reservaRepository;
 
     @Autowired
@@ -66,21 +65,19 @@ public class UsuarioController {
     @Autowired
     private PagoRepository pagoRepository;
 
+    @Autowired
+    private EspacioDeportivoRepository spacioDeportivoRepository;
+
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
         // Buscar usuario ID 6 (usuario por defecto)
-        Integer userId = 6;
-        Usuario usuario = usuarioRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-
-        // Almacenar el objeto Usuario en la sesión
-        session.setAttribute("currentUser", usuario);
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
 
         // Pasar datos al modelo
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "inicio");
 
-        return "Vecino/vecino-index";
+        return "vecino/vecino-index";
     }
 
     @GetMapping("/reservas/{id}")
@@ -104,6 +101,7 @@ public class UsuarioController {
         // Aquí puedes agregar cualquier lógica que necesites
         return "Vecino/vecino-piscina";
     }
+
     @GetMapping("/reservas/multiple")
     public String mostrarMultipleReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
@@ -511,5 +509,9 @@ public class UsuarioController {
                 )).collect(Collectors.toList());
     }
 
+    @GetMapping("/reservasCalendario/{id}")
+    public String verCalendarioReservas(@PathVariable("id") Integer id, Model model) {
+        model.addAttribute("espacioId", id);
+        return "vecino/reservas-calendario";
+    }
 }
-
