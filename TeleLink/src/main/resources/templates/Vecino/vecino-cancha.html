@@ -1,19 +1,19 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Canchas Disponible')}"></head>
+<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Canchas disponibles')}"></head>
 
 <body data-sidebar="dark" class="vertical-collpsed">
 <!-- Begin page -->
 <div id="layout-wrapper">
-    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Canchas')}"></div>
+    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Canchas disponibles')}"></div>
     <!-----------------------------------------------------------------------MENU-------------------------------------------------------------------------->
-    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Canchas Disponible')}"></div>
+    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('canchas')}"></div>
     <!-- ============================================================================================================================= -->
     <div class="main-content">
         <div class="page-content">
             <div class="container-fluid">
                 <!-- start page title -->
-                <div class="row">
+                <!--<div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                             <h4 class="mb-sm-0">Canchas Disponibles</h4>
@@ -25,7 +25,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>-->
                 <!-- end page title -->
                 <div class="row">
                     <div class="col-xl-3 col-lg-4">
@@ -793,72 +793,37 @@
 </div>
 <!-- END layout-wrapper -->
 <div class="sidebar-overlay"></div>
-<!-- Right Sidebar -->
-<div class="right-bar">
-    <div data-simplebar class="h-100">
-        <div class="rightbar-title d-flex align-items-center px-3 py-4">
+    <!-- JAVASCRIPT -->
+    <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+    <script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+    <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+    <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
 
-            <h5 class="m-0 me-2">Settings</h5>
+    <!-- apexcharts -->
+    <script th:src="@{/assets/libs/apexcharts/apexcharts.min.js}"></script>
 
-            <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
-                <i class="mdi mdi-close noti-icon"></i>
-            </a>
-        </div>
+    <!-- jquery.vectormap map -->
+    <script th:src="@{/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js}"></script>
+    <script th:src="@{/assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js}"></script>
 
-        <!-- Settings -->
-        <hr class="mt-0" />
-        <h6 class="text-center mb-0">Choose Layouts</h6>
+    <!-- plugin js -->
+    <script th:src="@{/assets/libs/moment/min/moment.min.js}"></script>
+    <script th:src="@{/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/core/main.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
 
-        <div class="p-4">
-            <div class="mb-2">
-                <img src="../../static/vecino.assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
-            </div>
+    <!-- Required datatable js -->
+    <script th:src="@{/assets/libs/datatables.net/js/jquery.dataTables.min.js}"></script>
+    <script th:src="@{/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js}"></script>
 
-            <div class="form-check form-switch mb-3">
-                <input class="form-check-input theme-choice" type="checkbox" id="light-mode-switch" checked>
-                <label class="form-check-label" for="light-mode-switch">Light Mode</label>
-            </div>
-
-            <div class="mb-2">
-                <img src="../../static/vecino.assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
-            </div>
-            <div class="form-check form-switch mb-3">
-                <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
-                <label class="form-check-label" for="dark-mode-switch">Dark Mode</label>
-            </div>
-
-            <div class="mb-2">
-                <img src="../../static/vecino.assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
-            </div>
-            <div class="form-check form-switch mb-5">
-                <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
-                <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
-            </div>
-
-
-        </div>
-
-    </div> <!-- end slimscroll-menu-->
-</div>
-<!-- /Right-bar -->
-
-<!-- Right bar overlay-->
-<div class="rightbar-overlay"></div>
-
-<!-- JAVASCRIPT -->
-<script src="../../static/vecino.assets/libs/jquery/jquery.min.js"></script>
-<script src="../../static/vecino.assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../../static/vecino.assets/libs/metismenu/metisMenu.min.js"></script>
-<script src="../../static/vecino.assets/libs/simplebar/simplebar.min.js"></script>
-<script src="../../static/vecino.assets/libs/node-waves/waves.min.js"></script>
-
-<!-- Ion Range Slider-->
-<script src="../../static/vecino.assets/libs/ion-rangeslider/js/ion.rangeSlider.min.js"></script>
-
-<!-- init js -->
-<script src="../../static/vecino.assets/js/pages/product-filter-range.init.js"></script>
-
-<script src="../../static/vecino.assets/js/app.js"></script>
+    <!-- Responsive examples -->
+    <script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
+    <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
+    <script th:src="@{/assets/js/app.js}"></script>
 
 </body>
 </html>
