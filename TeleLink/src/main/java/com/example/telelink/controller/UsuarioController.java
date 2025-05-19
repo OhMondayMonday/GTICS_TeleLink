@@ -2,10 +2,7 @@ package com.example.telelink.controller;
 
 import com.example.telelink.dto.vecino.PagoRequest;
 import com.example.telelink.entity.*;
-import com.example.telelink.repository.EspacioDeportivoRepository;
-import com.example.telelink.repository.PagoRepository;
-import com.example.telelink.repository.ReservaRepository;
-import com.example.telelink.repository.UsuarioRepository;
+import com.example.telelink.repository.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +17,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -57,7 +53,7 @@ public class UsuarioController {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-  
+
     private ReservaRepository reservaRepository;
 
     @Autowired
@@ -66,20 +62,21 @@ public class UsuarioController {
     @Autowired
     private PagoRepository pagoRepository;
 
+    @Autowired
+    private AvisoRepository avisoRepository;
+
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
         // Buscar usuario ID 6 (usuario por defecto)
-        Integer userId = 6;
-        Usuario usuario = usuarioRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-        // Almacenar el objeto Usuario en la sesión
-        session.setAttribute("currentUser", usuario);
+        // Obtener el aviso más reciente
+        Aviso ultimoAviso = avisoRepository.findLatestAviso();
 
         // Pasar datos al modelo
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "inicio");
-
+        model.addAttribute("ultimoAviso", ultimoAviso);
         return "vecino/vecino-index";
     }
 
@@ -90,48 +87,49 @@ public class UsuarioController {
 
         model.addAttribute("espacio", espacio);
 
-        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
         model.addAttribute("usuario", usuario);
 
-        return "Vecino/vecino-servicioDeportivo";
+        return "vecino/vecino-servicioDeportivo";
     }
 
 
     @GetMapping("/reservas/futbol")
     public String mostrarFutbolReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-futbol";
+        return "vecino/vecino-futbol";
     }
 
     @GetMapping("/reservas/piscina")
     public String mostrarPiscinaReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-piscina";
+        return "vecino/vecino-piscina";
     }
+
     @GetMapping("/reservas/multiple")
     public String mostrarMultipleReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-multiple";
+        return "vecino/vecino-multiple";
     }
 
     @GetMapping("/reservas/gym")
     public String mostrarGymReservation(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-gym";
+        return "vecino/vecino-gym";
     }
 
     @GetMapping("/perfil")
     public String mostrarPerfil(Model model, HttpSession session) {
-        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "perfil");
-        return "Vecino/vecino-perfil";
+        return "vecino/vecino-perfil";
     }
 
     @GetMapping("")
@@ -143,7 +141,7 @@ public class UsuarioController {
 
     @GetMapping("/pagos")
     public String mostrarPagos(Model model, HttpSession session) {
-        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
@@ -154,18 +152,27 @@ public class UsuarioController {
         model.addAttribute("pagos", pagos); // importante para mostrarlos en la vista
         model.addAttribute("activeItem", "pagos");
 
-        return "Vecino/vecino-pago";
+        return "vecino/vecino-pago";
     }
 
     @GetMapping("/mis-reservas")
     public String mostrarReservas(Model model, HttpSession session) {
-        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
         List<Reserva> reservas = reservaRepository.findByUsuarioOrderByInicioReservaDesc(usuario);
+        // Create a list of maps to include canCancel flag
+        List<Map<String, Object>> reservasWithCancelFlag = reservas.stream().map(reserva -> {
+            Map<String, Object> reservaMap = new HashMap<>();
+            reservaMap.put("reserva", reserva);
+            reservaMap.put("canCancel", LocalDateTime.now().isBefore(reserva.getInicioReserva().minusHours(48))
+                    && !reserva.getEstado().name().equals("cancelada"));
+            return reservaMap;
+        }).collect(Collectors.toList());
+
         model.addAttribute("usuario", usuario);
-        model.addAttribute("reservas", reservas); // importante para mostrarlos en la vista
+        model.addAttribute("reservasWithCancelFlag", reservasWithCancelFlag);
         model.addAttribute("activeItem", "reservas");
         return "vecino/vecino-mis-reservas";
     }
@@ -177,8 +184,8 @@ public class UsuarioController {
                                   HttpSession session) {
 
         // Obtener el usuario actual de la sesión
-        Usuario usuarioActual = (Usuario) session.getAttribute("currentUser");
-        if (usuarioActual == null) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
 
@@ -187,7 +194,7 @@ public class UsuarioController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva no encontrada"));
 
         // Verificar que la reserva pertenezca al usuario actual
-        if (!reserva.getUsuario().getUsuarioId().equals(usuarioActual.getUsuarioId())) {
+        if (!reserva.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
             redirectAttributes.addFlashAttribute("error", "No tienes permiso para cancelar esta reserva");
             return "redirect:/usuarios/mis-reservas";
         }
@@ -229,7 +236,7 @@ public class UsuarioController {
 
     @GetMapping("/cancha")
     public String mostrarCancha(Model model, HttpSession session) {
-        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
@@ -239,7 +246,7 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("espacios", espacios);
         model.addAttribute("activeItem", "canchas");
-        return "Vecino/vecino-cancha";
+        return "vecino/vecino-cancha";
     }
 
     // Endpoint para obtener espacios filtrados via AJAX
@@ -361,24 +368,24 @@ public class UsuarioController {
 
     @GetMapping("/ayuda")
     public String mostrarAyuda(Model model, HttpSession session) {
-        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "ayuda");
-        return "Vecino/vecino-ayuda";
+        return "vecino/vecino-ayuda";
     }
 
     @GetMapping("/calendario")
     public String mostrarCalendario(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-calendario";
+        return "vecino/vecino-calendario";
     }
 
     @GetMapping("/reservar")
     public String mostrarReservar(Model model, HttpSession session) {
-        Usuario usuario = (Usuario) session.getAttribute("currentUser");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
@@ -390,7 +397,7 @@ public class UsuarioController {
         model.addAttribute("reservas", reservasUsuario);
         model.addAttribute("espacios", espacioDeportivos);
 
-        return "Vecino/vecino-reservar";
+        return "vecino/vecino-reservar";
     }
 
 
@@ -440,7 +447,7 @@ public class UsuarioController {
         }
     }
 
-    // Método auxiliar para guardar el comprobante
+    // Metodo auxiliar para guardar el comprobante
     private String guardarComprobante(MultipartFile comprobante, Long usuarioId) throws IOException {
         // Crear directorio si no existe
         String directorioComprobantes = "uploads/comprobantes/" + usuarioId;
@@ -520,5 +527,9 @@ public class UsuarioController {
                 )).collect(Collectors.toList());
     }
 
+    @GetMapping("/reservasCalendario/{id}")
+    public String verCalendarioReservas(@PathVariable("id") Integer id, Model model) {
+        model.addAttribute("espacioId", id);
+        return "vecino/reservas-calendario";
+    }
 }
-

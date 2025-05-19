@@ -75,4 +75,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     List<Reserva> findByInicioReservaBetween(LocalDateTime inicio, LocalDateTime fin);
 
+    List<Reserva> findByEspacioDeportivo_EspacioDeportivoId(Integer espacioDeportivoEspacioDeportivoId);
+
 }

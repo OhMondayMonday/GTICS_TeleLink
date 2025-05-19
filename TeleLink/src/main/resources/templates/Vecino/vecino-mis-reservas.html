@@ -1,158 +1,152 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Mis Reservas')}"></head>
+    <head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Mis Reservas')}"></head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
-          <!-- Begin page -->
+        <!-- Begin page -->
         <div id="layout-wrapper">
             <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Mis Reservas')}"></div>
-<!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
+            <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
             <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('reservas')}"></div>
- <!-- =============================================================================================================================== -->
+            <!-- =============================================================================================================================== -->
             <div class="main-content">
                 <div class="page-content">
                     <div class="container-fluid">
                         <!-- start page title -->
-                        <div class="row">
+                        <!--<div class="row">
                             <div class="col-12">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                                     <h4 class="mb-sm-0">Mis Reservas</h4>
-                                        <div class="page-title-right">
-                                            <ol class="breadcrumb m-0">
-                                                <li class="breadcrumb-item"><a th:href="@{mis-reservas}">Reserva</a></li>
-                                                <li class="breadcrumb-item active">Mis reservas</li>
-                                            </ol>
-                                        </div>
+                                    <div class="page-title-right">
+                                        <ol class="breadcrumb m-0">
+                                            <li class="breadcrumb-item"><a th:href="@{mis-reservas}">Reserva</a></li>
+                                            <li class="breadcrumb-item active">Mis reservas</li>
+                                        </ol>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-<!--=============================================================================================================================================-->
-                        <div th:if="${#lists.isEmpty(reservas)}">
-                            <p class="text-danger">No se encontraron reservas para este usuario.</p>
-                        </div>
-                        <div th:if="${!#lists.isEmpty(reservas)}">
-                            <p class="text-success">Sí hay reservas.</p>
-                        </div>
-<!--=============================================================================================================================================-->
+                        </div>-->
+                        <!--=============================================================================================================================================-->
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="table-responsive">
-                                            <table class="table table-centered mb-0 table-nowrap">
-                                                <thead class="bg-light">
-                                                <tr>
-                                                    <th style="width: 120px">Espacio</th>
-                                                    <th>Descripción</th>
-                                                    <th>Precio</th>
-                                                    <th>Carril/Personas</th>
-                                                    <th>Fecha y Hora</th>
-                                                    <th>Método de Pago</th>
-                                                    <th>Estado</th>
-                                                    <th class="text-center">Acción</th>
-                                                </tr>
+                                            <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="8" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Espacio</th>
+                                                        <th>Descripción</th>
+                                                        <th>Precio</th>
+                                                        <th>N° Carril / Aforo</th>
+                                                        <th>Fecha y Hora</th>
+                                                        <th>Método de Pago</th>
+                                                        <th>Estado</th>
+                                                        <th class="text-center">Acciones</th>
+                                                    </tr>
                                                 </thead>
 
                                                 <tbody>
-                                                <!-- Para cada reserva existente -->
-                                                <tr th:each="reserva : ${reservas}">
-                                                    <td>
-                                                        <img th:if="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl != null}"
-                                                             th:src="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl}"
-                                                             th:alt="${reserva.espacioDeportivo.nombre}"
-                                                             class="img-fluid rounded"
-                                                             style="max-width: 100px;" />
-                                                    </td>
+                                                    <!-- Para cada reserva existente -->
+                                                    <tr th:each="reservaMap : ${reservasWithCancelFlag}">
+                                                        <td>
+                                                            <img th:if="${reservaMap.reserva.espacioDeportivo.fotoEspacioDeportivoUrl != null}"
+                                                                 th:src="${reservaMap.reserva.espacioDeportivo.fotoEspacioDeportivoUrl}"
+                                                                 th:alt="${reservaMap.reserva.espacioDeportivo.nombre}"
+                                                                 class="img-fluid rounded"
+                                                                 style="max-width: 100px;" />
+                                                        </td>
 
-                                                    <td>
-                                                        <h5 class="font-size-14 text-truncate">
-                                                            <a th:href="@{'/usuarios/reservas/' + ${reserva.espacioDeportivo.espacioDeportivoId}}"
-                                                               class="text-reset text-decoration-none" th:text="${reserva.espacioDeportivo.nombre}">
-                                                                Nombre del Espacio
-                                                            </a>
-                                                        </h5>
-                                                        <p class="mb-0" th:text="${reserva.espacioDeportivo.descripcion}">Descripción del espacio deportivo</p>
-                                                    </td>
+                                                        <td>
+                                                            <h5 class="font-size-14 text-truncate">
+                                                                <a th:href="@{'/usuarios/reservas/' + ${reservaMap.reserva.espacioDeportivo.espacioDeportivoId}}"
+                                                                   class="text-reset text-decoration-none" th:text="${reservaMap.reserva.espacioDeportivo.nombre}">
+                                                                    Nombre del Espacio
+                                                                </a>
+                                                            </h5>
+                                                            <p class="mb-0" th:text="${reservaMap.reserva.espacioDeportivo.descripcion}">Descripción del espacio deportivo</p>
+                                                        </td>
 
-                                                    <td th:text="${'S/ ' + reserva.espacioDeportivo.precioPorHora}">S/ 50.00</td>
-                                                    <td>
-                                                        <!-- Mostrar el número de carril o aforo según corresponda -->
-                                                        <span th:if="${reserva.numeroCarrilPiscina != null}"
-                                                              th:text="${'Carril ' + reserva.numeroCarrilPiscina}">Carril</span>
-                                                        <span th:if="${reserva.numeroCarrilPista != null}"
-                                                              th:text="${'Carril ' + reserva.numeroCarrilPista}">Carril</span>
-                                                        <span th:if="${reserva.espacioDeportivo.maxPersonasPorCarril != null && reserva.numeroCarrilPiscina == null && reserva.numeroCarrilPista == null}"
-                                                              th:text="${reserva.espacioDeportivo.maxPersonasPorCarril}">10</span>
-                                                        <span th:if="${reserva.espacioDeportivo.aforoGimnasio != null && reserva.numeroCarrilPiscina == null && reserva.numeroCarrilPista == null}"
-                                                              th:text="${'1'}">1</span>
-                                                    </td>
+                                                        <td th:text="${'S/ ' + reservaMap.reserva.espacioDeportivo.precioPorHora}">S/ 50.00</td>
+                                                        <td>
+                                                            <!-- Mostrar el número de carril o aforo según corresponda -->
+                                                            <span th:if="${reservaMap.reserva.numeroCarrilPiscina != null}"
+                                                                  th:text="${'Carril ' + reservaMap.reserva.numeroCarrilPiscina}">Carril</span>
+                                                            <span th:if="${reservaMap.reserva.numeroCarrilPista != null}"
+                                                                  th:text="${'Carril ' + reservaMap.reserva.numeroCarrilPista}">Carril</span>
+                                                            <span th:if="${reservaMap.reserva.espacioDeportivo.maxPersonasPorCarril != null && reservaMap.reserva.numeroCarrilPiscina == null && reservaMap.reserva.numeroCarrilPista == null}"
+                                                                  th:text="${reservaMap.reserva.espacioDeportivo.maxPersonasPorCarril}">10</span>
+                                                            <span th:if="${reservaMap.reserva.espacioDeportivo.aforoGimnasio != null && reservaMap.reserva.numeroCarrilPiscina == null && reservaMap.reserva.numeroCarrilPista == null}"
+                                                                  th:text="${'1'}">1</span>
+                                                        </td>
 
-                                                    <td>
-                                                        <div th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}">
-                                                            20 Abril 2025, 5:00 PM
-                                                        </div>
-                                                        <div class="small text-muted">
-                                                            hasta <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}">6:00 PM</span>
-                                                        </div>
-                                                    </td>
+                                                        <td>
+                                                            <div th:text="${#temporals.format(reservaMap.reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}">
+                                                                20 Abril 2025, 5:00 PM
+                                                            </div>
+                                                            <div class="small text-muted">
+                                                                hasta <span th:text="${#temporals.format(reservaMap.reserva.finReserva, 'HH:mm')}">6:00 PM</span>
+                                                            </div>
+                                                        </td>
 
-                                                    <td>
-                                                        <div th:with="pago=${@pagoRepository.findByReserva(reserva).orElse(null)}">
-                                                            <span th:if="${pago != null}" th:text="${pago.metodoPago.metodoPago}">Método de Pago</span>
-                                                            <span th:if="${pago == null}">Pendiente</span>
-                                                        </div>
-                                                    </td>
+                                                        <td>
+                                                            <div th:with="pago=${@pagoRepository.findByReserva(reservaMap.reserva).orElse(null)}">
+                                                                <span th:if="${pago != null}" th:text="${pago.metodoPago.metodoPago}">Método de Pago</span>
+                                                                <span th:if="${pago == null}">Pendiente</span>
+                                                            </div>
+                                                        </td>
 
-                                                    <td>
-                                                        <span th:switch="${reserva.estado.name()}">
-                                                            <span th:case="'pendiente'" class="badge bg-warning">Pendiente</span>
-                                                            <span th:case="'confirmada'" class="badge bg-info">Confirmada</span>
-                                                            <span th:case="'cancelada'" class="badge bg-danger">Cancelada</span>
-                                                            <span th:case="'completada'" class="badge bg-success">Completada</span>
-                                                        </span>
-                                                    </td>
+                                                        <td>
+            <span th:switch="${reservaMap.reserva.estado.name()}">
+                <span th:case="'pendiente'" class="badge bg-warning">Pendiente</span>
+                <span th:case="'confirmada'" class="badge bg-info">Confirmada</span>
+                <span th:case="'cancelada'" class="badge bg-danger">Cancelada</span>
+                <span th:case="'completada'" class="badge bg-success">Completada</span>
+            </span>
+                                                        </td>
 
-                                                    <td class="text-center">
-                                                        <a th:href="@{'/usuarios/reservas/' + ${reserva.espacioDeportivo.espacioDeportivoId}}"
-                                                           class="btn btn-sm btn-outline-primary">Ver detalles</a>
+                                                        <td class="text-center">
+                                                            <a th:href="@{'/usuarios/reservas/' + ${reservaMap.reserva.espacioDeportivo.espacioDeportivoId}}"
+                                                               class="btn btn-sm btn-outline-primary">Ver detalles</a>
 
-                                                        <!-- Mostrar botón de cancelar solo si la reserva no está ya cancelada -->
-                                                        <button th:if="${reserva.estado.name() != 'cancelada'}"
-                                                                class="btn btn-sm btn-outline-danger"
-                                                                data-bs-toggle="modal"
-                                                                th:data-bs-target="'#cancelModal' + ${reserva.reservaId}">
-                                                            Cancelar
-                                                        </button>
+                                                            <!-- Mostrar botón de cancelar solo si canCancel es true -->
+                                                            <button th:if="${reservaMap.canCancel}"
+                                                                    class="btn btn-sm btn-outline-danger"
+                                                                    data-bs-toggle="modal"
+                                                                    th:data-bs-target="'#cancelModal' + ${reservaMap.reserva.reservaId}">
+                                                                Cancelar
+                                                            </button>
 
-                                                        <!-- Modal para cada reserva -->
-                                                        <div class="modal fade" th:id="'cancelModal' + ${reserva.reservaId}" tabindex="-1"
-                                                             th:attr="aria-labelledby='cancelModalLabel' + ${reserva.reservaId}" aria-hidden="true">
-                                                            <div class="modal-dialog modal-dialog-centered">
-                                                                <div class="modal-content border-0 shadow">
-                                                                    <form th:action="@{/usuarios/reserva/cancelar/{id}(id=${reserva.reservaId})}" method="post">
-                                                                        <div class="modal-header bg-light">
-                                                                            <h5 class="modal-title" th:id="'cancelModalLabel' + ${reserva.reservaId}">
-                                                                                ¿Está seguro que quiere cancelar la reserva?
-                                                                            </h5>
-                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                                                        </div>
-                                                                        <div class="modal-body">
-                                                                            <p>Puedes cancelar sin penalidad hasta <strong>48 horas antes</strong> del horario reservado.</p>
-                                                                            <div class="mb-3">
-                                                                                <label for="razon" class="form-label">Razón de cancelación (opcional):</label>
-                                                                                <textarea class="form-control" name="razon" id="razon" rows="3"></textarea>
+                                                            <!-- Modal para cada reserva -->
+                                                            <div class="modal fade" th:id="'cancelModal' + ${reservaMap.reserva.reservaId}" tabindex="-1"
+                                                                 th:attr="aria-labelledby='cancelModalLabel' + ${reservaMap.reserva.reservaId}" aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered">
+                                                                    <div class="modal-content border-0 shadow">
+                                                                        <form th:action="@{/usuarios/reserva/cancelar/{id}(id=${reservaMap.reserva.reservaId})}" method="post">
+                                                                            <div class="modal-header bg-light">
+                                                                                <h5 class="modal-title" th:id="'cancelModalLabel' + ${reservaMap.reserva.reservaId}">
+                                                                                    ¿Está seguro que quiere cancelar la reserva?
+                                                                                </h5>
+                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                                                             </div>
-                                                                            <p>¿Deseas continuar?</p>
-                                                                        </div>
-                                                                        <div class="modal-footer">
-                                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
-                                                                            <button type="submit" class="btn btn-danger">Sí, cancelar</button>
-                                                                        </div>
-                                                                    </form>
+                                                                            <div class="modal-body">
+                                                                                <p>Puedes cancelar sin penalidad hasta <strong>48 horas antes</strong> del horario reservado.</p>
+                                                                                <div class="mb-3">
+                                                                                    <label for="razon" class="form-label">Razón de cancelación (opcional):</label>
+                                                                                    <textarea class="form-control" name="razon" id="razon" rows="3"></textarea>
+                                                                                </div>
+                                                                                <p>¿Deseas continuar?</p>
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Volver</button>
+                                                                                <button type="submit" class="btn btn-danger">Sí, cancelar</button>
+                                                                            </div>
+                                                                        </form>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
+                                                        </td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -201,26 +195,27 @@
         <!-- Responsive examples -->
         <script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
         <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
+        <script th:src="@{/assets/js/pages/mis-reservas.init.js}"></script>
         <script th:src="@{/assets/js/app.js}"></script>
 
 
-    <script>
-        let reservaAEliminar = null;
+        <script>
+            let reservaAEliminar = null;
 
-        // Al hacer clic en el botón "Eliminar", guarda la fila a eliminar
-        document.querySelectorAll('button[data-bs-target="#cancelModal"]').forEach(btn => {
-            btn.addEventListener('click', function () {
-                reservaAEliminar = this.closest('tr');
+            // Al hacer clic en el botón "Eliminar", guarda la fila a eliminar
+            document.querySelectorAll('button[data-bs-target="#cancelModal"]').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    reservaAEliminar = this.closest('tr');
+                });
             });
-        });
 
-        // Cuando se confirma la cancelación
-        document.querySelector('#cancelModal .btn-danger').addEventListener('click', function () {
-            if (reservaAEliminar) {
-                reservaAEliminar.remove();
-                reservaAEliminar = null;
-            }
-        });
-    </script>
+            // Cuando se confirma la cancelación
+            document.querySelector('#cancelModal .btn-danger').addEventListener('click', function () {
+                if (reservaAEliminar) {
+                    reservaAEliminar.remove();
+                    reservaAEliminar = null;
+                }
+            });
+        </script>
     </body>
 </html>
