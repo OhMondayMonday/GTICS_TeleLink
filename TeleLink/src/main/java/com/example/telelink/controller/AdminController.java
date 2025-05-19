@@ -669,6 +669,177 @@ public class AdminController {
         return "redirect:/admin/dashboard";
     }
 
+    /*
+    // New method to render the edit profile form
+    @GetMapping("/perfil/editar")
+    public String editarPerfilAdministrador(@SessionAttribute("usuario") Usuario usuario, Model model) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuario.getUsuarioId());
+        if (usuarioOptional.isPresent()) {
+            model.addAttribute("usuario", usuarioOptional.get());
+            return "admin/editarPerfil";
+        }
+        return "redirect:/admin/dashboard";
+    }
+
+    // New method to handle profile update
+    @PostMapping("/perfil/actualizar")
+    public String actualizarPerfil(
+            @Valid @ModelAttribute("usuario") Usuario usuarioActualizado,
+            BindingResult result,
+            @RequestParam(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+
+        // Validate image format if provided
+        String defaultFotoPerfilUrl = usuario.getFotoPerfilUrl() != null && !usuario.getFotoPerfilUrl().isEmpty()
+                ? usuario.getFotoPerfilUrl()
+                : "https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg";
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            String contentType = fotoPerfil.getContentType();
+            if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
+                result.rejectValue("fotoPerfilUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
+            }
+        }
+
+        // If there are validation errors, return the form
+        if (result.hasErrors()) {
+            return "admin/editarPerfil";
+        }
+
+        // Update allowed fields
+        usuario.setTelefono(usuarioActualizado.getTelefono());
+        usuario.setDireccion(usuarioActualizado.getDireccion());
+
+        // Handle S3 photo upload
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            String uploadResult = s3Service.uploadFile(fotoPerfil);
+            if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
+                String fotoPerfilUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
+                if (fotoPerfilUrl.length() > 255) {
+                    result.rejectValue("fotoPerfilUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
+                    return "admin/editarPerfil";
+                }
+                if (fotoPerfilUrl.isEmpty()) {
+                    result.rejectValue("fotoPerfilUrl", "Invalid", "La URL generada está vacía");
+                    return "admin/editarPerfil";
+                }
+                usuario.setFotoPerfilUrl(fotoPerfilUrl);
+                redirectAttributes.addFlashAttribute("message", "Foto de perfil actualizada exitosamente.");
+                redirectAttributes.addFlashAttribute("messageType", "success");
+            } else {
+                usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+                redirectAttributes.addFlashAttribute("message", "Error al subir la foto de perfil: " +
+                        (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
+                redirectAttributes.addFlashAttribute("messageType", "error");
+            }
+        } else {
+            // No file uploaded; preserve existing or use default
+            usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+        }
+
+        // Ensure fotoPerfilUrl is never empty
+        if (usuario.getFotoPerfilUrl() == null || usuario.getFotoPerfilUrl().isEmpty()) {
+            usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+        }
+
+        // Update timestamp
+        usuario.setFechaActualizacion(LocalDateTime.now());
+
+        // Save changes
+        usuarioRepository.save(usuario);
+
+        // Update session
+        session.setAttribute("usuario", usuario);
+
+        redirectAttributes.addFlashAttribute("msg", "Perfil actualizado satisfactoriamente");
+        return "redirect:/admin/perfil";
+    }
+    */
+
+    @GetMapping("/perfil/editar")
+    public String editarPerfilAdministrador(@SessionAttribute("usuario") Usuario usuario, Model model) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuario.getUsuarioId());
+        if (usuarioOptional.isPresent()) {
+            model.addAttribute("usuario", usuarioOptional.get());
+            return "admin/editarPerfil";
+        }
+        return "redirect:/admin/dashboard";
+    }
+
+    @PostMapping("/perfil/actualizar")
+    public String actualizarPerfil(
+            @Valid @ModelAttribute("usuario") Usuario usuarioActualizado,
+            BindingResult result,
+            @RequestParam(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        boolean isCreation = usuario.getUsuarioId() == null;
+
+        // Validate image format if provided
+        String defaultFotoPerfilUrl = "https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg";
+        String existingFotoPerfilUrl = usuario.getFotoPerfilUrl();
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            String contentType = fotoPerfil.getContentType();
+            if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
+                result.rejectValue("fotoPerfilUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
+            } else {
+                String uploadResult = s3Service.uploadFile(fotoPerfil);
+                if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
+                    String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
+                    if (fotoUrl.length() > 255) {
+                        result.rejectValue("fotoPerfilUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
+                    } else if (fotoUrl.isEmpty()) {
+                        result.rejectValue("fotoPerfilUrl", "Invalid", "La URL generada está vacía");
+                    } else {
+                        usuario.setFotoPerfilUrl(fotoUrl);
+                    }
+                } else {
+                    usuario.setFotoPerfilUrl(isCreation || existingFotoPerfilUrl == null || existingFotoPerfilUrl.isEmpty() ? defaultFotoPerfilUrl : existingFotoPerfilUrl);
+                    redirectAttributes.addFlashAttribute("message", "Error al subir la foto: " +
+                            (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
+                    redirectAttributes.addFlashAttribute("messageType", "error");
+                }
+            }
+        } else {
+            usuario.setFotoPerfilUrl(isCreation || existingFotoPerfilUrl == null || existingFotoPerfilUrl.isEmpty() ? defaultFotoPerfilUrl : existingFotoPerfilUrl);
+        }
+
+        // If there are validation errors, return the form
+        if (result.hasErrors()) {
+            return "admin/editarPerfil";
+        }
+
+        // Update all editable fields
+        usuario.setNombres(usuarioActualizado.getNombres());
+        usuario.setApellidos(usuarioActualizado.getApellidos());
+        usuario.setCorreoElectronico(usuarioActualizado.getCorreoElectronico());
+        usuario.setDni(usuarioActualizado.getDni());
+        usuario.setDireccion(usuarioActualizado.getDireccion());
+        usuario.setTelefono(usuarioActualizado.getTelefono());
+
+        // Ensure fotoPerfilUrl is never empty
+        if (usuario.getFotoPerfilUrl() == null || usuario.getFotoPerfilUrl().isEmpty()) {
+            usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
+        }
+
+        // Update timestamp
+        usuario.setFechaActualizacion(LocalDateTime.now());
+
+        // Save changes
+        usuarioRepository.save(usuario);
+
+        // Update session
+        session.setAttribute("usuario", usuario);
+
+        redirectAttributes.addFlashAttribute("msg", "Perfil actualizado satisfactoriamente");
+        return "redirect:/admin/perfil";
+    }
+
+
     @GetMapping("pagos")
     public String listarPagos(Model model) {
         List<Pago> pagosPendientes = pagoRepository.findByEstadoTransaccionAndMetodoPago_MetodoPagoId(
