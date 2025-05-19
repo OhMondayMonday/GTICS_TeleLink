@@ -158,6 +158,9 @@ INSERT INTO reservas (
 (6, 1, '2025-05-11 10:00:00', '2025-05-11 11:00:00', 2, NULL, 'confirmada', NOW()),
 (7, 4, '2025-05-12 15:00:00', '2025-05-12 17:00:00', NULL, NULL, 'pendiente', NOW()),
 (8, 2, '2025-05-10 08:00:00', '2025-05-10 09:00:00', NULL, 3, 'confirmada', NOW()),
+(6, 7, '2025-05-11 10:00:00', '2025-05-11 11:00:00', 2, NULL, 'confirmada', NOW()),
+(6, 6, '2025-05-12 15:00:00', '2025-05-12 17:00:00', NULL, NULL, 'pendiente', NOW()),
+(10, 2, '2025-05-10 08:00:00', '2025-05-10 09:00:00', NULL, 3, 'confirmada', NOW()),
 (9, 5, '2025-05-13 18:00:00', '2025-05-13 19:00:00', NULL, NULL, 'cancelada', NOW());
 
 -- 17. Insertar Pagos
@@ -167,7 +170,10 @@ INSERT INTO pagos (
 (1, 1, 100.00, 'completado', 'TXN001', NULL, NOW(), 'Pago por reserva de piscina.'),
 (2, 1, 240.00, 'pendiente', 'TXN002', 'https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?auto=format&fit=crop&w=600&q=80', NOW(), 'Depósito pendiente de verificación.'),
 (3, 1, 80.00, 'completado', 'TXN003', NULL, NOW(), 'Pago por reserva de pista.'),
-(4, 1, 90.00, 'fallido', 'TXN004', NULL, NOW(), 'Error en el procesamiento del pago.');
+(4, 1, 90.00, 'fallido', 'TXN004', NULL, NOW(), 'Error en el procesamiento del pago.'),
+(5, 2, 340.00, 'pendiente', 'TXN005', 'https://cdn.www.gob.pe/uploads/document/file/4942632/WhatsApp%20Image%202023-08-04%20at%203.30.47%20PM.jpeg', NOW(), 'Depósito pendiente de verificación.'),
+(6, 2, 280.00, 'completado', 'TXN006','https://www.itscontable.com/wp-content/uploads/2023/05/image-39.png', NOW(), 'Pago por reserva de pista.'),
+(7, 2, 50.00, 'fallido', 'TXN007', 'https://revistaganamas.com.pe/wp-content/uploads/2019/07/Factura-electr%C3%B3nica-768x500.jpg',NOW(), 'Error en el procesamiento del pago.');
 
 -- 18. Insertar Reembolsos
 INSERT INTO reembolsos (
