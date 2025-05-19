@@ -23,7 +23,7 @@
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a th:href="@{/usuarios/cancha}">Cancha Disponible</a></li>
                                     <li class="breadcrumb-item active"
-                                        th:text="${espacio.tipo} + ' (' + (espacio.servicioDeportivo != null ? espacio.servicioDeportivo.servicioDeportivo : 'Servicio no definido') + ')'">
+                                        th:text="${espacio.servicioDeportivo != null ? espacio.servicioDeportivo.servicioDeportivo : 'Sin categoría'}">
                                         Tipo de espacio (Tipo de servicio)
                                     </li>
 
@@ -96,7 +96,7 @@
                                                     <li class="mb-2 d-flex align-items-start">
                                                         <i class="mdi mdi-map-marker text-danger me-2 fs-5"></i>
                                                         <span><strong>Establecimiento:</strong>
-                                                            <span th:text="${espacio.establecimientoDeportivo != null ? espacio.establecimientoDeportivo : 'No definida'}">Ubicación</span>
+                                                            <span th:text="${espacio.establecimientoDeportivo != null ? espacio.establecimientoDeportivo.establecimientoDeportivoNombre : 'No definida'}">Ubicación</span>
                                                         </span>
                                                     </li>
                                                     <li class="mb-2 d-flex align-items-start">
