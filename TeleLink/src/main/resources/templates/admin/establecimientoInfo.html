@@ -3,6 +3,19 @@
 <head th:replace="~{admin/fragments/headList.html :: headList(title='Información del Establecimiento Deportivo')}">
     <meta charset="UTF-8">
     <title>Información del Establecimiento</title>
+    <style>
+        #gmaps-markers {
+            height: 300px;
+            width: 100%;
+        }
+        .debug-info {
+            background-color: #f8d7da;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
@@ -16,152 +29,163 @@
                     <div class="col-lg-12 align-items-center">
                         <div class="card">
                             <div class="card-body">
-
-                                <h4 class="card-title mb-4 fw-semibold mt-3">Información del Establecimiento Deportivo</h4>
-
-                                <!-- Foto del establecimiento -->
-                                <div class="mb-4">
-                                    <label class="form-label">Foto del establecimiento</label>
-                                    <img th:src="${establecimiento.fotoEstablecimientoUrl != null} ? ${establecimiento.fotoEstablecimientoUrl} : 'https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg'"
-                                         style="max-height: 200px; display: block;" alt="Foto del establecimiento"/>
+                                <!-- Debug Info -->
+                                <div class="debug-info">
+                                    <p>Debug Controller: <span th:text="${debugController} ?: 'No debug info'"></span></p>
+                                    <p>Latitude: <span th:text="${latitude} ?: 'No latitude'"></span></p>
+                                    <p>Longitude: <span th:text="${longitude} ?: 'No longitude'"></span></p>
+                                    <p>Establecimiento ID: <span th:text="${establecimiento?.establecimientoDeportivoId} ?: 'No establecimiento'"></span></p>
+                                    <p>Geolocalizacion: <span th:text="${establecimiento?.geolocalizacion} ?: 'No geolocalizacion'"></span></p>
                                 </div>
 
-                                <!-- Nombre del establecimiento -->
-                                <div class="mb-4">
-                                    <label class="form-label">Nombre del establecimiento</label>
-                                    <input type="text" class="form-control border-0 bg-light"
-                                           th:value="${establecimiento.establecimientoDeportivoNombre}"
-                                           readonly disabled />
+                                <!-- Check if establecimiento is null -->
+                                <div th:if="${establecimiento == null}" class="alert alert-danger">
+                                    Error: No se encontró el establecimiento. Por favor, intenta de nuevo.
                                 </div>
+                                <div th:unless="${establecimiento == null}">
+                                    <h4 class="card-title mb-4 fw-semibold mt-3">Información del Establecimiento Deportivo</h4>
 
-                                <!-- Descripción -->
-                                <div class="mb-4">
-                                    <label class="form-label">Descripción</label>
-                                    <textarea class="form-control border-0 bg-light" rows="3"
-                                              th:text="${establecimiento.descripcion}"
-                                              readonly disabled></textarea>
-                                </div>
-
-                                <!-- Dirección -->
-                                <div class="mb-4">
-                                    <label class="form-label">Dirección</label>
-                                    <input type="text" class="form-control border-0 bg-light"
-                                           th:value="${establecimiento.direccion}"
-                                           readonly disabled />
-                                </div>
-
-                                <!-- Espacios de estacionamiento -->
-                                <div class="mb-4">
-                                    <label class="form-label">Espacios de estacionamiento</label>
-                                    <input type="number" class="form-control border-0 bg-light"
-                                           th:value="${establecimiento.espaciosEstacionamiento}"
-                                           readonly disabled />
-                                </div>
-
-                                <!-- Teléfono de contacto and Correo de contacto -->
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Teléfono de contacto</label>
-                                                                                    <input type="text" class="form-control border-0 bg-light"
-                                                                                           th:value="${establecimiento.telefonoContacto}"
-                                                                                           readonly disabled />
+                                    <!-- Foto del establecimiento -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Foto del establecimiento</label>
+                                        <img th:src="${establecimiento.fotoEstablecimientoUrl != null} ? ${establecimiento.fotoEstablecimientoUrl} : 'https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg'"
+                                             style="max-height: 200px; display: block;" alt="Foto del establecimiento"/>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Correo de contacto</label>
-                                        <input type="email" class="form-control border-0 bg-light"
-                                               th:value="${establecimiento.correoContacto}"
-                                               readonly disabled />
-                                    </div>
-                                </div>
 
-                                <!-- Geolocalización -->
-                                <div class="mb-4">
-                                    <label class="form-label">Geolocalización (lat,long)</label>
-                                    <input type="text" class="form-control border-0 bg-light"
-                                           th:value="${establecimiento.geolocalizacion}"
-                                           readonly disabled />
-                                </div>
-
-                                <!-- Horario de apertura and Horario de cierre -->
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Horario de apertura</label>
+                                    <!-- Nombre del establecimiento -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Nombre del establecimiento</label>
                                         <input type="text" class="form-control border-0 bg-light"
-                                               th:value="${establecimiento.horarioApertura}"
+                                               th:value="${establecimiento.establecimientoDeportivoNombre}"
                                                readonly disabled />
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Horario de cierre</label>
+
+                                    <!-- Descripción -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Descripción</label>
+                                        <textarea class="form-control border-0 bg-light" rows="3"
+                                                  th:text="${establecimiento.descripcion}"
+                                                  readonly disabled></textarea>
+                                    </div>
+
+                                    <!-- Dirección -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Dirección</label>
                                         <input type="text" class="form-control border-0 bg-light"
-                                               th:value="${establecimiento.horarioCierre}"
+                                               th:value="${establecimiento.direccion}"
                                                readonly disabled />
                                     </div>
-                                </div>
 
-                                <!-- Estado -->
-                                <div class="mb-4">
-                                    <label class="form-label">Estado</label>
-                                    <input type="text" class="form-control border-0 bg-light"
-                                           th:value="${#strings.capitalize(establecimiento.estado.name())}"
-                                           readonly disabled />
-                                </div>
-
-                                <!-- Motivo de mantenimiento -->
-                                <div class="mb-4" th:if="${establecimiento.estado.name() == 'mantenimiento'}">
-                                    <label class="form-label">Motivo de mantenimiento</label>
-                                    <textarea class="form-control border-0 bg-light" rows="2"
-                                              th:text="${establecimiento.motivoMantenimiento}"
-                                              readonly disabled></textarea>
-                                </div>
-
-                                <br>
-
-                                <!-- Lista de Espacios Deportivos -->
-                                <div class="mb-4">
-                                    <h4 class="card-title mb-4 fw-semibold mt-3">Espacios Deportivos Asociados</h4>
-                                    <div class="table-responsive">
-                                        <table class="table table-centered datatable dt-responsive nowrap"
-                                               data-bs-page-length="6"
-                                               style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                            <thead>
-                                            <tr>
-                                                <th>Nombre</th>
-                                                <th>Servicio Deportivo</th>
-                                                <th>Estado</th>
-                                                <th>Acción</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr th:each="espacio : ${espacios}">
-                                                <td th:text="${espacio.nombre}"></td>
-                                                <td th:text="${espacio.servicioDeportivo?.servicioDeportivo} ?: 'N/A'"></td>
-                                                <td th:text="${#strings.capitalize(espacio.estadoServicio.name())}"></td>
-                                                <td>
-                                                <a th:href="@{/admin/espacios/calendario(id=${espacio.espacioDeportivoId})}"
-                                                   class="btn btn-outline-secondary btn-sm edit" title="Calendario">
-                                                    <i class="fas fa-calendar"></i>
-                                                </a>
-                                                <a th:href="@{/admin/espacios/detalle(id=${espacio.espacioDeportivoId})}"
-                                                   class="btn btn-outline-secondary btn-sm edit" title="Ver Detalles">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                </td>
-                                            </tr>
-                                            <tr th:if="${espacios == null or #lists.isEmpty(espacios)}">
-                                                <td class="text-center">No hay espacios deportivos asociados.</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
+                                    <!-- Espacios de estacionamiento -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Espacios de estacionamiento</label>
+                                        <input type="number" class="form-control border-0 bg-light"
+                                               th:value="${establecimiento.espaciosEstacionamiento}"
+                                               readonly disabled />
                                     </div>
+
+                                    <!-- Teléfono de contacto and Correo de contacto -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Teléfono de contacto</label>
+                                            <input type="text" class="form-control border-0 bg-light"
+                                                   th:value="${establecimiento.telefonoContacto}"
+                                                   readonly disabled />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Correo de contacto</label>
+                                            <input type="email" class="form-control border-0 bg-light"
+                                                   th:value="${establecimiento.correoContacto}"
+                                                   readonly disabled />
+                                        </div>
+                                    </div>
+
+                                    <!-- Geolocalización -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Ubicación del Establecimiento</label>
+                                        <div id="gmaps-markers" class="gmaps"></div>
+                                    </div>
+
+                                    <!-- Horario de apertura and Horario de cierre -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Horario de apertura</label>
+                                            <input type="text" class="form-control border-0 bg-light"
+                                                   th:value="${establecimiento.horarioApertura}"
+                                                   readonly disabled />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Horario de cierre</label>
+                                            <input type="text" class="form-control border-0 bg-light"
+                                                   th:value="${establecimiento.horarioCierre}"
+                                                   readonly disabled />
+                                        </div>
+                                    </div>
+
+                                    <!-- Estado -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Estado</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${#strings.capitalize(establecimiento.estado.name())}"
+                                               readonly disabled />
+                                    </div>
+
+                                    <!-- Motivo de mantenimiento -->
+                                    <div class="mb-4" th:if="${establecimiento.estado.name() == 'mantenimiento'}">
+                                        <label class="form-label">Motivo de mantenimiento</label>
+                                        <textarea class="form-control border-0 bg-light" rows="2"
+                                                  th:text="${establecimiento.motivoMantenimiento}"
+                                                  readonly disabled></textarea>
+                                    </div>
+
+                                    <br>
+
+                                    <!-- Lista de Espacios Deportivos -->
+                                    <div class="mb-4">
+                                        <h4 class="card-title mb-4 fw-semibold mt-3">Espacios Deportivos Asociados</h4>
+                                        <div class="table-responsive">
+                                            <table class="table table-centered datatable dt-responsive nowrap"
+                                                   data-bs-page-length="6"
+                                                   style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Servicio Deportivo</th>
+                                                    <th>Estado</th>
+                                                    <th>Acción</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr th:each="espacio : ${espacios}">
+                                                    <td th:text="${espacio.nombre}"></td>
+                                                    <td th:text="${espacio.servicioDeportivo?.servicioDeportivo} ?: 'N/A'"></td>
+                                                    <td th:text="${#strings.capitalize(espacio.estadoServicio.name())}"></td>
+                                                    <td>
+                                                        <a th:href="@{/admin/espacios/calendario(id=${espacio.espacioDeportivoId})}"
+                                                           class="btn btn-outline-secondary btn-sm edit" title="Calendario">
+                                                            <i class="fas fa-calendar"></i>
+                                                        </a>
+                                                        <a th:href="@{/admin/espacios/detalle(id=${espacio.espacioDeportivoId})}"
+                                                           class="btn btn-outline-secondary btn-sm edit" title="Ver Detalles">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr th:if="${espacios == null or #lists.isEmpty(espacios)}">
+                                                    <td class="text-center">No hay espacios deportivos asociados.</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Botones -->
+                                    <a th:href="@{/admin/establecimientos/editar(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-primary">Editar información</a>
+                                    <a th:href="@{/admin/establecimientos}" class="btn btn-secondary ms-2">Volver a la lista</a>
                                 </div>
-
-                                <!-- Botones -->
-                                <a th:href="@{/admin/establecimientos/editar(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-primary">Editar información</a>
-                                <a th:href="@{/admin/establecimientos}" class="btn btn-secondary ms-2">Volver a la lista</a>
-
                             </div>
                         </div>
                     </div>
@@ -175,6 +199,45 @@
 
 <div class="sidebar-overlay"></div>
 <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o&libraries=places&callback=initMap"></script>
+<script th:src="@{/assets/libs/gmaps/gmaps.min.js}"></script>
 <script th:src="@{/assets/js/pages/espaciosAdmin.init.js}"></script>
+<script>
+    function initMap() {
+        try {
+            var latitude = /*[[${latitude}]]*/ -12.043333;
+            var longitude = /*[[${longitude}]]*/ -77.028333;
+            var establecimiento = /*[[${establecimiento}]]*/ null;
+            console.log("Latitude recibida:", latitude);
+            console.log("Longitude recibida:", longitude);
+            console.log("Establecimiento completo:", establecimiento);
+
+            var defaultLat = -12.043333;
+            var defaultLng = -77.028333;
+            var lat = latitude || defaultLat;
+            var lng = longitude || defaultLng;
+
+            var map = new GMaps({
+                div: '#gmaps-markers',
+                lat: lat,
+                lng: lng,
+                zoom: 15
+            });
+
+            map.addMarker({
+                lat: lat,
+                lng: lng,
+                title: lat === defaultLat && lng === defaultLng ? 'Ubicación por defecto' : 'Ubicación del Establecimiento',
+                click: function(e) {
+                    console.log("Marker clicked:", e);
+                    alert('You clicked in this marker');
+                }
+            });
+            console.log("Marker added at:", lat, lng);
+        } catch (e) {
+            console.error("Error al inicializar el mapa:", e);
+        }
+    }
+</script>
 </body>
 </html>

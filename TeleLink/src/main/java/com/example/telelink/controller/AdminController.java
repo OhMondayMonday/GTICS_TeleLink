@@ -306,104 +306,95 @@ public class AdminController {
         return "admin/establecimientoForm";
     }
 
+
     @GetMapping("establecimientos/info")
-    public String infoEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento,
-                                      @RequestParam("id") Integer id,
-                                      Model model) {
-        establecimiento = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
+    public String infoEstablecimiento(@RequestParam("id") Integer id, Model model) {
+        EstablecimientoDeportivo establecimiento = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
+        if (establecimiento == null) {
+            System.out.println("Establecimiento no encontrado para ID: " + id);
+            return "redirect:/admin/establecimientos";
+        }
+        System.out.println("Establecimiento ID: " + id + ", Geolocalizacion: " + establecimiento.getGeolocalizacion());
         List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAllByEstablecimientoDeportivo(establecimiento);
         model.addAttribute("establecimiento", establecimiento);
         model.addAttribute("espacios", espacios);
+        // Split geolocalizacion into doubles
+        if (establecimiento.getGeolocalizacion() != null && establecimiento.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
+            String[] coords = establecimiento.getGeolocalizacion().split(",");
+            try {
+                model.addAttribute("latitude", Double.parseDouble(coords[0].trim()));
+                model.addAttribute("longitude", Double.parseDouble(coords[1].trim()));
+                System.out.println("Latitude: " + coords[0].trim() + ", Longitude: " + coords[1].trim());
+            } catch (NumberFormatException e) {
+                model.addAttribute("latitude", -12.043333);
+                model.addAttribute("longitude", -77.028333);
+                System.out.println("Error al parsear coordenadas, usando valores por defecto");
+            }
+        } else {
+            model.addAttribute("latitude", -12.043333);
+            model.addAttribute("longitude", -77.028333);
+            System.out.println("Geolocalizacion nula o inválida: " + establecimiento.getGeolocalizacion());
+        }
+        // Add debug attribute
+        model.addAttribute("debugController", "infoEstablecimiento_" + System.currentTimeMillis());
+        System.out.println("Model attributes set: establecimiento=" + establecimiento + ", latitude=" + model.getAttribute("latitude") + ", debugController=" + model.getAttribute("debugController"));
         return "admin/establecimientoInfo";
     }
 
+
+    // Show form to edit an existing establishment
     @GetMapping("establecimientos/editar")
-    public String editarEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento, @RequestParam("id") Integer id, Model model) {
+    public String editarEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento,
+                                        @RequestParam("id") Integer id,
+                                        Model model) {
         Optional<EstablecimientoDeportivo> optEstablecimiento = Optional.ofNullable(establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id));
         if (optEstablecimiento.isPresent()) {
             establecimiento = optEstablecimiento.get();
             model.addAttribute("establecimiento", establecimiento);
+            // Pass parsed coordinates for map initialization
+            if (establecimiento.getGeolocalizacion() != null && establecimiento.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
+                String[] coords = establecimiento.getGeolocalizacion().split(",");
+                model.addAttribute("latitude", Double.parseDouble(coords[0].trim()));
+                model.addAttribute("longitude", Double.parseDouble(coords[1].trim()));
+            } else {
+                model.addAttribute("latitude", -12.043333); // Default
+                model.addAttribute("longitude", -77.028333);
+            }
             return "admin/establecimientoForm";
         } else {
             return "redirect:/admin/establecimientos";
         }
     }
 
-    /*@PostMapping("establecimientos/guardar")
-    public String guardarEstablecimiento(@ModelAttribute("establecimiento") @Valid EstablecimientoDeportivo establecimiento, BindingResult bindingResult, RedirectAttributes attr) {
-        if (bindingResult.hasErrors()) {
-            return "admin/establecimientoForm";
-        } else {
-            if (establecimiento.getEstablecimientoDeportivoId() == null || establecimiento.getEstablecimientoDeportivoId() == 0) {
-                attr.addFlashAttribute("msg", "Establecimiento creado satisfactoriamente");
-            } else {
-                attr.addFlashAttribute("msg", "Establecimiento editado satisfactoriamente");
-            }
-            establecimientoDeportivoRepository.save(establecimiento);
-            return "redirect:/admin/establecimientos";
-        }
-    }*/
 
-    /*@PostMapping("establecimientos/guardar")
-    public String guardarEstablecimiento(@ModelAttribute("establecimiento") @Valid EstablecimientoDeportivo establecimiento,
-                                         BindingResult bindingResult,
-                                         @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
-                                         Model model,
-                                         RedirectAttributes attr) {
-        // Validate image format if provided
-        String defaultFotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg";
-        String existingFotoUrl = establecimiento.getEstablecimientoDeportivoId() != null ? establecimiento.getFotoEstablecimientoUrl() : null;
-        if (fotoFile != null && !fotoFile.isEmpty()) {
-            String contentType = fotoFile.getContentType();
-            if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
-                bindingResult.rejectValue("fotoEstablecimientoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
-            }
-        }
-
-        if (bindingResult.hasErrors()) {
-            return "admin/establecimientoForm";
-        }
-
-        // Handle S3 image upload
-        boolean isCreation = establecimiento.getEstablecimientoDeportivoId() == null || establecimiento.getEstablecimientoDeportivoId() == 0;
-        if (fotoFile != null && !fotoFile.isEmpty()) {
-            String uploadResult = s3Service.uploadFile(fotoFile);
-            if (uploadResult != null && uploadResult.contains("URL:")) {
-                String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
-                if (fotoUrl.length() > 255) {
-                    bindingResult.rejectValue("fotoEstablecimientoUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
-                    return "admin/establecimientoForm";
-                }
-                establecimiento.setFotoEstablecimientoUrl(fotoUrl);
-            } else {
-                establecimiento.setFotoEstablecimientoUrl(isCreation ? defaultFotoUrl : existingFotoUrl != null ? existingFotoUrl : defaultFotoUrl);
-                attr.addFlashAttribute("message", "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
-                attr.addFlashAttribute("messageType", "error");
-            }
-        } else {
-            establecimiento.setFotoEstablecimientoUrl(isCreation ? defaultFotoUrl : existingFotoUrl != null ? existingFotoUrl : defaultFotoUrl);
-        }
-
-        // Set creation/update timestamps
-        if (isCreation) {
-            establecimiento.setFechaCreacion(LocalDateTime.now());
-            attr.addFlashAttribute("msg", "Establecimiento creado satisfactoriamente");
-        } else {
-            establecimiento.setFechaActualizacion(LocalDateTime.now());
-            attr.addFlashAttribute("msg", "Establecimiento editado satisfactoriamente");
-        }
-
-        establecimientoDeportivoRepository.save(establecimiento);
-        return "redirect:/admin/establecimientos";
-    }
-     */
-
+    // Save establishment
     @PostMapping("establecimientos/guardar")
     public String guardarEstablecimiento(@ModelAttribute("establecimiento") @Valid EstablecimientoDeportivo establecimiento,
                                          BindingResult bindingResult,
                                          @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+                                         @RequestParam(value = "geolocalizacion", required = true) String geolocalizacion,
                                          Model model,
                                          RedirectAttributes attr) {
+        // Validate geolocalizacion format
+        if (geolocalizacion == null || !geolocalizacion.matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
+            bindingResult.rejectValue("geolocalizacion", "Pattern", "Formato inválido (ej: -12.04318,-77.02824)");
+        } else {
+            // Validate latitude and longitude ranges
+            try {
+                String[] coords = geolocalizacion.split(",");
+                double latitude = Double.parseDouble(coords[0].trim());
+                double longitude = Double.parseDouble(coords[1].trim());
+                if (latitude < -90 || latitude > 90) {
+                    bindingResult.rejectValue("geolocalizacion", "Range", "La latitud debe estar entre -90 y 90");
+                }
+                if (longitude < -180 || longitude > 180) {
+                    bindingResult.rejectValue("geolocalizacion", "Range", "La longitud debe estar entre -180 y 180");
+                }
+            } catch (NumberFormatException e) {
+                bindingResult.rejectValue("geolocalizacion", "Format", "Coordenadas inválidas");
+            }
+        }
+
         // Validate image format if provided
         String defaultFotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg";
         String existingFotoUrl = establecimiento.getEstablecimientoDeportivoId() != null ? establecimiento.getFotoEstablecimientoUrl() : null;
@@ -431,13 +422,15 @@ public class AdminController {
                 }
             }
         } else {
-            // No file uploaded; use default for creation or preserve valid existing URL
             establecimiento.setFotoEstablecimientoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
         }
 
         if (bindingResult.hasErrors()) {
             return "admin/establecimientoForm";
         }
+
+        // Set geolocalizacion
+        establecimiento.setGeolocalizacion(geolocalizacion);
 
         // Ensure no empty string is saved
         if (establecimiento.getFotoEstablecimientoUrl() == null || establecimiento.getFotoEstablecimientoUrl().isEmpty()) {
@@ -458,6 +451,7 @@ public class AdminController {
     }
 
 
+
     // List all sports spaces
     @GetMapping("espacios")
     public String listarEspacios(Model model) {
@@ -474,6 +468,7 @@ public class AdminController {
         return "admin/espacioForm";
     }
 
+
     // Show form to edit an existing sports space
     @GetMapping("espacios/editar")
     public String editarEspacioDeportivo(@ModelAttribute("espacio") EspacioDeportivo espacio,
@@ -485,96 +480,50 @@ public class AdminController {
             model.addAttribute("espacio", espacio);
             model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
             model.addAttribute("servicios", servicioDeportivoRepository.findAll());
+            // Pass parsed coordinates for map initialization
+            if (espacio.getGeolocalizacion() != null && espacio.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
+                String[] coords = espacio.getGeolocalizacion().split(",");
+                model.addAttribute("latitude", Double.parseDouble(coords[0].trim()));
+                model.addAttribute("longitude", Double.parseDouble(coords[1].trim()));
+            } else {
+                model.addAttribute("latitude", -12.043333); // Default
+                model.addAttribute("longitude", -77.028333);
+            }
             return "admin/espacioForm";
         } else {
             return "redirect:/admin/establecimientos";
         }
     }
 
-    // Save or update a sports space
-    /*@PostMapping("espacios/guardar")
-    public String guardarEspacioDeportivo(@ModelAttribute("espacio") @Valid EspacioDeportivo espacio,
-                                          BindingResult bindingResult,
-                                          Model model,
-                                          RedirectAttributes attr) {
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
-            model.addAttribute("servicios", servicioDeportivoRepository.findAll());
-            return "admin/espacioForm";
-        } else {
-            if (espacio.getEspacioDeportivoId() == null || espacio.getEspacioDeportivoId() == 0) {
-                attr.addFlashAttribute("msg", "Espacio creado satisfactoriamente");
-                espacio.setFechaCreacion(LocalDateTime.now());
-            } else {
-                attr.addFlashAttribute("msg", "Espacio editado satisfactoriamente");
-            }
-            espacio.setFechaActualizacion(LocalDateTime.now());
-            espacioDeportivoRepository.save(espacio);
-            return "redirect:/admin/establecimientos/info?id=" + espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoId();
-        }
-    }*/
 
-    /*@PostMapping("espacios/guardar")
-    public String guardarEspacioDeportivo(@ModelAttribute("espacio") @Valid EspacioDeportivo espacio,
-                                          BindingResult bindingResult,
-                                          @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
-                                          Model model,
-                                          RedirectAttributes attr) {
-        // Validate image format if provided
-        String defaultFotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg";
-        String existingFotoUrl = espacio.getEspacioDeportivoId() != null ? espacio.getFotoEspacioDeportivoUrl() : null;
-        if (fotoFile != null && !fotoFile.isEmpty()) {
-            String contentType = fotoFile.getContentType();
-            if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
-                bindingResult.rejectValue("fotoEspacioDeportivoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
-            }
-        }
-
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
-            model.addAttribute("servicios", servicioDeportivoRepository.findAll());
-            return "admin/espacioForm";
-        }
-
-        // Handle S3 image upload
-        boolean isCreation = espacio.getEspacioDeportivoId() == null || espacio.getEspacioDeportivoId() == 0;
-        if (fotoFile != null && !fotoFile.isEmpty()) {
-            String uploadResult = s3Service.uploadFile(fotoFile);
-            if (uploadResult != null && uploadResult.contains("URL:")) {
-                String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
-                if (fotoUrl.length() > 255) {
-                    bindingResult.rejectValue("fotoEspacioDeportivoUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
-                    return "admin/espacioForm";
-                }
-                espacio.setFotoEspacioDeportivoUrl(fotoUrl);
-            } else {
-                espacio.setFotoEspacioDeportivoUrl(isCreation ? defaultFotoUrl : existingFotoUrl != null ? existingFotoUrl : defaultFotoUrl);
-                attr.addFlashAttribute("message", "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
-                attr.addFlashAttribute("messageType", "error");
-            }
-        } else {
-            espacio.setFotoEspacioDeportivoUrl(isCreation ? defaultFotoUrl : existingFotoUrl != null ? existingFotoUrl : defaultFotoUrl);
-        }
-
-        // Set creation/update timestamps
-        if (isCreation) {
-            espacio.setFechaCreacion(LocalDateTime.now());
-            attr.addFlashAttribute("msg", "Espacio creado satisfactoriamente");
-        } else {
-            attr.addFlashAttribute("msg", "Espacio editado satisfactoriamente");
-        }
-        espacio.setFechaActualizacion(LocalDateTime.now());
-
-        espacioDeportivoRepository.save(espacio);
-        return "redirect:/admin/establecimientos/info?id=" + espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoId();
-    }*/
-
+    // Save sports space
     @PostMapping("espacios/guardar")
     public String guardarEspacioDeportivo(@ModelAttribute("espacio") @Valid EspacioDeportivo espacio,
                                           BindingResult bindingResult,
                                           @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+                                          @RequestParam(value = "geolocalizacion", required = true) String geolocalizacion,
                                           Model model,
                                           RedirectAttributes attr) {
+        // Validate geolocalizacion format
+        if (geolocalizacion == null || !geolocalizacion.matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
+            bindingResult.rejectValue("geolocalizacion", "Pattern", "Formato inválido (ej: -12.04318,-77.02824)");
+        } else {
+            // Validate latitude and longitude ranges
+            try {
+                String[] coords = geolocalizacion.split(",");
+                double latitude = Double.parseDouble(coords[0].trim());
+                double longitude = Double.parseDouble(coords[1].trim());
+                if (latitude < -90 || latitude > 90) {
+                    bindingResult.rejectValue("geolocalizacion", "Range", "La latitud debe estar entre -90 y 90");
+                }
+                if (longitude < -180 || longitude > 180) {
+                    bindingResult.rejectValue("geolocalizacion", "Range", "La longitud debe estar entre -180 y 180");
+                }
+            } catch (NumberFormatException e) {
+                bindingResult.rejectValue("geolocalizacion", "Format", "Coordenadas inválidas");
+            }
+        }
+
         // Validate image format if provided
         String defaultFotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg";
         String existingFotoUrl = espacio.getEspacioDeportivoId() != null ? espacio.getFotoEspacioDeportivoUrl() : null;
@@ -602,7 +551,6 @@ public class AdminController {
                 }
             }
         } else {
-            // No file uploaded; use default for creation or preserve valid existing URL
             espacio.setFotoEspacioDeportivoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
         }
 
@@ -611,6 +559,9 @@ public class AdminController {
             model.addAttribute("servicios", servicioDeportivoRepository.findAll());
             return "admin/espacioForm";
         }
+
+        // Set geolocalizacion
+        espacio.setGeolocalizacion(geolocalizacion);
 
         // Ensure no empty string is saved
         if (espacio.getFotoEspacioDeportivoUrl() == null || espacio.getFotoEspacioDeportivoUrl().isEmpty()) {
@@ -631,19 +582,38 @@ public class AdminController {
     }
 
 
-    // Show details of a sports space
+
     @GetMapping("espacios/detalle")
-    public String detalleEspacioDeportivo(@ModelAttribute("espacio") EspacioDeportivo espacio,
-                                          @RequestParam Integer id,
-                                          Model model) {
-        Optional<EspacioDeportivo> optEspacio = Optional.ofNullable(espacioDeportivoRepository.findById(id).orElse(null));
-        if (optEspacio.isPresent()) {
-            espacio = optEspacio.get();
-            model.addAttribute("espacio", espacio);
-            return "admin/espacioInfo";
-        } else {
+    public String detalleEspacioDeportivo(@RequestParam Integer id, Model model) {
+        Optional<EspacioDeportivo> optEspacio = espacioDeportivoRepository.findById(id);
+        if (optEspacio.isEmpty()) {
+            System.out.println("Espacio no encontrado para ID: " + id);
             return "redirect:/admin/establecimientos";
         }
+        EspacioDeportivo espacio = optEspacio.get();
+        System.out.println("Espacio ID: " + id + ", Geolocalizacion: " + espacio.getGeolocalizacion());
+        model.addAttribute("espacio", espacio);
+        // Split geolocalizacion into doubles
+        if (espacio.getGeolocalizacion() != null && espacio.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
+            String[] coords = espacio.getGeolocalizacion().split(",");
+            try {
+                model.addAttribute("latitude", Double.parseDouble(coords[0].trim()));
+                model.addAttribute("longitude", Double.parseDouble(coords[1].trim()));
+                System.out.println("Latitude: " + coords[0].trim() + ", Longitude: " + coords[1].trim());
+            } catch (NumberFormatException e) {
+                model.addAttribute("latitude", -12.043333);
+                model.addAttribute("longitude", -77.028333);
+                System.out.println("Error al parsear coordenadas, usando valores por defecto");
+            }
+        } else {
+            model.addAttribute("latitude", -12.043333);
+            model.addAttribute("longitude", -77.028333);
+            System.out.println("Geolocalizacion nula o inválida: " + espacio.getGeolocalizacion());
+        }
+        // Add debug attribute
+        model.addAttribute("debugController", "detalleEspacioDeportivo_" + System.currentTimeMillis());
+        System.out.println("Model attributes set: espacio=" + espacio + ", latitude=" + model.getAttribute("latitude") + ", debugController=" + model.getAttribute("debugController"));
+        return "admin/espacioInfo";
     }
 
     @GetMapping("coordinadores")
@@ -669,94 +639,6 @@ public class AdminController {
         return "redirect:/admin/dashboard";
     }
 
-    /*
-    // New method to render the edit profile form
-    @GetMapping("/perfil/editar")
-    public String editarPerfilAdministrador(@SessionAttribute("usuario") Usuario usuario, Model model) {
-        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuario.getUsuarioId());
-        if (usuarioOptional.isPresent()) {
-            model.addAttribute("usuario", usuarioOptional.get());
-            return "admin/editarPerfil";
-        }
-        return "redirect:/admin/dashboard";
-    }
-
-    // New method to handle profile update
-    @PostMapping("/perfil/actualizar")
-    public String actualizarPerfil(
-            @Valid @ModelAttribute("usuario") Usuario usuarioActualizado,
-            BindingResult result,
-            @RequestParam(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
-            HttpSession session,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-
-        // Validate image format if provided
-        String defaultFotoPerfilUrl = usuario.getFotoPerfilUrl() != null && !usuario.getFotoPerfilUrl().isEmpty()
-                ? usuario.getFotoPerfilUrl()
-                : "https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg";
-        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
-            String contentType = fotoPerfil.getContentType();
-            if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
-                result.rejectValue("fotoPerfilUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
-            }
-        }
-
-        // If there are validation errors, return the form
-        if (result.hasErrors()) {
-            return "admin/editarPerfil";
-        }
-
-        // Update allowed fields
-        usuario.setTelefono(usuarioActualizado.getTelefono());
-        usuario.setDireccion(usuarioActualizado.getDireccion());
-
-        // Handle S3 photo upload
-        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
-            String uploadResult = s3Service.uploadFile(fotoPerfil);
-            if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
-                String fotoPerfilUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
-                if (fotoPerfilUrl.length() > 255) {
-                    result.rejectValue("fotoPerfilUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
-                    return "admin/editarPerfil";
-                }
-                if (fotoPerfilUrl.isEmpty()) {
-                    result.rejectValue("fotoPerfilUrl", "Invalid", "La URL generada está vacía");
-                    return "admin/editarPerfil";
-                }
-                usuario.setFotoPerfilUrl(fotoPerfilUrl);
-                redirectAttributes.addFlashAttribute("message", "Foto de perfil actualizada exitosamente.");
-                redirectAttributes.addFlashAttribute("messageType", "success");
-            } else {
-                usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
-                redirectAttributes.addFlashAttribute("message", "Error al subir la foto de perfil: " +
-                        (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
-                redirectAttributes.addFlashAttribute("messageType", "error");
-            }
-        } else {
-            // No file uploaded; preserve existing or use default
-            usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
-        }
-
-        // Ensure fotoPerfilUrl is never empty
-        if (usuario.getFotoPerfilUrl() == null || usuario.getFotoPerfilUrl().isEmpty()) {
-            usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
-        }
-
-        // Update timestamp
-        usuario.setFechaActualizacion(LocalDateTime.now());
-
-        // Save changes
-        usuarioRepository.save(usuario);
-
-        // Update session
-        session.setAttribute("usuario", usuario);
-
-        redirectAttributes.addFlashAttribute("msg", "Perfil actualizado satisfactoriamente");
-        return "redirect:/admin/perfil";
-    }
-    */
 
     @GetMapping("/perfil/editar")
     public String editarPerfilAdministrador(@SessionAttribute("usuario") Usuario usuario, Model model) {
