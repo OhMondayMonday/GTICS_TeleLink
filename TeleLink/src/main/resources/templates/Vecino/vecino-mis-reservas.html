@@ -7,7 +7,7 @@
         <div id="layout-wrapper">
             <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Mis Reservas')}"></div>
 <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
-            <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Mis Reservas')}"></div>
+            <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('reservas')}"></div>
  <!-- =============================================================================================================================== -->
             <div class="main-content">
                 <div class="page-content">
@@ -97,7 +97,6 @@
                                                     </td>
 
                                                     <td>
-                                                        <!-- Obtener el método de pago con una consulta en línea -->
                                                         <div th:with="pago=${@pagoRepository.findByReserva(reserva).orElse(null)}">
                                                             <span th:if="${pago != null}" th:text="${pago.metodoPago.metodoPago}">Método de Pago</span>
                                                             <span th:if="${pago == null}">Pendiente</span>
@@ -105,14 +104,17 @@
                                                     </td>
 
                                                     <td>
-                                                        <span th:if="${reserva.estado.name() == 'pendiente'}" class="badge bg-warning">Pendiente</span>
-                                                        <span th:if="${reserva.estado.name() == 'confirmada'}" class="badge bg-success">Confirmada</span>
-                                                        <span th:if="${reserva.estado.name() == 'cancelada'}" class="badge bg-danger">Cancelada</span>
+                                                        <span th:switch="${reserva.estado.name()}">
+                                                            <span th:case="'pendiente'" class="badge bg-warning">Pendiente</span>
+                                                            <span th:case="'confirmada'" class="badge bg-info">Confirmada</span>
+                                                            <span th:case="'cancelada'" class="badge bg-danger">Cancelada</span>
+                                                            <span th:case="'completada'" class="badge bg-success">Completada</span>
+                                                        </span>
                                                     </td>
 
                                                     <td class="text-center">
                                                         <a th:href="@{'/usuarios/reservas/' + ${reserva.espacioDeportivo.espacioDeportivoId}}"
-                                                           class="btn btn-sm btn-outline-primary mb-1">Ver detalles</a>
+                                                           class="btn btn-sm btn-outline-primary">Ver detalles</a>
 
                                                         <!-- Mostrar botón de cancelar solo si la reserva no está ya cancelada -->
                                                         <button th:if="${reserva.estado.name() != 'cancelada'}"
@@ -167,71 +169,39 @@
         </div>
         <!-- END layout-wrapper -->
 
-        <!-- Right Sidebar -->
-        <div class="right-bar">
-            <div data-simplebar class="h-100">
-                <div class="rightbar-title d-flex align-items-center px-3 py-4">
-            
-                    <h5 class="m-0 me-2">Settings</h5>
-
-                    <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
-                        <i class="mdi mdi-close noti-icon"></i>
-                    </a>
-                </div>
-
-                <!-- Settings -->
-                <hr class="mt-0" />
-                <h6 class="text-center mb-0">Choose Layouts</h6>
-
-                <div class="p-4">
-                    <div class="mb-2">
-                        <img src="assets/images/layouts/layout-1.jpg" class="img-fluid img-thumbnail" alt="layout-1">
-                    </div>
-
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input theme-choice" type="checkbox" id="light-mode-switch" checked>
-                        <label class="form-check-label" for="light-mode-switch">Light Mode</label>
-                    </div>
-    
-                    <div class="mb-2">
-                        <img src="assets/images/layouts/layout-2.jpg" class="img-fluid img-thumbnail" alt="layout-2">
-                    </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch" data-bsStyle="assets/css/bootstrap-dark.min.css" data-appStyle="assets/css/app-dark.min.html">
-                        <label class="form-check-label" for="dark-mode-switch">Dark Mode</label>
-                    </div>
-    
-                    <div class="mb-2">
-                        <img src="assets/images/layouts/layout-3.jpg" class="img-fluid img-thumbnail" alt="layout-3">
-                    </div>
-                    <div class="form-check form-switch mb-5">
-                        <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
-                        <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
-                    </div>
-
-            
-                </div>
-
-            </div> <!-- end slimscroll-menu-->
-        </div>
-        <!-- /Right-bar -->
-
-        <!-- Right bar overlay-->
-        <div class="rightbar-overlay"></div>
+        <div class="sidebar-overlay"></div>
 
         <!-- JAVASCRIPT -->
-          <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
-          <script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
-          <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
-          <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
-          <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+        <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+        <script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+        <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+        <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+        <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
 
-        <!-- Bootrstrap touchspin -->
-        <script src="assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js"></script>
+        <!-- apexcharts -->
+        <script th:src="@{/assets/libs/apexcharts/apexcharts.min.js}"></script>
 
-        <script src="assets/js/pages/ecommerce-cart.init.js"></script>
+        <!-- jquery.vectormap map -->
+        <script th:src="@{/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js}"></script>
+        <script th:src="@{/assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js}"></script>
 
-        <script src="assets/js/app.js"></script>
+        <!-- plugin js -->
+        <script th:src="@{/assets/libs/moment/min/moment.min.js}"></script>
+        <script th:src="@{/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/core/main.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
+
+        <!-- Required datatable js -->
+        <script th:src="@{/assets/libs/datatables.net/js/jquery.dataTables.min.js}"></script>
+        <script th:src="@{/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js}"></script>
+
+        <!-- Responsive examples -->
+        <script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
+        <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
+        <script th:src="@{/assets/js/app.js}"></script>
 
 
     <script>

@@ -31,25 +31,33 @@
                 </li>
 
                 <li th:class="${activeItem == 'canchas' || activeItem == 'buscar-canchas' ? 'mm-active' : ''}">
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                    <a th:href="@{/usuarios/cancha}" class="waves-effect">
+                        <i class="ri-map-pin-line"></i>
+                        <span>Canchas Disponibles</span>
+                    </a>
+                    <!--<a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="ri-map-pin-line"></i>
                         <span>Buscar Canchas</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
                         <li th:class="${activeItem == 'canchas' ? 'mm-active' : ''}">
                             <a th:href="@{/usuarios/cancha}">Canchas Disponibles</a></li>
-                    </ul>
+                    </ul>-->
                 </li>
 
                 <li th:class="${activeItem == 'pagos' ? 'mm-active' : ''}">
-                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                    <a th:href="@{/usuarios/pagos}" class="waves-effect">
+                        <i class="ri-bank-card-line"></i>
+                        <span>Mis Pagos</span>
+                    </a>
+                    <!--<a href="javascript: void(0);" class="has-arrow waves-effect">
                         <i class="ri-bank-card-line"></i>
                         <span>Pagos</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
                         <li th:class="${activeItem == 'pagos' ? 'mm-active' : ''}">
                             <a th:href="@{/usuarios/pagos}">Mis Pagos</a></li>
-                    </ul>
+                    </ul>-->
                 </li>
 
                 <li class="menu-title">Ayuda</li>

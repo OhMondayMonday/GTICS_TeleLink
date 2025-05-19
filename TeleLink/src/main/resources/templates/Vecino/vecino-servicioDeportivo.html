@@ -5,85 +5,7 @@
 <body data-sidebar="dark" class="vertical-collpsed">
 <!-- Begin page -->
 <div id="layout-wrapper">
-    <header id="page-topbar">
-        <div class="navbar-header">
-            <div class="d-flex">
-                <!-- LOGO -->
-                <div class="navbar-brand-box">
-
-                    <a href="" class="logo logo-light">
-                                <span class="logo-sm">
-                                    <img th:src="@{/assets/images/logo-San-Miguel-1.webp}" alt="logo-sanmiguel" height="25">
-                                </span>
-                        <span class="logo-lg">
-                                    <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-sanmiguel" height="40" class="me-2">
-                                    <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
-                                </span>
-                    </a>
-                </div>
-
-                <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
-                    <i class="ri-menu-2-line align-middle"></i>
-                </button>
-
-            </div>
-
-            <div class="d-flex">
-
-                <div class="dropdown d-inline-block d-lg-none ms-2">
-                    <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-search-line"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                         aria-labelledby="page-header-search-dropdown">
-
-                        <form class="p-3">
-                            <div class="mb-3 m-0">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Search ...">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="submit"><i class="ri-search-line"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="dropdown d-none d-lg-inline-block ms-1">
-                    <button type="button" class="btn header-item noti-icon waves-effect" data-toggle="fullscreen">
-                        <i class="ri-fullscreen-line"></i>
-                    </button>
-                </div>
-
-
-                <div class="dropdown d-inline-block user-dropdown">
-                    <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <img class="rounded-circle header-profile-user" src="/assets/images/users/user1.jfif" alt="Header Avatar">
-                        <span class="d-none d-xl-inline-block ms-1">Dorian</span>
-                        <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <!-- item-->
-                        <a class="dropdown-item" th:href="@{/usuarios/perfil}"><i class="ri-user-line align-middle me-1"></i>Mi perfil</a>
-                        <a class="dropdown-item d-block" href="#"><span class="badge bg-success float-end mt-1">11</span><i class="ri-settings-2-line align-middle me-1"></i> Settings</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a>
-                    </div>
-                </div>
-
-                <div class="dropdown d-inline-block">
-                    <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
-                        <i class="ri-settings-2-line"></i>
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </header>
-
+    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Servicio Deportivo')}"></div>
     <!-- ==================================================================================================================================== -->
     <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Servicio Deportivo')}"></div>
     <!-- ========================================================================================================================================== -->
@@ -100,7 +22,11 @@
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a th:href="@{/usuarios/cancha}">Cancha Disponible</a></li>
-                                    <li class="breadcrumb-item active">Cancha de fútbol (Grass sintético)</li>
+                                    <li class="breadcrumb-item active"
+                                        th:text="${espacio.servicioDeportivo != null ? espacio.servicioDeportivo.servicioDeportivo : 'Sin categoría'}">
+                                        Tipo de espacio (Tipo de servicio)
+                                    </li>
+
                                 </ol>
                             </div>
 
@@ -121,7 +47,7 @@
                                         <!-- Columna de imagen y botones -->
                                         <div class="col-md-5">
                                             <div class="card border-0 shadow-sm rounded-3" data-aos="fade-right">
-                                                <img th:src="@{|/assets/images/small/${espacio.fotoEspacioDeportivoUrl}|}" alt="Espacio Deportivo" class="img-fluid rounded-top" style="max-height: 220px; object-fit: cover;">
+                                                <img th:src="${espacio.fotoEspacioDeportivoUrl}" alt="Espacio Deportivo" class="img-fluid rounded-top" style="max-height: 220px; object-fit: cover;">
                                                 <div class="card-body text-center py-3">
                                                     <h6 class="fw-semibold mb-3">Reserva tu horario</h6>
                                                     <div class="d-flex justify-content-center gap-2">
@@ -136,7 +62,11 @@
                                         <!-- Columna de información -->
                                         <div class="col-md-7">
                                             <div class="bg-white border rounded-3 shadow-sm p-3 h-100" data-aos="fade-left">
-                                                <span class="badge bg-primary mb-2">Cancha de Fútbol</span>
+
+                                                <span class="badge bg-primary mb-2"
+                                                      th:text="${espacio.servicioDeportivo != null ? espacio.servicioDeportivo.servicioDeportivo : 'Sin categoría'}">
+                                                </span>
+
                                                 <h5 class="fw-bold mb-1" th:text="${espacio.nombre}"></h5>
 
                                                 <!-- Estrellas -->
@@ -155,19 +85,34 @@
                                                 <ul class="list-unstyled small mb-0">
                                                     <li class="mb-2 d-flex align-items-start">
                                                         <i class="mdi mdi-check-circle-outline text-primary me-2 fs-5"></i>
-                                                        <span><strong>Tipo:</strong> Fútbol Loza / Sintética</span>
+                                                        <span><strong>Tipo:</strong>
+                                                            <span th:if="${espacio.servicioDeportivo != null and espacio.servicioDeportivo.servicioDeportivo != null}"
+                                                                  th:text="${espacio.servicioDeportivo.servicioDeportivo}">Tipo servicio</span>
+                                                            <span th:if="${espacio.servicioDeportivo == null or espacio.servicioDeportivo.servicioDeportivo == null}">
+                                                                Servicio no definido
+                                                            </span>
+                                                        </span>
                                                     </li>
                                                     <li class="mb-2 d-flex align-items-start">
                                                         <i class="mdi mdi-map-marker text-danger me-2 fs-5"></i>
-                                                        <span><strong>Ubicación:</strong> Av. La Marina 1234, San Miguel</span>
+                                                        <span><strong>Establecimiento:</strong>
+                                                            <span th:text="${espacio.establecimientoDeportivo != null ? espacio.establecimientoDeportivo.establecimientoDeportivoNombre : 'No definida'}">Ubicación</span>
+                                                        </span>
                                                     </li>
                                                     <li class="mb-2 d-flex align-items-start">
                                                         <i class="mdi mdi-currency-usd text-success me-2 fs-5"></i>
-                                                        <span><strong>Precio:</strong> S/ 50.00 por hora</span>
+                                                        <span><strong>Precio:</strong>
+                                                            <span th:text="${espacio.precioPorHora != null ? 'S/ ' + espacio.precioPorHora + ' por hora' : 'No definido'}">Precio</span>
+                                                        </span>
                                                     </li>
                                                     <li class="mb-2 d-flex align-items-start">
                                                         <i class="mdi mdi-timer-sand text-warning me-2 fs-5"></i>
-                                                        <span><strong>Estado:</strong> <span class="text-success">Disponible</span></span>
+                                                        <span><strong>Estado:</strong>
+                                                            <span th:text="${espacio.estadoServicio != null ? espacio.estadoServicio : 'Desconocido'}"
+                                                                  th:classappend="${espacio.estadoServicio == 'Disponible' ? 'text-success' : 'text-danger'}">
+                                                                Estado
+                                                            </span>
+                                                        </span>
                                                     </li>
                                                     <li class="mb-1 d-flex align-items-start">
                                                         <i class="mdi mdi-cancel text-muted me-2 fs-5"></i>
@@ -175,7 +120,9 @@
                                                     </li>
                                                     <li class="mb-2 d-flex align-items-start">
                                                         <i class="mdi mdi-credit-card-outline text-primary me-2 fs-5"></i>
-                                                        <span><strong>Forma de Pago:</strong> Procede al pago (puede ser online o por depósito bancario).</span>
+                                                        <span><strong>Forma de Pago:</strong>
+                                                            <span>Procede al pago (puede ser online o por depósito bancario).</span>
+                                                        </span>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -197,9 +144,12 @@
                                             <div class="tab-content border border-top-0 p-4">
                                                 <!-- Descripción -->
                                                 <div class="tab-pane fade show active" id="desc" role="tabpanel">
-                                                    <p>Disfruta del fútbol en cualquiera de nuestras canchas, una con superficie de loza y otra con césped sintético, ambas perfectamente equipadas para que juegues sin preocupaciones.</p>
+                                                    <p>Disfruta del deporte en cualquiera de nuestras canchas, una con superficie de loza y otra con césped sintético, ambas perfectamente equipadas para que juegues sin preocupaciones. Piscina climatizada y pista de atletismo en diversos establecimientos.</p>
                                                     <p>Ya sea para un partido entre amigos o para entrenar tus habilidades, nuestras canchas son el lugar ideal para divertirte y mejorar tu técnica.</p>
-                                                    <p>Visítanos en la Av. Federico Gallese N°370, San Miguel, Lima - Perú.</p>
+                                                    <p>Visítanos en
+                                                        <a th:href="'https://www.google.com/maps?q=' + ${espacio.establecimientoDeportivo.geolocalizacion}"
+                                                           target="_blank">ver ubicación en el mapa</a>.
+                                                    </p>
                                                 </div>
 
                                                 <!-- Especificaciones -->
@@ -209,7 +159,7 @@
                                                             <tbody>
                                                             <tr>
                                                                 <th scope="row" style="width: 400px;">Tipo</th>
-                                                                <td>Loza / Césped Sintético</td>
+                                                                <td th:text="${espacio.servicioDeportivo.servicioDeportivo}">Servicio Deportivo</td>
                                                             </tr>
                                                             <tr>
                                                                 <th scope="row">Dimensiones</th>
@@ -217,7 +167,7 @@
                                                             </tr>
                                                             <tr>
                                                                 <th scope="row">Aforo</th>
-                                                                <td>10 - 20 personas</td>
+                                                                <td>20 personas</td>
                                                             </tr>
                                                             <tr>
                                                                 <th scope="row">Accesibilidad</th>
@@ -255,33 +205,15 @@
                                     AOS.init();
                                 </script>
 
-
                             </div>
                         </div>
                         <!-- end card -->
                     </div>
                 </div>
                 <!-- end row -->
-
-
-            </div> <!-- container-fluid -->
+            </div>
         </div>
         <!-- End Page-content -->
-
-        <footer class="footer">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <script>document.write(new Date().getFullYear())</script> © Nazox.
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-end d-none d-sm-block">
-                            Crafted with <i class="mdi mdi-heart text-danger"></i> by Themesdesign
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
     </div>
     <!-- end main content-->
 
@@ -329,10 +261,7 @@
                 <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch" data-appStyle="assets/css/app-rtl.min.css">
                 <label class="form-check-label" for="rtl-mode-switch">RTL Mode</label>
             </div>
-
-
         </div>
-
     </div> <!-- end slimscroll-menu-->
 </div>
 <!-- /Right-bar -->

@@ -33,7 +33,7 @@
 
                                 <h4 class="card-title mb-4 fw-semibold mt-3">Formulario de creación de Establecimiento Deportivo</h4>
 
-                                <form th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post">
+                                <form th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post" enctype="multipart/form-data">
 
                                     <input type="hidden" th:field="*{establecimientoDeportivoId}" />
 
@@ -107,10 +107,10 @@
 
                                     <!-- Geolocalización -->
                                     <div class="mb-4">
-                                        <label class="form-label">Geolocalización (lat,long)</label>
-                                        <input type="text" class="form-control"
-                                               th:field="*{geolocalizacion}"
-                                               placeholder="Ej. -12.04318,-77.02824"
+                                        <label class="form-label">Ubicación</label>
+                                        <input type="text" id="search-place" class="form-control" placeholder="Buscar dirección">
+                                        <div id="gmaps-markers" class="gmaps" style="height: 300px; width: 100%; margin-top: 10px;"></div>
+                                        <input type="hidden" th:field="*{geolocalizacion}" id="geolocalizacion"
                                                th:classappend="${#fields.hasErrors('geolocalizacion')} ? 'is-invalid' : ''">
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('geolocalizacion')}" th:errors="*{geolocalizacion}"></div>
                                     </div>
@@ -120,14 +120,16 @@
                                         <div class="col-md-6">
                                             <label class="form-label">Horario de apertura</label>
                                             <input type="time" class="form-control"
-                                                   name="horarioApertura"
-                                                   th:value="${establecimiento.horarioApertura?.toString()?.substring(0,5)}">
+                                                   th:field="*{horarioApertura}"
+                                                   th:classappend="${#fields.hasErrors('horarioApertura')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('horarioApertura')}" th:errors="*{horarioApertura}"></div>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Horario de cierre</label>
                                             <input type="time" class="form-control"
-                                                   name="horarioCierre"
-                                                   th:value="${establecimiento.horarioCierre?.toString()?.substring(0,5)}">
+                                                   th:field="*{horarioCierre}"
+                                                   th:classappend="${#fields.hasErrors('horarioCierre')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('horarioCierre')}" th:errors="*{horarioCierre}"></div>
                                         </div>
                                     </div>
 
@@ -155,6 +157,19 @@
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('motivoMantenimiento')}" th:errors="*{motivoMantenimiento}"></div>
                                     </div>
 
+                                    <!-- Foto del establecimiento -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Foto del establecimiento</label>
+                                        <input type="file" name="fotoFile" class="form-control"
+                                               accept="image/jpeg,image/png,image/jpg"
+                                               th:classappend="${#fields.hasErrors('fotoEstablecimientoUrl')} ? 'is-invalid' : ''" />
+                                        <input type="hidden" th:field="*{fotoEstablecimientoUrl}" />
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fotoEstablecimientoUrl')}" th:errors="*{fotoEstablecimientoUrl}"></div>
+                                        <img th:if="${establecimiento.fotoEstablecimientoUrl != null}"
+                                             th:src="${establecimiento.fotoEstablecimientoUrl}"
+                                             style="max-height: 100px; margin-top: 10px;" alt="Foto actual"/>
+                                    </div>
+
                                     <!-- Botones -->
                                     <button type="submit" class="btn btn-primary">Guardar establecimiento</button>
                                     <a th:href="@{/admin/establecimientos}" class="btn btn-secondary ms-2">Cancelar</a>
@@ -175,9 +190,13 @@
 <div class="sidebar-overlay"></div>
 <div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
 
-<!-- JavaScript to Handle Conditional Motivo Mantenimiento Field -->
+<!-- JavaScript to Handle Conditional Motivo Mantenimiento Field and Map -->
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o&libraries=places"></script>
+<script th:src="@{/assets/libs/gmaps/gmaps.min.js}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Conditional Motivo Mantenimiento Field
         const estadoSelect = document.getElementById('estadoSelect');
         const motivoMantenimientoField = document.getElementById('motivoMantenimientoField');
 
@@ -193,11 +212,72 @@
             }
         }
 
-        // Run on page load to handle pre-selected values (e.g., during form validation errors)
+        // Run on page load to handle pre-selected values
         toggleMotivoField();
 
         // Run on change of the select dropdown
         estadoSelect.addEventListener('change', toggleMotivoField);
+
+        // Map Initialization
+        var map = new GMaps({
+            div: '#gmaps-markers',
+            lat: /*[[${latitude}]]*/ -12.043333,
+            lng: /*[[${longitude}]]*/ -77.028333,
+            zoom: 15
+        });
+
+        var marker = null;
+        var geolocalizacionInput = document.getElementById('geolocalizacion');
+
+        // Initialize marker if coordinates exist
+        if (geolocalizacionInput.value) {
+            var coords = geolocalizacionInput.value.split(',');
+            if (coords.length === 2) {
+                var lat = parseFloat(coords[0].trim());
+                var lng = parseFloat(coords[1].trim());
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    map.setCenter(lat, lng);
+                    marker = map.addMarker({
+                        lat: lat,
+                        lng: lng,
+                        title: 'Ubicación seleccionada'
+                    });
+                }
+            }
+        }
+
+        // Places Autocomplete
+        var input = document.getElementById('search-place');
+        var autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.addListener('place_changed', function () {
+            var place = autocomplete.getPlace();
+            if (place.geometry) {
+                var lat = place.geometry.location.lat();
+                var lng = place.geometry.location.lng();
+                map.setCenter(lat, lng);
+                if (marker) marker.setMap(null);
+                marker = map.addMarker({
+                    lat: lat,
+                    lng: lng,
+                    title: 'Ubicación seleccionada'
+                });
+                geolocalizacionInput.value = lat + ',' + lng;
+            }
+        });
+
+        // Map Click Handler
+        google.maps.event.addListener(map.map, 'click', function (e) {
+            var lat = e.latLng.lat();
+            var lng = e.latLng.lng();
+            map.setCenter(lat, lng);
+            if (marker) marker.setMap(null);
+            marker = map.addMarker({
+                lat: lat,
+                lng: lng,
+                title: 'Ubicación seleccionada'
+            });
+            geolocalizacionInput.value = lat + ',' + lng;
+        });
     });
 </script>
 </body>

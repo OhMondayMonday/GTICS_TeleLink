@@ -52,23 +52,23 @@ INSERT INTO establecimientos_deportivos (
 -- 5. Insertar Espacios Deportivos
 INSERT INTO espacios_deportivos (
     nombre, servicio_deportivo_id, establecimiento_deportivo_id, max_personas_por_carril, carriles_piscina, longitud_piscina, profundidad_piscina, 
-    descripcion, aforo_gimnasio, longitud_pista, carriles_pista, geolocalizacion, estado_servicio, numero_soporte, horario_apertura, horario_cierre, 
+    descripcion, foto_espacio_deportivo_url, aforo_gimnasio, longitud_pista, carriles_pista, geolocalizacion, estado_servicio, numero_soporte, horario_apertura, horario_cierre, 
     precio_por_hora, fecha_creacion
 ) VALUES
 -- Piscina
-('Piscina Olímpica', 1, 1, 4, 8, 50, 2.00, 'Piscina reglamentaria para competencias.', NULL, NULL, NULL, '-12.098145,-77.035672', 'operativo', '987654321', '06:00:00', '20:00:00', 100.00, NOW()),
+('Piscina Olímpica', 1, 1, 4, 8, 50, 2.00, 'Piscina reglamentaria para competencias.', 'https://www.aqualab.com.pe/wp-content/uploads/2015/05/Piscina-olimpica-San-Borja-03.jpg', NULL, NULL, NULL, '-12.098145,-77.035672', 'operativo', '987654321', '06:00:00', '20:00:00', 100.00, NOW()),
 -- Pista de Atletismo
-('Pista Profesional', 2, 2, NULL, NULL, NULL, NULL, 'Pista de tartán de 400m.', NULL, 400.00, 6, '-12.145123,-77.002345', 'operativo', '987654322', '07:00:00', '19:00:00', 80.00, NOW()),
+('Pista Profesional', 2, 2, NULL, NULL, NULL, NULL, 'Pista de tartán de 400m.', 'https://media.istockphoto.com/id/1329740922/photo/directly-above-drone-point-of-view-asian-chinese-male-athlete-running-at-mens-track-rainy.jpg?s=1024x1024&w=is&k=20&c=kIZQRXsI2N2QR0JtRFPNwLO_PD1DEUahJUtLYEgxX60=', NULL, 400.00, 6, '-12.145123,-77.002345', 'operativo', '987654322', '07:00:00', '19:00:00', 80.00, NOW()),
 -- Gimnasio
-('Gimnasio Central', 3, 3, NULL, NULL, NULL, NULL, 'Gimnasio equipado con máquinas modernas.', 50, NULL, NULL, '-12.121987,-77.029876', 'mantenimiento', '987654323', '08:00:00', '21:00:00', 150.00, NOW()),
+('Gimnasio Central', 3, 3, NULL, NULL, NULL, NULL, 'Gimnasio equipado con máquinas modernas.', 'https://media.istockphoto.com/id/2014735311/photo/young-man-training-with-battle-rope-while-listening-to-music-in-the-gym.jpg?s=1024x1024&w=is&k=20&c=G67jldMbUEXfXFd7pPtJlSC0M9XeOg3W3wnqSQCi-Kk=', 50, NULL, NULL, '-12.121987,-77.029876', 'mantenimiento', '987654323', '08:00:00', '21:00:00', 150.00, NOW()),
 -- Cancha de Fútbol
-('Cancha Principal', 4, 1, NULL, NULL, NULL, NULL, 'Cancha de césped sintético para 11 jugadores.', NULL, NULL, NULL, '-12.098145,-77.035672', 'operativo', '987654321', '07:00:00', '22:00:00', 120.00, NOW()),
+('Cancha Principal', 4, 1, NULL, NULL, NULL, NULL, 'Cancha de césped sintético para 11 jugadores.', 'https://cdn.pixabay.com/photo/2014/10/14/20/24/soccer-488700_1280.jpg', NULL, NULL, NULL, '-12.098145,-77.035672', 'operativo', '987654321', '07:00:00', '22:00:00', 120.00, NOW()),
 -- Cancha de Básquet
-('Cancha de Básquet 1', 5, 2, NULL, NULL, NULL, NULL, 'Cancha cubierta para básquet profesional.', NULL, NULL, NULL, '-12.145123,-77.002345', 'operativo', '987654322', '07:00:00', '21:00:00', 90.00, NOW()),
+('Cancha de Básquet 1', 5, 2, NULL, NULL, NULL, NULL, 'Cancha cubierta para básquet profesional.', 'https://cdn.pixabay.com/photo/2017/04/25/05/44/basketball-2258650_1280.jpg', NULL, NULL, NULL, '-12.145123,-77.002345', 'operativo', '987654322', '07:00:00', '21:00:00', 90.00, NOW()),
 -- Cancha de Vóley
-('Cancha de Vóley 1', 6, 3, NULL, NULL, NULL, NULL, 'Cancha cubierta para vóley.', NULL, NULL, NULL, '-12.121987,-77.029876', 'clausurado', '987654323', '08:00:00', '20:00:00', 85.00, NOW()),
+('Cancha de Vóley 1', 6, 3, NULL, NULL, NULL, NULL, 'Cancha cubierta para vóley.', 'https://integralspor.com/uploads/facility/original/voleybol-sahalari-27752.jpg', NULL, NULL, NULL, '-12.121987,-77.029876', 'clausurado', '987654323', '08:00:00', '20:00:00', 85.00, NOW()),
 -- Cancha Multipropósito
-('Cancha Multiusos', 7, 1, NULL, NULL, NULL, NULL, 'Cancha para fútbol sala, básquet y vóley.', NULL, NULL, NULL, '-12.098145,-77.035672', 'operativo', '987654321', '06:00:00', '22:00:00', 110.00, NOW());
+('Cancha Multiusos', 7, 1, NULL, NULL, NULL, NULL, 'Cancha para fútbol sala, básquet y vóley.', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3io1QcfXSWlb_l60O70J7lYHU_0KZzMhTvQ&s', NULL, NULL, NULL, '-12.098145,-77.035672', 'operativo', '987654321', '06:00:00', '22:00:00', 110.00, NOW());
 
 -- 6. Insertar Tipos de Actividades
 INSERT INTO tipos_actividades (tipo_actividad) VALUES
@@ -158,6 +158,9 @@ INSERT INTO reservas (
 (6, 1, '2025-05-11 10:00:00', '2025-05-11 11:00:00', 2, NULL, 'confirmada', NOW()),
 (7, 4, '2025-05-12 15:00:00', '2025-05-12 17:00:00', NULL, NULL, 'pendiente', NOW()),
 (8, 2, '2025-05-10 08:00:00', '2025-05-10 09:00:00', NULL, 3, 'confirmada', NOW()),
+(6, 7, '2025-05-11 10:00:00', '2025-05-11 11:00:00', 2, NULL, 'confirmada', NOW()),
+(6, 6, '2025-05-12 15:00:00', '2025-05-12 17:00:00', NULL, NULL, 'pendiente', NOW()),
+(10, 2, '2025-05-10 08:00:00', '2025-05-10 09:00:00', NULL, 3, 'confirmada', NOW()),
 (9, 5, '2025-05-13 18:00:00', '2025-05-13 19:00:00', NULL, NULL, 'cancelada', NOW());
 
 -- 17. Insertar Pagos
@@ -167,7 +170,10 @@ INSERT INTO pagos (
 (1, 1, 100.00, 'completado', 'TXN001', NULL, NOW(), 'Pago por reserva de piscina.'),
 (2, 1, 240.00, 'pendiente', 'TXN002', 'https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?auto=format&fit=crop&w=600&q=80', NOW(), 'Depósito pendiente de verificación.'),
 (3, 1, 80.00, 'completado', 'TXN003', NULL, NOW(), 'Pago por reserva de pista.'),
-(4, 1, 90.00, 'fallido', 'TXN004', NULL, NOW(), 'Error en el procesamiento del pago.');
+(4, 1, 90.00, 'fallido', 'TXN004', NULL, NOW(), 'Error en el procesamiento del pago.'),
+(5, 2, 340.00, 'pendiente', 'TXN005', 'https://cdn.www.gob.pe/uploads/document/file/4942632/WhatsApp%20Image%202023-08-04%20at%203.30.47%20PM.jpeg', NOW(), 'Depósito pendiente de verificación.'),
+(6, 2, 280.00, 'completado', 'TXN006','https://www.itscontable.com/wp-content/uploads/2023/05/image-39.png', NOW(), 'Pago por reserva de pista.'),
+(7, 2, 50.00, 'fallido', 'TXN007', 'https://revistaganamas.com.pe/wp-content/uploads/2019/07/Factura-electr%C3%B3nica-768x500.jpg',NOW(), 'Error en el procesamiento del pago.');
 
 -- 18. Insertar Reembolsos
 INSERT INTO reembolsos (
@@ -207,33 +213,33 @@ VALUES
 
 -- Insertar espacios deportivos para Polideportivo Central
 INSERT INTO `db_gtics`.`espacios_deportivos` 
-(`nombre`, `servicio_deportivo_id`, `establecimiento_deportivo_id`, `max_personas_por_carril`, `carriles_piscina`, `longitud_piscina`, `profundidad_piscina`, `descripcion`, `aforo_gimnasio`, `longitud_pista`, `carriles_pista`, `geolocalizacion`, `estado_servicio`, `numero_soporte`, `horario_apertura`, `horario_cierre`, `precio_por_hora`)
+(`nombre`, `servicio_deportivo_id`, `establecimiento_deportivo_id`, `max_personas_por_carril`, `carriles_piscina`, `longitud_piscina`, `profundidad_piscina`, `descripcion`, `foto_espacio_deportivo_url`, `aforo_gimnasio`, `longitud_pista`, `carriles_pista`, `geolocalizacion`, `estado_servicio`, `numero_soporte`, `horario_apertura`, `horario_cierre`, `precio_por_hora`)
 VALUES
-    ('Cancha de Fútbol', 4, 1, NULL, NULL, NULL, NULL, 'Cancha de fútbol para 11 jugadores por lado', NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '123', '06:00', '22:00', 50.00),
-    ('Gimnasio 1', 3, 1, NULL, NULL, NULL, NULL, 'Gimnasio con equipos de pesas', 40, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '124', '06:00', '22:00', 20.00),
-    ('Piscina Olímpica', 1, 1, 10, 5, 50, 2.5, 'Piscina para entrenamiento profesional', NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '125', '06:00', '22:00', 30.00),
-    ('Pista de Atletismo', 2, 1, NULL, NULL, NULL, NULL, 'Pista para competencias y entrenamientos', NULL, 400, 6, '(-12.04318, -77.03061)', 'operativo', '126', '06:00', '22:00', 25.00),
-    ('Cancha de Tenis', 7, 1, NULL, NULL, NULL, NULL, 'Cancha para partidos de tenis', NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '127', '06:00', '22:00', 15.00); -- Assuming tennis is a multipurpose court; adjust if you add a specific service for tennis
+    ('Cancha de Fútbol', 4, 1, NULL, NULL, NULL, NULL, 'Cancha de fútbol para 11 jugadores por lado', 'https://recreasport.com/wp-content/uploads/2017/04/SAM_0191-2.jpg',NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '123', '06:00', '22:00', 50.00),
+    ('Gimnasio 1', 3, 1, NULL, NULL, NULL, NULL, 'Gimnasio con equipos de pesas', 'https://equipoparagimnasioferbel.com/wp-content/uploads/2018/08/equipo-para-gimnasio2.jpg', 40, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '124', '06:00', '22:00', 20.00),
+    ('Piscina Olímpica', 1, 1, 10, 5, 50, 2.5, 'Piscina para entrenamiento profesional', 'https://media.istockphoto.com/id/1507220235/es/foto/nadadora-profesional-nadando-la-brazada-de-crol-delantero.jpg?s=612x612&w=0&k=20&c=hEKDCRhlqY-p8dSZUoLNtvMpsERlM1At8whHzDfV1BM=',NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '125', '06:00', '22:00', 30.00),
+    ('Pista de Atletismo', 2, 1, NULL, NULL, NULL, NULL, 'Pista para competencias y entrenamientos', 'https://civideportes.com.co/wp-content/uploads/2020/03/race-801940_640.jpg',NULL, 400, 6, '(-12.04318, -77.03061)', 'operativo', '126', '06:00', '22:00', 25.00),
+    ('Cancha de Tenis', 7, 1, NULL, NULL, NULL, NULL, 'Cancha para partidos de tenis', 'https://civideportes.com.co/wp-content/uploads/2020/08/asphalt-tennis-court-5354328_640.jpg',NULL, NULL, NULL, '(-12.04318, -77.03061)', 'operativo', '127', '06:00', '22:00', 15.00); -- Assuming tennis is a multipurpose court; adjust if you add a specific service for tennis
 
 -- Insertar espacios deportivos para Polideportivo Sur
 INSERT INTO `db_gtics`.`espacios_deportivos` 
-(`nombre`, `servicio_deportivo_id`, `establecimiento_deportivo_id`, `max_personas_por_carril`, `carriles_piscina`, `longitud_piscina`, `profundidad_piscina`, `descripcion`, `aforo_gimnasio`, `longitud_pista`, `carriles_pista`, `geolocalizacion`, `estado_servicio`, `numero_soporte`, `horario_apertura`, `horario_cierre`, `precio_por_hora`)
+(`nombre`, `servicio_deportivo_id`, `establecimiento_deportivo_id`, `max_personas_por_carril`, `carriles_piscina`, `longitud_piscina`, `profundidad_piscina`, `descripcion`, `foto_espacio_deportivo_url`,`aforo_gimnasio`, `longitud_pista`, `carriles_pista`, `geolocalizacion`, `estado_servicio`, `numero_soporte`, `horario_apertura`, `horario_cierre`, `precio_por_hora`)
 VALUES
-    ('Cancha de Fútbol', 4, 2, NULL, NULL, NULL, NULL, 'Cancha de fútbol para partidos recreativos', NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '223', '06:30', '23:00', 50.00),
-    ('Gimnasio 2', 3, 2, NULL, NULL, NULL, NULL, 'Gimnasio para ejercicios cardiovasculares', 50, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '224', '06:30', '23:00', 25.00),
-    ('Piscina Cubierta', 1, 2, 8, 4, 25, 1.8, 'Piscina cubierta para entrenamientos', NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '225', '06:30', '23:00', 35.00),
-    ('Pista de Atletismo', 2, 2, NULL, NULL, NULL, NULL, 'Pista para competencias locales', NULL, 400, 6, '(-12.04622, -77.02837)', 'operativo', '226', '06:30', '23:00', 20.00),
-    ('Cancha de Basket', 5, 2, NULL, NULL, NULL, NULL, 'Cancha para partidos de baloncesto', NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '227', '06:30', '23:00', 15.00);
+    ('Cancha de Fútbol', 4, 2, NULL, NULL, NULL, NULL, 'Cancha de fútbol para partidos recreativos', 'https://lalur.com.mx/images/header_nota_109.jpg',NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '223', '06:30', '23:00', 50.00),
+    ('Gimnasio 2', 3, 2, NULL, NULL, NULL, NULL, 'Gimnasio para ejercicios cardiovasculares', 'https://i.blogs.es/d9ba93/1366_2000/1366_2000.jpeg',50, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '224', '06:30', '23:00', 25.00),
+    ('Piscina Cubierta', 1, 2, 8, 4, 25, 1.8, 'Piscina cubierta para entrenamientos', 'https://sumafitnessclub.com/piscinavalencia/wp-content/uploads/2020/01/piscinas-climatizadas-slider06-piscina-valencia_SUMA-1024x564.jpg',NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '225', '06:30', '23:00', 35.00),
+    ('Pista de Atletismo', 2, 2, NULL, NULL, NULL, NULL, 'Pista para competencias locales', 'https://masaireweb.com/wp-content/uploads/2022/06/20160818_124827-1-1960x925.jpg',NULL, 400, 6, '(-12.04622, -77.02837)', 'operativo', '226', '06:30', '23:00', 20.00),
+    ('Cancha de Basket', 5, 2, NULL, NULL, NULL, NULL, 'Cancha para partidos de baloncesto', 'https://recreasport.com/wp-content/uploads/2017/04/IMG_20150923_190841167.jpg',NULL, NULL, NULL, '(-12.04622, -77.02837)', 'operativo', '227', '06:30', '23:00', 15.00);
 
 -- Insertar espacios deportivos para Polideportivo Norte
 INSERT INTO `db_gtics`.`espacios_deportivos` 
-(`nombre`, `servicio_deportivo_id`, `establecimiento_deportivo_id`, `max_personas_por_carril`, `carriles_piscina`, `longitud_piscina`, `profundidad_piscina`, `descripcion`, `aforo_gimnasio`, `longitud_pista`, `carriles_pista`, `geolocalizacion`, `estado_servicio`, `numero_soporte`, `horario_apertura`, `horario_cierre`, `precio_por_hora`)
+(`nombre`, `servicio_deportivo_id`, `establecimiento_deportivo_id`, `max_personas_por_carril`, `carriles_piscina`, `longitud_piscina`, `profundidad_piscina`, `descripcion`, `foto_espacio_deportivo_url`,`aforo_gimnasio`, `longitud_pista`, `carriles_pista`, `geolocalizacion`, `estado_servicio`, `numero_soporte`, `horario_apertura`, `horario_cierre`, `precio_por_hora`)
 VALUES
-    ('Cancha de Fútbol', 4, 3, NULL, NULL, NULL, NULL, 'Cancha de fútbol para partidos de campeonato', NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '323', '07:00', '22:00', 45.00),
-    ('Gimnasio 3', 3, 3, NULL, NULL, NULL, NULL, 'Gimnasio con zona de pesas y cardio', 60, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '324', '07:00', '22:00', 30.00),
-    ('Piscina Semi-Olímpica', 1, 3, 8, 4, 30, 2.0, 'Piscina para clases de natación', NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '325', '07:00', '22:00', 40.00),
-    ('Pista de Atletismo', 2, 3, NULL, NULL, NULL, NULL, 'Pista para carreras de 100m y 200m', NULL, 300, 6, '(-12.04011, -77.01648)', 'operativo', '326', '07:00', '22:00', 25.00),
-    ('Cancha de Volleyball', 6, 3, NULL, NULL, NULL, NULL, 'Cancha para partidos de volleyball', NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '327', '07:00', '22:00', 15.00);
+    ('Cancha de Fútbol', 4, 3, NULL, NULL, NULL, NULL, 'Cancha de fútbol para partidos de campeonato', 'https://img.olympics.com/images/image/private/t_s_16_9_g_auto/t_s_w1460/f_auto/primary/tarhmadzucbnqb8wzhsg',NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '323', '07:00', '22:00', 45.00),
+    ('Gimnasio 3', 3, 3, NULL, NULL, NULL, NULL, 'Gimnasio con zona de pesas y cardio', 'https://media.revistagq.com/photos/65b12cd1df908a3c3a4d7373/16:9/w_2560%2Cc_limit/fitness%2520portada.jpg',60, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '324', '07:00', '22:00', 30.00),
+    ('Piscina Semi-Olímpica', 1, 3, 8, 4, 30, 2.0, 'Piscina para clases de natación', 'https://sumafitnessclub.com/piscinavalencia/wp-content/uploads/2020/01/piscinas-climatizadas-slider04-piscina-valencia_SUMA-1024x564.jpg',NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '325', '07:00', '22:00', 40.00),
+    ('Pista de Atletismo', 2, 3, NULL, NULL, NULL, NULL, 'Pista para carreras de 100m y 200m', 'https://niberma.es/wp-content/uploads/2017/08/ventajas-mantenimiento-pistas-atletismo.jpg',NULL, 300, 6, '(-12.04011, -77.01648)', 'operativo', '326', '07:00', '22:00', 25.00),
+    ('Cancha de Volleyball', 6, 3, NULL, NULL, NULL, NULL, 'Cancha para partidos de volleyball', 'https://8d7b7b4387.cbaul-cdnwnd.com/24291dd6e7103ca696a045c11a79c67a/200000020-a5bf4a6b5a/cancha-de-voley.jpg?ph=8d7b7b4387',NULL, NULL, NULL, '(-12.04011, -77.01648)', 'operativo', '327', '07:00', '22:00', 15.00);
 
 -- Insertar 5 reservas para cada usuario
 INSERT INTO `db_gtics`.`reservas` 
