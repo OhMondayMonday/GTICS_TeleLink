@@ -92,13 +92,15 @@
                                                 </td>
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-warning"
-                                                            th:if="${#strings.equalsIgnoreCase(pago.estadoTransaccion, 'fallido')}"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#modalRechazo"
-                                                            th:attr="data-motivo=${pago.motivoRechazo}">
+                                                            th:attr="data-estado=${pago.estadoTransaccion},
+                                                                     data-motivo=${pago.motivoRechazo},
+                                                                     data-detalles=${pago.detallesTransaccion}">
                                                         Ver detalles
                                                     </button>
                                                 </td>
+
                                             </tr>
                                             </tbody>
                                         </table>
@@ -124,13 +126,20 @@
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content border-warning">
                                                 <div class="modal-header bg-warning-subtle">
-                                                    <h5 class="modal-title" id="modalRechazoLabel">Motivo del rechazo</h5>
+                                                    <h5 class="modal-title" id="modalRechazoLabel">Detalle de la transacción</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <p><strong>Motivo:</strong></p>
-                                                    <p id="motivoRechazoTexto" class="fw-bold text-danger"></p>
-                                                    <p class="mt-2"><strong>¿Qué hacer?</strong> Vuelve a subir una imagen clara del comprobante o contacta con soporte.</p>
+                                                    <p class="mb-2">Hemos detectado lo siguiente con tu transacción:</p>
+                                                    <div class="alert alert-warning fw-semibold" id="textoDetalle"></div>
+
+                                                    <hr>
+
+                                                    <p class="mb-2">¿Cómo puedo solucionarlo?</p>
+                                                    <ul class="mb-0">
+                                                        <li>Si el motivo está relacionado con el comprobante, intenta subir una imagen clara y legible.</li>
+                                                        <li>Si el inconveniente persiste o tienes dudas, <strong>contáctanos a través del área de soporte</strong>.</li>
+                                                    </ul>
                                                 </div>
                                             </div>
                                         </div>
@@ -152,13 +161,20 @@
                                             const modalRechazo = document.getElementById('modalRechazo');
                                             modalRechazo.addEventListener('show.bs.modal', function (event) {
                                                 const button = event.relatedTarget;
+                                                const estado = button.getAttribute('data-estado');
                                                 const motivo = button.getAttribute('data-motivo');
-                                                const textoMotivo = modalRechazo.querySelector('#motivoRechazoTexto');
-                                                textoMotivo.textContent = motivo ? motivo : 'Sin motivo especificado.';
+                                                const detalles = button.getAttribute('data-detalles');
+
+                                                const textoDetalle = modalRechazo.querySelector('#textoDetalle');
+
+                                                if (estado.toLowerCase() === 'fallido') {
+                                                    textoDetalle.textContent = motivo ? motivo : 'Sin motivo especificado.';
+                                                } else {
+                                                    textoDetalle.textContent = detalles ? detalles : 'Sin detalles disponibles.';
+                                                }
                                             });
                                         });
                                     </script>
-
                                 </div>
                             </div>
                         </div>
