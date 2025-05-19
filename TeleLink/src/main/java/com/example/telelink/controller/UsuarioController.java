@@ -72,6 +72,30 @@ public class UsuarioController {
     @Autowired
     private S3Service s3Service;
 
+    public class EspacioDeportivoConRatingDTO {
+        private EspacioDeportivo espacioDeportivo;
+        private double promedioCalificacion;
+        private long reviewCount;
+
+        public EspacioDeportivoConRatingDTO(EspacioDeportivo espacioDeportivo, double promedioCalificacion, long reviewCount) {
+            this.espacioDeportivo = espacioDeportivo;
+            this.promedioCalificacion = promedioCalificacion;
+            this.reviewCount = reviewCount;
+        }
+
+        public EspacioDeportivo getEspacioDeportivo() {
+            return espacioDeportivo;
+        }
+
+        public double getPromedioCalificacion() {
+            return promedioCalificacion;
+        }
+
+        public long getReviewCount() {
+            return reviewCount;
+        }
+    }
+
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
         // Buscar usuario ID 6 (usuario por defecto)
@@ -80,10 +104,22 @@ public class UsuarioController {
         // Obtener el aviso más reciente
         Aviso ultimoAviso = avisoRepository.findLatestAviso();
 
+        // Obtener las 3 canchas más populares ordenadas por promedio de calificación
+        List<Object[]> resultados = espacioDeportivoRepository.findTop3ByEstadoServicioOrderByAverageRatingDesc(
+                EspacioDeportivo.EstadoServicio.operativo);
+        List<EspacioDeportivoConRatingDTO> canchasPopulares = resultados.stream()
+                .map(result -> new EspacioDeportivoConRatingDTO(
+                        (EspacioDeportivo) result[0],
+                        ((Number) result[1]).doubleValue(),
+                        ((Number) result[2]).longValue()
+                ))
+                .collect(Collectors.toList());
+
         // Pasar datos al modelo
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "inicio");
         model.addAttribute("ultimoAviso", ultimoAviso);
+        model.addAttribute("canchasPopulares", canchasPopulares);
         return "vecino/vecino-index";
     }
 

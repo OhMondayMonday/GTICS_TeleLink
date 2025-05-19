@@ -42,4 +42,14 @@ public interface EspacioDeportivoRepository extends JpaRepository<EspacioDeporti
   
     List<EspacioDeportivo> findAllByEstablecimientoDeportivo(EstablecimientoDeportivo establecimientoDeportivo);
 
+    List<EspacioDeportivo> findTop3ByEstadoServicioOrderByEspacioDeportivoIdAsc(EspacioDeportivo.EstadoServicio estadoServicio);
+
+    @Query("SELECT e, COALESCE(AVG(r.calificacion), 0.0) as avgRating, COALESCE(COUNT(r), 0) as reviewCount " +
+            "FROM EspacioDeportivo e " +
+            "LEFT JOIN Resenia r ON e.espacioDeportivoId = r.espacioDeportivo.espacioDeportivoId " +
+            "WHERE e.estadoServicio = :estadoServicio " +
+            "GROUP BY e " +
+            "ORDER BY avgRating DESC, e.espacioDeportivoId ASC " +
+            "FETCH FIRST 3 ROWS ONLY")
+    List<Object[]> findTop3ByEstadoServicioOrderByAverageRatingDesc(EspacioDeportivo.EstadoServicio estadoServicio);
 }
