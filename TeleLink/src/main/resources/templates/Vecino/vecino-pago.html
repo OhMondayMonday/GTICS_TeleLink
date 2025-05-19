@@ -53,17 +53,17 @@
                                                 <th>Método de Pago</th>
                                                 <th>Total</th>
                                                 <th>Estado</th>
-                                                <th>Factura</th>
+                                                <th>Comprobante de Transacción</th>
                                                 <th>Detalles</th>
                                             </tr>
                                             </thead>
 
                                             <tbody>
                                             <tr th:each="pago, iStat : ${pagos}">
-                                                <td><input type="checkbox" class="form-check-input"/></td>
+                                                <td></td>
                                                 <td th:text="${pago.reserva.espacioDeportivo.nombre}">Nombre</td>
                                                 <td th:text="${#temporals.format(pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
-                                                <td th:text="${pago.reserva.usuario.nombres}">Usuario</td>
+                                                <td th:text="${pago.reserva.usuario.nombres + ' ' + pago.reserva.usuario.apellidos}">Usuario</td>
                                                 <td th:text="${pago.metodoPago.metodoPago}">Metodo</td>
                                                 <td th:text="'S/ ' + ${pago.monto}">Monto</td>
                                                 <td>
@@ -83,6 +83,7 @@
 
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-primary"
+                                                            th:if="${pago.metodoPago.metodoPago == 'Depósito Bancario'}"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#modalFactura"
                                                             th:attr="data-factura=${pago.fotoComprobanteUrl}">
@@ -93,7 +94,7 @@
                                                     <button class="btn btn-sm btn-outline-warning"
                                                             th:if="${pago.estadoTransaccion == 'fallido'}"
                                                             data-bs-toggle="modal"
-                                                            th:attr="data-bs-target='#modalDetalles__${iStat.index}'">
+                                                            th:attr="data-bs-target=${pago.motivoRechazo}">
                                                         Ver detalles
                                                     </button>
                                                 </td>
