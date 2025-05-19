@@ -33,7 +33,7 @@
                 <h4 class="card-title mb-4 fw-semibold mt-3"
                     th:text="${espacio.espacioDeportivoId} ? 'Formulario de Edición de Espacio Deportivo' : 'Formulario de Creación de Espacio Deportivo'"></h4>
 
-                <form th:action="@{/admin/espacios/guardar}" th:object="${espacio}" method="post">
+                <form th:action="@{/admin/espacios/guardar}" th:object="${espacio}" method="post" enctype="multipart/form-data">
                   <input type="hidden" th:field="*{espacioDeportivoId}" />
 
                   <!-- Nombre -->
@@ -86,6 +86,19 @@
                       <span class="input-group-text"><i class="mdi mdi-domain"></i></span>
                       <div class="invalid-feedback" th:if="${#fields.hasErrors('establecimientoDeportivo')}" th:errors="*{establecimientoDeportivo}"></div>
                     </div>
+                  </div>
+
+                  <!-- Foto del espacio deportivo -->
+                  <div class="mb-4">
+                    <label class="form-label">Foto del espacio deportivo</label>
+                    <input type="file" name="fotoFile" class="form-control"
+                           accept="image/jpeg,image/png,image/jpg"
+                           th:classappend="${#fields.hasErrors('fotoEspacioDeportivoUrl')} ? 'is-invalid' : ''" />
+                    <input type="hidden" th:field="*{fotoEspacioDeportivoUrl}" />
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fotoEspacioDeportivoUrl')}" th:errors="*{fotoEspacioDeportivoUrl}"></div>
+                    <img th:if="${espacio.fotoEspacioDeportivoUrl != null}"
+                         th:src="${espacio.fotoEspacioDeportivoUrl}"
+                         style="max-height: 100px; margin-top: 10px;" alt="Foto actual"/>
                   </div>
 
                   <!-- Piscina Fields -->
