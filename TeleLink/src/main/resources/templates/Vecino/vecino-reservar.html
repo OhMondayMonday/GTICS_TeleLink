@@ -258,8 +258,33 @@
                                                 <div class="card-body">
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <p><strong>Espacio Deportivo:</strong> <span id="espacio-seleccionado">-</span></p>
-                                                            <p><strong>Fecha y Hora:</strong> <span id="fecha-seleccionada">-</span></p>
+                                                            <p>
+                                                                <strong>Espacio Deportivo:</strong>
+                                                                <span id="espacio-seleccionado">
+                                                                <th:block th:each="espacio : ${espacios}">
+                                                                  <th:block th:if="${espacio.espacioDeportivoId == espacioSeleccionadoId}">
+                                                                    <span th:text="${espacio.nombre}"></span>
+                                                                  </th:block>
+                                                                </th:block>
+                                                              </span>
+                                                            </p>
+
+                                                            <p>
+                                                                <strong>Fecha y Hora:</strong>
+                                                                <span id="fecha-seleccionada"
+                                                                      th:text="${inicioFormateado} + ' - ' + ${finFormateado}">
+                                                                  </span>
+                                                            </p>
+                                                            <p>
+                                                                <strong>Precio total:</strong>
+                                                                <span id="precio-total"
+                                                                      th:text="${precioTotalReserva != null} ? 'S/ ' + ${#numbers.formatDecimal(precioTotalReserva, 1, 2)} : '-'">
+                                                                  </span>
+                                                            </p>
+                                                            <p>
+                                                                <strong>Duración:</strong>
+                                                                <span th:text="${duracionHoras != null} ? ${duracionHoras} + ' hora(s)' : '-'"></span>
+                                                            </p>
                                                         </div>
                                                         <div class="col-md-6" id="detalles-adicionales">
                                                             <!-- Aquí se mostrarán detalles adicionales según el tipo de espacio -->

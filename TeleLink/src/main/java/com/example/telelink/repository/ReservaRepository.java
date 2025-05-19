@@ -77,4 +77,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     List<Reserva> findByEspacioDeportivo_EspacioDeportivoId(Integer espacioDeportivoEspacioDeportivoId);
 
+    boolean existsByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaLessThanAndFinReservaGreaterThan(
+            Integer espacioId, LocalDateTime fin, LocalDateTime inicio);
+
 }

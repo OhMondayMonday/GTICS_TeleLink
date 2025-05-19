@@ -282,8 +282,7 @@
               return;
             }
 
-            const redirectUrl = `/usuarios/reservar/${espacioId}?inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}`;
-            console.log(redirectUrl)
+            window.location.href = `/usuarios/reservar/${espacioId}?inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}`;
           });
         };
 
