@@ -482,11 +482,6 @@ public class UsuarioController {
         return ResponseEntity.ok(linkPago);
     }
 
-    @GetMapping("/calendario")
-    public String verCalendario() {
-        return "vecino/reservasVecino";
-    }
-
     @GetMapping("/api/espacios")
     @ResponseBody
     public List<?> obtenerEspacios() {

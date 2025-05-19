@@ -71,8 +71,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             "AND WEEK(r.fechaCreacion) = WEEK(CURRENT_DATE)")
     long countByUsuarioThisWeek(@Param("usuario") Usuario usuario);
 
-    List<Reserva> findByUsuario_UsuarioId(Integer usuarioUsuarioId);
-
     List<Reserva> findByUsuarioAndEstado(Usuario usuario, Reserva.Estado estado);
 
     List<Reserva> findByInicioReservaBetween(LocalDateTime inicio, LocalDateTime fin);
