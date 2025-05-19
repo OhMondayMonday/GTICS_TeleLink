@@ -2,10 +2,7 @@ package com.example.telelink.controller;
 
 import com.example.telelink.dto.vecino.PagoRequest;
 import com.example.telelink.entity.*;
-import com.example.telelink.repository.EspacioDeportivoRepository;
-import com.example.telelink.repository.PagoRepository;
-import com.example.telelink.repository.ReservaRepository;
-import com.example.telelink.repository.UsuarioRepository;
+import com.example.telelink.repository.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -66,17 +63,20 @@ public class UsuarioController {
     private PagoRepository pagoRepository;
 
     @Autowired
-    private EspacioDeportivoRepository spacioDeportivoRepository;
+    private AvisoRepository avisoRepository;
 
     @GetMapping("/inicio")
     public String mostrarInicio(Model model, HttpSession session) {
         // Buscar usuario ID 6 (usuario por defecto)
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
+        // Obtener el aviso más reciente
+        Aviso ultimoAviso = avisoRepository.findLatestAviso();
+
         // Pasar datos al modelo
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "inicio");
-
+        model.addAttribute("ultimoAviso", ultimoAviso);
         return "vecino/vecino-index";
     }
 

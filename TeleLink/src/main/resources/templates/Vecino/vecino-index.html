@@ -68,70 +68,126 @@
                     </div>
                 </div>
 
+                <style>
+                    .row.equal-height {
+                        display: flex;
+                        flex-wrap: wrap;
+                    }
+
+                    .row.equal-height > .col-xl-9 {
+                        display: flex;
+                    }
+
+                    .row.equal-height > .col-xl-3 {
+                        display: flex;
+                    }
+
+                    .row.equal-height > .col-xl-9 > .card {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .row.equal-height > .col-xl-3 > .card {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                    }
+
+                    .row.equal-height > .col-xl-9 > .card > .card-body {
+                        flex: 1;
+                    }
+
+                    .row.equal-height > .col-xl-3 > .card > .card-body {
+                        flex: 1;
+                    }
+                </style>
 
                 <!-- 🔽 Sección de canchas populares -->
                 <!-- Sección con fondo blanco detrás -->
-                <div class="container mt-5">
-                    <div class="bg-white rounded shadow-sm p-4">
-                        <h4 class="mb-4 fw-bold">Canchas más populares</h4>
-                        <style>
-                            .card-img-top {
-                                height: 200px;
-                                object-fit: cover;
-                            }
-                        </style>
+                <div class="row equal-height">
+                    <div class="col-xl-9">
+                        <div class="container mt-0 mb-4 me-0 ms-0 p-0">
+                            <div class="bg-white rounded shadow-sm p-4">
+                                <h4 class=" card-title mb-4 fw-semibold">Canchas más populares</h4>
+                                <style>
+                                    .card-img-top {
+                                        height: 200px;
+                                        object-fit: cover;
+                                    }
+                                </style>
 
-                        <div class="row">
-                            <!-- Tarjeta 1 -->
-                            <div class="col-md-4 mb-4">
-                                <div class="card shadow-sm border-0 h-100">
-                                    <img src="/assets/images/small/GrassSintetico_cf_3.jpg" class="card-img-top" alt="Cancha fútbol">
-                                    <div class="card-body">
-                                        <span class="badge bg-light text-primary mb-2 fw-semibold">FÚTBOL</span>
-                                        <div class="d-flex align-items-center mb-2">
-                                            <span class="fw-bold me-1">4.4</span>
-                                            <span class="text-warning">★</span>
-                                            <span class="text-muted ms-1">(18)</span>
+                                <div class="row">
+                                    <!-- Tarjeta 1 -->
+                                    <div class="col-md-4">
+                                        <div class="card shadow-sm border-0 h-100">
+                                            <img src="/assets/images/small/GrassSintetico_cf_3.jpg" class="card-img-top" alt="Cancha fútbol">
+                                            <div class="card-body">
+                                                <span class="badge bg-light text-primary mb-2 fw-semibold">FÚTBOL</span>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="fw-bold me-1">4.4</span>
+                                                    <span class="text-warning">★</span>
+                                                    <span class="text-muted ms-1">(18)</span>
+                                                </div>
+                                                <h5 class="card-title">Cancha de Fútbol Municipal</h5>
+                                                <p class="card-text text-muted">Ubicada cerca del parque principal. Ideal para torneos y juegos recreativos.</p>
+                                                <a href="/usuarios/reservas/futbol" class="btn btn-primary w-100">Ver más</a>
+                                            </div>
                                         </div>
-                                        <h5 class="card-title">Cancha de Fútbol Municipal</h5>
-                                        <p class="card-text text-muted">Ubicada cerca del parque principal. Ideal para torneos y juegos recreativos.</p>
-                                        <a th:href="@{/usuarios/reservas/futbol}" class="btn btn-primary w-100">Ver más</a>
+                                    </div>
+
+                                    <!-- Tarjeta 2 -->
+                                    <div class="col-md-4">
+                                        <div class="card shadow-sm border-0 h-100">
+                                            <img src="/assets/images/small/Piscina_Olimpica1.jpg" class="card-img-top" alt="Piscina Municipal">
+                                            <div class="card-body">
+                                                <span class="badge bg-light text-primary mb-2 fw-semibold">PISCINA</span>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="fw-bold me-1">4.6</span>
+                                                    <span class="text-warning">★</span>
+                                                    <span class="text-muted ms-1">(10)</span>
+                                                </div>
+                                                <h5 class="card-title">Piscina Olímpica</h5>
+                                                <p class="card-text text-muted">Piscina techada con horarios amplios. Ideal para entrenamientos o natación libre.</p>
+                                                <a href="/usuarios/reservas/piscina" class="btn btn-primary w-100">Ver más</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tarjeta 3 -->
+                                    <div class="col-md-4">
+                                        <div class="card shadow-sm border-0 h-100">
+                                            <img src="/assets/images/small/CanchasMultiples.jpg" class="card-img-top" alt="Cancha múltiple">
+                                            <div class="card-body">
+                                                <span class="badge bg-light text-primary mb-2 fw-semibold">MÚLTIPLE</span>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="fw-bold me-1">4.8</span>
+                                                    <span class="text-warning">★</span>
+                                                    <span class="text-muted ms-1">(25)</span>
+                                                </div>
+                                                <h5 class="card-title">Cancha Múltiple San Miguel</h5>
+                                                <p class="card-text text-muted">Perfecta para vóley, básquet o fútbol rápido. Piso antideslizante.</p>
+                                                <a href="/usuarios/reservas/multiple" class="btn btn-primary w-100">Ver más</a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Tarjeta 2 -->
-                            <div class="col-md-4 mb-4">
-                                <div class="card shadow-sm border-0 h-100">
-                                    <img src="/assets/images/small/Piscina_Olimpica1.jpg" class="card-img-top" alt="Piscina Municipal">
-                                    <div class="card-body">
-                                        <span class="badge bg-light text-primary mb-2 fw-semibold">PISCINA</span>
-                                        <div class="d-flex align-items-center mb-2">
-                                            <span class="fw-bold me-1">4.6</span>
-                                            <span class="text-warning">★</span>
-                                            <span class="text-muted ms-1">(10)</span>
-                                        </div>
-                                        <h5 class="card-title">Piscina Olímpica</h5>
-                                        <p class="card-text text-muted">Piscina techada con horarios amplios. Ideal para entrenamientos o natación libre.</p>
-                                        <a th:href="@{/usuarios/reservas/piscina}" class="btn btn-primary w-100">Ver más</a>
+                        </div>
+                    </div>
+                    <div class="col-xl-3">
+                        <div class="card">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-4 fw-semibold">Último aviso</h4>
+                                <div data-simplebar>
+                                    <div th:if="${ultimoAviso != null}">
+                                        <h5 class="font-size-14" th:text="${ultimoAviso.tituloAviso}"></h5>
+                                        <p class="text-muted mb-2" th:text="${ultimoAviso.textoAviso}"></p>
+                                        <img th:src="${ultimoAviso.fotoAvisoUrl}" alt="Foto del aviso" class="img-fluid mb-2" style="width: 100%; height: 250px; object-fit: cover;" />
+                                        <small class="text-muted" th:text="${#temporals.format(ultimoAviso.fechaAviso, 'dd MMM, yyyy HH:mm')}"></small>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Tarjeta 3 -->
-                            <div class="col-md-4 mb-4">
-                                <div class="card shadow-sm border-0 h-100">
-                                    <img src="/assets/images/small/CanchasMultiples.jpg" class="card-img-top" alt="Cancha múltiple">
-                                    <div class="card-body">
-                                        <span class="badge bg-light text-primary mb-2 fw-semibold">MÚLTIPLE</span>
-                                        <div class="d-flex align-items-center mb-2">
-                                            <span class="fw-bold me-1">4.8</span>
-                                            <span class="text-warning">★</span>
-                                            <span class="text-muted ms-1">(25)</span>
-                                        </div>
-                                        <h5 class="card-title">Cancha Múltiple San Miguel</h5>
-                                        <p class="card-text text-muted">Perfecta para vóley, básquet o fútbol rápido. Piso antideslizante.</p>
-                                        <a th:href="@{/usuarios/reservas/multiple}" class="btn btn-primary w-100">Ver más</a>
+                                    <div th:if="${ultimoAviso == null}">
+                                        <p class="text-muted mb-0">No hay avisos disponibles.</p>
                                     </div>
                                 </div>
                             </div>
