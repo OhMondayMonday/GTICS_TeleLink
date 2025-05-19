@@ -1,200 +1,239 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8" />
-    <title>Registro | Municipalidad de San Miguel</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Sistema de Gestión Deportiva - Municipalidad de San Miguel" name="description" />
-    <meta content="Municipalidad de San Miguel" name="author" />
-    <!-- CSRF Meta Tags -->
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <!-- App favicon -->
-    <link rel="shortcut icon" th:href="@{/assets/images/logoCortado.png}">
-    <!-- Bootstrap Css -->
-    <link th:href="@{/assets/css/bootstrap.min.css}" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <!-- Icons Css -->
-    <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
-    <!-- App Css -->
-    <link th:href="@{/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
-    <style>
-        .authentication-bg {
-            background-image: url('https://pbs.twimg.com/media/GDl_-_1XYAAuSBN.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            position: relative;
-        }
-        .bg-overlay {
-            background: rgba(0, 0, 0, 0.5);
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
-        .auth-logo {
-            max-width: 150px;
-        }
-        /* ... otros estilos ... */
-        .spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        @keyframes spin {
-            0% { transform: translateY(-50%) rotate(0deg); }
-            100% { transform: translateY(-50%) rotate(360deg); }
-        }
-    </style>
-</head>
+    <head>
+        <meta charset="utf-8" />
+        <title>Registro | Municipalidad de San Miguel</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Sistema de Gestión Deportiva - Municipalidad de San Miguel" name="description" />
+        <meta content="Municipalidad de San Miguel" name="author" />
+        <!-- CSRF Meta Tags -->
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+        <!-- App favicon -->
+        <link rel="shortcut icon" th:href="@{/assets/images/logoCortado.png}">
+        <!-- Bootstrap Css -->
+        <link th:href="@{/assets/css/bootstrap.min.css}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <!-- Icons Css -->
+        <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
+        <!-- App Css -->
+        <link th:href="@{/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
+        <style>
+            .authentication-bg {
+                background-image: url('https://pbs.twimg.com/media/GDl_-_1XYAAuSBN.jpg');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                position: relative;
+            }
+            .bg-overlay {
+                background: rgba(0, 0, 0, 0.5);
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+            }
+            .auth-logo {
+                max-width: 150px;
+            }
+            .spinner {
+                display: none;
+                width: 20px;
+                height: 20px;
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #3498db;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            @keyframes spin {
+                0% { transform: translateY(-50%) rotate(0deg); }
+                100% { transform: translateY(-50%) rotate(360deg); }
+            }
+            /* Estilo para campos readonly y deshabilitados */
+            input[readonly], input:disabled {
+                background-color: #f8f9fa;
+                cursor: not-allowed;
+            }
+            .form-control:disabled::placeholder {
+                color: #6c757d;
+            }
+        </style>
+    </head>
 
-<body class="auth-body-bg">
-<div>
-    <div class="container-fluid p-0">
-        <div class="row g-0">
-            <div class="col-lg-4">
-                <div class="authentication-page-content p-4 d-flex align-items-center min-vh-100">
-                    <div class="w-100">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-9">
-                                <div>
-                                    <div class="text-center">
+    <body class="auth-body-bg">
+        <div>
+            <div class="container-fluid p-0">
+                <div class="row g-0">
+                    <div class="col-lg-4">
+                        <div class="authentication-page-content p-4 d-flex align-items-center min-vh-100">
+                            <div class="w-100">
+                                <div class="row justify-content-center">
+                                    <div class="col-lg-9">
                                         <div>
-                                            <a th:href="@{/}" class="authentication-logo">
-                                                <img th:src="@{/assets/images/logoCompleto.png}" alt="Municipalidad de San Miguel" class="auth-logo mx-auto">
-                                            </a>
-                                        </div>
-                                        <h4 class="font-size-18 mt-4">Crear Cuenta</h4>
-                                        <p class="text-muted">Regístrate en el sistema de la Municipalidad de San Miguel.</p>
-                                    </div>
-
-                                    <div class="p-2 mt-5">
-                                        <form th:action="@{/submitRegisterForm}" method="post">
-                                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-                                            <div class="auth-form-group-custom mb-4">
-                                                <i class="ri-user-2-line auti-custom-input-icon"></i>
-                                                <label for="nombres">Nombres</label>
-                                                <input type="text" class="form-control" id="nombres" name="nombres" placeholder="Ingresa tus nombres" required>
-                                            </div>
-
-                                            <div class="auth-form-group-custom mb-4">
-                                                <i class="ri-user-2-line auti-custom-input-icon"></i>
-                                                <label for="apellidos">Apellidos</label>
-                                                <input type="text" class="form-control" id="apellidos" name="apellidos" placeholder="Ingresa tus apellidos" required>
-                                            </div>
-
-                                            <div class="auth-form-group-custom mb-4">
-                                                <i class="ri-mail-line auti-custom-input-icon"></i>
-                                                <label for="correoElectronico">Correo Electrónico</label>
-                                                <input type="email" class="form-control" id="correoElectronico" name="correoElectronico" placeholder="Ingresa tu correo electrónico" required>
-                                            </div>
-
-                                            <div class="auth-form-group-custom mb-4">
-                                                <i class="ri-lock-2-line auti-custom-input-icon"></i>
-                                                <label for="contrasenia">Contraseña</label>
-                                                <input type="password" class="form-control" id="contrasenia" name="contrasenia" placeholder="Ingresa tu contraseña" required minlength="8">
-                                            </div>
-
-                                            <div class="auth-form-group-custom mb-4">
-                                                <i class="ri-id-card-line auti-custom-input-icon"></i>
-                                                <label for="dni">DNI (Opcional)</label>
-                                                <input type="text" class="form-control" id="dni" name="dni" placeholder="Ingresa tu DNI" pattern="[0-9]{8}" maxlength="8">
-                                                <div class="spinner" id="dni-spinner"></div>
-                                            </div>
-
-                                            <div th:if="${error}" class="alert alert-danger mt-3">
-                                                <span th:text="${error}"></span>
-                                            </div>
-
                                             <div class="text-center">
-                                                <button class="btn btn-primary w-md waves-effect waves-light" type="submit">Registrarse</button>
+                                                <h4 class="font-size-18 mt-4">Crear Cuenta</h4>
+                                                <p class="text-muted">Regístrate en el sistema de la Municipalidad de San Miguel.</p>
                                             </div>
-                                        </form>
-                                    </div>
 
-                                    <div class="mt-5 text-center">
-                                        <p>¿Ya tienes una cuenta? <a th:href="@{/openLoginWindow}" class="fw-medium text-primary">Iniciar Sesión</a></p>
-                                        <p>© <script>document.write(new Date().getFullYear())</script> Municipalidad de San Miguel xd.</p>
+                                            <div class="p-2 mt-3">
+                                                <form th:action="@{/submitRegisterForm}" method="post">
+                                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
+                                                    <!-- Campo DNI primero -->
+                                                    <div class="auth-form-group-custom mb-4">
+                                                        <i class="ri-passport-line auti-custom-input-icon"></i>
+                                                        <label for="dni">DNI</label>
+                                                        <input type="text" class="form-control" id="dni" name="dni" placeholder="Ingresa tu DNI" pattern="[0-9]{8}" maxlength="8" required>
+                                                        <div class="spinner" id="dni-spinner"></div>
+                                                    </div>
+
+                                                    <!-- Nombres (solo lectura) -->
+                                                    <div class="auth-form-group-custom mb-4">
+                                                        <i class="ri-user-2-line auti-custom-input-icon"></i>
+                                                        <label for="nombres">Nombres</label>
+                                                        <input type="text" class="form-control" id="nombres" name="nombres" readonly required>
+                                                    </div>
+
+                                                    <!-- Apellidos (solo lectura) -->
+                                                    <div class="auth-form-group-custom mb-4">
+                                                        <i class="ri-user-2-line auti-custom-input-icon"></i>
+                                                        <label for="apellidos">Apellidos</label>
+                                                        <input type="text" class="form-control" id="apellidos" name="apellidos" readonly required>
+                                                    </div>
+
+                                                    <!-- Correo Electrónico (inicialmente deshabilitado) -->
+                                                    <div class="auth-form-group-custom mb-4">
+                                                        <i class="ri-mail-line auti-custom-input-icon"></i>
+                                                        <label for="correoElectronico">Correo Electrónico</label>
+                                                        <input type="email" class="form-control" id="correoElectronico" name="correoElectronico" placeholder="Ingresa tu correo electrónico" disabled required>
+                                                    </div>
+
+                                                    <!-- Contraseña (inicialmente deshabilitado) -->
+                                                    <div class="auth-form-group-custom mb-4">
+                                                        <i class="ri-lock-2-line auti-custom-input-icon"></i>
+                                                        <label for="contrasenia">Contraseña</label>
+                                                        <input type="password" class="form-control" id="contrasenia" name="contrasenia" placeholder="Ingresa tu contraseña" disabled required minlength="8">
+                                                    </div>
+
+                                                    <div th:if="${error}" class="alert alert-danger mt-3">
+                                                        <span th:text="${error}"></span>
+                                                    </div>
+
+                                                    <div class="text-center">
+                                                        <button class="btn btn-primary w-md waves-effect waves-light" type="submit" disabled id="submit-btn">Registrarse</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <div class="mt-3 text-center">
+                                                <p>¿Ya tienes una cuenta? <a th:href="@{/openLoginWindow}" class="fw-medium text-primary">Iniciar Sesión</a></p>
+                                                <p>© <script>document.write(new Date().getFullYear())</script> Municipalidad de San Miguel.</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-lg-8">
-                <div class="authentication-bg">
-                    <div class="bg-overlay"></div>
+                    <div class="col-lg-8">
+                        <div class="authentication-bg">
+                            <div class="bg-overlay"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- JAVASCRIPT -->
-<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
-<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
-<script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
-<script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
-<script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
-<script th:src="@{/assets/js/app.js}"></script>
-<script>
-    $(document).ready(function() {
-        $('#dni').on('blur', function() { // Cambiado a 'blur'
-            var dni = $(this).val();
-            var spinner = $('#dni-spinner');
-            var nombresField = $('#nombres');
-            var apellidosField = $('#apellidos');
+        <!-- JAVASCRIPT -->
+        <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+        <script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+        <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+        <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+        <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+        <script th:src="@{/assets/js/app.js}"></script>
+        <script>
+            $(document).ready(function() {
+                // Campos que se habilitarán tras una consulta exitosa
+                var correoField = $('#correoElectronico');
+                var contraseniaField = $('#contrasenia');
+                var submitBtn = $('#submit-btn');
+                var nombresField = $('#nombres');
+                var apellidosField = $('#apellidos');
+                var dniField = $('#dni');
+                var spinner = $('#dni-spinner');
 
-            console.log('DNI ingresado:', dni);
+                // Función para habilitar/deshabilitar campos
+                function toggleFields(enabled) {
+                    correoField.prop('disabled', !enabled);
+                    contraseniaField.prop('disabled', !enabled);
+                    submitBtn.prop('disabled', !enabled);
+                }
 
-            if (dni.length !== 8 || !/^\d+$/.test(dni)) {
-                nombresField.val('');
-                apellidosField.val('');
-                spinner.hide();
-                return;
-            }
+                // Inicialmente, los campos están deshabilitados
+                toggleFields(false);
 
-            spinner.show();
-            console.log('Realizando consulta AJAX para DNI:', dni);
-            $.ajax({
-                url: '/consultar-dni',
-                type: 'POST',
-                data: { dni: dni },
-                headers: {
-                    [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
-                },
-                success: function(response) {
-                    spinner.hide();
-                    console.log('Respuesta del servidor:', response);
-                    if (response.error) {
-                        alert(response.error);
+                // Evento blur para el campo DNI
+                dniField.on('blur', function() {
+                    var dni = $(this).val();
+
+                    console.log('DNI ingresado:', dni);
+
+                    // Validar que el DNI tenga 8 dígitos y sea numérico
+                    if (dni.length !== 8 || !/^\d+$/.test(dni)) {
                         nombresField.val('');
                         apellidosField.val('');
-                    } else {
-                        nombresField.val(response.nombres);
-                        apellidosField.val(response.apellidos);
+                        toggleFields(false);
+                        return;
                     }
-                },
-                error: function(xhr, status, error) {
-                    spinner.hide();
-                    console.error('Error en la consulta AJAX:', status, error, xhr.responseText);
-                    alert('Error al consultar el DNI: ' + error);
+
+                    // Mostrar spinner
+                    spinner.show();
+                    console.log('Realizando consulta AJAX para DNI:', dni);
+
+                    // Consulta AJAX a la API
+                    $.ajax({
+                        url: '/consultar-dni',
+                        type: 'POST',
+                        data: { dni: dni },
+                        headers: {
+                            [$('meta[name="_csrf_header"]').attr('content')]: $('meta[name="_csrf"]').attr('content')
+                        },
+                        success: function(response) {
+                            spinner.hide();
+                            console.log('Respuesta del servidor:', response);
+                            if (response.error) {
+                                alert(response.error);
+                                nombresField.val('');
+                                apellidosField.val('');
+                                toggleFields(false);
+                            } else {
+                                nombresField.val(response.nombres);
+                                apellidosField.val(response.apellidos);
+                                toggleFields(true); // Habilitar los otros campos
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            spinner.hide();
+                            console.error('Error en la consulta AJAX:', status, error, xhr.responseText);
+                            alert('Error al consultar el DNI: ' + error);
+                            nombresField.val('');
+                            apellidosField.val('');
+                            toggleFields(false);
+                        }
+                    });
+                });
+
+                // Limpiar y deshabilitar campos si el DNI cambia
+                dniField.on('input', function() {
                     nombresField.val('');
                     apellidosField.val('');
-                }
+                    toggleFields(false);
+                });
             });
-        });
-    });
-</script>
-</body>
+        </script>
+    </body>
 </html>
