@@ -67,9 +67,9 @@
                                                 <td th:text="${pago.metodoPago.metodoPago}">Metodo</td>
                                                 <td th:text="'S/ ' + ${pago.monto}">Monto</td>
                                                 <td>
-                                                            <span th:if="${pago.estadoTransaccion == 'completado'}"
-                                                                  class="badge bg-success-subtle text-success"
-                                                                  th:text="${pago.estadoTransaccion}">
+                                                    <span th:if="${pago.estadoTransaccion == 'completado'}"
+                                                          class="badge bg-success-subtle text-success"
+                                                          th:text="${pago.estadoTransaccion}">
                                                             </span>
                                                     <span th:if="${pago.estadoTransaccion == 'pendiente'}"
                                                           class="badge bg-warning-subtle text-warning"

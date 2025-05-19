@@ -391,10 +391,65 @@
                                                 </div>
                                             </div>
 
-                                            <!-- ONLINE -->
+                                            <!-- ONLINE-->
                                             <div id="online-info" class="mt-4" style="display:none;">
-                                                <p class="text-success">Serás redirigido a IzzyPay para finalizar el pago:</p>
+                                                <!-- <p class="text-success">Serás redirigido a IzzyPay para finalizar el pago:</p>-->
                                                 <button id="btn-pagar-izzy" type="button" class="btn btn-success">Pagar con tarjeta</button>
+                                            </div>
+
+                                            <!-- Modal Pasarela de Pago -->
+                                            <div class="modal fade" id="pasarelaPagoModal" tabindex="-1" aria-labelledby="pasarelaPagoLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="pasarelaPagoLabel">Pago en línea</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <!-- Logos de tarjetas -->
+                                                            <div class="mb-3 text-center">
+                                                                <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" class="me-2" />
+                                                                <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" class="me-2" />
+                                                                <img src="https://img.icons8.com/color/48/amex.png" alt="Amex" />
+                                                            </div>
+                                                            <form id="form-pago-tarjeta" novalidate>
+                                                                <div class="mb-3">
+                                                                    <label for="numeroTarjeta" class="form-label">Número de Tarjeta</label>
+                                                                    <input type="text" class="form-control" id="numeroTarjeta" placeholder="**** **** **** ****" maxlength="19" required>
+                                                                    <span id="error-numero" class="text-danger small"></span>
+                                                                </div>
+
+                                                                <div class="mb-3">
+                                                                    <label for="nombreTitular" class="form-label">Nombre del Titular</label>
+                                                                    <input type="text" class="form-control" id="nombreTitular" required>
+                                                                    <span id="error-nombre" class="text-danger small"></span>
+                                                                </div>
+
+                                                                <div class="row">
+                                                                    <div class="col-6 mb-3">
+                                                                        <label for="fechaExpiracion" class="form-label">Vencimiento</label>
+                                                                        <input type="text" class="form-control" id="fechaExpiracion" placeholder="MM/AA" maxlength="5" required>
+                                                                        <span id="error-fecha" class="text-danger small"></span>
+                                                                    </div>
+                                                                    <div class="col-6 mb-3">
+                                                                        <label for="cvv" class="form-label">CVV</label>
+                                                                        <input type="text" class="form-control" id="cvv" placeholder="***" maxlength="3" required>
+                                                                        <span id="error-cvv" class="text-danger small"></span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div id="spinner-pago" class="text-center my-3" style="display:none;">
+                                                                    <div class="spinner-border text-success" role="status">
+                                                                        <span class="visually-hidden">Procesando...</span>
+                                                                    </div>
+                                                                    <p class="mt-2">Procesando pago...</p>
+                                                                </div>
+
+                                                                <button type="submit" class="btn btn-success w-100">Pagar S/. 50.00</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <!-- DEPÓSITO -->
@@ -749,6 +804,100 @@
     });
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // Mostrar campos según método de pago
+    document.querySelectorAll('input[name="payment-method"]').forEach(function (elem) {
+        elem.addEventListener("change", function () {
+            document.getElementById("online-info").style.display = this.value === "online" ? "block" : "none";
+            document.getElementById("deposit-info").style.display = this.value === "deposit" ? "block" : "none";
+        });
+    });
+
+    // Abrir modal al presionar botón de pagar
+    document.getElementById("btn-pagar-izzy").addEventListener("click", function () {
+        var pagoModal = new bootstrap.Modal(document.getElementById("pasarelaPagoModal"));
+        pagoModal.show();
+    });
+
+    // Validación y simulación de pago en un solo submit
+    document.getElementById("form-pago-tarjeta").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // Limpiar errores previos
+        document.querySelectorAll("#form-pago-tarjeta span").forEach(el => el.innerText = "");
+
+        let valido = true;
+
+        // Validar número tarjeta (16 dígitos)
+        const numeroTarjeta = document.getElementById("numeroTarjeta").value.replace(/\s+/g, "");
+        if (!/^\d{16}$/.test(numeroTarjeta)) {
+            document.getElementById("error-numero").innerText = "Ingresa un número de tarjeta válido de 16 dígitos.";
+            valido = false;
+        }
+
+        // Validar nombre (solo letras y espacios, mínimo 2 palabras)
+        const nombreTitular = document.getElementById("nombreTitular").value.trim();
+        if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ]+\s+[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombreTitular)) {
+            document.getElementById("error-nombre").innerText = "Ingresa el nombre completo (solo letras).";
+            valido = false;
+        }
+
+        // Validar fecha vencimiento (MM/AA y mes válido)
+        const fechaExpiracion = document.getElementById("fechaExpiracion").value;
+        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(fechaExpiracion)) {
+            document.getElementById("error-fecha").innerText = "Formato inválido. Usa MM/AA.";
+            valido = false;
+        }
+
+        // Validar CVV (3 dígitos)
+        const cvv = document.getElementById("cvv").value;
+        if (!/^\d{3}$/.test(cvv)) {
+            document.getElementById("error-cvv").innerText = "El CVV debe tener 3 números.";
+            valido = false;
+        }
+
+        if (!valido) return; // Si no pasa validación, no continuar
+
+        // Mostrar spinner y deshabilitar botón
+        document.getElementById("spinner-pago").style.display = "block";
+        const btnPagar = this.querySelector("button[type='submit']");
+        btnPagar.disabled = true;
+        btnPagar.innerText = "Procesando...";
+
+        // Simular procesamiento de pago
+        setTimeout(function () {
+            document.getElementById("spinner-pago").style.display = "none";
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Pago realizado',
+                text: 'Tu pago fue procesado correctamente',
+                confirmButtonText: 'Aceptar'
+            });
+
+            // Cerrar modal
+            var pagoModal = bootstrap.Modal.getInstance(document.getElementById("pasarelaPagoModal"));
+            pagoModal.hide();
+
+            // Reiniciar form
+            btnPagar.disabled = false;
+            btnPagar.innerText = "Pagar S/. 50.00";
+            document.getElementById("form-pago-tarjeta").reset();
+
+            // Mostrar resumen
+            const resumenMetodo = document.getElementById("resumen-metodo");
+            if (resumenMetodo) {
+                resumenMetodo.innerText = "Pago en línea con tarjeta";
+                document.getElementById("reserva-resumen").style.display = "block";
+            }
+
+        }, 2000);
+    });
+</script>
+
 <!-- Right bar overlay-->
 <div class="rightbar-overlay"></div>
 <!-- JAVASCRIPT -->
@@ -764,6 +913,7 @@
 <script src="../../static/vecino.assets/js/pages/ecommerce-checkout.init.js"></script>
 <script src="../../static/vecino.assets/js/app.js"></script>
 <!-- Script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
