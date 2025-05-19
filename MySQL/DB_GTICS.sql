@@ -166,6 +166,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`espacios_deportivos` (
   `longitud_piscina` INT NULL DEFAULT NULL,
   `profundidad_piscina` DECIMAL(6,2) NULL DEFAULT NULL,
   `descripcion` TEXT NULL DEFAULT NULL,
+  `foto_espacio_deportivo_url` VARCHAR(255) NULL DEFAULT NULL,
   `aforo_gimnasio` INT NULL DEFAULT NULL,
   `longitud_pista` DECIMAL(6,2) NULL DEFAULT NULL,
   `carriles_pista` INT NULL DEFAULT NULL,
