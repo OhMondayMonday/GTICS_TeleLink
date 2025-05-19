@@ -343,7 +343,8 @@ public class AdminController {
             return "redirect:/admin/establecimientos";
         }
     }*/
-    @PostMapping("establecimientos/guardar")
+
+    /*@PostMapping("establecimientos/guardar")
     public String guardarEstablecimiento(@ModelAttribute("establecimiento") @Valid EstablecimientoDeportivo establecimiento,
                                          BindingResult bindingResult,
                                          @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
@@ -381,6 +382,66 @@ public class AdminController {
             }
         } else {
             establecimiento.setFotoEstablecimientoUrl(isCreation ? defaultFotoUrl : existingFotoUrl != null ? existingFotoUrl : defaultFotoUrl);
+        }
+
+        // Set creation/update timestamps
+        if (isCreation) {
+            establecimiento.setFechaCreacion(LocalDateTime.now());
+            attr.addFlashAttribute("msg", "Establecimiento creado satisfactoriamente");
+        } else {
+            establecimiento.setFechaActualizacion(LocalDateTime.now());
+            attr.addFlashAttribute("msg", "Establecimiento editado satisfactoriamente");
+        }
+
+        establecimientoDeportivoRepository.save(establecimiento);
+        return "redirect:/admin/establecimientos";
+    }
+     */
+
+    @PostMapping("establecimientos/guardar")
+    public String guardarEstablecimiento(@ModelAttribute("establecimiento") @Valid EstablecimientoDeportivo establecimiento,
+                                         BindingResult bindingResult,
+                                         @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+                                         Model model,
+                                         RedirectAttributes attr) {
+        // Validate image format if provided
+        String defaultFotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg";
+        String existingFotoUrl = establecimiento.getEstablecimientoDeportivoId() != null ? establecimiento.getFotoEstablecimientoUrl() : null;
+        boolean isCreation = establecimiento.getEstablecimientoDeportivoId() == null || establecimiento.getEstablecimientoDeportivoId() == 0;
+
+        if (fotoFile != null && !fotoFile.isEmpty()) {
+            String contentType = fotoFile.getContentType();
+            if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
+                bindingResult.rejectValue("fotoEstablecimientoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
+            } else {
+                String uploadResult = s3Service.uploadFile(fotoFile);
+                if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
+                    String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
+                    if (fotoUrl.length() > 255) {
+                        bindingResult.rejectValue("fotoEstablecimientoUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
+                    } else if (fotoUrl.isEmpty()) {
+                        bindingResult.rejectValue("fotoEstablecimientoUrl", "Invalid", "La URL generada está vacía");
+                    } else {
+                        establecimiento.setFotoEstablecimientoUrl(fotoUrl);
+                    }
+                } else {
+                    establecimiento.setFotoEstablecimientoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
+                    attr.addFlashAttribute("message", "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
+                    attr.addFlashAttribute("messageType", "error");
+                }
+            }
+        } else {
+            // No file uploaded; use default for creation or preserve valid existing URL
+            establecimiento.setFotoEstablecimientoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
+        }
+
+        if (bindingResult.hasErrors()) {
+            return "admin/establecimientoForm";
+        }
+
+        // Ensure no empty string is saved
+        if (establecimiento.getFotoEstablecimientoUrl() == null || establecimiento.getFotoEstablecimientoUrl().isEmpty()) {
+            establecimiento.setFotoEstablecimientoUrl(defaultFotoUrl);
         }
 
         // Set creation/update timestamps
@@ -452,7 +513,8 @@ public class AdminController {
             return "redirect:/admin/establecimientos/info?id=" + espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoId();
         }
     }*/
-    @PostMapping("espacios/guardar")
+
+    /*@PostMapping("espacios/guardar")
     public String guardarEspacioDeportivo(@ModelAttribute("espacio") @Valid EspacioDeportivo espacio,
                                           BindingResult bindingResult,
                                           @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
@@ -505,7 +567,69 @@ public class AdminController {
 
         espacioDeportivoRepository.save(espacio);
         return "redirect:/admin/establecimientos/info?id=" + espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoId();
+    }*/
+
+    @PostMapping("espacios/guardar")
+    public String guardarEspacioDeportivo(@ModelAttribute("espacio") @Valid EspacioDeportivo espacio,
+                                          BindingResult bindingResult,
+                                          @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+                                          Model model,
+                                          RedirectAttributes attr) {
+        // Validate image format if provided
+        String defaultFotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg";
+        String existingFotoUrl = espacio.getEspacioDeportivoId() != null ? espacio.getFotoEspacioDeportivoUrl() : null;
+        boolean isCreation = espacio.getEspacioDeportivoId() == null || espacio.getEspacioDeportivoId() == 0;
+
+        if (fotoFile != null && !fotoFile.isEmpty()) {
+            String contentType = fotoFile.getContentType();
+            if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
+                bindingResult.rejectValue("fotoEspacioDeportivoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
+            } else {
+                String uploadResult = s3Service.uploadFile(fotoFile);
+                if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
+                    String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
+                    if (fotoUrl.length() > 255) {
+                        bindingResult.rejectValue("fotoEspacioDeportivoUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
+                    } else if (fotoUrl.isEmpty()) {
+                        bindingResult.rejectValue("fotoEspacioDeportivoUrl", "Invalid", "La URL generada está vacía");
+                    } else {
+                        espacio.setFotoEspacioDeportivoUrl(fotoUrl);
+                    }
+                } else {
+                    espacio.setFotoEspacioDeportivoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
+                    attr.addFlashAttribute("message", "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
+                    attr.addFlashAttribute("messageType", "error");
+                }
+            }
+        } else {
+            // No file uploaded; use default for creation or preserve valid existing URL
+            espacio.setFotoEspacioDeportivoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
+            model.addAttribute("servicios", servicioDeportivoRepository.findAll());
+            return "admin/espacioForm";
+        }
+
+        // Ensure no empty string is saved
+        if (espacio.getFotoEspacioDeportivoUrl() == null || espacio.getFotoEspacioDeportivoUrl().isEmpty()) {
+            espacio.setFotoEspacioDeportivoUrl(defaultFotoUrl);
+        }
+
+        // Set creation/update timestamps
+        if (isCreation) {
+            espacio.setFechaCreacion(LocalDateTime.now());
+            attr.addFlashAttribute("msg", "Espacio creado satisfactoriamente");
+        } else {
+            attr.addFlashAttribute("msg", "Espacio editado satisfactoriamente");
+        }
+        espacio.setFechaActualizacion(LocalDateTime.now());
+
+        espacioDeportivoRepository.save(espacio);
+        return "redirect:/admin/establecimientos/info?id=" + espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoId();
     }
+
 
     // Show details of a sports space
     @GetMapping("espacios/detalle")
