@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Calendario del Coordinador')}">
+  <meta charset="UTF-8">
+  <title>Información del Establecimiento</title>
+</head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+
+  <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Calendario del coordinador')}"></div>
+
+  <!-- ============================================================== -->
+  <!-- Start right Content here -->
+  <!-- ============================================================== -->
+  <div class="main-content">
+
+    <input type="hidden" id="userCoordi" th:value="${coordinador.usuarioId}"/>
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row mb-4">
+          <div class="col-lg-12">
+            <div class="card mb-0">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-lg-6">
+                    <!-- Nombre completo -->
+                    <div class="mb-4">
+                      <label class="form-label">Nombre completo</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control opacity-75"
+                               th:value="${coordinador.nombres + ' ' + coordinador.apellidos}"
+                               disabled />
+                        <span class="input-group-text"><i class="mdi mdi-account"></i></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="mb-4">
+                      <label class="form-label">Teléfono</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control opacity-75"
+                               th:value="${coordinador.telefono}"
+                               disabled />
+                        <span class="input-group-text"><i class="mdi mdi-phone"></i></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-3">
+                    <!-- Botón para crear nueva asistencia -->
+                    <div class="mb-4">
+                      <a th:href="@{/admin/asistencias/nueva(coordinadorId=${coordinador.usuarioId})}" class="btn btn-primary w-100">Crear Nueva Asistencia</a>
+                    </div>
+                    <!-- Leyenda de colores -->
+                    <div class="card">
+                      <div class="card-body">
+                        <h5 class="card-title">Leyenda de Colores</h5>
+                        <ul class="list-unstyled">
+                          <li><span class="badge bg-success me-2">Puntual</span></li>
+                          <li><span class="badge bg-warning me-2">Tardanza</span></li>
+                          <li><span class="badge bg-info me-2">Pendiente</span></li>
+                          <li><span class="badge bg-danger me-2">Inasistencia</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-9">
+                    <div id="calendar"></div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- container-fluid -->
+    </div> <!-- End Page-content -->
+
+    <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+  </div> <!-- end main content-->
+
+</div> <!-- END layout-wrapper -->
+
+<div class="sidebar-overlay"></div>
+
+<div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+
+
+  <!-- plugin js -->
+  <script th:src="@{/assets/libs/moment/min/moment.min.js}"></script>
+  <script th:src="@{/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
+  <script th:src="@{/assets/libs/@fullcalendar/core/main.min.js}"></script>
+  <script th:src="@{/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
+  <script th:src="@{/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
+  <script th:src="@{/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
+  <script th:src="@{/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
+
+
+  <script th:src="@{/assets/js/pages/calendarioCoordi.init.js}"></script>
+
+
+</body>
+</html>

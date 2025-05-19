@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headList.html :: headList(title='Información del Espacio Deportivo')}">
+    <meta charset="UTF-8">
+    <title>Información del Espacio Deportivo</title>
+</head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+
+    <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Espacios deportivos')}"></div>
+
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row justify-content-around">
+                    <div class="col-lg-12 align-items-center">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <h4 class="card-title mb-4 fw-semibold mt-3">Información del Espacio Deportivo</h4>
+
+                                <!-- Nombre -->
+                                <div class="mb-4">
+                                    <label class="form-label">Nombre</label>
+                                    <input type="text" class="form-control border-0 bg-light"
+                                           th:value="${espacio.nombre}"
+                                           readonly disabled />
+                                </div>
+
+                                <!-- Descripción -->
+                                <div class="mb-4">
+                                    <label class="form-label">Descripción</label>
+                                    <textarea class="form-control border-0 bg-light" rows="3"
+                                              th:text="${espacio.descripcion} ?: 'Sin descripción'"
+                                              readonly disabled></textarea>
+                                </div>
+
+                                <!-- Servicio Deportivo and Establecimiento Deportivo -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Servicio Deportivo</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${espacio.servicioDeportivo?.servicioDeportivo} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Establecimiento Deportivo</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${espacio.establecimientoDeportivo?.establecimientoDeportivoNombre} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Horario Apertura and Horario Cierre -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Horario de Apertura</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${espacio.horarioApertura} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Horario de Cierre</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${espacio.horarioCierre} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Estado Servicio and Precio por Hora -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Estado del Servicio</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${#strings.capitalize(espacio.estadoServicio.name())}"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Precio por Hora</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${espacio.precioPorHora} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Número de Soporte and Geolocalización -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Número de Soporte</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${espacio.numeroSoporte} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Geolocalización (lat,long)</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${espacio.geolocalizacion} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Piscina: Carriles and Máximo Personas por Carril -->
+                                <div class="row mb-4" th:if="${espacio.carrilesPiscina != null}">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Carriles de Piscina</label>
+                                        <input type="number" class="form-control border-0 bg-light"
+                                               th:value="${espacio.carrilesPiscina}"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Máximo Personas por Carril</label>
+                                        <input type="number" class="form-control border-0 bg-light"
+                                               th:value="${espacio.maxPersonasPorCarril} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Piscina: Longitud and Profundidad -->
+                                <div class="row mb-4" th:if="${espacio.longitudPiscina != null}">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Longitud de Piscina (metros)</label>
+                                        <input type="number" class="form-control border-0 bg-light"
+                                               th:value="${espacio.longitudPiscina}"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Profundidad de Piscina (metros)</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${espacio.profundidadPiscina} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Gimnasio: Aforo -->
+                                <div class="mb-4" th:if="${espacio.aforoGimnasio != null}">
+                                    <label class="form-label">Aforo del Gimnasio</label>
+                                    <input type="number" class="form-control border-0 bg-light"
+                                           th:value="${espacio.aforoGimnasio}"
+                                           readonly disabled />
+                                </div>
+
+                                <!-- Pista: Longitud and Carriles -->
+                                <div class="row mb-4" th:if="${espacio.longitudPista != null}">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Longitud de Pista (metros)</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${espacio.longitudPista} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Carriles de Pista</label>
+                                        <input type="number" class="form-control border-0 bg-light"
+                                               th:value="${espacio.carrilesPista} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Botones -->
+                                <a th:href="@{/admin/espacios/editar(id=${espacio.espacioDeportivoId})}" class="btn btn-primary">Editar información</a>
+                                <a th:href="@{/admin/establecimientos/info(id=${espacio.establecimientoDeportivo.establecimientoDeportivoId})}" class="btn btn-secondary ms-2">Volver al Establecimiento</a>
+                                <!--<a th:href="@{/admin/establecimientos/info(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </a>-->
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+    </div>
+</div>
+
+<div class="sidebar-overlay"></div>
+<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+<script th:src="@{/assets/js/pages/espaciosAdmin.init.js}"></script>
+</body>
+</html>

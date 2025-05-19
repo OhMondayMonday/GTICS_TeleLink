@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Gestión de Reservas</title>
+        <th:block th:replace="~{Superadmin/fragments/head :: head(title='Pagos')}"></th:block>
+    </head>
+    <body data-sidebar="dark" class="vertical-collpsed">
+        <div th:replace="~{Superadmin/fragments/header :: header(title='Registro de pagos')}"></div>
+        <div th:replace="~{Superadmin/fragments/sidebar :: sidebar}"></div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                <h4 class="mb-sm-0">Registro de pagos</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title">Lista de Pagos</h4>
+                                    <p class="card-title-desc mb-1">
+                                        Lista de Pagos de la plataforma San Miguel
+                                    </p>
+                                    <div class="loader-container">
+                                        <div class="loader"></div>
+                                    </div>
+                                    <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 40px">ID</th>
+                                                <th>Titular</th>
+                                                <th>Espacio</th>
+                                                <th>Método</th>
+                                                <th>Monto</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                                <th style="width: 20px">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="pago : ${pagos}">
+                                                <td th:text="${pago.pagoId}"></td>
+                                                <td>
+                                                    <img th:src="${pago.reserva.usuario.fotoPerfilUrl != null ? pago.reserva.usuario.fotoPerfilUrl : '/assets/images/users/avatar-3.jpg'}"
+                                                         alt="foto_perfil" class="avatar-xs rounded-circle me-2">
+                                                    <span th:text="${pago.reserva.usuario.nombres + ' ' + pago.reserva.usuario.apellidos}"></span>
+                                                </td>
+                                                <td th:text="${pago.reserva.espacioDeportivo.getNombre()}"></td>
+                                                <td>
+                                                    <!-- Imagen según método de pago -->
+                                                    <div class="d-flex align-items-center">
+                                                        <img th:src="${#strings.toLowerCase(pago.metodoPago.getMetodoPago()) == 'yape' ? '/assets/images/companies/Yape.png' :
+                                                                        (#strings.toLowerCase(pago.metodoPago.getMetodoPago()) == 'plin' ? '/assets/images/companies/Plin.png' :
+                                                                        (#strings.toLowerCase(pago.metodoPago.getMetodoPago()) == 'izipay' ? '/assets/images/companies/Izipay.jpg' :
+                                                                        '/assets/images/companies/Efectivo.png'))}"
+                                                             class="avatar-xs rounded-circle me-2"
+                                                             th:alt="${pago.metodoPago.getMetodoPago()}">
+                                                        <span th:text="${pago.metodoPago.getMetodoPago()}"></span>
+                                                    </div>
+                                                </td>
+                                                <td th:text="${'S/ ' + #numbers.formatDecimal(pago.monto, 1, 2)}"></td>
+                                                <td th:text="${pago.fechaPago != null} ? ${#temporals.format(pago.fechaPago, 'dd/MM/yyyy HH:mm')} : 'No pagado'"></td>
+                                                <td>
+                                                    <span th:switch="${pago.estadoTransaccion.name()}" class="badge">
+                                                        <span th:case="completado" class="badge bg-success-subtle text-success font-size-12">Completado</span>
+                                                        <span th:case="pendiente" class="badge bg-warning-subtle text-warning font-size-12">Pendiente</span>
+                                                        <span th:case="fallido" class="badge bg-danger-subtle text-danger font-size-12">Fallido</span>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <!-- Botón para modal de detalles -->
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-primary"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#detallePagoModal"
+                                                            th:attr="data-pago-id=${pago.pagoId}">
+                                                        <i class="mdi mdi-eye-outline"></i> Ver detalles
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div> <!-- end card body-->
+                                <!-- Modal -->
+                                <div class="modal fade" id="detallePagoModal" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Detalles completos del pago</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body" id="detallePagoContent">
+                                                <!-- Contenido dinámico se insertará aquí -->
+                                                <div class="text-center py-4">
+                                                    <div class="spinner-border text-primary" role="status"></div>
+                                                    <p class="mt-2">Cargando detalles...</p>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <th:block th:replace="~{Superadmin/fragments/footer :: footer}"></th:block>
+        <th:block th:replace="~{Superadmin/fragments/foot :: foot}"></th:block>
+
+        <script>
+
+
+            $(document).ready(function() {
+                // Muestra el símbolo de carga
+                $("#loading").show();
+
+                // Inicializa DataTable
+                var table = $('#alternative-page-datatable').DataTable({
+                    "columnDefs": [
+                        {
+                            "targets": [-1], // Aplica a la última columna (puedes usar el índice adecuado si no es la última)
+                            "orderable": false // Desactiva el ordenamiento
+                        },
+                    ],
+                    "pageLength": 6,  // Fija el número de registros a mostrar
+                    "lengthChange": false,
+                    pagingType: "full_numbers",
+                    "info": true,  // Habilita la información de las entradas mostradas
+                    "language": {
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
+                        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
+                        "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+                    },
+                    "initComplete": function() {
+                        // Oculta el símbolo de carga y muestra la tabla cuando los datos hayan sido procesados y renderizados
+                        $(".loader-container").hide();  // Ocultamos el indicador de carga
+                        $('#alternative-page-datatable').show();  // Mostramos la tabla
+                    },
+                    drawCallback: function () {
+                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                    }
+                });
+
+                // Asegúrate de que la tabla esté inicialmente oculta
+                table.hide();
+            });
+
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                $('#detallePagoModal').on('show.bs.modal', function(event) {
+                    const button = $(event.relatedTarget);
+                    const pagoId = button.data('pago-id');
+                    const modal = $(this);
+
+                    // Mostrar spinner mientras carga
+                    modal.find('#detallePagoContent').html(`
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2">Cargando detalles...</p>
+                        </div>
+                    `);
+
+                    // Cargar datos via AJAX
+                    $.get(`/superadmin/pagos/detalles/${pagoId}`, function(data) {
+                        modal.find('#detallePagoContent').html(data);
+                    }).fail(function() {
+                        modal.find('#detallePagoContent').html(`
+                <div class="alert alert-danger">
+                    Error al cargar los detalles. Intente nuevamente.
+                </div>
+            `);
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>

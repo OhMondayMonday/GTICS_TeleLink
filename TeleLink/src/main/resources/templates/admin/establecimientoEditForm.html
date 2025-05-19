@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{admin/fragments/headPage.html :: headPage(title='Edición de establecimientos deportivos')}">
   <meta charset="UTF-8">
   <title>Edición de Establecimientos</title>
 </head>
-<body data-sidebar="dark">
+<body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
 
   <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}"></div>
@@ -162,7 +162,7 @@
 </div>
 <!-- END layout-wrapper -->
 
-<div class="rightbar-overlay"></div>
+<div class="sidebar-overlay"></div>
 <div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
 </body>
 </html>

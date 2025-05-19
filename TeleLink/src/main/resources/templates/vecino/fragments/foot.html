@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <!-- Fragmento de scripts para páginas generales -->
+    <div th:fragment="foot">
+        <!-- JAVASCRIPT -->
+
+        <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+        <script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+        <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+        <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+        <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+
+        <!-- Plugin JS -->
+        <script th:src="@{/assets/libs/moment/min/moment.min.js}"></script>
+        <script th:src="@{/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/core/main.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
+        <script th:src="@{/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
+
+        <!-- Calendar Init -->
+        <script th:src="@{/assets/js/pages/calendar.init.js}"></script>
+
+        <!-- App JS -->
+        <script th:src="@{/assets/js/app.js}"></script>
+
+
+    </div>
+</html>

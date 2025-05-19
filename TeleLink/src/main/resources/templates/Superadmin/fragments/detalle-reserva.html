@@ -1,0 +1,26 @@
+<div th:fragment="detalleFragment" class="row">
+  <div class="col-md-6">
+    <p><strong>ID Reserva:</strong> <span th:text="${reserva.reservaId}"></span></p>
+    <p><strong>Usuario:</strong>
+      <span th:text="${reserva.usuario.nombres + ' ' + reserva.usuario.apellidos}"></span>
+    </p>
+    <p><strong>Espacio:</strong> <span th:text="${reserva.espacioDeportivo.nombre}"></span></p>
+  </div>
+  <div class="col-md-6">
+    <p><strong>Horario:</strong>
+      <span th:text="${#temporals.format(reserva.inicioReserva, 'dd/MM/yyyy HH:mm') + ' - ' +
+                           #temporals.format(reserva.finReserva, 'HH:mm')}"></span>
+    </p>
+    <p><strong>Estado:</strong>
+      <span th:switch="${reserva.estado.name()}" class="badge">
+                <span th:case="pendiente" class="badge bg-warning">Pendiente</span>
+                <span th:case="confirmada" class="badge bg-success">Confirmada</span>
+                <span th:case="cancelada" class="badge bg-danger">Cancelada</span>
+            </span>
+    </p>
+    <p th:if="${reserva.razonCancelacion != null}">
+      <strong>Razón cancelación:</strong>
+      <span th:text="${reserva.razonCancelacion}"></span>
+    </p>
+  </div>
+</div>

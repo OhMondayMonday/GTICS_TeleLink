@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <!-- Fragmento del Header -->
-    <header th:fragment="header" id="page-topbar">
+    <header th:fragment="header(title)" id="page-topbar">
         <div class="navbar-header">
             <div class="d-flex">
                 <!-- LOGO -->
                 <div class="navbar-brand-box">
-                    <a th:href="@{/}" class="logo logo-light">
+                    <a href="" class="logo logo-light">
                                 <span class="logo-sm me-1">
-                                    <img th:src="@{/admin/assets/images/logoCompleto.png}" alt="logo-sm-light" height="25">
+                                    <img th:src="@{/assets/images/logoCortado.png}" alt="logo-sm-light" height="25">
                                 </span>
                         <span class="logo-lg">
-                                    <img th:src="@{/admin/assets/images/logoCompleto.png}" alt="logo-light" height="40">
+                                    <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-light" height="40">
                                 </span>
                     </a>
                 </div>
@@ -21,7 +21,7 @@
                 </button>
 
                 <div class="dropdown dropdown-mega d-none d-lg-block">
-                    <button type="button" class="btn header-item waves-effect font-size-16" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Inicio
+                    <button type="button" th:text="${title}" class="btn header-item waves-effect font-size-16" data-bs-toggle="dropdown" aria-haspopup="false" aria-expanded="false">
                     </button>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                             </a>
                             <a href="#" class="text-reset notification-item">
                                 <div class="d-flex">
-                                    <img th:src="@{superadmin/assets/images/users/avatar-3.jpg}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                    <img th:src="@{Superadmin/assets/images/users/avatar-3.jpg}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                     <div class="flex-1">
                                         <h6 class="mb-1">James Lemire</h6>
                                         <div class="font-size-12 text-muted">
@@ -94,7 +94,7 @@
 
                             <a href="#" class="text-reset notification-item">
                                 <div class="d-flex">
-                                    <img th:src="@{superadmin/assets/images/users/avatar-4.jpg}"
+                                    <img th:src="@{Superadmin/assets/images/users/avatar-4.jpg}"
                                          class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                     <div class="flex-1">
                                         <h6 class="mb-1">Salena Layfield</h6>
@@ -113,15 +113,24 @@
                 <div class="dropdown d-inline-block user-dropdown">
                     <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <img class="rounded-circle header-profile-user" th:src="@{superadmin/assets/images/users/avatar-4.jpg}">
-                        <span class="d-none d-xl-inline-block ms-1">Kevin</span>
+                        <img th:src="${session.usuario?.fotoPerfilUrl != null} ?
+                                                  ${session.usuario.fotoPerfilUrl} :
+                                                  '/assets/images/users/defaultfoto.jpg'"
+                             class="me-1 rounded-circle avatar-sm"
+                             alt="Foto de perfil">
+                        <span class="d-none d-xl-inline-block ms-1" th:text="${session.usuario.getNombres()}"></span>
                         <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
                         <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>
+                        <!--<a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>-->
+                        <form th:action="@{/logout}" method="post" style="display:inline;">
+                            <button type="submit" class="dropdown-item text-danger" style="background:none;border:none;">
+                                <i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión
+                            </button>
+                        </form>
                     </div>
                 </div>
 

@@ -3,6 +3,7 @@ package com.example.telelink.repository;
 import com.example.telelink.entity.EspacioDeportivo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.example.telelink.entity.EstablecimientoDeportivo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,6 +37,9 @@ public interface EspacioDeportivoRepository extends JpaRepository<EspacioDeporti
             @Param("carrilesPiscina") Integer carrilesPiscina,
             @Param("aforoGimnasio") Integer aforoGimnasio,
             @Param("carrilesAtletismo") Integer carrilesAtletismo);
+  
     Page<EspacioDeportivo> findAll(Pageable pageable);
+  
+    List<EspacioDeportivo> findAllByEstablecimientoDeportivo(EstablecimientoDeportivo establecimientoDeportivo);
 
 }

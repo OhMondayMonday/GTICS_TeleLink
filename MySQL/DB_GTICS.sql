@@ -243,6 +243,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`avisos` (
   `texto_aviso` TEXT NOT NULL,
   `foto_aviso_url` VARCHAR(255) NOT NULL,
   `fecha_aviso` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `estado_aviso` enum('activo', 'disponible', 'eliminado', 'default') NULL DEFAULT 'disponible',
   PRIMARY KEY (`aviso_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
@@ -386,7 +387,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
   `fin_reserva` TIMESTAMP NOT NULL,
   `numero_carril_piscina` INT NULL DEFAULT NULL,
   `numero_carril_pista` INT NULL DEFAULT NULL,
-  `estado` ENUM('pendiente', 'confirmada', 'cancelada') NULL DEFAULT 'pendiente',
+  `estado` ENUM('pendiente', 'confirmada', 'cancelada','completada') NULL DEFAULT 'pendiente',
   `razon_cancelacion` TEXT NULL DEFAULT NULL,
   `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -404,9 +405,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
-
-
--- -----------------------------------------------------
+-------------------------------------
 -- Table `db_gtics`.`pagos`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `db_gtics`.`pagos` ;
@@ -493,13 +492,58 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
 
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`verification_tokens`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`verification_tokens`;
+
+CREATE TABLE `db_gtics`.`verification_tokens` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `token` VARCHAR(255) NOT NULL,
+  `usuario_id` INT NOT NULL,
+  `expiry_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `token` (`token` ASC) VISIBLE,
+  CONSTRAINT `fk_verification_tokens_usuario`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+
+-- -----------------------------------------------------
+-- Table `db_gtics`.`password_reset_tokens`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `db_gtics`.`password_reset_tokens` ;
+
+CREATE TABLE IF NOT EXISTS `db_gtics`.`password_reset_tokens` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `token` VARCHAR(255) NOT NULL,
+  `usuario_id` INT NOT NULL,
+  `expiry_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `token` (`token` ASC) VISIBLE,
+  CONSTRAINT `fk_password_reset_tokens_usuario`
+    FOREIGN KEY (`usuario_id`)
+    REFERENCES `db_gtics`.`usuarios` (`usuario_id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
 -- -----------------------------------------------------
 -- Table `db_gtics`.`observaciones`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `db_gtics`.`observaciones` ;
 
 CREATE TABLE IF NOT EXISTS `db_gtics`.`observaciones` (
-  `observacion_id` INT NOT NULL,
+  `observacion_id` INT NOT NULL AUTO_INCREMENT,
   `fecha_creacion` TIMESTAMP NULL,
   `fecha_actualizacion` TIMESTAMP NULL,
   `descripcion` TEXT NULL,
@@ -508,6 +552,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`observaciones` (
   `espacio_deportivo_id` INT NOT NULL,
   `coordinador_id` INT NOT NULL,
   `comentario_administrador` TEXT NULL,
+  `estado` ENUM('resuelto', 'en_proceso', 'pendiente') NULL DEFAULT 'pendiente',
   PRIMARY KEY (`observacion_id`),
   INDEX `fk_observaciones_espacios_deportivos1_idx` (`espacio_deportivo_id` ASC) VISIBLE,
   INDEX `fk_observaciones_usuarios1_idx` (`coordinador_id` ASC) VISIBLE,
@@ -549,3 +594,42 @@ DELIMITER ;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- Eventos programados
+
+DELIMITER $$
+
+CREATE EVENT `actualizar_asistencias_inasistencia`
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    UPDATE asistencias
+    SET 
+        estado_entrada = 'inasistencia',
+        estado_salida = 'inasistencia'
+    WHERE 
+        horario_salida < CURRENT_TIMESTAMP
+        AND estado_entrada = 'pendiente';
+END$$
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE EVENT IF NOT EXISTS `actualizar_reservas_completadas`
+ON SCHEDULE EVERY 1 MINUTE  -- Se ejecuta cada minuto (puedes cambiarlo a 1 HOUR si prefieres)
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Actualiza reservas CONFIRMADAS que ya pasaron su hora de fin
+    UPDATE `db_gtics`.`reservas`
+    SET 
+        `estado` = 'completada',
+        `fecha_actualizacion` = CURRENT_TIMESTAMP
+    WHERE 
+        `estado` = 'confirmada' 
+        AND `fin_reserva` < CURRENT_TIMESTAMP;  -- Si ya pasó la hora de fin
+END//
+
+DELIMITER ;

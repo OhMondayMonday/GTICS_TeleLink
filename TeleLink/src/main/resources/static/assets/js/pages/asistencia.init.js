@@ -45,11 +45,11 @@ radialchart=new ApexCharts(document.querySelector("#radialchart-1"),radialoption
         pageLength: 4,
         columns: [
             {orderable: !0},
-            {orderable: !1},
-            {orderable: !1},
-            {orderable: !1}
+            {orderable: !0},
+            {orderable: !0},
+            {orderable: !0}
         ],
-        order: [[0, "asc"]],
+        order: [[0, "desc"]],
         language: {
             "decimal":        "",
             "emptyTable":     "No hay datos disponibles",

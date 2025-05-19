@@ -1,10 +1,15 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/topbarCoordinador :: head('Inicio')}"></head>
-  <body data-sidebar="dark">
+  <body data-sidebar="dark" class="vertical-collpsed">
     <div id="layout-wrapper">
       <div th:replace="~{fragments/topbarCoordinador :: topbar('Inicio')}"></div>
       <div th:replace="~{fragments/sidebarCoordinador :: sidebar('inicio')}"></div>
+
+
+      <!-- ============================================================== -->
+      <!-- Start right Content here -->
+      <!-- ============================================================== -->
 
       <!-- Hidden input para pasar el userId al JavaScript -->
       <input type="hidden" id="currentUserId" th:value="${currentUserId}"/>
@@ -16,7 +21,7 @@
               <div class="col-xl-4 d-flex flex-column mb-4">
                 <div class="card flex-grow-1 mb-4">
                   <div class="card-body">
-                    <h4 class="card-title mb-4">Estadísticas de asistencia</h4>
+                    <h4 class="card-title mb-4 fw-semibold">Estadísticas de asistencia</h4>
                     <div id="donut-chart" class="apex-charts"></div>
                     <!-- Leyenda será generada dinámicamente por JavaScript -->
                     <div id="donut-chart-legend" class="row"></div>
@@ -24,55 +29,17 @@
                 </div>
                 <div class="card flex-grow-1 mb-0">
                   <div class="card-body">
-                    <h4 class="card-title mb-4">Última observación</h4>
-                    <div data-simplebar style="max-height: 330px;">
-                      <ul class="list-unstyled activity-wid">
-                        <li class="activity-list">
-                          <div class="activity-icon avatar-xs">
-                          <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                            <i class="ri-checkbox-circle-line"></i>
-                          </span>
-                          </div>
-                          <div>
-                            <div>
-                              <h5 class="font-size-13">28 Apr, 2020 <small class="text-muted">12:07 am</small></h5>
-                            </div>
-                            <div>
-                              <p class="text-muted mb-0">Observación resuelta</p>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="activity-list">
-                          <div class="activity-icon avatar-xs">
-                          <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                            <i class="ri-time-line"></i>
-                          </span>
-                          </div>
-                          <div>
-                            <div>
-                              <h5 class="font-size-13">21 Apr, 2020 <small class="text-muted">08:01 pm</small></h5>
-                            </div>
-                            <div>
-                              <p class="text-muted mb-0">Observación en proceso de revisión</p>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="activity-list">
-                          <div class="activity-icon avatar-xs">
-                          <span class="avatar-title bg-primary-subtle text-primary rounded-circle">
-                            <i class="ri-mail-send-line"></i>
-                          </span>
-                          </div>
-                          <div>
-                            <div>
-                              <h5 class="font-size-13">17 Apr, 2020 <small class="text-muted">09:23 am</small></h5>
-                            </div>
-                            <div>
-                              <p class="text-muted mb-0">Nueva observación registrada</p>
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
+                    <h4 class="card-title mb-4 fw-semibold">Último aviso</h4>
+                    <div data-simplebar>
+                      <div th:if="${ultimoAviso != null}">
+                        <h5 class="font-size-14" th:text="${ultimoAviso.tituloAviso}"></h5>
+                        <p class="text-muted mb-2" th:text="${ultimoAviso.textoAviso}"></p>
+                        <img th:src="${ultimoAviso.fotoAvisoUrl}" alt="Foto del aviso" class="img-fluid mb-2" style="width: 100%; height: 250px; object-fit: cover;" />
+                        <small class="text-muted" th:text="${#temporals.format(ultimoAviso.fechaAviso, 'dd MMM, yyyy HH:mm')}"></small>
+                      </div>
+                      <div th:if="${ultimoAviso == null}">
+                        <p class="text-muted mb-0">No hay avisos disponibles.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -94,10 +61,13 @@
       <!-- end main content-->
     </div>
     <!-- END layout-wrapper -->
+
+    <div class="sidebar-overlay"></div>
+
     <div th:replace="fragments/topbarCoordinador :: scripts"></div>
     <!-- Init js -->
     <script th:src="@{/assets/js/pages/inicio.init.js}"></script>
     <!-- App js -->
-    <script th:src="@{/assets/js/app.js}"></script>
+    <script th:src="@{/superadmin/assets/js/app.js}"></script>
   </body>
 </html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>Registro Exitoso | Municipalidad de San Miguel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/assets/css/app.min.css}" rel="stylesheet" type="text/css" />
+</head>
+<body class="auth-body-bg">
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <div class="col-lg-4">
+            <div class="authentication-page-content p-4 d-flex align-items-center min-vh-100">
+                <div class="w-100">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-9">
+                            <div class="text-center">
+                                <img th:src="@{/assets/images/logoCompleto.png}" alt="Municipalidad de San Miguel" class="auth-logo mx-auto">
+                                <h4 class="font-size-18 mt-4">¡Registro Exitoso!</h4>
+                                <p class="text-muted">Hemos enviado un correo de verificación a tu dirección de email. Por favor, revisa tu bandeja de entrada (y la carpeta de spam) y haz clic en el enlace para activar tu cuenta.</p>
+                                <div class="mt-4">
+                                    <a th:href="@{/openLoginWindow}" class="btn btn-primary">Volver al Inicio de Sesión</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="authentication-bg">
+                <div class="bg-overlay"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/js/app.js}"></script>
+</body>
+</html>
