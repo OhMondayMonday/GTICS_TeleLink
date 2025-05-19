@@ -333,7 +333,9 @@ public class UsuarioController {
                         tipoServicio.toLowerCase().contains("pista");
             case "multiusos":
                 return tipoServicio.toLowerCase().contains("multiusos") ||
-                        tipoServicio.toLowerCase().contains("multifuncional");
+                        tipoServicio.toLowerCase().contains("multipropósito") ||
+                        tipoServicio.toLowerCase().contains("básquet") ||
+                        tipoServicio.toLowerCase().contains("vóley");
             default:
                 return false;
         }
