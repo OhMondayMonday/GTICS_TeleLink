@@ -1,5 +1,6 @@
 package com.example.telelink.repository;
 
+import com.example.telelink.entity.EspacioDeportivo;
 import com.example.telelink.entity.Reserva;
 import com.example.telelink.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,8 +11,16 @@ import java.time.LocalDateTime;
 
 import java.util.List;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
+
+    List<Reserva> findByUsuarioOrderByInicioReservaDesc(Usuario usuario);
+
+    List<Reserva> findByUsuario_UsuarioId(Integer usuarioId);
+  
     @Query("SELECT COUNT(r) FROM Reserva r " +
             "WHERE EXTRACT(MONTH FROM r.fechaCreacion) = EXTRACT(MONTH FROM CURRENT_DATE) " +
             "AND EXTRACT(YEAR FROM r.fechaCreacion) = EXTRACT(YEAR FROM CURRENT_DATE)")

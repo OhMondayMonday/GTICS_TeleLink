@@ -98,8 +98,10 @@ INSERT INTO usuarios (
     telefono,
     estado_cuenta
 ) VALUES 
+
 ('Carlos', 'Mendoza', 'coordinador1@email.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 4, '02345678','987654321', 'activo'),
 ('Laura', 'García', 'coordinador2@email.com', '$2a$04$FUoC2aR2Q2AElt7uWHw6NORX2BeREpNJ8Rv10lnTqgcrMusJtxsPq', 4, '87654321', '987654320', 'activo');
+
 
 -- 6. Insertar asistencias para la fecha actual y días cercanos
 INSERT INTO asistencias (

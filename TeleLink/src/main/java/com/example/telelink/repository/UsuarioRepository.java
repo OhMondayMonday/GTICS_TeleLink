@@ -14,13 +14,12 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     List<Usuario> findAllByOrderByUsuarioIdAsc();
 
+    Usuario findByNombres(String nombres);
+
     // Para buscar un grupo de usuarios por Rol
     List<Usuario> findAllByRol_Rol(String rol);
 
-
     /*
-
-
     @Query(value = """
             SELECT 
                 CASE 
@@ -40,6 +39,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
             ORDER BY 
                 FIELD(dia, 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
             """, nativeQuery = true)
+
     List<CantidadReservasPorDiaDto> obtenerCantidadReservasPorDia();
      */
 

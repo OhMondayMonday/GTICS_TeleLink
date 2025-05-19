@@ -54,6 +54,7 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
             "WHERE a.coordinador.usuarioId = :coordinadorId " +
             "AND a.horarioEntrada <= :endCheck " +
             "AND a.horarioSalida >= :startCheck")
+  
     List<Asistencia> findOverlappingAsistencias(
             @Param("coordinadorId") int coordinadorId,
             @Param("startCheck") LocalDateTime startCheck,

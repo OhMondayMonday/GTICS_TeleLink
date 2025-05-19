@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/GTICS_TeleLink.iml" filepath="$PROJECT_DIR$/.idea/GTICS_TeleLink.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/.idea/SanMiVecino.iml" filepath="$PROJECT_DIR$/.idea/SanMiVecino.iml" />
+>>>>>>> 011f8d0 (aaaa)
     </modules>
   </component>
 </project>

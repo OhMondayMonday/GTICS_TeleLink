@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<!-- Fragment para el menú lateral -->
+<div class="vertical-menu" th:fragment="sidebar(activeItem)">
+    <div data-simplebar class="h-100">
+        <!-- Sidemenu -->
+        <div id="sidebar-menu">
+            <!-- Left Menu Start -->
+            <ul class="metismenu list-unstyled" id="side-menu">
+                <li class="menu-title">Menu</li>
+
+                <li th:class="${activeItem == 'inicio' ? 'mm-active' : ''}">
+                    <a th:href="@{/usuarios/inicio}" class="waves-effect">
+                        <i class="ri-dashboard-line"></i><span class="badge rounded-pill bg-success float-end"></span>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+
+                <li class="menu-title">Actividad</li>
+
+                <li th:class="${activeItem == 'reservas' ? 'mm-active' : ''}">
+                    <a th:href="@{/usuarios/mis-reservas}" class="waves-effect">
+                        <i class="ri-calendar-check-line"></i>
+                        <span>Mis reservas</span>
+                    </a>
+                </li>
+
+                <li th:class="${activeItem == 'canchas' || activeItem == 'buscar-canchas' ? 'mm-active' : ''}">
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="ri-map-pin-line"></i>
+                        <span>Buscar Canchas</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li th:class="${activeItem == 'canchas' ? 'mm-active' : ''}">
+                            <a th:href="@{/usuarios/cancha}">Canchas Disponibles</a></li>
+                    </ul>
+                </li>
+
+                <li th:class="${activeItem == 'pagos' ? 'mm-active' : ''}">
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="ri-bank-card-line"></i>
+                        <span>Pagos</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li th:class="${activeItem == 'pagos' ? 'mm-active' : ''}">
+                            <a th:href="@{/usuarios/pagos}">Mis Pagos</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-title">Ayuda</li>
+                <li th:class="${activeItem == 'ayuda' ? 'mm-active' : ''}">
+                    <a th:href="@{/usuarios/ayuda}" class="waves-effect">
+                        <i class="ri-customer-service-2-line"></i>
+                        <span>Ayuda</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- Sidebar -->
+    </div>
+</div>
+</body>
+</html>
