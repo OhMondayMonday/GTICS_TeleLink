@@ -144,12 +144,13 @@
                                             <div class="tab-content border border-top-0 p-4">
                                                 <!-- Descripción -->
                                                 <div class="tab-pane fade show active" id="desc" role="tabpanel">
-                                                    <p>Disfruta del fútbol en cualquiera de nuestras canchas, una con superficie de loza y otra con césped sintético, ambas perfectamente equipadas para que juegues sin preocupaciones.</p>
-                                                    <p>Ya sea para un partido entre amigos o para entrenar tus habilidades, nuestras canchas son el lugar ideal para divertirte y mejorar tu técnica.</p>
-                                                    <p>Visítanos en la Av. Federico Gallese N°370, San Miguel, Lima - Perú.</p>
-                                                </div>
+                                                    <p th:text="${espacio.descripcion}">Aquí irá la descripción del espacio.</p>
+                                                    <p>Visítanos en
+                                                        <a th:href="'https://www.google.com/maps?q=' + ${espacio.establecimientoDeportivo.geolocalizacion}"
+                                                           target="_blank">ver ubicación en el mapa</a>.
+                                                    </p>
 
-                                                <!-- Especificaciones -->
+                                                    <!-- Especificaciones -->
                                                 <div class="tab-pane fade" id="specifi" role="tabpanel">
                                                     <div class="table-responsive">
                                                         <table class="table table-nowrap mb-0">
