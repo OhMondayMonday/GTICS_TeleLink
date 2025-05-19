@@ -330,15 +330,17 @@ public class AdminController {
             return "admin/establecimientoForm";
         } else {
             if (establecimiento.getEstablecimientoDeportivoId() == null || establecimiento.getEstablecimientoDeportivoId() == 0) {
-                attr.addFlashAttribute("msg", "Establecimiento creado satisfactoriamente Owo");
+                attr.addFlashAttribute("msg", "Establecimiento creado satisfactoriamente");
             } else {
-                attr.addFlashAttribute("msg", "Establecimiento editado satisfactoriamente :D");
+                attr.addFlashAttribute("msg", "Establecimiento editado satisfactoriamente");
             }
             establecimientoDeportivoRepository.save(establecimiento);
             return "redirect:/admin/establecimientos";
         }
     }
 
+
+    // List all sports spaces
     @GetMapping("espacios")
     public String listarEspacios(Model model) {
         List<EspacioDeportivo> espaciosList = espacioDeportivoRepository.findAll();
@@ -346,6 +348,7 @@ public class AdminController {
         return "admin/espacioList";
     }
 
+    // Show form to create a new sports space
     @GetMapping("espacios/nuevo")
     public String crearEspacioDeportivo(@ModelAttribute("espacio") EspacioDeportivo espacio, Model model) {
         model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
@@ -353,31 +356,59 @@ public class AdminController {
         return "admin/espacioForm";
     }
 
+    // Show form to edit an existing sports space
+    @GetMapping("espacios/editar")
+    public String editarEspacioDeportivo(@ModelAttribute("espacio") EspacioDeportivo espacio,
+                                         @RequestParam("id") Integer id,
+                                         Model model) {
+        Optional<EspacioDeportivo> optEspacio = Optional.ofNullable(espacioDeportivoRepository.findById(id).orElse(null));
+        if (optEspacio.isPresent()) {
+            espacio = optEspacio.get();
+            model.addAttribute("espacio", espacio);
+            model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
+            model.addAttribute("servicios", servicioDeportivoRepository.findAll());
+            return "admin/espacioForm";
+        } else {
+            return "redirect:/admin/establecimientos";
+        }
+    }
+
+    // Save or update a sports space
     @PostMapping("espacios/guardar")
-    public String guardarEspacioDeportivo(@ModelAttribute("espacio") @Valid EspacioDeportivo espacio, BindingResult bindingResult, Model model, RedirectAttributes attr) {
+    public String guardarEspacioDeportivo(@ModelAttribute("espacio") @Valid EspacioDeportivo espacio,
+                                          BindingResult bindingResult,
+                                          Model model,
+                                          RedirectAttributes attr) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
             model.addAttribute("servicios", servicioDeportivoRepository.findAll());
             return "admin/espacioForm";
         } else {
             if (espacio.getEspacioDeportivoId() == null || espacio.getEspacioDeportivoId() == 0) {
-                attr.addFlashAttribute("msg", "Espacio creado satisfactoriamente Owo");
+                attr.addFlashAttribute("msg", "Espacio creado satisfactoriamente");
+                espacio.setFechaCreacion(LocalDateTime.now());
             } else {
-                attr.addFlashAttribute("msg", "Establecimiento ???? satisfactoriamente :D");
+                attr.addFlashAttribute("msg", "Espacio editado satisfactoriamente");
             }
-            espacio.setFechaCreacion(LocalDateTime.now());
             espacio.setFechaActualizacion(LocalDateTime.now());
             espacioDeportivoRepository.save(espacio);
-            return "redirect:/admin/establecimientos";
+            return "redirect:/admin/establecimientos/info?id=" + espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoId();
         }
     }
 
+    // Show details of a sports space
     @GetMapping("espacios/detalle")
-    public String detalleEspacioDeportivo(@RequestParam Integer id, Model model) {
-        EspacioDeportivo espacio = espacioDeportivoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Espacio Deportivo no encontrado"));
-        model.addAttribute("espacio", espacio);
-        return "admin/espacioInfo";
+    public String detalleEspacioDeportivo(@ModelAttribute("espacio") EspacioDeportivo espacio,
+                                          @RequestParam Integer id,
+                                          Model model) {
+        Optional<EspacioDeportivo> optEspacio = Optional.ofNullable(espacioDeportivoRepository.findById(id).orElse(null));
+        if (optEspacio.isPresent()) {
+            espacio = optEspacio.get();
+            model.addAttribute("espacio", espacio);
+            return "admin/espacioInfo";
+        } else {
+            return "redirect:/admin/establecimientos";
+        }
     }
 
     @GetMapping("coordinadores")
