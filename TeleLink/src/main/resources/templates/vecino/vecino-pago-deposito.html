@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{vecino/fragments/topbarVecino.html :: head(title='Pago por Depósito')}"></head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+    <div th:replace="~{vecino/fragments/topbarVecino :: topbar('Pago por Depósito')}"></div>
+    <div th:replace="~{vecino/fragments/sidebarVecino :: sidebar('reservas')}"></div>
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+
+                <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${mensaje}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 offset-lg-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title mb-4">Pago por Depósito Bancario</h4>
+                                <div class="mb-3">
+                                    <p><strong>Espacio:</strong> <span th:text="${reserva.espacioDeportivo.nombre}"></span></p>
+                                    <p><strong>Fecha:</strong> <span th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}"></span> hasta <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}"></span></p>
+                                    <p><strong>Monto Total:</strong>
+                                        <span th:with="duracion=${T(java.time.Duration).between(reserva.inicioReserva, reserva.finReserva).toHours()},
+                                                           precioTotal=${reserva.espacioDeportivo.precioPorHora.multiply(duracion)}"
+                                              th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}"></span>
+                                    </p>
+                                </div>
+                                <div class="mb-4">
+                                    <h5>Instrucciones para el Depósito</h5>
+                                    <p>Realice el depósito a la siguiente cuenta bancaria:</p>
+                                    <ul>
+                                        <li><strong>Banco:</strong> BCP</li>
+                                        <li><strong>Número de Cuenta:</strong> 123-456-789012-34</li>
+                                        <li><strong>Titular:</strong> Telelink S.A.</li>
+                                        <li><strong>Monto:</strong>
+                                            <span th:with="duracion=${T(java.time.Duration).between(reserva.inicioReserva, reserva.finReserva).toHours()},
+                                                               precioTotal=${reserva.espacioDeportivo.precioPorHora.multiply(duracion)}"
+                                                  th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}"></span>
+                                        </li>
+                                    </ul>
+                                    <p>Una vez realizado el depósito, suba el comprobante en el formulario a continuación.</p>
+                                </div>
+                                <form th:action="@{/usuarios/pago-deposito/{id}(id=${reserva.reservaId})}" method="post" enctype="multipart/form-data" id="depositForm">
+                                    <div class="mb-3">
+                                        <label for="comprobante" class="form-label">Comprobante de Pago</label>
+                                        <input type="file" class="form-control" id="comprobante" name="comprobante" accept="image/jpeg,image/png,image/jpg,application/pdf" required>
+                                        <small class="form-text text-muted">Formatos aceptados: JPEG, PNG, JPG, PDF</small>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <a th:href="@{/usuarios/pagar/{id}(id=${reserva.reservaId})}" class="btn btn-secondary me-2">Volver</a>
+                                        <button type="submit" class="btn btn-primary">Subir Comprobante</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="sidebar-overlay"></div>
+
+<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+<script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+<script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+<script th:src="@{/assets/js/app.js}"></script>
+<script>
+    $(document).ready(function() {
+        // Validación del archivo
+        $('#depositForm').on('submit', function(e) {
+            let fileInput = $('#comprobante')[0];
+            if (!fileInput.files.length) {
+                e.preventDefault();
+                alert('Por favor, seleccione un comprobante.');
+                return;
+            }
+            let file = fileInput.files[0];
+            let validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+            if (!validTypes.includes(file.type)) {
+                e.preventDefault();
+                alert('El archivo debe ser una imagen (JPEG, PNG, JPG) o un PDF.');
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{vecino/fragments/topbarVecino.html :: head(title='Pago con Tarjeta')}"></head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+    <div th:replace="~{vecino/fragments/topbarVecino :: topbar('Pago con Tarjeta')}"></div>
+    <div th:replace="~{vecino/fragments/sidebarVecino :: sidebar('reservas')}"></div>
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+
+                <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${mensaje}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 offset-lg-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title mb-4">Pago con Tarjeta</h4>
+                                <div class="mb-3">
+                                    <p><strong>Espacio:</strong> <span th:text="${reserva.espacioDeportivo.nombre}"></span></p>
+                                    <p><strong>Fecha:</strong> <span th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}"></span> hasta <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}"></span></p>
+                                    <p><strong>Monto Total:</strong>
+                                        <span th:with="duracion=${T(java.time.Duration).between(reserva.inicioReserva, reserva.finReserva).toHours()},
+                                                           precioTotal=${reserva.espacioDeportivo.precioPorHora.multiply(duracion)}"
+                                              th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}"></span>
+                                    </p>
+                                </div>
+                                <form th:action="@{/usuarios/pago-tarjeta/{id}(id=${reserva.reservaId})}" method="post" id="paymentForm">
+                                    <div class="mb-3">
+                                        <label for="numeroTarjeta" class="form-label">Número de Tarjeta</label>
+                                        <input type="text" class="form-control" id="numeroTarjeta" name="numeroTarjeta" placeholder="1234 5678 9012 3456" required maxlength="19">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="nombreTitular" class="form-label">Nombre del Titular</label>
+                                        <input type="text" class="form-control" id="nombreTitular" name="nombreTitular" placeholder="Nombre completo" required>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <label for="fechaExpiracion" class="form-label">Fecha de Expiración</label>
+                                            <input type="text" class="form-control" id="fechaExpiracion" name="fechaExpiracion" placeholder="MM/AA" required maxlength="5">
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="cvv" class="form-label">CVV</label>
+                                            <input type="text" class="form-control" id="cvv" name="cvv" placeholder="123" required maxlength="4">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <a th:href="@{/usuarios/pagar/{id}(id=${reserva.reservaId})}" class="btn btn-secondary me-2">Volver</a>
+                                        <button type="submit" class="btn btn-primary">Pagar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="sidebar-overlay"></div>
+
+<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+<script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+<script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+<script th:src="@{/assets/js/app.js}"></script>
+<script>
+    $(document).ready(function() {
+        // Formato de número de tarjeta
+        $('#numeroTarjeta').on('input', function() {
+            let value = $(this).val().replace(/\D/g, '');
+            let formatted = '';
+            for (let i = 0; i < value.length; i += 4) {
+                formatted += value.substr(i, 4) + ' ';
+            }
+            $(this).val(formatted.trim());
+        });
+        // Formato de fecha de expiración
+        $('#fechaExpiracion').on('input', function() {
+            let value = $(this).val().replace(/\D/g, '');
+            if (value.length > 2) {
+                value = value.substr(0, 2) + '/' + value.substr(2, 2);
+            }
+            $(this).val(value);
+        });
+        // Validación del formulario
+        $('#paymentForm').on('submit', function(e) {
+            let numeroTarjeta = $('#numeroTarjeta').val().replace(/\D/g, '');
+            let fechaExpiracion = $('#fechaExpiracion').val();
+            let cvv = $('#cvv').val();
+            if (numeroTarjeta.length !== 16) {
+                e.preventDefault();
+                alert('El número de tarjeta debe tener 16 dígitos.');
+            } else if (!fechaExpiracion.match(/^(0[1-9]|1[0-2])\/\d{2}$/)) {
+                e.preventDefault();
+                alert('La fecha de expiración debe estar en formato MM/AA.');
+            } else if (!cvv.match(/^\d{3,4}$/)) {
+                e.preventDefault();
+                alert('El CVV debe tener 3 o 4 dígitos.');
+            }
+        });
+    });
+</script>
+</body>
+</html>
