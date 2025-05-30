@@ -59,4 +59,14 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
             @Param("coordinadorId") int coordinadorId,
             @Param("startCheck") LocalDateTime startCheck,
             @Param("endCheck") LocalDateTime endCheck);
+
+    @Query("SELECT a FROM Asistencia a " +
+           "JOIN FETCH a.coordinador " +
+           "WHERE a.espacioDeportivo.espacioDeportivoId = :espacioId " +
+           "AND a.horarioEntrada < :fin " +
+           "AND a.horarioSalida > :inicio")
+    List<Asistencia> findAsistenciasEnRango(
+            @Param("espacioId") Integer espacioId,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin);
 }

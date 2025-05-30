@@ -1,9 +1,11 @@
 package com.example.telelink.controller;
 
+import com.example.telelink.dto.EventoCalendarioDTO;
 import com.example.telelink.dto.admin.CantidadReservasPorDiaDto;
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
 import com.example.telelink.service.S3Service;
+import com.example.telelink.service.CalendarioService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -65,6 +67,9 @@ public class AdminController {
 
     @Autowired
     private S3Service s3Service;
+
+    @Autowired
+    private CalendarioService calendarioService;
 
     @GetMapping("/calendario")
     public ResponseEntity<List<Asistencia>> getAsistenciasParaCalendario(
@@ -828,5 +833,31 @@ public class AdminController {
         model.addAttribute("ultimoAviso", ultimoAviso);
 
         return "admin/dashboard";
+    }
+
+    @GetMapping("/espacios/calendario")
+    public String mostrarCalendarioEspacio(@RequestParam("id") Integer espacioId, Model model) {
+        EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId)
+                .orElseThrow(() -> new IllegalArgumentException("Espacio deportivo no encontrado"));
+        model.addAttribute("espacio", espacio);
+        return "admin/espacioCalendario";
+    }
+
+    @GetMapping("/calendario/reservas/{espacioId}")
+    @ResponseBody
+    public List<EventoCalendarioDTO> obtenerReservas(
+            @PathVariable Integer espacioId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        return calendarioService.obtenerReservasConsolidadas(espacioId, start, end);
+    }
+
+    @GetMapping("/calendario/asistencias/{espacioId}")
+    @ResponseBody
+    public List<EventoCalendarioDTO> obtenerAsistencias(
+            @PathVariable Integer espacioId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        return calendarioService.obtenerAsistencias(espacioId, start, end);
     }
 }

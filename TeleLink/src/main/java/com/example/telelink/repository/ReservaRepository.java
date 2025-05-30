@@ -80,4 +80,13 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     boolean existsByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaLessThanAndFinReservaGreaterThan(
             Integer espacioId, LocalDateTime fin, LocalDateTime inicio);
 
+    @Query("SELECT r FROM Reserva r " +
+           "WHERE r.espacioDeportivo.espacioDeportivoId = :espacioId " +
+           "AND r.inicioReserva < :fin " +
+           "AND r.finReserva > :inicio " +
+           "AND r.estado IN ('confirmada', 'completada')")
+    List<Reserva> findReservasEnRango(
+            @Param("espacioId") Integer espacioId,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin);
 }

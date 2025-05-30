@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Calendario del Espacio Deportivo')}">
+  <meta charset="UTF-8">
+  <title>Calendario del Espacio Deportivo</title>
+</head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+
+  <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Calendario del espacio deportivo')}"></div>
+
+  <div class="main-content">
+    <input type="hidden" id="espacio-id" th:value="${espacio.espacioDeportivoId}"/>
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row mb-4">
+          <div class="col-lg-12">
+            <div class="card mb-0">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-lg-6">
+                    <!-- Nombre del espacio -->
+                    <div class="mb-4">
+                      <label class="form-label">Espacio Deportivo</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control opacity-75"
+                               th:value="${espacio.nombre}"
+                               disabled />
+                        <span class="input-group-text"><i class="mdi mdi-map-marker"></i></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="mb-4">
+                      <label class="form-label">Servicio Deportivo</label>
+                      <div class="input-group">
+                        <input type="text" class="form-control opacity-75"
+                               th:value="${espacio.servicioDeportivo.servicioDeportivo}"
+                               disabled />
+                        <span class="input-group-text"><i class="mdi mdi-basketball"></i></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-3">
+                    <!-- Leyenda de colores -->
+                    <div class="card">
+                      <div class="card-body">
+                        <h5 class="card-title">Leyenda</h5>
+                        <ul class="list-unstyled">
+                          <li><span class="badge bg-primary me-2">Reservas</span></li>
+                          <li><span class="badge bg-info me-2">Asistencias</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-9">
+                    <div id="calendar"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+  </div>
+</div>
+
+<div class="sidebar-overlay"></div>
+
+<div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+
+<!-- plugin js -->
+<script th:src="@{/assets/libs/moment/min/moment.min.js}"></script>
+<script th:src="@{/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/core/main.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
+
+<script th:src="@{/assets/js/pages/espacioCalendario.init.js}"></script>
+</body>
+</html>

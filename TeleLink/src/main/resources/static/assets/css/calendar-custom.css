@@ -1,0 +1,67 @@
+/* Estilos personalizados para el calendario */
+
+/* Ajustes para eventos solapados */
+.fc-timegrid-event {
+    border-radius: 3px;
+    margin-left: 2px !important;
+    margin-right: 2px !important;
+}
+
+/* Estilo para cuando hay múltiples eventos */
+.fc-timegrid-col-events {
+    margin: 0 2px !important;
+}
+
+/* Tooltip personalizado */
+.calendar-tooltip {
+    max-width: 300px;
+    padding: 8px 12px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    z-index: 10000;
+}
+
+/* Estilo para eventos */
+.fc-event {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Diseño para eventos solapados */
+.fc .fc-timegrid-col-events {
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* Hacer que los eventos se muestren uno al lado del otro */
+.fc-direction-ltr .fc-timegrid-col-events {
+    margin: 0 2.5% !important;
+}
+
+.fc-timegrid-event-harness {
+    max-width: 45% !important;
+}
+
+.fc-timegrid-event-harness-inset {
+    left: 0 !important;
+    right: 0 !important;
+}
+
+.fc-timegrid-event-harness:nth-child(odd) {
+    left: 0 !important;
+}
+
+.fc-timegrid-event-harness:nth-child(even) {
+    left: 50% !important;
+}
+
+/* Ajustes de ancho cuando hay varios eventos */
+.fc-timegrid-event-harness.fc-timegrid-event-harness-inset {
+    max-width: 100% !important;
+}

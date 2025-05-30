@@ -153,11 +153,10 @@
                                                     <td th:text="${espacio.nombre}"></td>
                                                     <td th:text="${espacio.servicioDeportivo?.servicioDeportivo} ?: 'N/A'"></td>
                                                     <td th:text="${#strings.capitalize(espacio.estadoServicio.name())}"></td>
-                                                    <td>
-                                                        <!--<a href=""
-                                                           class="btn btn-outline-secondary btn-sm edit" title="Calendario">
-                                                            <i class="fas fa-calendar"></i>
-                                                        </a>-->
+                                                    <td>                                        <a th:href="@{/admin/espacios/calendario(id=${espacio.espacioDeportivoId})}"
+                                           class="btn btn-outline-secondary btn-sm edit" title="Calendario">
+                                            <i class="fas fa-calendar"></i>
+                                        </a>
                                                         <a th:href="@{/admin/espacios/detalle(id=${espacio.espacioDeportivoId})}"
                                                            class="btn btn-outline-secondary btn-sm edit" title="Ver Detalles">
                                                             <i class="fas fa-eye"></i>
