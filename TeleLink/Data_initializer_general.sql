@@ -272,17 +272,3 @@ VALUES
 
 INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, fecha_creacion)
 VALUES (4, 1, 1, '2025-05-15 9:00:00', '2025-05-15 15:00:00', '2025-05-09 07:00:00');
-
-
-INSERT INTO `db_gtics`.`reservas` (
-    `usuario_id`,
-    `espacio_deportivo_id`,
-    `inicio_reserva`,
-    `fin_reserva`,
-    `estado`,
-    `fecha_creacion`,
-    `fecha_actualizacion`
-) VALUES
-    (6, 1, '2025-06-01 10:00:00', '2025-06-01 11:00:00', 'pendiente', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (6, 2, '2025-06-02 14:00:00', '2025-06-02 16:00:00', 'pendiente', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (6, 3, '2025-06-03 09:00:00', '2025-06-03 10:00:00', 'pendiente', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
