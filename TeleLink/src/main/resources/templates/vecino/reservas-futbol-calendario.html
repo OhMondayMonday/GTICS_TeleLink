@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Crear Aviso')}"></head>
+
+    <style>
+        .calendar-container {
+            height: 75vh;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .fc-time-grid .fc-slats td {
+            position: relative;
+        }
+
+        .fc-time-grid .fc-slats td:hover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 123, 255, 0.1); /* azul claro */
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Scroll solo en el cuerpo del calendario */
+        .fc-scroller {
+            overflow-y: auto !important;
+            max-height: calc(65vh - 30px);
+        }
+
+        /* Fija la cabecera de días en su lugar */
+        .fc-head-container {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        /* Estilo más limpio para las horas */
+        .fc-time-grid .fc-slats td {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        /* Hover sobre las filas horarias */
+        .fc-time-grid .fc-bg tbody tr:hover {
+            background-color: #f1f3f5;
+            cursor: pointer;
+        }
+
+        /* Transiciones suaves */
+        .fc-time-grid .fc-bg tbody tr {
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        /* Eventos con bordes suaves */
+        .fc-event {
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 0.85em;
+            margin: 3px;
+        }
+
+        .fc-time-grid .fc-slats td {
+            height: 40px; /* Aumenta esto según cuánto alto quieras por hora */
+        }
+    </style>
+
+    <body data-sidebar="dark" class="vertical-collpsed">
+        <div id="layout-wrapper">
+            <div th:replace="~{Superadmin/fragments/header.html :: header(title='Crear Aviso')}"></div>
+            <div th:replace="~{Superadmin/fragments/sidebar.html :: sidebar}"></div>
+
+            <div class="main-content">
+                <div class="page-content" style="min-height: 100%;">
+                    <div class="container-fluid">
+
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                    <h4 class="mb-sm-0">Calendar</h4>
+
+                                    <div class="page-title-right">
+                                        <ol class="breadcrumb m-0">
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Nazox</a></li>
+                                            <li class="breadcrumb-item active">Calendar</li>
+                                        </ol>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                        <div class="row mb-4"><!-- end col-->
+                            <div class="col-xl-12">
+                                <div class="card mb-0">
+                                    <div class="card-body calendar-container">
+                                        <div id="calendar" style="height: auto;" th:attr="data-espacio-id=${espacioId}"></div>
+                                    </div>
+                                </div>
+                            </div> <!-- end col -->
+                        </div> <!-- end row-->
+                        <div style='clear:both'></div>
+
+                        <!-- Add New Event MODAL -->
+                        <div class="modal fade" id="event-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header py-3 px-4">
+                                        <h5 class="modal-title" id="modal-title">Crear Reserva</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body p-4">
+                                        <form class="needs-validation" name="event-form" id="form-event" novalidate>
+                                            <input type="hidden" name="title" id="event-title" value="Reservado">
+
+                                            <div class="mb-3">
+                                                <label class="form-label" for="event-start">Hora de inicio</label>
+                                                <input class="form-control" type="text" id="event-start" name="start" readonly>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label" for="event-end">Hora de fin</label>
+                                                <select class="form-select" id="event-end" name="end" required>
+                                                    <option value="" disabled selected>Seleccione hora de fin</option>
+                                                    <!-- Opciones generadas dinámicamente con JS -->
+                                                </select>
+                                                <div class="invalid-feedback">Seleccione una hora de fin válida</div>
+                                            </div>
+
+                                            <div class="row mt-2">
+                                                <div class="col-6">
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                    <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">Cerrar</button>
+                                                    <button type="submit" class="btn btn-success" id="btn-save-event">Crear</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- end modal-->
+
+                    </div>
+                </div>
+
+                <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+
+        <script>
+            !function (v) {
+                "use strict";
+
+                function e() {}
+
+                e.prototype.init = function () {
+                    const modal = v("#event-modal");
+                    const modalTitle = v("#modal-title");
+                    const form = v("#form-event");
+                    const calendarEl = document.getElementById("calendar");
+
+                    let selectedEvent = null;
+                    let clickInfo = null;
+
+                    const espacioId = calendarEl.dataset.espacioId;
+
+                    const calendar = new FullCalendar.Calendar(calendarEl, {
+                        plugins: ["bootstrap", "interaction", "timeGrid"],
+                        themeSystem: "bootstrap",
+                        initialView: "timeGridWeek",
+                        headerToolbar: {
+                            left: "prev,next today",
+                            center: "title",
+                            right: ""
+                        },
+                        minTime: "07:00:00",
+                        maxTime: "23:00:00",
+                        allDaySlot: false,
+                        height: 'auto',
+                        slotDuration: "01:00:00",
+                        slotLabelInterval: "01:00",
+                        editable: false,
+                        droppable: false,
+                        selectable: true,
+                        eventStartEditable: false,
+                        eventDurationEditable: false,
+                        nowIndicator: true,
+
+                        events: '/api/reservas/espacio/' + espacioId,
+
+                        eventClick: function (info) {
+                            if (info.event.title === "Reservado") {
+                                alert("Este horario ya está reservado y no se puede modificar.");
+                                return;
+                            }
+                            modal.modal("show");
+                            form[0].reset();
+                            selectedEvent = info.event;
+                            v("#event-title").val(selectedEvent.title);
+                            v("#event-category").val(selectedEvent.classNames[0] || "");
+                            modalTitle.text("Reserva registrada");
+                            clickInfo = null;
+                        },
+
+                        dateClick: function (info) {
+                            form[0].reset();
+
+                            const start = new Date(info.date);
+                            clickInfo = info;
+
+                            document.getElementById("event-start").dataset.raw = start.toISOString();
+
+                            const formattedDate = start.toLocaleDateString('es-PE');
+                            const formattedHour = start.toLocaleTimeString('es-PE', {
+                                hour: '2-digit', minute: '2-digit', hour12: false
+                            });
+                            document.getElementById("event-start").value = `${formattedDate} ${formattedHour}`;
+
+                            // Obtener eventos del mismo día posteriores
+                            const eventosDelDia = calendar.getEvents()
+                                .filter(e => e.start > start && e.start.toDateString() === start.toDateString())
+                                .sort((a, b) => a.start - b.start);
+
+                            const limiteMax = new Date(start);
+                            limiteMax.setHours(start.getHours() + 2);
+
+                            if (eventosDelDia.length > 0 && eventosDelDia[0].start < limiteMax) {
+                                limiteMax.setTime(eventosDelDia[0].start.getTime());
+                            }
+
+                            const endSelect = document.getElementById("event-end");
+                            endSelect.innerHTML = '<option value="" disabled selected>Seleccione hora de fin</option>';
+
+                            const current = new Date(start);
+                            current.setMinutes(0);
+                            current.setSeconds(0);
+                            current.setMilliseconds(0);
+
+                            while (current < limiteMax) {
+                                current.setMinutes(current.getMinutes() + 60);
+                                if (current > limiteMax) break;
+
+                                const option = document.createElement("option");
+                                option.value = current.toISOString();
+                                option.textContent = current.toLocaleTimeString('es-PE', {
+                                    hour: '2-digit', minute: '2-digit', hour12: false
+                                });
+                                endSelect.appendChild(option);
+                            }
+
+                            modal.modal("show");
+                            modalTitle.text("Crear Reserva");
+                            selectedEvent = null;
+                        }
+                    });
+
+                    calendar.render();
+
+                    // Manejador del submit para redirigir con parámetros
+                    document.getElementById("form-event").addEventListener("submit", function(e) {
+                        e.preventDefault();
+
+                        const rawStart = document.getElementById("event-start").dataset.raw;
+                        const rawEnd = document.getElementById("event-end").value;
+
+                        if (!rawStart || !rawEnd) {
+                            alert("Seleccione una hora de inicio y fin válidas.");
+                            return;
+                        }
+
+                        window.location.href = `/usuarios/reservar/${espacioId}?inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}`;
+                    });
+                };
+
+                v.CalendarPage = new e;
+                v.CalendarPage.Constructor = e;
+            }(window.jQuery), function () {
+                "use strict";
+                window.jQuery.CalendarPage.init();
+            }();
+
+        </script>
+    </body>
+</html>

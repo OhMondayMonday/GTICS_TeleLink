@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Lista de Usuarios</title>
+        <th:block th:replace="~{Superadmin/fragments/head :: head(title='Usuarios')}"></th:block>
+    </head>
+    <body data-sidebar="dark" class="vertical-collpsed">
+        <div th:replace="~{Superadmin/fragments/header :: header(title='Gestión de Usuarios')}"></div>
+        <div th:replace="~{Superadmin/fragments/sidebar :: sidebar}"></div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                </div>
+            </div>
+        </div>
+
+        <th:block th:replace="~{Superadmin/fragments/footer :: footer}"></th:block>
+        <th:block th:replace="~{Superadmin/fragments/foot :: foot}"></th:block>
+
+    </body>
+</html>

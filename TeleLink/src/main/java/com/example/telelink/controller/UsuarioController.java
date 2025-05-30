@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.io.File;
@@ -45,7 +45,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -503,8 +502,12 @@ public class UsuarioController {
         return "vecino/vecino-calendario";
     }
 
-    @GetMapping("/reservar")
-    public String mostrarReservar(Model model, HttpSession session) {
+    @GetMapping("/reservar/{espacioId}")
+    public String mostrarReservar(@PathVariable("espacioId") Integer espacioId,
+                                  @RequestParam(value = "inicio", required = false) String inicio,
+                                  @RequestParam(value = "fin", required = false) String fin,
+                                  Model model, HttpSession session,
+                                  RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
@@ -516,14 +519,70 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("reservas", reservasUsuario);
         model.addAttribute("espacios", espacioDeportivos);
+        model.addAttribute("espacioSeleccionadoId", espacioId);
+
+        if (inicio != null && fin != null) {
+            try {
+                OffsetDateTime odtInicio = OffsetDateTime.parse(inicio);
+                OffsetDateTime odtFin = OffsetDateTime.parse(fin);
+
+                ZoneId zonaLocal = ZoneId.of("America/Lima");
+                LocalDateTime inicioLDT = odtInicio.atZoneSameInstant(zonaLocal).toLocalDateTime();
+                LocalDateTime finLDT = odtFin.atZoneSameInstant(zonaLocal).toLocalDateTime();
+
+                // Verificar si ya hay una reserva que se superponga
+                boolean conflicto = reservaRepository.existsByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaLessThanAndFinReservaGreaterThan(
+                        espacioId, finLDT, inicioLDT);
+
+                if (conflicto) {
+                    redirectAttributes.addFlashAttribute("error", "Ya existe una reserva en este horario.");
+                    return "redirect:/usuarios/calendario/" + espacioId;
+                }
+
+                // Crear reserva en estado pendiente
+                EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId)
+                        .orElseThrow(() -> new RuntimeException("Espacio no encontrado"));
+
+                Reserva reserva = new Reserva();
+                reserva.setUsuario(usuario);
+                reserva.setEspacioDeportivo(espacio);
+                reserva.setInicioReserva(inicioLDT);
+                reserva.setFinReserva(finLDT);
+                reserva.setEstado(Reserva.Estado.pendiente);
+                reserva.setFechaCreacion(LocalDateTime.now());
+
+                // Calcular duración y precio antes de redirigir
+                long duracionHoras = Duration.between(inicioLDT, finLDT).toHours();
+                BigDecimal precioPorHora = espacio.getPrecioPorHora();
+                BigDecimal precioTotal = precioPorHora.multiply(BigDecimal.valueOf(duracionHoras));
+
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+                String inicioFormateado = inicioLDT.format(formatter);
+                String finFormateado = finLDT.format(formatter);
+
+                redirectAttributes.addFlashAttribute("inicioFormateado", inicioFormateado);
+                redirectAttributes.addFlashAttribute("finFormateado", finFormateado);
+                redirectAttributes.addFlashAttribute("precioTotalReserva", precioTotal);
+                redirectAttributes.addFlashAttribute("duracionHoras", duracionHoras);
+
+
+                reservaRepository.save(reserva);
+
+                redirectAttributes.addFlashAttribute("mensaje", "Reserva pendiente registrada correctamente.");
+                return "redirect:/usuarios/reservar/" + espacioId;
+
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
+                return "redirect:/usuarios/reservar/" + espacioId;
+            }
+        }
 
         return "vecino/vecino-reservar";
     }
 
-
-    @PostMapping("/confirmar-reserva")
+    @PostMapping("/confirmar-reserva{espacioId}")
     public String confirmarReserva(
-            @RequestParam("espacio") Integer espacioId,
+            @PathVariable("espacioId") Integer espacioId,
             @RequestParam("fechaInicio") String fechaInicio,
             @RequestParam("fechaFin") String fechaFin,
             @RequestParam(value = "numeroCarrilPiscina", required = false) Integer numeroCarrilPiscina,
@@ -650,6 +709,6 @@ public class UsuarioController {
     @GetMapping("/reservasCalendario/{id}")
     public String verCalendarioReservas(@PathVariable("id") Integer id, Model model) {
         model.addAttribute("espacioId", id);
-        return "vecino/reservas-calendario";
+        return "vecino/reservas-futbol-calendario";
     }
 }
