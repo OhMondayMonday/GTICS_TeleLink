@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Calendario')}">
+<head th:replace="~{vecino/fragments/topbarVecino.html :: head(title='Calendario')}">
         <style>
             /* Estilos generales */
             .calendar-container {
@@ -216,9 +216,9 @@
     <body data-sidebar="dark" class="vertical-collpsed">
      <!-- Begin page -->
         <div id="layout-wrapper">
-            <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Calendario')}"></div>
+            <div th:replace="~{vecino/fragments/topbarVecino :: topbar('Calendario')}"></div>
  <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
-            <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Calendario')}"></div>
+            <div th:replace="~{vecino/fragments/sidebarVecino :: sidebar('Calendario')}"></div>
 
 <!-- =================================================================================================================== -->
             <!-- Start right Content here -->

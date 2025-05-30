@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping(value={"/usuarios","usuario"})
+@RequestMapping("/usuarios")
 public class UsuarioController {
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -559,11 +559,11 @@ public class UsuarioController {
             reservaRepository.save(reserva);
 
             redirectAttributes.addFlashAttribute("mensaje", "Reserva realizada con éxito");
-            return "redirect:/usuario/mis-reservas";
+            return "redirect:/usuarios/mis-reservas";
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
-            return "redirect:/usuario/reservar";
+            return "redirect:/usuarios/reservar";
         }
     }
 

@@ -22,7 +22,7 @@
                           <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
                             <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
                           </div>
-
+                          <input type="hidden" name="correoElectronico" th:value="${session.usuario.correoElectronico}">
                           <div class="row">
                             <div class="col-md-6">
                               <div class="mb-3">

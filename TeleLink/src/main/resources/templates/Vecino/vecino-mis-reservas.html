@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Mis Reservas')}"></head>
+    <head th:replace="~{vecino/fragments/topbarVecino.html :: head(title='Mis Reservas')}"></head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
         <!-- Begin page -->
         <div id="layout-wrapper">
-            <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Mis Reservas')}"></div>
+            <div th:replace="~{vecino/fragments/topbarVecino :: topbar('Mis Reservas')}"></div>
             <!------------------------------------------------------------------MENU-------------------------------------------------------------------------->
-            <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('reservas')}"></div>
+            <div th:replace="~{vecino/fragments/sidebarVecino :: sidebar('reservas')}"></div>
             <!-- =============================================================================================================================== -->
             <div class="main-content">
                 <div class="page-content">
