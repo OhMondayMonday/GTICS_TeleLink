@@ -59,8 +59,8 @@
                                                 <span th:text="${'S/ ' + #numbers.formatDecimal(reservaMap.precioTotal, 1, 'COMMA', 2, 'POINT')}">S/ 50.00</span>
                                             </td>
                                             <td>
-                                                        <span th:if="${reservaMap.reserva.numeroCarrilPiscina != null}"
-                                                              th:text="${'Carril ' + reservaMap.reserva.numeroCarrilPiscina}">Carril</span>
+                                                <span th:if="${reservaMap.reserva.numeroCarrilPiscina != null}"
+                                                      th:text="${'Carril ' + reservaMap.reserva.numeroCarrilPiscina}">Carril</span>
                                                 <span th:if="${reservaMap.reserva.numeroCarrilPista != null}"
                                                       th:text="${'Carril ' + reservaMap.reserva.numeroCarrilPista}">Carril</span>
                                                 <span th:if="${reservaMap.reserva.espacioDeportivo.maxPersonasPorCarril != null && reservaMap.reserva.numeroCarrilPiscina == null && reservaMap.reserva.numeroCarrilPista == null}"
@@ -83,12 +83,12 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                        <span th:switch="${reservaMap.reserva.estado.name()}">
-                                                            <span th:case="'pendiente'" class="badge bg-warning">Pendiente</span>
-                                                            <span th:case="'confirmada'" class="badge bg-info">Confirmada</span>
-                                                            <span th:case="'cancelada'" class="badge bg-danger">Cancelada</span>
-                                                            <span th:case="'completada'" class="badge bg-success">Completada</span>
-                                                        </span>
+                                                <span th:switch="${reservaMap.reserva.estado.name()}">
+                                                    <span th:case="'pendiente'" class="badge bg-warning">Pendiente</span>
+                                                    <span th:case="'confirmada'" class="badge bg-info">Confirmada</span>
+                                                    <span th:case="'cancelada'" class="badge bg-danger">Cancelada</span>
+                                                    <span th:case="'completada'" class="badge bg-success">Completada</span>
+                                                </span>
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group dropend">
@@ -169,33 +169,13 @@
 <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
 <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
 <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
-<script th:src="@{/assets/libs/apexcharts/apexcharts.min.js}"></script>
-<script th:src="@{/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js}"></script>
-<script th:src="@{/assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js}"></script>
 <script th:src="@{/assets/libs/moment/min/moment.min.js}"></script>
 <script th:src="@{/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
-<script th:src="@{/assets/libs/@fullcalendar/core/main.min.js}"></script>
-<script th:src="@{/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
-<script th:src="@{/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
-<script th:src="@{/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
-<script th:src="@{/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
 <script th:src="@{/assets/libs/datatables.net/js/jquery.dataTables.min.js}"></script>
 <script th:src="@{/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js}"></script>
 <script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
 <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
-<script th:src="@{/assets/js/pages/mis-reservas.init.js}"></script>
+<script th:src="@{/assets/js/pages/mis-reservas-corregido.init.js}"></script>
 <script th:src="@{/assets/js/app.js}"></script>
-<script>
-    $(document).ready(function() {
-        // Inicializar DataTables
-        $('.datatable').DataTable({
-            responsive: true,
-            pageLength: 8,
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json'
-            }
-        });
-    });
-</script>
 </body>
 </html>

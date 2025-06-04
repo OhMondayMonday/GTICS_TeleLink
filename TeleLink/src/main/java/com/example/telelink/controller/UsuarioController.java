@@ -1103,6 +1103,7 @@ public class UsuarioController {
     }
 
     // Procesar pago por depósito con subida de comprobante
+    /*
     @PostMapping("/pago-deposito/{reservaId}")
     public String procesarPagoDeposito(@PathVariable("reservaId") Integer reservaId,
                                        @RequestParam("comprobante") MultipartFile comprobante,
@@ -1165,6 +1166,86 @@ public class UsuarioController {
         pago.setFechaPago(LocalDateTime.now());
         pago.setEstadoTransaccion(Pago.EstadoTransaccion.pendiente);
         pago.setDetallesTransaccion("Comprobante subido: " + comprobanteUrl);
+        pagoRepository.save(pago);
+
+        redirectAttributes.addFlashAttribute("mensaje", "Pago por depósito registrado. Pendiente de validación.");
+        return "redirect:/usuarios/mis-reservas";
+    }
+
+     */
+    @PostMapping("/pago-deposito/{reservaId}")
+    public String procesarPagoDeposito(@PathVariable("reservaId") Integer reservaId,
+                                       @RequestParam("comprobante") MultipartFile comprobante,
+                                       HttpSession session,
+                                       RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
+            return "redirect:/usuarios/inicio";
+        }
+
+        Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
+        if (optReserva.isEmpty() || !optReserva.get().getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+            redirectAttributes.addFlashAttribute("error", "Reserva no encontrada o no autorizada");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        Reserva reserva = optReserva.get();
+        if (!reserva.getEstado().equals(Reserva.Estado.pendiente)) {
+            redirectAttributes.addFlashAttribute("error", "La reserva no está pendiente de pago");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        // Validar comprobante
+        if (comprobante.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Debe subir un comprobante de pago.");
+            return "redirect:/usuarios/pago-deposito/" + reservaId;
+        }
+        String contentType = comprobante.getContentType();
+        if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg)|application/pdf)$")) {
+            redirectAttributes.addFlashAttribute("error", "El comprobante debe ser una imagen (JPEG, PNG, JPG) o PDF.");
+            return "redirect:/usuarios/pago-deposito/" + reservaId;
+        }
+
+        // Calcular monto
+        long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
+        BigDecimal monto = reserva.getEspacioDeportivo().getPrecioPorHora().multiply(BigDecimal.valueOf(duracionHoras));
+
+        // Subir comprobante a S3 con manejo de errores
+        String comprobanteUrl = null;
+        try {
+            String uploadResult = s3Service.uploadFile(comprobante);
+            if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
+                comprobanteUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
+                // Validar longitud de la URL
+                if (comprobanteUrl.length() > 255) {
+                    redirectAttributes.addFlashAttribute("error", "La URL del comprobante excede los 255 caracteres.");
+                    return "redirect:/usuarios/pago-deposito/" + reservaId;
+                }
+                if (comprobanteUrl.isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error", "La URL del comprobante está vacía.");
+                    return "redirect:/usuarios/pago-deposito/" + reservaId;
+                }
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Error al subir el comprobante: " + (uploadResult != null ? uploadResult : "Resultado inválido"));
+                return "redirect:/usuarios/pago-deposito/" + reservaId;
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al subir el comprobante: " + e.getMessage());
+            return "redirect:/usuarios/pago-deposito/" + reservaId;
+        }
+
+        // Crear o actualizar pago
+        Optional<Pago> optPago = pagoRepository.findByReserva(reserva);
+        Pago pago = optPago.orElse(new Pago());
+        pago.setReserva(reserva);
+        pago.setMetodoPago(metodoPagoRepository.findById(2)
+                .orElseThrow(() -> new RuntimeException("Método de pago 'Depósito' no encontrado")));
+        pago.setMonto(monto);
+        pago.setFechaPago(LocalDateTime.now());
+        pago.setEstadoTransaccion(Pago.EstadoTransaccion.pendiente);
+        pago.setFotoComprobanteUrl(comprobanteUrl); // Store URL in foto_comprobante_url
+        pago.setDetallesTransaccion("Comprobante subido: Pendiente revisión del Administrador"); // Update detalles_transaccion
         pagoRepository.save(pago);
 
         redirectAttributes.addFlashAttribute("mensaje", "Pago por depósito registrado. Pendiente de validación.");

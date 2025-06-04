@@ -691,17 +691,18 @@ public class AdminController {
     @GetMapping("pagos")
     public String listarPagos(Model model) {
         List<Pago> pagosPendientes = pagoRepository.findByEstadoTransaccionAndMetodoPago_MetodoPagoId(
-                Pago.EstadoTransaccion.pendiente, 1);
+                Pago.EstadoTransaccion.pendiente, 2);
         model.addAttribute("pagosPendientes", pagosPendientes);
         return "admin/pagosList";
     }
 
-    @GetMapping("/pagos/aceptar")
+    /*@GetMapping("/pagos/aceptar")
     public String aceptarPago(@RequestParam("id") Integer id) {
         Optional<Pago> optPago = pagoRepository.findById(id);
         if (optPago.isPresent()) {
             Pago pago = optPago.get();
             pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
+            pago.setDetallesTransaccion("Pago aceptado por el administrador");
             pagoRepository.save(pago);
         }
         return "redirect:/admin/pagos";
@@ -713,6 +714,59 @@ public class AdminController {
         if (optPago.isPresent()) {
             Pago pago = optPago.get();
             pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
+            pagoRepository.save(pago);
+        }
+        return "redirect:/admin/pagos";
+    }
+
+    @GetMapping("/pagos/ver")
+    public String verDetallePago(@RequestParam("id") Integer id, Model model) {
+        Optional<Pago> optPago = pagoRepository.findById(id);
+        if (optPago.isPresent()) {
+            model.addAttribute("pago", optPago.get());
+            return "admin/pagosInfo";
+        }
+        return "redirect:/admin/pagos/pendientes/transaccion";
+    }
+
+     */
+
+    @GetMapping("/pagos/aceptar")
+    public String aceptarPago(@RequestParam("id") Integer id) {
+        Optional<Pago> optPago = pagoRepository.findById(id);
+        if (optPago.isPresent()) {
+            Pago pago = optPago.get();
+            pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
+            pago.setDetallesTransaccion("Pago aceptado por el administrador");
+
+            // Update the associated Reserva to 'completada'
+            Reserva reserva = pago.getReserva();
+            if (reserva != null) {
+                reserva.setEstado(Reserva.Estado.completada);
+                reserva.setFechaActualizacion(LocalDateTime.now()); // Update timestamp
+                reservaRepository.save(reserva);
+            }
+
+            pagoRepository.save(pago);
+        }
+        return "redirect:/admin/pagos";
+    }
+
+    @GetMapping("/pagos/rechazar")
+    public String rechazarPago(@RequestParam("id") Integer id) {
+        Optional<Pago> optPago = pagoRepository.findById(id);
+        if (optPago.isPresent()) {
+            Pago pago = optPago.get();
+            pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
+
+            // Ensure the associated Reserva remains 'pendiente' or update if necessary
+            Reserva reserva = pago.getReserva();
+            if (reserva != null && !reserva.getEstado().equals(Reserva.Estado.pendiente)) {
+                reserva.setEstado(Reserva.Estado.pendiente);
+                reserva.setFechaActualizacion(LocalDateTime.now()); // Update timestamp
+                reservaRepository.save(reserva);
+            }
+
             pagoRepository.save(pago);
         }
         return "redirect:/admin/pagos";
