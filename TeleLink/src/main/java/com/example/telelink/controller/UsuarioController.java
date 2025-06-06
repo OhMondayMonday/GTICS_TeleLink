@@ -142,29 +142,10 @@ public class UsuarioController {
         return "vecino/vecino-servicioDeportivo";
     }
 
-
-    @GetMapping("/reservas/futbol")
-    public String mostrarFutbolReservation(Model model) {
+    @GetMapping("/reembolsos")
+    public String mostrarMisReembolsos(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "vecino/vecino-futbol";
-    }
-
-    @GetMapping("/reservas/piscina")
-    public String mostrarPiscinaReservation(Model model) {
-        // Aquí puedes agregar cualquier lógica que necesites
-        return "vecino/vecino-piscina";
-    }
-
-    @GetMapping("/reservas/multiple")
-    public String mostrarMultipleReservation(Model model) {
-        // Aquí puedes agregar cualquier lógica que necesites
-        return "vecino/vecino-multiple";
-    }
-
-    @GetMapping("/reservas/gym")
-    public String mostrarGymReservation(Model model) {
-        // Aquí puedes agregar cualquier lógica que necesites
-        return "vecino/vecino-gym";
+        return "Vecino/vecino-mis-reembolsos";
     }
 
     @GetMapping("/perfil")
