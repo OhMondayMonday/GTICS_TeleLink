@@ -21,39 +21,11 @@
                         </div>
                     </div>
                 </div>
-                <!-- Usuarios sin Reservas -->
-                <div th:if="${!#lists.isEmpty(reservasPendientes)}">
-                    <div class="card">
-                        <div class="card-body pt-0">
-                            <h5 class="card-title mt-4">Usuarios con reembolsos</h5>
-                            <div class="table-responsive">
-                                <table class="table table-centered dt-responsive nowrap" style="width: 100%;">
-                                    <thead class="thead-light">
-                                    <tr>
-                                        <th>Servicio Deportivo</th>
-                                        <th>Fecha y Hora</th>
-                                        <th>Monto Estimado</th>
-                                        <th>Acción</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each="reserva : ${reservasPendientes}">
-                                        <td th:text="${reserva.espacioDeportivo.nombre}">Nombre</td>
-                                        <td th:text="${#temporals.format(reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
-                                        <td th:text="'S/ ' + ${reserva.espacioDeportivo.precioPorHora * (reserva.finReserva.hour - reserva.inicioReserva.hour)}">Monto</td>
-                                        <td>
-                                            <form th:action="@{/usuarios/pagar-reserva/{reservaId}(reservaId=${reserva.reservaId})}" method="post">
-                                                <button type="submit" class="btn btn-sm btn-primary">Pagar ahora</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Usuarios sin Reembolsos -->
+                <div th:if="${#lists.isEmpty(reembolsos)}">
+                    <p class="text-danger">No se encontraron reembolsos para este usuario.</p>
                 </div>
-                <!-- Pagos Existentes -->
+                <!-- Usuario con Reembolsos Existentes -->
                 <div class="card">
                     <div class="card-body pt-0">
                         <ul class="nav nav-tabs nav-tabs-custom mb-4">
@@ -61,65 +33,69 @@
                                 <a class="nav-link fw-bold p-3 active" href="#">Mis reembolsos</a>
                             </li>
                         </ul>
-                        <div th:if="${#lists.isEmpty(pagos)}">
+                        <div th:if="${#lists.isEmpty(reembolsos)}">
                             <p class="text-danger">No se encontraron reembolsos para este usuario.</p>
                         </div>
-                        <div th:if="${!#lists.isEmpty(pagos)}">
-                            <p class="text-success">Sí hay pagos.</p>
+                        <div th:if="${!#lists.isEmpty(reembolsos)}">
+                            <p class="text-success">Sí hay reembolsos.</p>
                         </div>
                         <div class="table-responsive">
-                            <table id="tablaPagos" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                            <table id="tablaReembolso" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                 <thead class="thead-light">
-                                <tr>
-                                    <th></th>
-                                    <th>Servicio Deportivo</th>
-                                    <th>Fecha y Hora</th>
-                                    <th>Nombre de facturación</th>
-                                    <th>Método de Pago</th>
-                                    <th>Total</th>
-                                    <th>Estado</th>
-                                    <th>Comprobante de Transacción</th>
-                                    <th>Detalles</th>
-                                </tr>
+                                    <tr>
+                                        <th>ID Reembolso</th>
+                                        <th>ID Pago</th>
+                                        <th>Monto</th>
+                                        <th>Estado</th>
+                                        <th>Motivo</th>
+                                        <th>Fecha Reembolso</th>
+                                        <th>Comprobante</th>
+                                        <th>Detalles Transacción</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="pago, iStat : ${pagos}">
-                                    <td></td>
-                                    <td th:text="${pago.reserva.espacioDeportivo.nombre}">Nombre</td>
-                                    <td th:text="${#temporals.format(pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
-                                    <td th:text="${pago.reserva.usuario.nombres + ' ' + pago.reserva.usuario.apellidos}">Usuario</td>
-                                    <td th:text="${pago.metodoPago.metodoPago}">Metodo</td>
-                                    <td th:text="'S/ ' + ${pago.monto}">Monto</td>
+                                <tr th:each="reembolso : ${reembolsos}">
+                                    <td th:text="${reembolso.reembolsoId}">1</td>
+                                    <td th:text="${reembolso.pago.pagoId}">123</td>
+                                    <td th:text="'S/ ' + ${reembolso.monto}">S/ 0.00</td>
                                     <td>
-                                            <span th:if="${pago.estadoTransaccion == 'completado'}"
-                                                  class="badge bg-success-subtle text-success"
-                                                  th:text="${pago.estadoTransaccion}">
-                                            </span>
-                                        <span th:if="${pago.estadoTransaccion == 'pendiente'}"
-                                              class="badge bg-warning-subtle text-warning"
-                                              th:text="${pago.estadoTransaccion}">
-                                            </span>
-                                        <span th:if="${pago.estadoTransaccion != 'completado' and pago.estadoTransaccion != 'pendiente'}"
-                                              class="badge bg-danger-subtle text-danger"
-                                              th:text="${pago.estadoTransaccion}">
-                                            </span>
+                                        <span th:switch="${reembolso.estado}">
+                                          <span th:case="'completado'"
+                                                class="badge bg-success-subtle text-success"
+                                                th:text="${reembolso.estado}">completado
+                                          </span>
+                                          <span th:case="'pendiente'"
+                                                class="badge bg-warning-subtle text-warning"
+                                                th:text="${reembolso.estado}">pendiente
+                                          </span>
+                                          <span th:case="'rechazado'" class="badge bg-danger-subtle text-danger"
+                                                th:text="${reembolso.estado}">rechazado
+                                          </span>
+                                          <span th:case="'cancelado'"
+                                                class="badge bg-secondary-subtle text-secondary"
+                                                th:text="${reembolso.estado}">cancelado
+                                          </span>
+                                          <span th:case="*">Desconocido</span>
+                                        </span>
                                     </td>
+
+                                    <td th:text="${reembolso.motivo}">Motivo</td>
+                                    <td th:text="${#temporals.format(reembolso.fechaReembolso, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary"
-                                                th:if="${pago.metodoPago.metodoPago == 'Depósito Bancario'}"
+                                                th:if="${reembolso.fotoComprobacionReembolsoUrl != null}"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#modalFactura"
-                                                th:attr="data-factura=${pago.fotoComprobanteUrl}">
+                                                data-bs-target="#modalComprobante"
+                                                th:attr="data-img=${reembolso.fotoComprobacionReembolsoUrl}">
                                             Ver imagen
                                         </button>
+                                        <span th:if="${reembolso.fotoComprobacionReembolsoUrl == null}">No disponible</span>
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-warning"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#modalRechazo"
-                                                th:attr="data-estado=${pago.estadoTransaccion},
-                                                             data-motivo=${pago.motivoRechazo},
-                                                             data-detalles=${pago.detallesTransaccion}">
+                                                data-bs-target="#modalDetalles"
+                                                th:attr="data-detalles=${reembolso.detallesTransaccion}">
                                             Ver detalles
                                         </button>
                                     </td>
@@ -127,37 +103,31 @@
                                 </tbody>
                             </table>
                         </div>
-                        <!-- Modal Factura -->
-                        <div class="modal fade" id="modalFactura" tabindex="-1" aria-labelledby="modalFacturaLabel" aria-hidden="true">
+                        <!-- Modal Comprobante -->
+                        <div class="modal fade" id="modalComprobante" tabindex="-1" aria-labelledby="modalComprobanteLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="modalFacturaLabel">Imagen de la factura</h5>
+                                        <h5 class="modal-title" id="modalComprobanteLabel">Imagen del comprobante</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <img id="facturaImagen" src="" alt="Factura" class="img-fluid">
+                                        <img id="imgComprobante" src="" alt="Comprobante" class="img-fluid">
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- Modal Rechazo -->
-                        <div class="modal fade" id="modalRechazo" tabindex="-1" aria-labelledby="modalRechazoLabel" aria-hidden="true">
+
+                        <!-- Modal Detalles -->
+                        <div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content border-warning">
                                     <div class="modal-header bg-warning-subtle">
-                                        <h5 class="modal-title" id="modalRechazoLabel">Detalle de la transacción</h5>
+                                        <h5 class="modal-title" id="modalDetallesLabel">Detalles de la transacción</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <p class="mb-2">Hemos detectado lo siguiente con tu transacción:</p>
-                                        <div class="alert alert-warning fw-semibold" id="textoDetalle"></div>
-                                        <hr>
-                                        <p class="mb-2">¿Cómo puedo solucionarlo?</p>
-                                        <ul class="mb-0">
-                                            <li>Si el motivo está relacionado con el comprobante, intenta subir una imagen clara y legible.</li>
-                                            <li>Si el inconveniente persiste o tienes dudas, <strong>contáctanos a través del área de soporte</strong>.</li>
-                                        </ul>
+                                        <p id="textoDetalles"></p>
                                     </div>
                                 </div>
                             </div>
@@ -191,6 +161,23 @@
 <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
 <script th:src="@{/assets/js/app.js}"></script>
 <script>
+    // Script para cargar imagen en modal comprobante
+    var modalComprobante = document.getElementById('modalComprobante')
+    modalComprobante.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget
+        var imgSrc = button.getAttribute('data-img')
+        var img = modalComprobante.querySelector('#imgComprobante')
+        img.src = imgSrc
+    })
+
+    // Script para cargar detalles en modal
+    var modalDetalles = document.getElementById('modalDetalles')
+    modalDetalles.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget
+        var detalles = button.getAttribute('data-detalles')
+        var textoDetalles = modalDetalles.querySelector('#textoDetalles')
+        textoDetalles.textContent = detalles || 'No hay detalles disponibles.'
+    })
     document.addEventListener('DOMContentLoaded', function () {
         const facturaButtons = document.querySelectorAll('[data-bs-target="#modalFactura"]');
         facturaButtons.forEach(button => {
