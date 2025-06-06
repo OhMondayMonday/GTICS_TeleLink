@@ -49,6 +49,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @Controller
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -73,6 +75,9 @@ public class UsuarioController {
 
     @Autowired
     private S3Service s3Service;
+
+    @Autowired
+    private ReembolsoRepository reembolsoRepository;
 
 
     public class EspacioDeportivoConRatingDTO {
@@ -143,8 +148,18 @@ public class UsuarioController {
     }
 
     @GetMapping("/reembolsos")
-    public String mostrarMisReembolsos(Model model) {
-        // Aquí puedes agregar cualquier lógica que necesites
+    public String mostrarMisReembolsos(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
+
+        List<Reembolso> reembolsos = reembolsoRepository.findByPago_Reserva_Usuario_UsuarioId(usuario.getUsuarioId());
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("reembolsos", reembolsos);
+        model.addAttribute("activeItem", "reembolsos");
+
         return "Vecino/vecino-mis-reembolsos";
     }
 
