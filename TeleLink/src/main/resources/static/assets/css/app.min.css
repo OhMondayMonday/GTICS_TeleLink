@@ -40,7 +40,7 @@
     background-color: var(--bs-header-bg);
     -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
     box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
-    z-index: 9999
+    z-index: 90
 }
 
 .navbar-header {
@@ -56,7 +56,7 @@
     margin: 0 auto;
     height: 70px;
     padding: 0 calc(1.5rem / 2) 0 0;
-    z-index: 9998
+    z-index: 90
 }
 
 .navbar-header .dropdown .show.header-item {

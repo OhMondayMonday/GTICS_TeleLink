@@ -1,74 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Crear Aviso')}"></head>
-
-    <style>
-        .calendar-container {
-            height: 75vh;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
-
-        .fc-time-grid .fc-slats td {
-            position: relative;
-        }
-
-        .fc-time-grid .fc-slats td:hover::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-color: rgba(0, 123, 255, 0.1); /* azul claro */
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* Scroll solo en el cuerpo del calendario */
-        .fc-scroller {
-            overflow-y: auto !important;
-            max-height: calc(65vh - 30px);
-        }
-
-        /* Fija la cabecera de días en su lugar */
-        .fc-head-container {
-            position: sticky;
-            top: 0;
-            z-index: 999;
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        /* Estilo más limpio para las horas */
-        .fc-time-grid .fc-slats td {
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        /* Hover sobre las filas horarias */
-        .fc-time-grid .fc-bg tbody tr:hover {
-            background-color: #f1f3f5;
-            cursor: pointer;
-        }
-
-        /* Transiciones suaves */
-        .fc-time-grid .fc-bg tbody tr {
-            transition: background-color 0.2s ease-in-out;
-        }
-
-        /* Eventos con bordes suaves */
-        .fc-event {
-            border-radius: 4px;
-            padding: 2px 4px;
-            font-size: 0.85em;
-            margin: 3px;
-        }
-
-        .fc-time-grid .fc-slats td {
-            height: 40px; /* Aumenta esto según cuánto alto quieras por hora */
-        }
-    </style>
+    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Realizar reserva')}"></head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
         <div id="layout-wrapper">
@@ -79,32 +11,128 @@
                 <div class="page-content" style="min-height: 100%;">
                     <div class="container-fluid">
 
-                        <!-- start page title -->
-                        <div class="row">
+                        <!-- start page title -->                        <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                    <h4 class="mb-sm-0">Calendar</h4>
-
+                                    <h4 class="mb-sm-0">Reservar espacio deportivo</h4>
                                     <div class="page-title-right">
-                                        <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="javascript: void(0);">Nazox</a></li>
-                                            <li class="breadcrumb-item active">Calendar</li>
-                                        </ol>
+                                        <a th:href="@{/vecino/espacios-deportivos}" class="btn ms-2 btn-outline-primary">
+                                            <i class="fas fa-arrow-left me-1"></i> Regresar a espacios
+                                        </a>
                                     </div>
-
                                 </div>
                             </div>
-                        </div>
-                        <!-- end page title -->
+                        </div><!-- end page title -->                        <div class="row mb-4">
+                            <!-- Detalles del espacio deportivo -->
+                            <div class="col-xl-3 col-lg-4">
+                                <div class="card">
+                                    <!-- Foto del establecimiento deportivo -->                                    <div class="position-relative">
+                                        <img th:src="${espacio.fotoEspacioDeportivoUrl != null ? espacio.fotoEspacioDeportivoUrl : '/assets/images/canchita.jpg'}" 
+                                             alt="Establecimiento Deportivo" 
+                                             class="card-img-top" 
+                                             style="height: 160px; object-fit: cover;">
+                                    </div>                                      
+                                    <div class="card-header d-flex justify-content-between align-items-center py-2">
+                                        <h4 class="card-title mb-0 fw-bold py-1" th:text="${espacio.nombre}">Espacio Deportivo</h4>
+                                        <button class="btn btn-link p-0 text-primary" data-bs-toggle="tooltip" data-bs-placement="left" 
+                                                data-bs-trigger="click" data-bs-html="true" 
+                                                th:attr="data-bs-title='<div class=&quot;text-start&quot;><strong>Información de reservas:</strong><br>• Haz clic en un horario disponible para reservar<br>• Las reservas deben ser confirmadas<br>• Cancela con 2 horas de anticipación<br>• Máximo 2 horas por reserva</div>'">
+                                            <i class="fas fa-info-circle fs-4"></i>
+                                        </button>
+                                    </div>                                   
+                                    <div class="card-body py-4">
+                                        <div class="space-details">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="text-muted">Capacidad:</span>
+                                                <span class="fw-medium">
+                                                    <i class="fas fa-users text-info me-2"></i>
+                                                    <span th:text="${espacio.aforoGimnasio != null ? espacio.aforoGimnasio : 
+                                                                     (espacio.maxPersonasPorCarril != null ? espacio.maxPersonasPorCarril + ' por carril' : 
+                                                                      '22')}">22</span>
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="text-muted">Precio por hora:</span>
+                                                <span class="text-success fw-bold">
+                                                    <i class="fas fa-dollar-sign me-2"></i>
+                                                    S/. <span th:text="${espacio.precioPorHora != null ? espacio.precioPorHora : '50.00'}">50.00</span>
+                                                </span>
+                                            </div>
 
-                        <div class="row mb-4"><!-- end col-->
-                            <div class="col-xl-12">
-                                <div class="card mb-0">
-                                    <div class="card-body calendar-container">
-                                        <div id="calendar" style="height: auto;" th:attr="data-espacio-id=${espacioId}"></div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="text-muted">Horario:</span>
+                                                <span>
+                                                    <i class="fas fa-clock text-warning me-2"></i>
+                                                    <span th:text="${espacio.horarioApertura != null && espacio.horarioCierre != null ? 
+                                                                     #temporals.format(espacio.horarioApertura, 'HH:mm') + ' - ' + #temporals.format(espacio.horarioCierre, 'HH:mm') : 
+                                                                     '7:00 - 22:00'}">7:00 - 22:00</span>
+                                                </span>
+                                            </div>
+
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="text-muted">Estado:</span>
+                                                <span>
+                                                    <span class="badge bg-success-subtle text-success" th:if="${espacio.estadoServicio.name() == 'operativo'}">
+                                                        <i class="fas fa-check-circle me-1"></i>Disponible
+                                                    </span>
+                                                    <span class="badge bg-warning-subtle text-warning" th:if="${espacio.estadoServicio.name() == 'mantenimiento'}">
+                                                        <i class="fas fa-tools me-1"></i>Mantenimiento
+                                                    </span>
+                                                    <span class="badge bg-danger-subtle text-danger" th:if="${espacio.estadoServicio.name() == 'clausurado'}">
+                                                        <i class="fas fa-times-circle me-1"></i>Clausurado
+                                                    </span>
+                                                </span>
+                                            </div>
+                                              <div th:if="${espacio.descripcion}" class="mb-3 pb-3 border-bottom">
+                                                <div class="d-flex align-items-start mb-2">
+                                                    <i class="fas fa-info-circle text-primary me-2 mt-1"></i>
+                                                    <span class="text-muted fw-medium">Descripción</span>
+                                                </div>
+                                                <p th:text="${espacio.descripcion}" class="text-secondary mb-0 lh-base ps-4">Descripción del espacio...</p>
+                                            </div>
+                                            
+                                            <div th:if="${espacio.geolocalizacion}" class="mb-0">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                                    <span class="text-muted fw-medium">Ubicación</span>
+                                                </div>
+                                                <div class="map-container" style="height: 150px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+                                                    <!-- Alternativa 1: Si las coordenadas están en formato "lat,lng" -->
+                                                    <iframe th:if="${#strings.contains(espacio.geolocalizacion, ',')}"
+                                                            th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${espacio.geolocalizacion}"
+                                                            width="100%" 
+                                                            height="100%" 
+                                                            style="border:0;" 
+                                                            allowfullscreen="" 
+                                                            loading="lazy" 
+                                                            referrerpolicy="no-referrer-when-downgrade">
+                                                    </iframe>
+                                                    <!-- Alternativa 2: Si es una dirección de texto -->
+                                                    <iframe th:unless="${#strings.contains(espacio.geolocalizacion, ',')}"
+                                                            th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${#strings.replace(espacio.geolocalizacion, ' ', '+')}"
+                                                            width="100%" 
+                                                            height="100%" 
+                                                            style="border:0;" 
+                                                            allowfullscreen="" 
+                                                            loading="lazy" 
+                                                            referrerpolicy="no-referrer-when-downgrade">
+                                                    </iframe>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div> <!-- end col -->
+                            </div>
+                            
+                            <!-- Calendario -->
+                            <div class="col-xl-9 col-lg-8">
+                                <div class="card mb-0">
+                                    <div class="card-body calendar-container">
+                                        <div id="calendar" style="height: 100%;" th:attr="data-espacio-id=${espacioId}"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div> <!-- end row-->
                         <div style='clear:both'></div>
 
@@ -115,32 +143,62 @@
                                     <div class="modal-header py-3 px-4">
                                         <h5 class="modal-title" id="modal-title">Crear Reserva</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-
-                                    <div class="modal-body p-4">
+                                    </div>                                    <div class="modal-body p-4">
                                         <form class="needs-validation" name="event-form" id="form-event" novalidate>
                                             <input type="hidden" name="title" id="event-title" value="Reservado">
+                                            <input type="hidden" name="reservaId" id="reserva-id">
 
-                                            <div class="mb-3">
-                                                <label class="form-label" for="event-start">Hora de inicio</label>
-                                                <input class="form-control" type="text" id="event-start" name="start" readonly>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label class="form-label" for="event-end">Hora de fin</label>
-                                                <select class="form-select" id="event-end" name="end" required>
-                                                    <option value="" disabled selected>Seleccione hora de fin</option>
-                                                    <!-- Opciones generadas dinámicamente con JS -->
-                                                </select>
-                                                <div class="invalid-feedback">Seleccione una hora de fin válida</div>
-                                            </div>
-
-                                            <div class="row mt-2">
-                                                <div class="col-6">
+                                            <div id="create-reservation-form">
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="event-start">Hora de inicio</label>
+                                                    <input class="form-control" type="text" id="event-start" name="start" readonly>
                                                 </div>
-                                                <div class="col-6 text-end">
-                                                    <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">Cerrar</button>
-                                                    <button type="submit" class="btn btn-success" id="btn-save-event">Crear</button>
+
+                                                <div class="mb-3">
+                                                    <label class="form-label" for="event-end">Hora de fin</label>
+                                                    <select class="form-select" id="event-end" name="end" required>
+                                                        <option value="" disabled selected>Seleccione hora de fin</option>
+                                                        <!-- Opciones generadas dinámicamente con JS -->
+                                                    </select>
+                                                    <div class="invalid-feedback">Seleccione una hora de fin válida</div>
+                                                </div>
+
+                                                <div class="row mt-2">
+                                                    <div class="col-6">
+                                                    </div>
+                                                    <div class="col-6 text-end">
+                                                        <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" class="btn btn-success" id="btn-save-event">Crear</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div id="view-reservation-details" style="display: none;">
+                                                <div class="mb-3">
+                                                    <h6>Detalles de tu reserva</h6>
+                                                    <table class="table table-borderless mb-0">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th scope="row">Inicio:</th>
+                                                                <td id="detail-start"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">Fin:</th>
+                                                                <td id="detail-end"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th scope="row">Estado:</th>
+                                                                <td id="detail-status"></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="row mt-2">
+                                                    <div class="col-12 text-end">
+                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                                                        <a href="#" id="btn-cancel-reservation" class="btn btn-danger">Cancelar reserva</a>
+                                                        <a href="/usuarios/mis-reservas" class="btn btn-primary">Ver todas mis reservas</a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </form>
@@ -159,140 +217,342 @@
         </div>
 
         <!-- Scripts -->
-        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
-
+        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>        
         <script>
-            !function (v) {
-                "use strict";
+            // Esperar a que el DOM esté completamente cargado
+            document.addEventListener('DOMContentLoaded', function() {
+                // Referencias a elementos DOM usando JavaScript puro
+                const modalEl = document.getElementById('event-modal');
+                const modal = new bootstrap.Modal(modalEl);
+                const modalTitle = document.getElementById('modal-title');
+                const form = document.getElementById('form-event');
+                const calendarEl = document.getElementById('calendar');
 
-                function e() {}
+                let selectedEvent = null;
+                let clickInfo = null;
 
-                e.prototype.init = function () {
-                    const modal = v("#event-modal");
-                    const modalTitle = v("#modal-title");
-                    const form = v("#form-event");
-                    const calendarEl = document.getElementById("calendar");
-
-                    let selectedEvent = null;
-                    let clickInfo = null;
-
-                    const espacioId = calendarEl.dataset.espacioId;
-
-                    const calendar = new FullCalendar.Calendar(calendarEl, {
-                        plugins: ["bootstrap", "interaction", "timeGrid"],
-                        themeSystem: "bootstrap",
-                        initialView: "timeGridWeek",
-                        headerToolbar: {
-                            left: "prev,next today",
-                            center: "title",
-                            right: ""
-                        },
-                        minTime: "07:00:00",
-                        maxTime: "23:00:00",
-                        allDaySlot: false,
-                        height: 'auto',
-                        slotDuration: "01:00:00",
-                        slotLabelInterval: "01:00",
-                        editable: false,
-                        droppable: false,
-                        selectable: true,
-                        eventStartEditable: false,
-                        eventDurationEditable: false,
-                        nowIndicator: true,
-
-                        events: '/api/reservas/espacio/' + espacioId,
-
-                        eventClick: function (info) {
-                            if (info.event.title === "Reservado") {
-                                alert("Este horario ya está reservado y no se puede modificar.");
-                                return;
+                const espacioId = calendarEl.dataset.espacioId;
+                const now = new Date();
+                
+                // Usar la configuración base del archivo calendar-config.js
+                const customConfig = {
+                    // Configuración de eventos específica para este calendario
+                    eventClassNames: function(arg) {
+                        try {
+                            const evento = arg.event;
+                            const esPropia = evento.extendedProps && evento.extendedProps.esPropia === true;
+                            const estado = evento.extendedProps && evento.extendedProps.estado;
+                            
+                            // Si no es propia, siempre mostrar como ajena
+                            if (!esPropia) return ['reserva-ajena'];
+                            
+                            // Si es propia, asignar clase según estado
+                            if (estado === 'confirmada') {
+                                return ['reserva-propia-confirmada'];
+                            } else if (estado === 'pendiente') {
+                                return ['reserva-propia-pendiente'];
+                            } else if (estado === 'en_proceso') {
+                                return ['reserva-propia-en-proceso'];
                             }
-                            modal.modal("show");
-                            form[0].reset();
-                            selectedEvent = info.event;
-                            v("#event-title").val(selectedEvent.title);
-                            v("#event-category").val(selectedEvent.classNames[0] || "");
-                            modalTitle.text("Reserva registrada");
-                            clickInfo = null;
-                        },
-
-                        dateClick: function (info) {
-                            form[0].reset();
-
-                            const start = new Date(info.date);
-                            clickInfo = info;
-
-                            document.getElementById("event-start").dataset.raw = start.toISOString();
-
-                            const formattedDate = start.toLocaleDateString('es-PE');
-                            const formattedHour = start.toLocaleTimeString('es-PE', {
-                                hour: '2-digit', minute: '2-digit', hour12: false
-                            });
-                            document.getElementById("event-start").value = `${formattedDate} ${formattedHour}`;
-
-                            // Obtener eventos del mismo día posteriores
-                            const eventosDelDia = calendar.getEvents()
-                                .filter(e => e.start > start && e.start.toDateString() === start.toDateString())
-                                .sort((a, b) => a.start - b.start);
-
-                            const limiteMax = new Date(start);
-                            limiteMax.setHours(start.getHours() + 2);
-
-                            if (eventosDelDia.length > 0 && eventosDelDia[0].start < limiteMax) {
-                                limiteMax.setTime(eventosDelDia[0].start.getTime());
-                            }
-
-                            const endSelect = document.getElementById("event-end");
-                            endSelect.innerHTML = '<option value="" disabled selected>Seleccione hora de fin</option>';
-
-                            const current = new Date(start);
-                            current.setMinutes(0);
-                            current.setSeconds(0);
-                            current.setMilliseconds(0);
-
-                            while (current < limiteMax) {
-                                current.setMinutes(current.getMinutes() + 60);
-                                if (current > limiteMax) break;
-
-                                const option = document.createElement("option");
-                                option.value = current.toISOString();
-                                option.textContent = current.toLocaleTimeString('es-PE', {
-                                    hour: '2-digit', minute: '2-digit', hour12: false
-                                });
-                                endSelect.appendChild(option);
-                            }
-
-                            modal.modal("show");
-                            modalTitle.text("Crear Reserva");
-                            selectedEvent = null;
+                            
+                            // Por defecto
+                            return ['reserva-propia-pendiente'];
+                        } catch (error) {
+                            console.error("Error al asignar clases a evento:", error);
+                            return [];
                         }
-                    });
+                    },
+                    
+                    events: function(info, successCallback, failureCallback) {
+                        fetch('/api/reservas/espacio/' + espacioId)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Error al cargar reservas: ' + response.status);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                // Filtrar reservas canceladas
+                                const reservasFiltradas = data.filter(evento => 
+                                    evento.estado !== 'cancelada' && evento.estado !== 'CANCELADA');
+                                
+                                // Procesar los eventos para FullCalendar
+                                const events = reservasFiltradas.map(evento => {
+                                    const esPropia = evento.esPropia === true;
+                                    const estado = evento.estado ? evento.estado.toLowerCase() : null;
+                                    
+                                    let title = esPropia ? 'Mi reserva' : 'Reservado';
+                                    if (esPropia && estado) {
+                                        switch(estado) {
+                                            case 'pendiente': title += ' (Pendiente)'; break;
+                                            case 'en_proceso': title += ' (En proceso)'; break;
+                                            case 'confirmada': title += ' (Confirmada)'; break;
+                                        }
+                                    }
+                                    
+                                    return {
+                                        id: evento.id,
+                                        title: title,
+                                        start: evento.start,
+                                        end: evento.end,
+                                        extendedProps: {
+                                            esPropia: esPropia,
+                                            estado: estado
+                                        }
+                                    };
+                                });
+                                
+                                successCallback(events);
+                            })
+                            .catch(error => {
+                                console.error('Error al cargar reservas:', error);
+                                alert('No se pudieron cargar las reservas. Por favor, intente nuevamente.');
+                                failureCallback(error);
+                            });
+                    },
 
-                    calendar.render();
-
-                    // Manejador del submit para redirigir con parámetros
-                    document.getElementById("form-event").addEventListener("submit", function(e) {
-                        e.preventDefault();
-
-                        const rawStart = document.getElementById("event-start").dataset.raw;
-                        const rawEnd = document.getElementById("event-end").value;
-
-                        if (!rawStart || !rawEnd) {
-                            alert("Seleccione una hora de inicio y fin válidas.");
+                    eventClick: function(info) {
+                        // Solo permitir interacción con eventos propios
+                        if (!info.event.extendedProps.esPropia) {
+                            alert("Este horario ya está reservado por otro usuario y no se puede modificar.");
                             return;
                         }
+                        
+                        // Mostrar modal con detalles de la reserva
+                        modal.show();
+                        form.reset();
+                        selectedEvent = info.event;
+                        
+                        // Ocultar formulario de creación y mostrar vista de detalles
+                        document.getElementById("create-reservation-form").style.display = "none";
+                        document.getElementById("view-reservation-details").style.display = "block";
+                        
+                        // Establecer título modal
+                        modalTitle.textContent = "Tu reserva";
+                        
+                        // Obtener ID de la reserva
+                        const reservaId = info.event.id;
+                        document.getElementById("reserva-id").value = reservaId;
+                        
+                        // Obtener datos detallados de la reserva mediante API
+                        fetch(`/usuarios/api/reservas/${reservaId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Formatear fechas
+                                const startDate = new Date(data.inicioReserva);
+                                const endDate = new Date(data.finReserva);
+                                
+                                document.getElementById("detail-start").textContent = startDate.toLocaleString('es-PE', {
+                                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                                    hour: '2-digit', minute: '2-digit'
+                                });
+                                
+                                document.getElementById("detail-end").textContent = endDate.toLocaleString('es-PE', {
+                                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                                    hour: '2-digit', minute: '2-digit'
+                                });
+                                
+                                // Mostrar estado con formato más amigable
+                                let estadoTexto = "Desconocido";
+                                let estadoClase = "";
+                                
+                                switch(data.estado.toLowerCase()) {
+                                    case 'confirmada': estadoTexto = "Confirmada"; estadoClase = "text-success"; break;
+                                    case 'pendiente': estadoTexto = "Pendiente de pago"; estadoClase = "text-warning"; break;
+                                    case 'en_proceso': estadoTexto = "En proceso"; estadoClase = "text-primary"; break;
+                                    case 'cancelada': estadoTexto = "Cancelada"; estadoClase = "text-danger"; break;
+                                    case 'completada': estadoTexto = "Completada"; estadoClase = "text-info"; break;
+                                }
+                                
+                                const detailStatus = document.getElementById("detail-status");
+                                detailStatus.textContent = estadoTexto;
+                                detailStatus.className = estadoClase;
+                                
+                                // Configurar enlaces a acciones
+                                document.getElementById("btn-cancel-reservation").href = `/usuarios/reserva/cancelar/${reservaId}`;
+                                
+                                // Deshabilitar botón de cancelar si ya está cancelada o completada
+                                const btnCancelar = document.getElementById("btn-cancel-reservation");
+                                if (data.estado === 'cancelada' || data.estado === 'completada') {
+                                    btnCancelar.classList.add('disabled');
+                                    btnCancelar.setAttribute('aria-disabled', 'true');
+                                } else {
+                                    btnCancelar.classList.remove('disabled');
+                                    btnCancelar.removeAttribute('aria-disabled');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('No se pudo cargar los detalles de la reserva');
+                            });
+                    },
 
-                        window.location.href = `/usuarios/reservar/${espacioId}?inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}`;
+                    dateClick: function(info) {
+                        // Verificar si la fecha es pasada
+                        const clickedTime = info.date;
+                        if (clickedTime < now) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Fecha inválida',
+                                text: 'No puedes reservar en fechas pasadas.',
+                                confirmButtonText: 'Aceptar'
+                            });
+                            return;
+                        }
+                        
+                        // Verificar si hay un evento en esta hora
+                        const eventsAtTime = calendar.getEvents().filter(event => {
+                            return (event.start <= clickedTime && event.end > clickedTime);
+                        });
+                        
+                        // Si hay eventos en esta hora, no permitir la reserva
+                        if (eventsAtTime.length > 0) {
+                            const reservaInfo = eventsAtTime[0];
+                            const esPropiaReserva = reservaInfo.extendedProps && reservaInfo.extendedProps.esPropia;
+                            
+                            if (esPropiaReserva) {
+                                alert(`Ya tienes una reserva activa para esta hora. Puedes ver sus detalles haciendo clic en ella.`);
+                            } else {
+                                alert(`Este horario ya está reservado por otro usuario. Por favor selecciona otro horario.`);
+                            }
+                            return;
+                        }
+                        
+                        form.reset();
+                        
+                        // Mostrar formulario de creación y ocultar vista de detalles
+                        document.getElementById("create-reservation-form").style.display = "block";
+                        document.getElementById("view-reservation-details").style.display = "none";
+
+                        const start = new Date(info.date);
+                        clickInfo = info;
+
+                        document.getElementById("event-start").dataset.raw = start.toISOString();
+
+                        const formattedDate = start.toLocaleDateString('es-PE');
+                        const formattedHour = start.toLocaleTimeString('es-PE', {
+                            hour: '2-digit', minute: '2-digit', hour12: false
+                        });
+                        document.getElementById("event-start").value = `${formattedDate} ${formattedHour}`;
+
+                        // Obtener eventos del mismo día posteriores
+                        const eventosDelDia = calendar.getEvents()
+                            .filter(e => e.start > start && e.start.toDateString() === start.toDateString())
+                            .sort((a, b) => a.start - b.start);
+
+                        const limiteMax = new Date(start);
+                        limiteMax.setHours(start.getHours() + 2);
+
+                        if (eventosDelDia.length > 0 && eventosDelDia[0].start < limiteMax) {
+                            limiteMax.setTime(eventosDelDia[0].start.getTime());
+                        }
+
+                        const endSelect = document.getElementById("event-end");
+                        endSelect.innerHTML = '<option value="" disabled selected>Seleccione hora de fin</option>';
+
+                        const current = new Date(start);
+                        current.setMinutes(0);
+                        current.setSeconds(0);
+                        current.setMilliseconds(0);
+
+                        while (current < limiteMax) {
+                            current.setMinutes(current.getMinutes() + 60);
+                            if (current > limiteMax) break;
+
+                            const option = document.createElement("option");
+                            option.value = current.toISOString();
+                            option.textContent = current.toLocaleTimeString('es-PE', {
+                                hour: '2-digit', minute: '2-digit', hour12: false
+                            });
+                            endSelect.appendChild(option);
+                        }
+
+                        modal.show();
+                        modalTitle.textContent = "Crear Reserva";
+                        selectedEvent = null;
+                    }
+                };                // Inicializar el calendario con la configuración personalizada
+                const calendar = initializeCalendar(calendarEl, customConfig);
+                calendar.render();
+                
+                // Función para controlar la navegación
+                function controlNavigation() {
+                    const now = new Date();
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Lunes de esta semana
+                    startOfWeek.setHours(0, 0, 0, 0);
+                    
+                    const currentView = calendar.view;
+                    const viewStart = new Date(currentView.activeStart);
+                    
+                    // Controlar botón prev
+                    const prevButton = document.querySelector('.fc-prev-button');
+                    if (prevButton) {
+                        if (viewStart < startOfWeek) {
+                            prevButton.disabled = true;
+                            prevButton.style.opacity = '0.5';
+                            prevButton.style.cursor = 'not-allowed';
+                            prevButton.title = 'No se pueden ver semanas pasadas';
+                        } else {
+                            prevButton.disabled = false;
+                            prevButton.style.opacity = '1';
+                            prevButton.style.cursor = 'pointer';
+                            prevButton.title = 'Semana anterior';
+                        }
+                    }
+                }
+                
+                // Ejecutar control de navegación después del render
+                setTimeout(controlNavigation, 100);
+                
+                // Agregar event listener para controlar navegación en cada cambio de vista
+                calendar.on('datesSet', controlNavigation);
+                
+                // Interceptar clics en el botón prev para prevenir navegación a semanas pasadas
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('fc-prev-button') && e.target.disabled) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }
+                });
+                
+                // Marcar horarios pasados como no disponibles
+                marcarHorariosPasadosComoNoDisponibles(calendar);
+                
+                // Actualizar cada minuto
+                setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);                // Manejador del submit para redirigir con parámetros
+                document.getElementById("form-event").addEventListener("submit", function(e) {
+                    e.preventDefault();
+
+                    const rawStart = document.getElementById("event-start").dataset.raw;
+                    const rawEnd = document.getElementById("event-end").value;
+
+                    if (!rawStart || !rawEnd) {
+                        alert("Seleccione una hora de inicio y fin válidas.");
+                        return;
+                    }
+
+                    window.location.href = `/usuarios/reservar/${espacioId}?inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}`;
+                });
+                
+                // Inicializar tooltips de Bootstrap
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {
+                        trigger: 'click',
+                        placement: 'left',
+                        html: true
                     });
-                };
-
-                v.CalendarPage = new e;
-                v.CalendarPage.Constructor = e;
-            }(window.jQuery), function () {
-                "use strict";
-                window.jQuery.CalendarPage.init();
-            }();
-
+                });
+                
+                // Cerrar tooltip al hacer clic fuera
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('[data-bs-toggle="tooltip"]')) {
+                        tooltipList.forEach(tooltip => tooltip.hide());
+                    }
+                });
+            });
         </script>
     </body>
 </html>

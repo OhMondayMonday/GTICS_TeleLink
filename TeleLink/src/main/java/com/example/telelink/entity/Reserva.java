@@ -45,10 +45,8 @@ public class Reserva {
     private LocalDateTime fechaCreacion;
 
     @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion;
-
-    public enum Estado {
-        pendiente, confirmada, cancelada, completada
+    private LocalDateTime fechaActualizacion;    public enum Estado {
+        pendiente, confirmada, cancelada, completada, en_proceso
     }
 
     public Integer getReservaId() {
