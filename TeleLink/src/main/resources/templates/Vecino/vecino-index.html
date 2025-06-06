@@ -270,6 +270,34 @@
 
         respuestaDiv.innerHTML = `<div class="bg-light rounded p-2"><strong>SanMI Bot:</strong><br>${respuesta}</div>`;
     }
+
+    /*
+    function respuestaBot(opcion) {
+        fetch("https://cm31mhtld2.execute-api.us-east-1.amazonaws.com/chatbotSanMI", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ pregunta: opcion })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("chat-response").innerHTML = `
+            <div class="bg-white rounded p-2 mt-2 border">
+                <strong>SanMI Bot:</strong><br>${data.respuesta}
+            </div>
+        `;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("chat-response").innerHTML = `
+            <div class="bg-danger text-white rounded p-2 mt-2">
+                Error al conectar con el servidor.
+            </div>
+        `;
+            });
+    }
+    * */
 </script>
 </body>
 </html>
