@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
@@ -527,8 +528,8 @@ public class UsuarioController {
     public String mostrarCalendario(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
         return "vecino/vecino-calendario";
-    }
-
+    }    
+    
     @GetMapping("/reservar/{espacioId}")
     public String mostrarReservar(@PathVariable("espacioId") Integer espacioId,
                                   @RequestParam(value = "inicio", required = false) String inicio,
@@ -540,14 +541,19 @@ public class UsuarioController {
             return "redirect:/usuarios/inicio";
         }
 
-        List<Reserva> reservasUsuario = reservaRepository.findByUsuario_UsuarioId(usuario.getUsuarioId());
-        List<EspacioDeportivo> espacioDeportivos = espacioDeportivoRepository.findAll();
+        // Obtener el espacio deportivo
+        EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId)
+                .orElseThrow(() -> new RuntimeException("Espacio no encontrado"));
 
+        List<Reserva> reservasUsuario = reservaRepository.findByUsuario_UsuarioId(usuario.getUsuarioId());
+
+        // Siempre agregar datos básicos al modelo
         model.addAttribute("usuario", usuario);
         model.addAttribute("reservas", reservasUsuario);
-        model.addAttribute("espacios", espacioDeportivos);
+        model.addAttribute("espacio", espacio);
         model.addAttribute("espacioSeleccionadoId", espacioId);
 
+        // Si hay parámetros de tiempo, procesar la reserva
         if (inicio != null && fin != null) {
             try {
                 OffsetDateTime odtInicio = OffsetDateTime.parse(inicio);
@@ -557,19 +563,15 @@ public class UsuarioController {
                 LocalDateTime inicioLDT = odtInicio.atZoneSameInstant(zonaLocal).toLocalDateTime();
                 LocalDateTime finLDT = odtFin.atZoneSameInstant(zonaLocal).toLocalDateTime();
 
-                // Verificar si ya hay una reserva que se superponga
-                boolean conflicto = reservaRepository.existsByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaLessThanAndFinReservaGreaterThan(
-                        espacioId, finLDT, inicioLDT);
+                // Verificar si ya hay una reserva que se superponga usando el nuevo método
+                long conflictos = reservaRepository.countActiveReservationConflicts(espacioId, inicioLDT, finLDT);
 
-                if (conflicto) {
-                    redirectAttributes.addFlashAttribute("error", "Ya existe una reserva en este horario.");
-                    return "redirect:/usuarios/calendario/" + espacioId;
+                if (conflictos > 0) {
+                    model.addAttribute("error", "Ya existe una reserva en este horario.");
+                    return "vecino/vecino-reservar";
                 }
 
                 // Crear reserva en estado pendiente
-                EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId)
-                        .orElseThrow(() -> new RuntimeException("Espacio no encontrado"));
-
                 Reserva reserva = new Reserva();
                 reserva.setUsuario(usuario);
                 reserva.setEspacioDeportivo(espacio);
@@ -578,29 +580,39 @@ public class UsuarioController {
                 reserva.setEstado(Reserva.Estado.pendiente);
                 reserva.setFechaCreacion(LocalDateTime.now());
 
-                // Calcular duración y precio antes de redirigir
+                // Calcular duración y precio
                 long duracionHoras = Duration.between(inicioLDT, finLDT).toHours();
+                if (duracionHoras == 0) {
+                    duracionHoras = 1; // Mínimo 1 hora
+                }
+                
                 BigDecimal precioPorHora = espacio.getPrecioPorHora();
                 BigDecimal precioTotal = precioPorHora.multiply(BigDecimal.valueOf(duracionHoras));
 
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                String inicioFormateado = inicioLDT.format(formatter);
-                String finFormateado = finLDT.format(formatter);
+                // Formatear fechas para mostrar
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+                String fechaFormateada = inicioLDT.format(formatter);
+                String inicioFormateado = inicioLDT.format(timeFormatter);
+                String finFormateado = finLDT.format(timeFormatter);
 
-                redirectAttributes.addFlashAttribute("inicioFormateado", inicioFormateado);
-                redirectAttributes.addFlashAttribute("finFormateado", finFormateado);
-                redirectAttributes.addFlashAttribute("precioTotalReserva", precioTotal);
-                redirectAttributes.addFlashAttribute("duracionHoras", duracionHoras);
-
-
+                // Guardar la reserva
                 reservaRepository.save(reserva);
 
-                redirectAttributes.addFlashAttribute("mensaje", "Reserva pendiente registrada correctamente.");
-                return "redirect:/usuarios/reservar/" + espacioId;
+                // Agregar datos de la reserva al modelo para mostrar en el template
+                model.addAttribute("reserva", reserva);
+                model.addAttribute("fechaReserva", fechaFormateada);
+                model.addAttribute("inicioReserva", inicioFormateado);
+                model.addAttribute("finReserva", finFormateado);
+                model.addAttribute("duracionHoras", duracionHoras);
+                model.addAttribute("precioTotal", precioTotal);
+                model.addAttribute("tieneReserva", true);
+                model.addAttribute("mensaje", "Horario seleccionado correctamente. Complete los datos para confirmar su reserva.");
 
+            } catch (DateTimeParseException e) {
+                model.addAttribute("error", "Formato de fecha/hora inválido: " + e.getMessage());
             } catch (Exception e) {
-                redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
-                return "redirect:/usuarios/reservar/" + espacioId;
+                model.addAttribute("error", "Error al procesar la reserva: " + e.getMessage());
             }
         }
 
@@ -731,16 +743,18 @@ public class UsuarioController {
                         r.getInicioReserva().toString(),
                         r.getFinReserva().toString()
                 )).collect(Collectors.toList());
-    }    @GetMapping("/reservasCalendario/{id}")
+    }
+
+    @GetMapping("/reservasCalendario/{id}")
     public String verCalendarioReservas(@PathVariable("id") Integer id, Model model) {
         // Buscar el espacio deportivo por ID
         EspacioDeportivo espacioDeportivo = espacioDeportivoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Espacio deportivo no encontrado"));
-        
+
         // Pasar el objeto completo y el ID al modelo
         model.addAttribute("espacioId", id);
         model.addAttribute("espacio", espacioDeportivo);
-        
+
         return "vecino/reservas-futbol-calendario";
     }
 
@@ -894,7 +908,6 @@ public class UsuarioController {
         redirectAttributes.addFlashAttribute("mensaje", "Pago por depósito registrado. Pendiente de validación.");
         return "redirect:/usuarios/mis-reservas";
     }
-     */
 
     // Mostrar formulario de selección de método de pago
     @GetMapping("/pagar/{reservaId}")
@@ -1264,7 +1277,9 @@ public class UsuarioController {
             alternate = !alternate;
         }
         return (sum % 10 == 0);
-    }    @GetMapping("/api/reservas/espacio/{espacioId}")
+    }
+
+    @GetMapping("/api/reservas/espacio/{espacioId}")
     @ResponseBody
     public List<Map<String, Object>> obtenerReservasPorEspacio(
             @PathVariable("espacioId") Integer espacioId,
@@ -1273,29 +1288,29 @@ public class UsuarioController {
         // Obtener el usuario actual de la sesión
         Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
         Integer usuarioId = usuarioActual != null ? usuarioActual.getUsuarioId() : null;
-        
+
         // Obtener todas las reservas para el espacio deportivo
         List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoId(espacioId);
-        
+
         // Lista para almacenar tanto eventos de reserva como eventos fantasma
         List<Map<String, Object>> eventos = new ArrayList<>();
-        
+
         // Obtener la hora actual para determinar qué eventos están en el pasado
         LocalDateTime ahora = LocalDateTime.now();
-        
+
         // Transformar las reservas a eventos
         for (Reserva r : reservas) {
             Map<String, Object> eventoReserva = new HashMap<>();
             eventoReserva.put("id", r.getReservaId().toString());
             eventoReserva.put("start", r.getInicioReserva().toString());
             eventoReserva.put("end", r.getFinReserva().toString());
-            
+
             // Comprobar si la reserva pertenece al usuario actual
             boolean esReservaPropia = usuarioId != null && r.getUsuario().getUsuarioId().equals(usuarioId);
-            
+
             // Comprobar si la reserva está en el pasado
             boolean esPasada = r.getFinReserva().isBefore(ahora);
-            
+
             // Configurar propiedades según si es propia y si es pasada
             if (esReservaPropia) {
                 if (esPasada) {
@@ -1326,66 +1341,66 @@ public class UsuarioController {
                     eventoReserva.put("textColor", "#ffffff");
                 }
             }
-              eventoReserva.put("esPropia", esReservaPropia);
+            eventoReserva.put("esPropia", esReservaPropia);
             eventoReserva.put("esPasada", esPasada);
             eventoReserva.put("estado", r.getEstado().name().toLowerCase());
             eventoReserva.put("editable", false); // Ninguna reserva es editable directamente
-            
+
             eventos.add(eventoReserva);
         }
-        
+
         // Obtener el espacio deportivo para saber horarios de operación
         Optional<EspacioDeportivo> optEspacio = espacioDeportivoRepository.findById(espacioId);
         if (optEspacio.isPresent()) {
             EspacioDeportivo espacio = optEspacio.get();
-            
+
             // Aquí deberíamos obtener horarios de operación del establecimiento
             // Por ahora asumimos 8:00 AM a 10:00 PM como horario general
             LocalTime horaInicio = LocalTime.of(8, 0);
             LocalTime horaFin = LocalTime.of(22, 0);
-            
+
             // Definir el rango de fechas para generar eventos fantasma
             // Desde hace 7 días hasta la hora actual
             LocalDateTime inicioRango = ahora.minusDays(7)
-                .withHour(horaInicio.getHour())
-                .withMinute(horaInicio.getMinute())
-                .withSecond(0)
-                .withNano(0);
-                
+                    .withHour(horaInicio.getHour())
+                    .withMinute(horaInicio.getMinute())
+                    .withSecond(0)
+                    .withNano(0);
+
             // Generar eventos fantasma para cada slot de tiempo pasado sin reserva
             // Recorremos día por día
-            for (LocalDateTime diaActual = inicioRango.toLocalDate().atStartOfDay(); 
-                 !diaActual.toLocalDate().isAfter(ahora.toLocalDate()); 
+            for (LocalDateTime diaActual = inicioRango.toLocalDate().atStartOfDay();
+                 !diaActual.toLocalDate().isAfter(ahora.toLocalDate());
                  diaActual = diaActual.plusDays(1)) {
-                
+
                 // Para cada día, recorremos los slots de tiempo dentro del horario de operación
                 LocalDateTime inicioSlot = diaActual.with(horaInicio);
                 LocalDateTime finDia = diaActual.with(horaFin);
-                
+
                 // Si el día es hoy, solo generamos eventos hasta la hora actual
-                LocalDateTime limiteFinal = diaActual.toLocalDate().equals(ahora.toLocalDate()) 
-                    ? ahora : finDia;
-                    
+                LocalDateTime limiteFinal = diaActual.toLocalDate().equals(ahora.toLocalDate())
+                        ? ahora : finDia;
+
                 // Generamos slots de 1 hora
                 while (inicioSlot.isBefore(limiteFinal)) {
                     LocalDateTime finSlot = inicioSlot.plusHours(1);
-                    
+
                     // Solo procesamos slots que ya pasaron
                     if (finSlot.isBefore(ahora)) {
                         // Verificar que este slot no tiene una reserva existente
                         final LocalDateTime inicioSlotFinal = inicioSlot;
                         final LocalDateTime finSlotFinal = finSlot;
-                        
+
                         boolean existeReserva = reservas.stream().anyMatch(r -> {
                             // Verificamos si hay solapamiento entre el slot y la reserva
-                            return !(finSlotFinal.isBefore(r.getInicioReserva()) || 
-                                   inicioSlotFinal.isAfter(r.getFinReserva()));
+                            return !(finSlotFinal.isBefore(r.getInicioReserva()) ||
+                                    inicioSlotFinal.isAfter(r.getFinReserva()));
                         });
-                        
+
                         // Si no hay reserva para este slot pasado, creamos un evento fantasma
                         if (!existeReserva) {
                             Map<String, Object> eventoFantasma = new HashMap<>();
-                            
+
                             String slotId = "fantasma-" + inicioSlot.toString();
                             eventoFantasma.put("id", slotId);
                             eventoFantasma.put("title", "No disponible");
@@ -1398,17 +1413,17 @@ public class UsuarioController {
                             eventoFantasma.put("editable", false);
                             eventoFantasma.put("esPasado", true);
                             eventoFantasma.put("esFantasma", true); // Para identificarlo en el cliente
-                            
+
                             eventos.add(eventoFantasma);
                         }
                     }
-                    
+
                     // Avanzamos al siguiente slot
                     inicioSlot = finSlot;
                 }
             }
         }
-        
+
         return eventos;
     }
 
@@ -1423,20 +1438,20 @@ public class UsuarioController {
         if (usuarioActual == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
         }
-        
+
         // Buscar la reserva por ID
         Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
         if (optReserva.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reserva no encontrada");
         }
-        
+
         Reserva reserva = optReserva.get();
-        
+
         // Verificar que la reserva pertenezca al usuario actual
         if (!reserva.getUsuario().getUsuarioId().equals(usuarioActual.getUsuarioId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permisos para ver esta reserva");
         }
-        
+
         // Crear un mapa con los detalles de la reserva
         Map<String, Object> detallesReserva = new HashMap<>();
         detallesReserva.put("reservaId", reserva.getReservaId());
@@ -1444,21 +1459,146 @@ public class UsuarioController {
         detallesReserva.put("finReserva", reserva.getFinReserva().toString());
         detallesReserva.put("estado", reserva.getEstado().name());
         detallesReserva.put("fechaCreacion", reserva.getFechaCreacion().toString());
-        
+
         // Calcular duración en horas
         long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
         detallesReserva.put("duracionHoras", duracionHoras);
-        
+
         // Calcular precio total
         BigDecimal precioTotal = reserva.getEspacioDeportivo().getPrecioPorHora().multiply(BigDecimal.valueOf(duracionHoras));
         detallesReserva.put("precioTotal", precioTotal);
-        
+
         // Información del espacio deportivo
         detallesReserva.put("espacioDeportivo", reserva.getEspacioDeportivo().getNombre());
         detallesReserva.put("tipoServicio", reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo());
         detallesReserva.put("establecimiento", reserva.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
-        
+
         return ResponseEntity.ok(detallesReserva);
+    }
+
+    @GetMapping("/calendario/{espacioId}")
+    public String mostrarCalendario(@PathVariable("espacioId") Integer espacioId, Model model) {
+        // Buscar el espacio deportivo por ID
+        EspacioDeportivo espacioDeportivo = espacioDeportivoRepository.findById(espacioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Espacio deportivo no encontrado"));
+        
+        // Pasar el objeto completo y el ID al modelo
+        model.addAttribute("espacioId", espacioId);
+        model.addAttribute("espacio", espacioDeportivo);
+        
+        return "Vecino/vecino-calendario";
+    }    @PostMapping("/procesar-reserva")
+    public String procesarReserva(@RequestParam("reservaId") Integer reservaId,
+                                  @RequestParam("espacioId") Integer espacioId,
+                                  @RequestParam("cantidadPersonas") Integer cantidadPersonas,
+                                  @RequestParam(value = "payment-method", defaultValue = "online") String metodoPago,
+                                  HttpSession session,
+                                  RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para continuar.");
+            return "redirect:/usuarios/inicio";
+        }
+
+        try {
+            // Obtener la reserva existente
+            Reserva reserva = reservaRepository.findById(reservaId)
+                    .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+            // Verificar que la reserva pertenece al usuario actual
+            if (!reserva.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+                redirectAttributes.addFlashAttribute("error", "No tienes permisos para procesar esta reserva.");
+                return "redirect:/usuarios/mis-reservas";
+            }
+
+            // Verificar que la reserva está en estado pendiente
+            if (reserva.getEstado() != Reserva.Estado.pendiente) {
+                redirectAttributes.addFlashAttribute("error", "Esta reserva ya ha sido procesada.");
+                return "redirect:/usuarios/mis-reservas";
+            }
+
+            // Final validation - check for conflicts with other active reservations
+            long conflictos = reservaRepository.countActiveReservationConflicts(
+                espacioId, reserva.getInicioReserva(), reserva.getFinReserva());
+            if (conflictos > 1) { // > 1 porque la reserva actual cuenta como 1
+                redirectAttributes.addFlashAttribute("error", "Conflicto detectado: ya existe otra reserva en este horario.");
+                return "redirect:/usuarios/calendario/" + espacioId;
+            }
+
+            // Actualizar la reserva con información adicional si es necesario
+            // Por ahora, la cantidad de personas no se guarda en la entidad Reserva
+            // pero se podría agregar en el futuro si es necesario
+
+            // Proceder al pago dependiendo del método seleccionado
+            if ("online".equals(metodoPago)) {
+                // Redirigir al proceso de pago en línea
+                return "redirect:/usuarios/pagar/" + reserva.getReservaId();
+            } else {
+                // Para otros métodos de pago en el futuro
+                redirectAttributes.addFlashAttribute("error", "Método de pago no soportado actualmente.");
+                return "redirect:/usuarios/reservar/" + espacioId;
+            }        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
+            return "redirect:/usuarios/reservar/" + espacioId;
+        }
+    }
+
+    @PostMapping("/crear-reserva")
+    public String crearReserva(@RequestParam("espacioId") Integer espacioId,
+                               @RequestParam("fechaInicio") String fechaInicio,
+                               @RequestParam("fechaFin") String fechaFin,
+                               @RequestParam("cantidadPersonas") Integer cantidadPersonas,
+                               @RequestParam(value = "payment-method", defaultValue = "online") String metodoPago,
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para continuar.");
+            return "redirect:/usuarios/inicio";
+        }
+
+        try {
+            // Obtener el espacio deportivo
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId)
+                    .orElseThrow(() -> new RuntimeException("Espacio deportivo no encontrado"));
+
+            // Parsear fechas
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+            LocalDateTime inicioReserva = LocalDateTime.parse(fechaInicio, formatter);
+            LocalDateTime finReserva = LocalDateTime.parse(fechaFin, formatter);
+
+            // Verificar conflictos ANTES de crear la reserva
+            long conflictos = reservaRepository.countActiveReservationConflicts(espacioId, inicioReserva, finReserva);
+            if (conflictos > 0) {
+                redirectAttributes.addFlashAttribute("conflictoDetectado", true);
+                redirectAttributes.addFlashAttribute("mensajeConflicto", "Ya existe otra reserva activa en este horario. Por favor, selecciona otro horario.");
+                return "redirect:/usuarios/reservasCalendario/" + espacioId;
+            }
+
+            // Crear la reserva en estado pendiente
+            Reserva nuevaReserva = new Reserva();
+            nuevaReserva.setUsuario(usuario);
+            nuevaReserva.setEspacioDeportivo(espacio);
+            nuevaReserva.setInicioReserva(inicioReserva);
+            nuevaReserva.setFinReserva(finReserva);
+            nuevaReserva.setEstado(Reserva.Estado.pendiente);
+            nuevaReserva.setFechaCreacion(LocalDateTime.now());
+
+            // Guardar la reserva
+            reservaRepository.save(nuevaReserva);
+
+            // Redirigir al proceso de pago
+            if ("online".equals(metodoPago)) {
+                return "redirect:/usuarios/pagar/" + nuevaReserva.getReservaId();
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Método de pago no soportado actualmente.");
+                return "redirect:/usuarios/reservar/" + espacioId;
+            }
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al crear la reserva: " + e.getMessage());
+            return "redirect:/usuarios/reservar/" + espacioId;
+        }
     }
 
 }

@@ -89,4 +89,15 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             @Param("espacioId") Integer espacioId,
             @Param("inicio") LocalDateTime inicio,
             @Param("fin") LocalDateTime fin);
+
+    @Query(value = "SELECT COUNT(*) FROM reservas r " +
+           "WHERE r.espacio_deportivo_id = :espacioId " +
+           "AND r.inicio_reserva < :fin " +
+           "AND r.fin_reserva > :inicio " +
+           "AND r.estado IN ('pendiente', 'confirmada', 'en_proceso')",
+           nativeQuery = true)
+    long countActiveReservationConflicts(
+            @Param("espacioId") Integer espacioId,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin);
 }

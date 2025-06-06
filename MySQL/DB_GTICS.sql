@@ -166,7 +166,6 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`espacios_deportivos` (
   `longitud_piscina` INT NULL DEFAULT NULL,
   `profundidad_piscina` DECIMAL(6,2) NULL DEFAULT NULL,
   `descripcion` TEXT NULL DEFAULT NULL,
-  `foto_espacio_deportivo_url` VARCHAR(255) NULL DEFAULT NULL,
   `aforo_gimnasio` INT NULL DEFAULT NULL,
   `longitud_pista` DECIMAL(6,2) NULL DEFAULT NULL,
   `carriles_pista` INT NULL DEFAULT NULL,
@@ -388,7 +387,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
   `fin_reserva` TIMESTAMP NOT NULL,
   `numero_carril_piscina` INT NULL DEFAULT NULL,
   `numero_carril_pista` INT NULL DEFAULT NULL,
-  `estado` ENUM('pendiente', 'confirmada', 'cancelada','completada') NULL DEFAULT 'pendiente',
+  `estado` ENUM('pendiente', 'confirmada', 'cancelada','completada', 'en_proceso') NULL DEFAULT 'pendiente',
   `razon_cancelacion` TEXT NULL DEFAULT NULL,
   `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -406,7 +405,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
--- -----------------------------------------------------
+-------------------------------------
 -- Table `db_gtics`.`pagos`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `db_gtics`.`pagos` ;
@@ -636,4 +635,6 @@ END//
 DELIMITER ;
 
 
-select * from db_gtics.usuarios;
+
+
+select * from db_gtics.reservas where espacio_deportivo_id=1;

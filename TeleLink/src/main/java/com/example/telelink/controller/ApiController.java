@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,14 @@ public class ApiController {
         Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
         Integer usuarioId = usuarioActual != null ? usuarioActual.getUsuarioId() : null;
         
-        List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoId(id);
+        // Obtener la fecha y hora actual
+        LocalDateTime ahora = LocalDateTime.now();
+        
+        // Obtener todas las reservas del espacio y filtrar solo las futuras
+        List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoId(id)
+                .stream()
+                .filter(reserva -> reserva.getFinReserva().isAfter(ahora))
+                .collect(Collectors.toList());
 
         return reservas.stream().map(reserva -> {
             Map<String, Object> evento = new HashMap<>();
@@ -48,10 +56,17 @@ public class ApiController {
                 evento.put("backgroundColor", "#4b8af3"); // Azul para reservas propias
                 evento.put("borderColor", "#2a6edf");
                 evento.put("esPropia", true);
+                evento.put("title", "Mi reserva");
             } else {
                 evento.put("backgroundColor", "#a0a0a0"); // Gris para reservas ajenas
                 evento.put("borderColor", "#808080");
                 evento.put("esPropia", false);
+                evento.put("title", "Reservado");
+            }
+            
+            // Agregar información del estado de la reserva para reservas propias
+            if (esReservaPropia) {
+                evento.put("estado", reserva.getEstado().name().toLowerCase());
             }
             
             return evento;

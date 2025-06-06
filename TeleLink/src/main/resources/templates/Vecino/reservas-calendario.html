@@ -156,18 +156,31 @@
 
         <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
       </div>
-    </div>
-
-    <!-- Scripts -->
+    </div>    <!-- Scripts -->
     <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+    
+    <!-- SweetAlert2 para notificaciones de conflictos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
       !function (v) {
         "use strict";
 
-        function e() {}
-
-        e.prototype.init = function () {
+        function e() {}        e.prototype.init = function () {
+          // Verificar si hay un conflicto detectado desde el servidor
+          const conflictoDetectado = /*[[${conflictoDetectado}]]*/ false;
+          const mensajeConflicto = /*[[${mensajeConflicto}]]*/ '';
+          
+          if (conflictoDetectado && mensajeConflicto) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Conflicto de Reserva',
+              text: mensajeConflicto,
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#d33'
+            });
+          }
+          
           const modal = v("#event-modal");
           const modalTitle = v("#modal-title");
           const form = v("#form-event");

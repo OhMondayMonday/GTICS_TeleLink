@@ -635,5 +635,69 @@ END//
 
 DELIMITER ;
 
+-- Habilitar el event scheduler
+SET GLOBAL event_scheduler = ON;
+
+-- Event scheduler para cancelar reservas pendientes después de 3 minutos
+DELIMITER $$
+
+CREATE EVENT IF NOT EXISTS `cancelar_reservas_pendientes_timeout`
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN    -- Cancelar reservas que están en estado 'pendiente' por más de 3 minutos
+    UPDATE `db_gtics`.`reservas`
+    SET 
+        `estado` = 'cancelada',
+        `razon_cancelacion` = 'Reserva cancelada automáticamente por timeout de pago (3 minutos)',
+        `fecha_actualizacion` = CURRENT_TIMESTAMP
+    WHERE 
+        `estado` = 'pendiente' 
+        AND TIMESTAMPDIFF(MINUTE, `fecha_creacion`, CURRENT_TIMESTAMP) >= 3;
+END$$
+
+DELIMITER ;
+
+-- Event scheduler para cancelar reservas en_proceso/pendiente que ya iniciaron
+DELIMITER $$
+
+CREATE EVENT IF NOT EXISTS `cancelar_reservas_vencidas`
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Cancelar reservas en estado 'en_proceso' o 'pendiente' cuya hora de inicio ya pasó
+    UPDATE `db_gtics`.`reservas`
+    SET 
+        `estado` = 'cancelada',
+        `razon_cancelacion` = 'Reserva cancelada automáticamente - hora de inicio superada',
+        `fecha_actualizacion` = CURRENT_TIMESTAMP
+    WHERE 
+        `estado` IN ('en_proceso', 'pendiente')
+        AND `inicio_reserva` < CURRENT_TIMESTAMP;
+END$$
+
+DELIMITER ;
+
+-- Event scheduler para completar reservas confirmadas que ya terminaron
+DELIMITER $$
+
+CREATE EVENT IF NOT EXISTS `completar_reservas_terminadas`
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Completar reservas confirmadas cuya hora de fin ya pasó
+    UPDATE `db_gtics`.`reservas`
+    SET 
+        `estado` = 'completada',
+        `fecha_actualizacion` = CURRENT_TIMESTAMP
+    WHERE 
+        `estado` = 'confirmada'
+        AND `fin_reserva` < CURRENT_TIMESTAMP;
+END$$
+
+DELIMITER ;
+
 
 select * from db_gtics.usuarios;

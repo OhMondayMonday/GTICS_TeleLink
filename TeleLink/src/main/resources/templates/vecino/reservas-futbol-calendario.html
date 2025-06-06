@@ -214,13 +214,28 @@
 
                 <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
             </div>
-        </div>
-
-        <!-- Scripts -->
-        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>        
-        <script>
+        </div>        <!-- Scripts -->
+        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+        
+        <!-- SweetAlert2 para notificaciones de conflictos -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <script>
             // Esperar a que el DOM esté completamente cargado
             document.addEventListener('DOMContentLoaded', function() {
+                // Verificar si hay un conflicto detectado desde el servidor
+                const conflictoDetectado = /*[[${conflictoDetectado}]]*/ false;
+                const mensajeConflicto = /*[[${mensajeConflicto}]]*/ '';
+                
+                if (conflictoDetectado && mensajeConflicto) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Conflicto de Reserva',
+                        text: mensajeConflicto,
+                        confirmButtonText: 'Entendido',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+                
                 // Referencias a elementos DOM usando JavaScript puro
                 const modalEl = document.getElementById('event-modal');
                 const modal = new bootstrap.Modal(modalEl);
