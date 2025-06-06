@@ -15,7 +15,6 @@
             <!-- Start right Content here -->
             <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content">
                     <div class="container-fluid">
                         <div class="row">
@@ -36,60 +35,54 @@
                                                  th:src="${usuario.fotoPerfilUrl != null} ? ${usuario.fotoPerfilUrl} : @{/assets/images/users/avatar-2.jpg}"
                                                  alt="Foto de perfil">
                                         </div>
+
                                         <div class="col-md-8">
                                             <div class="card-body">
                                                 <h4 class="card-title mb-4 fw-semibold mt-3">Información personal</h4>
-
                                                 <form class="custom-validation" action="#" novalidate="">
-                                                    <div class="mb-3">
-                                                        <label>Nombres</label>
-                                                        <input type="text"
-                                                               class="form-control border-0 bg-light"
-                                                               required=""
-                                                               name="nombres"
-                                                               id="nombres"
-                                                               th:value="${usuario.nombres != null} ? ${usuario.nombres} : ''"
-                                                               readonly disabled>
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">Nombres</label>
+                                                            <input type="text" class="form-control bg-light border-0"
+                                                                   th:value="${usuario.nombres != null} ? ${usuario.nombres} : ''"
+                                                                   readonly disabled>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">Apellidos</label>
+                                                            <input type="text" class="form-control bg-light border-0"
+                                                                   th:value="${usuario.apellidos != null} ? ${usuario.apellidos} : ''"
+                                                                   readonly disabled>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">DNI</label>
+                                                            <input type="text" class="form-control bg-light border-0"
+                                                                   th:value="${usuario.dni}" readonly>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">Teléfono</label>
+                                                            <input type="text" class="form-control bg-light border-0"
+                                                                   th:value="${usuario.telefono != null} ? ${usuario.telefono} : ''"
+                                                                   readonly disabled>
+                                                        </div>
+                                                        <div class="col-md-12 mb-3">
+                                                            <label class="form-label">Correo electrónico</label>
+                                                            <input type="email" class="form-control bg-light border-0"
+                                                                   th:value="${usuario.correoElectronico != null} ? ${usuario.correoElectronico} : ''"
+                                                                   readonly disabled>
+                                                        </div>
+                                                        <div class="col-md-12 mb-3">
+                                                            <label class="form-label">Dirección</label>
+                                                            <input type="text" class="form-control bg-light border-0"
+                                                                   th:value="${usuario.direccion}" readonly>
+                                                        </div>
                                                     </div>
-
-                                                    <div class="mb-3">
-                                                        <label>Apellidos</label>
-                                                        <input type="text"
-                                                               class="form-control border-0 bg-light"
-                                                               required=""
-                                                               name="apellidos"
-                                                               id="apellidos"
-                                                               th:value="${usuario.apellidos != null} ? ${usuario.apellidos} : ''"
-                                                               readonly disabled>
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label>Correo electrónico</label>
-                                                        <input type="email"
-                                                               class="form-control border-0 bg-light"
-                                                               required=""
-                                                               name="correoElectronico"
-                                                               id="correoElectronico"
-                                                               th:value="${usuario.correoElectronico != null} ? ${usuario.correoElectronico} : ''"
-                                                               readonly disabled>
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label>Teléfono</label>
-                                                        <input type="text"
-                                                               class="form-control border-0 bg-light"
-                                                               required=""
-                                                               name="telefono"
-                                                               id="telefono"
-                                                               th:value="${usuario.telefono != null} ? ${usuario.telefono} : ''"
-                                                               readonly disabled>
-                                                    </div>
-                                                    <div class="text-center">
-                                                        <a th:href="@{/usuarios/editar-perfil}" class="btn btn-primary">Editar</a>
+                                                    <div class="text-center mt-4">
+                                                        <a th:href="@{/usuarios/editar-perfil}" class="btn btn-outline-primary px-4">Editar Perfil</a>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
