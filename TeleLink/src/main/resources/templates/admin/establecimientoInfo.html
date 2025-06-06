@@ -131,11 +131,26 @@
                                                   readonly disabled></textarea>
                                     </div>
 
-                                    <br>
-
-                                    <!-- Espacios Deportivos -->
+                                    <br>                                    <!-- Espacios Deportivos -->
                                     <div class="mb-4">
                                         <h4 class="card-title mb-4 fw-semibold mt-3">Espacios Deportivos Asociados</h4>
+                                        
+                                        <!-- Export buttons will be positioned via JavaScript after DataTable initialization -->
+                                        <div id="export-buttons-container" class="d-none">
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/admin/establecimientos/{id}/espacios/export/excel(id=${establecimiento.establecimientoDeportivoId})}" 
+                                                   class="btn btn-success btn-sm">
+                                                    <i class="fas fa-file-excel me-1"></i>
+                                                    Exportar Excel
+                                                </a>
+                                                <a th:href="@{/admin/establecimientos/{id}/espacios/export/pdf(id=${establecimiento.establecimientoDeportivoId})}" 
+                                                   class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-file-pdf me-1"></i>
+                                                    Exportar PDF
+                                                </a>
+                                            </div>
+                                        </div>
+                                        
                                         <div class="table-responsive">
                                             <table class="table table-centered datatable dt-responsive nowrap"
                                                    data-bs-page-length="6"
@@ -188,11 +203,39 @@
     </div>
 
     <div class="sidebar-overlay"></div>
-    <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
-
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o"></script>
+    <div th:replace="~{admin/fragments/footList.html :: footList}"></div>    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o"></script>
     <script th:src="@{/assets/libs/gmaps/gmaps.min.js}"></script>
     <script th:src="@{/assets/js/pages/espaciosAdmin.init.js}"></script>
+    
+    <!-- Script para posicionar botones de exportar -->
+    <script>
+        $(document).ready(function() {
+            // Esperar a que DataTables se inicialice completamente
+            setTimeout(function() {
+                // Buscar el contenedor de controles de DataTables
+                var datatableWrapper = $('.dataTables_wrapper');
+                if (datatableWrapper.length > 0) {
+                    // Buscar el contenedor superior que contiene length y filter
+                    var topContainer = datatableWrapper.find('.dataTables_length').parent();
+                    if (topContainer.length > 0) {
+                        // Agregar los botones al lado izquierdo del contenedor
+                        var exportButtons = $('#export-buttons-container').html();
+                        topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
+                        
+                        // Ajustar el contenedor del filtro para que use las clases correctas
+                        var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
+                        if (filterContainer.length > 0) {
+                            filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                        }
+                        
+                        // Asegurar que el contenedor padre use row
+                        topContainer.addClass('row');
+                    }
+                }
+            }, 100);
+        });
+    </script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Map Initialization

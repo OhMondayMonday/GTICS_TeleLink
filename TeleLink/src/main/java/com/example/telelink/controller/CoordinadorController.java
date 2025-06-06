@@ -1,8 +1,9 @@
     package com.example.telelink.controller;
 
-    import com.example.telelink.entity.*;
-    import com.example.telelink.repository.*;
-    import jakarta.servlet.http.HttpSession;
+import com.example.telelink.entity.*;
+import com.example.telelink.repository.*;
+import jakarta.servlet.http.HttpSession;
+    import jakarta.servlet.http.HttpServletResponse;
     import jakarta.validation.Valid;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.format.annotation.DateTimeFormat;
@@ -15,6 +16,15 @@
     import org.springframework.web.multipart.MultipartFile;
     import org.springframework.web.servlet.mvc.support.RedirectAttributes;
     import com.example.telelink.service.S3Service;
+    // Imports for export functionality
+    import org.apache.poi.ss.usermodel.*;
+    import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+    import com.itextpdf.text.*;
+    import com.itextpdf.text.pdf.*;
+    import com.itextpdf.text.Font.FontFamily;
+    import org.springframework.http.HttpStatus;
+    import org.springframework.http.HttpHeaders;
+    import org.springframework.http.MediaType;
 
     import java.security.Timestamp;
     import java.text.DecimalFormat;
@@ -23,6 +33,8 @@
     import java.util.HashMap;
     import java.util.List;
     import java.util.Map;
+    import java.io.IOException;
+    import java.io.ByteArrayOutputStream;
 
 
     @Controller
@@ -450,9 +462,152 @@
                 String clase = obtenerClaseEstado(espacio.getEstadoServicio().name());
                 clasesEstado.put(espacio.getEspacioDeportivoId(), clase);
             }
-            model.addAttribute("clasesEstado", clasesEstado);
+            model.addAttribute("clasesEstado", clasesEstado);            return "Coordinador/espaciosDeportivos";
+        }
 
-            return "Coordinador/espaciosDeportivos";
+        @GetMapping("/espacios-deportivos/export/excel")
+        public void exportarEspaciosExcel(HttpServletResponse response) throws IOException {
+            List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAll();
+            
+            // Configurar la respuesta HTTP
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=espacios_deportivos.xlsx");
+            
+            // Crear el workbook de Excel
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Espacios Deportivos");
+              // Crear estilo para el encabezado
+            CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            
+            // Crear encabezados
+            Row headerRow = sheet.createRow(0);
+            String[] columns = {"ID", "Nombre", "Establecimiento", "Tipo de Servicio", "Estado", 
+                               "Horario Apertura", "Horario Cierre", "Precio por Hora", "Descripción"};
+            
+            for (int i = 0; i < columns.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columns[i]);
+                cell.setCellStyle(headerStyle);
+            }
+            
+            // Llenar datos
+            int rowNum = 1;
+            for (EspacioDeportivo espacio : espacios) {
+                Row row = sheet.createRow(rowNum++);
+                
+                row.createCell(0).setCellValue(espacio.getEspacioDeportivoId());
+                row.createCell(1).setCellValue(espacio.getNombre());
+                row.createCell(2).setCellValue(espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
+                row.createCell(3).setCellValue(espacio.getServicioDeportivo().getServicioDeportivo());
+                row.createCell(4).setCellValue(getEstadoTexto(espacio.getEstadoServicio()));
+                row.createCell(5).setCellValue(espacio.getHorarioApertura() != null ? espacio.getHorarioApertura().toString() : "");
+                row.createCell(6).setCellValue(espacio.getHorarioCierre() != null ? espacio.getHorarioCierre().toString() : "");
+                row.createCell(7).setCellValue(espacio.getPrecioPorHora() != null ? espacio.getPrecioPorHora().doubleValue() : 0.0);
+                row.createCell(8).setCellValue(espacio.getDescripcion() != null ? espacio.getDescripcion() : "");
+            }
+            
+            // Ajustar ancho de columnas
+            for (int i = 0; i < columns.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+            
+            // Escribir al output stream
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        }
+
+        @GetMapping("/espacios-deportivos/export/pdf")
+        public void exportarEspaciosPdf(HttpServletResponse response) throws IOException, DocumentException {
+            List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAll();
+            
+            // Configurar la respuesta HTTP
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=espacios_deportivos.pdf");
+            
+            // Crear documento PDF
+            Document document = new Document(PageSize.A4.rotate()); // Orientación horizontal
+            PdfWriter.getInstance(document, response.getOutputStream());
+            
+            document.open();
+              // Título
+            com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 18, com.itextpdf.text.Font.BOLD);
+            Paragraph title = new Paragraph("Reporte de Espacios Deportivos", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            title.setSpacingAfter(20);
+            document.add(title);
+            
+            // Fecha de generación
+            com.itextpdf.text.Font dateFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 10, com.itextpdf.text.Font.NORMAL);
+            Paragraph date = new Paragraph("Generado el: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+            date.setAlignment(Element.ALIGN_RIGHT);
+            date.setSpacingAfter(20);
+            document.add(date);
+            
+            // Crear tabla
+            PdfPTable table = new PdfPTable(9);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+            
+            // Configurar anchos de columnas
+            float[] columnWidths = {1f, 2f, 2f, 2f, 1.5f, 1.5f, 1.5f, 1.5f, 3f};
+            table.setWidths(columnWidths);
+              // Estilo para encabezados
+            com.itextpdf.text.Font headerFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 10, com.itextpdf.text.Font.BOLD, BaseColor.WHITE);
+            
+            // Agregar encabezados
+            String[] headers = {"ID", "Nombre", "Establecimiento", "Tipo de Servicio", "Estado", 
+                               "H. Apertura", "H. Cierre", "Precio/Hora", "Descripción"};
+            
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+                cell.setBackgroundColor(BaseColor.DARK_GRAY);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setPadding(8);
+                table.addCell(cell);
+            }
+            
+            // Agregar datos
+            com.itextpdf.text.Font cellFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 8, com.itextpdf.text.Font.NORMAL);
+            for (EspacioDeportivo espacio : espacios) {
+                table.addCell(new PdfPCell(new Phrase(String.valueOf(espacio.getEspacioDeportivoId()), cellFont)));
+                table.addCell(new PdfPCell(new Phrase(espacio.getNombre(), cellFont)));
+                table.addCell(new PdfPCell(new Phrase(espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre(), cellFont)));
+                table.addCell(new PdfPCell(new Phrase(espacio.getServicioDeportivo().getServicioDeportivo(), cellFont)));
+                table.addCell(new PdfPCell(new Phrase(getEstadoTexto(espacio.getEstadoServicio()), cellFont)));
+                table.addCell(new PdfPCell(new Phrase(espacio.getHorarioApertura() != null ? espacio.getHorarioApertura().toString() : "", cellFont)));
+                table.addCell(new PdfPCell(new Phrase(espacio.getHorarioCierre() != null ? espacio.getHorarioCierre().toString() : "", cellFont)));
+                table.addCell(new PdfPCell(new Phrase(espacio.getPrecioPorHora() != null ? "S/ " + espacio.getPrecioPorHora().toString() : "S/ 0.00", cellFont)));
+                
+                String descripcion = espacio.getDescripcion() != null ? espacio.getDescripcion() : "";
+                if (descripcion.length() > 50) {
+                    descripcion = descripcion.substring(0, 47) + "...";
+                }
+                table.addCell(new PdfPCell(new Phrase(descripcion, cellFont)));
+            }
+            
+            document.add(table);
+            document.close();
+        }
+        
+        private String getEstadoTexto(EspacioDeportivo.EstadoServicio estado) {
+            switch (estado) {
+                case operativo:
+                    return "Operativo";
+                case mantenimiento:
+                    return "En mantenimiento";
+                case clausurado:
+                    return "Clausurado";
+                default:
+                    return "Desconocido";
+            }
         }
 
 
@@ -726,6 +881,219 @@
             redirectAttributes.addFlashAttribute("message", "Observación guardada exitosamente");
             redirectAttributes.addFlashAttribute("messageType", "success");
             return "redirect:/coordinador/observaciones";
+        }        // Exportar observaciones a Excel
+        @GetMapping("/observaciones/export/excel")
+        public ResponseEntity<byte[]> exportarObservacionesExcel() {
+            try {
+                List<Observacion> observaciones = observacionRepository.findAll();
+                
+                Workbook workbook = new XSSFWorkbook();
+                Sheet sheet = workbook.createSheet("Observaciones");
+
+                // Estilo para el encabezado
+                CellStyle headerStyle = workbook.createCellStyle();
+                org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+                headerFont.setBold(true);
+                headerFont.setColor(IndexedColors.WHITE.getIndex());
+                headerStyle.setFont(headerFont);
+                headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+                headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                headerStyle.setAlignment(HorizontalAlignment.CENTER);
+                headerStyle.setBorderBottom(BorderStyle.THIN);
+                headerStyle.setBorderTop(BorderStyle.THIN);
+                headerStyle.setBorderRight(BorderStyle.THIN);
+                headerStyle.setBorderLeft(BorderStyle.THIN);
+
+                // Estilo para las celdas de datos
+                CellStyle dataStyle = workbook.createCellStyle();
+                dataStyle.setBorderBottom(BorderStyle.THIN);
+                dataStyle.setBorderTop(BorderStyle.THIN);
+                dataStyle.setBorderRight(BorderStyle.THIN);
+                dataStyle.setBorderLeft(BorderStyle.THIN);
+                dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+                // Estilo para fechas
+                CellStyle dateStyle = workbook.createCellStyle();
+                dateStyle.cloneStyleFrom(dataStyle);
+                dateStyle.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("dd/mm/yyyy"));
+
+                // Crear encabezados
+                Row headerRow = sheet.createRow(0);
+                String[] headers = {"Fecha", "Espacio Deportivo", "Establecimiento", "Descripción", "Estado"};
+                
+                for (int i = 0; i < headers.length; i++) {
+                    Cell cell = headerRow.createCell(i);
+                    cell.setCellValue(headers[i]);
+                    cell.setCellStyle(headerStyle);
+                }
+
+                // Llenar datos
+                int rowNum = 1;
+                for (Observacion observacion : observaciones) {
+                    Row row = sheet.createRow(rowNum++);
+                    
+                    Cell dateCell = row.createCell(0);
+                    dateCell.setCellValue(observacion.getFechaCreacion());
+                    dateCell.setCellStyle(dateStyle);
+                    
+                    Cell espacioCell = row.createCell(1);
+                    espacioCell.setCellValue(observacion.getEspacioDeportivo().getNombre());
+                    espacioCell.setCellStyle(dataStyle);
+                    
+                    Cell establecimientoCell = row.createCell(2);
+                    establecimientoCell.setCellValue(observacion.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
+                    establecimientoCell.setCellStyle(dataStyle);
+                    
+                    Cell descripcionCell = row.createCell(3);
+                    descripcionCell.setCellValue(observacion.getDescripcion());
+                    descripcionCell.setCellStyle(dataStyle);
+                    
+                    Cell estadoCell = row.createCell(4);
+                    estadoCell.setCellValue(getEstadoObservacionTexto(observacion.getEstado()));
+                    estadoCell.setCellStyle(dataStyle);
+                }
+
+                // Ajustar ancho de columnas
+                for (int i = 0; i < headers.length; i++) {
+                    sheet.autoSizeColumn(i);
+                    // Asegurar un ancho mínimo
+                    if (sheet.getColumnWidth(i) < 3000) {
+                        sheet.setColumnWidth(i, 3000);
+                    }
+                }
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                workbook.write(outputStream);
+                workbook.close();
+
+                HttpHeaders responseHeaders = new HttpHeaders();
+                responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                responseHeaders.setContentDispositionFormData("attachment", "observaciones.xlsx");
+
+                return ResponseEntity.ok()
+                        .headers(responseHeaders)
+                        .body(outputStream.toByteArray());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+
+        // Exportar observaciones a PDF
+        @GetMapping("/observaciones/export/pdf")
+        public ResponseEntity<byte[]> exportarObservacionesPdf() {
+            try {
+                List<Observacion> observaciones = observacionRepository.findAll();
+                
+                Document document = new Document(PageSize.A4.rotate()); // Formato paisaje
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                PdfWriter.getInstance(document, outputStream);
+                
+                document.open();
+                
+                // Título
+                com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+                Paragraph title = new Paragraph("Reporte de Observaciones", titleFont);
+                title.setAlignment(Element.ALIGN_CENTER);
+                title.setSpacingAfter(20);
+                document.add(title);
+                
+                // Fecha de generación
+                com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+                Paragraph dateGenerated = new Paragraph("Fecha de generación: " + 
+                    java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+                dateGenerated.setAlignment(Element.ALIGN_CENTER);
+                dateGenerated.setSpacingAfter(20);
+                document.add(dateGenerated);
+                
+                // Crear tabla
+                PdfPTable table = new PdfPTable(5);
+                table.setWidthPercentage(100);
+                table.setSpacingBefore(10f);
+                table.setSpacingAfter(10f);
+                
+                // Configurar anchos de columnas
+                float[] columnWidths = {2f, 3f, 3f, 4f, 2f};
+                table.setWidths(columnWidths);
+                
+                // Estilo para encabezados
+                com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.WHITE);
+                BaseColor headerColor = new BaseColor(52, 58, 64);
+                
+                // Agregar encabezados
+                String[] headers = {"Fecha", "Espacio Deportivo", "Establecimiento", "Descripción", "Estado"};
+                for (String header : headers) {
+                    PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+                    cell.setBackgroundColor(headerColor);
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    cell.setPadding(8);
+                    table.addCell(cell);
+                }
+                
+                // Estilo para datos
+                com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 9);
+                
+                // Agregar datos
+                for (Observacion observacion : observaciones) {
+                    // Fecha
+                    PdfPCell dateCell = new PdfPCell(new Phrase(
+                        observacion.getFechaCreacion().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")), dataFont));
+                    dateCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    dateCell.setPadding(5);
+                    table.addCell(dateCell);
+                    
+                    // Espacio Deportivo
+                    PdfPCell espacioCell = new PdfPCell(new Phrase(observacion.getEspacioDeportivo().getNombre(), dataFont));
+                    espacioCell.setPadding(5);
+                    table.addCell(espacioCell);
+                    
+                    // Establecimiento
+                    PdfPCell establecimientoCell = new PdfPCell(new Phrase(
+                        observacion.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre(), dataFont));
+                    establecimientoCell.setPadding(5);
+                    table.addCell(establecimientoCell);
+                    
+                    // Descripción
+                    PdfPCell descripcionCell = new PdfPCell(new Phrase(observacion.getDescripcion(), dataFont));
+                    descripcionCell.setPadding(5);
+                    table.addCell(descripcionCell);
+                    
+                    // Estado
+                    PdfPCell estadoCell = new PdfPCell(new Phrase(getEstadoObservacionTexto(observacion.getEstado()), dataFont));
+                    estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    estadoCell.setPadding(5);
+                    table.addCell(estadoCell);
+                }
+                
+                document.add(table);
+                document.close();
+                
+                HttpHeaders responseHeaders = new HttpHeaders();
+                responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+                responseHeaders.setContentDispositionFormData("attachment", "observaciones.pdf");
+                
+                return ResponseEntity.ok()
+                        .headers(responseHeaders)
+                        .body(outputStream.toByteArray());
+                        
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }        // Método auxiliar para convertir estado de observación a texto legible
+        private String getEstadoObservacionTexto(Observacion.Estado estado) {
+            switch (estado) {
+                case pendiente:
+                    return "Pendiente";
+                case en_proceso:
+                    return "En Proceso";
+                case resuelto:
+                    return "Resuelto";
+                default:
+                    return "Desconocido";
+            }
         }
 
         @GetMapping("/calendario")

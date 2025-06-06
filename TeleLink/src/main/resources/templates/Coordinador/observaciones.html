@@ -18,12 +18,25 @@
             <!-- ============================================================== -->
             <div class="main-content">
 
-                <div class="page-content">
-                    <div class="container-fluid">
+                <div class="page-content">                    <div class="container-fluid">
                         <div class="row mb-4">
                             <div class="col-lg-12">
-                                <div class="card mb-0">
-                                    <div class="card-body">
+                                <div class="card mb-0">                                    <div class="card-body">
+                                        <!-- Export buttons will be positioned via JavaScript after DataTable initialization -->
+                                        <div id="export-buttons-container" class="d-none">
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/coordinador/observaciones/export/excel}" 
+                                                   class="btn btn-success btn-sm">
+                                                    <i class="fas fa-file-excel me-1"></i>
+                                                    Exportar Excel
+                                                </a>
+                                                <a th:href="@{/coordinador/observaciones/export/pdf}" 
+                                                   class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-file-pdf me-1"></i>
+                                                    Exportar PDF
+                                                </a>
+                                            </div>
+                                        </div>
 
                                         <div class="table-responsive">
 
@@ -84,11 +97,38 @@
         </div>
         <!-- END layout-wrapper -->
 
-        <div class="sidebar-overlay"></div>
-
-        <div th:replace="fragments/topbarCoordinador :: scripts"></div>
+        <div class="sidebar-overlay"></div>        <div th:replace="fragments/topbarCoordinador :: scripts"></div>
         <script th:src="@{/assets/js/pages/observaciones.init.js}"></script>
         <!-- google maps api -->
+
+        <!-- Script para posicionar botones de exportar -->
+        <script>
+            $(document).ready(function() {
+                // Esperar a que DataTables se inicialice completamente
+                setTimeout(function() {
+                    // Buscar el contenedor de controles de DataTables
+                    var datatableWrapper = $('.dataTables_wrapper');
+                    if (datatableWrapper.length > 0) {
+                        // Buscar el contenedor superior que contiene length y filter
+                        var topContainer = datatableWrapper.find('.dataTables_length').parent();
+                        if (topContainer.length > 0) {
+                            // Agregar los botones al lado izquierdo del contenedor
+                            var exportButtons = $('#export-buttons-container').html();
+                            topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
+                            
+                            // Ajustar el contenedor del filtro para que use las clases correctas
+                            var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
+                            if (filterContainer.length > 0) {
+                                filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                            }
+                            
+                            // Asegurar que el contenedor padre use row
+                            topContainer.addClass('row');
+                        }
+                    }
+                }, 100);
+            });
+        </script>
 
         <script th:src="@{/superadmin/assets/js/app.js}"></script>
     </body>
