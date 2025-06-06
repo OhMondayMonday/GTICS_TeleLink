@@ -60,6 +60,13 @@
                     </ul>-->
                 </li>
 
+                <li th:class="${activeItem == 'reembolsos' ? 'mm-active' : ''}">
+                    <a th:href="@{/usuarios/reembolsos}" class="waves-effect">
+                        <i class="ri-refund-line"></i>
+                        <span>Mis reembolsos</span>
+                    </a>
+                </li>
+
                 <li class="menu-title">Ayuda</li>
                 <li th:class="${activeItem == 'ayuda' ? 'mm-active' : ''}">
                     <a th:href="@{/usuarios/ayuda}" class="waves-effect">
