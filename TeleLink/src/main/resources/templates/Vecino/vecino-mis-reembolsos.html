@@ -1,31 +1,31 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{vecino/fragments/topbarVecino.html :: head(title='Mis pagos')}"></head>
+<head th:replace="~{vecino/fragments/topbarVecino.html :: head(title='Mis Reembolsos')}"></head>
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
-    <div th:replace="~{vecino/fragments/topbarVecino :: topbar('Mis pagos')}"></div>
-    <div th:replace="~{vecino/fragments/sidebarVecino :: sidebar('pagos')}"></div>
+    <div th:replace="~{vecino/fragments/topbarVecino :: topbar('Mis Reembolsos')}"></div>
+    <div th:replace="~{vecino/fragments/sidebarVecino :: sidebar('reembolsos')}"></div>
     <div class="main-content">
         <div class="page-content">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                            <h4 class="mb-sm-0">Mis Pagos</h4>
+                            <h4 class="mb-sm-0">Mis Reembolsos</h4>
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a th:href="@{/usuarios/pagos}">Pagos</a></li>
-                                    <li class="breadcrumb-item active">Mis Pagos</li>
+                                    <li class="breadcrumb-item"><a th:href="@{/usuarios/reembolsos}">Reembolsos</a></li>
+                                    <li class="breadcrumb-item active">Mis Reembolsos</li>
                                 </ol>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Reservas Pendientes sin Pagos -->
+                <!-- Usuarios sin Reservas -->
                 <div th:if="${!#lists.isEmpty(reservasPendientes)}">
                     <div class="card">
                         <div class="card-body pt-0">
-                            <h5 class="card-title mt-4">Reservas Pendientes de Pago</h5>
+                            <h5 class="card-title mt-4">Usuarios con reembolsos</h5>
                             <div class="table-responsive">
                                 <table class="table table-centered dt-responsive nowrap" style="width: 100%;">
                                     <thead class="thead-light">
@@ -58,11 +58,11 @@
                     <div class="card-body pt-0">
                         <ul class="nav nav-tabs nav-tabs-custom mb-4">
                             <li class="nav-item">
-                                <a class="nav-link fw-bold p-3 active" href="#">Mis pagos</a>
+                                <a class="nav-link fw-bold p-3 active" href="#">Mis reembolsos</a>
                             </li>
                         </ul>
                         <div th:if="${#lists.isEmpty(pagos)}">
-                            <p class="text-danger">No se encontraron pagos para este usuario.</p>
+                            <p class="text-danger">No se encontraron reembolsos para este usuario.</p>
                         </div>
                         <div th:if="${!#lists.isEmpty(pagos)}">
                             <p class="text-success">Sí hay pagos.</p>
