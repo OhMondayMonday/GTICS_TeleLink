@@ -1,0 +1,485 @@
+/* MODERN CALENDAR STYLES */
+:root {
+  --fc-border-color: #e5e7eb;
+  --fc-today-bg-color: rgba(59, 130, 246, 0.05);
+  --fc-neutral-bg-color: #fff;
+  --fc-list-event-hover-bg-color: #f9fafb;
+  --fc-button-text-color: #374151;
+  --fc-button-bg-color: #fff;
+  --fc-button-border-color: #d1d5db;
+  --fc-button-hover-bg-color: #f9fafb;
+  --fc-button-hover-border-color: #9ca3af;
+  --fc-button-active-bg-color: #3b82f6;
+  --fc-button-active-border-color: #2563eb;
+  --fc-event-bg-color: #3b82f6;
+  --fc-event-border-color: #2563eb;
+  --fc-now-indicator-color: #ef4444;
+  --fc-today-button-bg-color: #3b82f6;
+  --fc-today-button-border-color: #2563eb;
+}
+
+/* CALENDAR CONTAINER */
+.calendar-container {
+  height: 75vh;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--fc-border-color);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  background-color: var(--fc-neutral-bg-color);
+  padding: 0; /* Aseguramos que no haya padding interno que interfiera */
+}
+
+/* Aseguramos que el contenedor del calendario permita desplazamiento vertical */
+.fc, .fc .fc-view-harness {
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Configuramos el scroll apropiadamente */
+.fc .fc-scroller {
+  overflow-y: auto !important;
+  height: auto !important;
+  max-height: calc(100% - 50px) !important; /* Resta altura del toolbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 0;
+}
+
+/* BASE STYLES */
+.fc {
+  font-family: 'Inter-var', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* HEADER & TOOLBAR */
+.fc .fc-toolbar {
+  padding: 1rem;
+  margin-bottom: 0;
+  align-items: center;
+  border-bottom: 1px solid var(--fc-border-color);
+}
+
+.fc .fc-toolbar h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  color: #111827;
+}
+
+/* BUTTONS */
+.fc .fc-button-primary {
+  color: var(--fc-button-text-color);
+  background: var(--fc-button-bg-color);
+  border: 1px solid var(--fc-button-border-color);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.fc .fc-button-primary:hover {
+  color: var(--fc-button-text-color);
+  background-color: var(--fc-button-hover-bg-color);
+  border-color: var(--fc-button-hover-border-color);
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  color: #ffffff;
+  background-color: var(--fc-button-active-bg-color);
+  border-color: var(--fc-button-active-border-color);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.fc .fc-button-primary:disabled {
+  opacity: 0.65;
+}
+
+.fc .fc-today-button {
+  background-color: #eef3ff !important;
+  border: none !important;
+  color: #3b82f6 !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.375rem !important;
+}
+
+.fc .fc-today-button:hover {
+  background-color: #dbeafe !important;
+  color: #2563eb !important;
+}
+
+.fc .fc-prev-button, 
+.fc .fc-next-button {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #eef3ff !important;
+  color: #3b82f6 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.fc .fc-prev-button:hover, 
+.fc .fc-next-button:hover {
+  background-color: #dbeafe !important;
+  color: #2563eb !important;
+}
+
+/* DAYGRID */
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: var(--fc-today-bg-color);
+}
+
+/* Mejora para el día actual en vista de semana - solo sombreado sin bordes */
+.fc .fc-timegrid-col.fc-day-today {
+  background-color: var(--fc-today-bg-color);
+}
+
+.fc .fc-daygrid-day-frame {
+  min-height: 6rem;
+}
+
+.fc .fc-daygrid-day-top {
+  padding: 0.5rem;
+  justify-content: center;
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background-color: var(--fc-button-active-bg-color);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* HEADER CELLS */
+.fc .fc-col-header-cell {
+  padding: 0.5rem 0;
+  background-color: #f9fafb;
+  border-bottom: 1px solid var(--fc-border-color);
+}
+
+.fc .fc-col-header-cell.fc-day-today {
+  background-color: #f0f7ff;
+}
+
+.fc .fc-col-header-cell-cushion {
+  padding: 0.5rem;
+  font-weight: 600;
+  color: #4b5563;
+  text-decoration: none !important;
+  font-size: 0.875rem;
+}
+
+.fc .fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* TIME GRID */
+.fc .fc-timegrid-slot {
+  height: 3rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.fc .fc-timegrid-slot:hover {
+  background-color: rgba(249, 250, 251, 0.7);
+}
+
+.fc .fc-timegrid-axis {
+  padding: 0.5rem;
+}
+
+.fc .fc-timegrid-axis-cushion {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.fc .fc-timegrid-now-indicator-line {
+  border-color: var(--fc-now-indicator-color);
+  border-width: 2px;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+  border-color: var(--fc-now-indicator-color);
+  border-width: 5px;
+}
+
+/* EVENTS */
+.fc-event {
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.fc-event:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.fc-daygrid-event {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* SCROLLBAR STYLING */
+.fc .fc-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.fc .fc-scroller::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.fc .fc-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fc .fc-scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 20px;
+  border: 3px solid transparent;
+}
+
+/* Asegurar que el scroll funcione en vistas específicas */
+.fc-timegrid-body, .fc-daygrid-body {
+  overflow-y: auto !important;
+  height: auto !important;
+}
+
+/* Fijar la cabecera de las columnas */
+.fc .fc-timegrid-col-header, .fc .fc-daygrid-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #f9fafb;
+}
+
+/* ESTILOS PARA EVENTOS ESPECÍFICOS DE RESERVA (PRESERVAR) */
+.reserva-propia-confirmada {
+  background-color: rgb(28, 187, 140) !important;
+  border-color: rgb(25, 168, 126) !important;
+  color: white !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+  box-shadow: 0 2px 4px rgba(28, 187, 140, 0.3) !important;
+}
+
+.reserva-propia-pendiente {
+  background-color: #ffc107 !important; /* bg-warning */
+  border-color: #e0a800 !important;
+  color: #212529 !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3) !important;
+}
+
+.reserva-propia-en-proceso {
+  background-color: #3b82f6 !important; /* azul */
+  border-color: #2563eb !important;
+  color: white !important;
+  cursor: pointer !important;
+  font-weight: bold !important;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3) !important;
+}
+
+.reserva-ajena {
+  background-color: #9ca3af !important;
+  border-color: #6b7280 !important;
+  color: white !important;
+  cursor: default !important;
+  opacity: 0.8 !important;
+  pointer-events: none !important; /* Prevenir clicks */
+}
+
+/* ESTILOS PARA DETALLES DEL ESPACIO DEPORTIVO */
+.space-details .detail-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.space-details .detail-item:last-child {
+  border-bottom: none;
+}
+
+.space-details h6 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.space-details p {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.reservation-info ul li {
+  position: relative;
+  padding-left: 0.5rem;
+}
+
+.reservation-info .fa-info-circle {
+  color: #3b82f6;
+}
+
+/* ESTILOS PARA LA SECCIÓN DE DETALLES - MENOS COMPACTA */
+.space-details .d-flex {
+  font-size: 1rem;
+  padding: 0.3rem 0;
+}
+
+.space-details .d-flex span {
+  min-width: 90px;
+  font-weight: 500;
+}
+
+.card-img-top {
+  border-bottom: 1px solid var(--fc-border-color);
+}
+
+.space-details .fw-medium {
+  font-size: 1rem;
+}
+
+.space-details .text-success {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Mejorar el espaciado del card header */
+.space-details .card-header h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Iconos más grandes y mejor espaciado */
+.space-details .fas {
+  font-size: 1rem;
+}
+
+/* Descripción con mejor line-height */
+.space-details .lh-base {
+  line-height: 1.6;
+}
+
+/* Estilos para el mapa */
+.map-container {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.map-container:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.map-container iframe {
+  border-radius: 8px;
+}
+
+/* Tooltip personalizado para información de reservas */
+.tooltip .tooltip-inner {
+  max-width: 300px;
+  text-align: left;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.btn-link:focus {
+  box-shadow: none;
+}
+
+/* Mejoras para el estado del espacio */
+.badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* Mejoras para el layout de dos columnas */
+@media (max-width: 991.98px) {
+  .col-xl-3.col-lg-4 {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Responsive para la vista de detalles */
+@media (max-width: 992px) {
+  .space-details {
+    margin-bottom: 1rem;
+  }
+  
+  .calendar-container {
+    height: 60vh;
+  }
+}
+
+/* RESPONSIVE STYLES */
+@media (max-width: 768px) {
+  .fc .fc-toolbar {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1rem;
+  }
+  
+  .fc .fc-button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .fc .fc-view-harness {
+    height: 60vh !important;
+  }
+}
+
+.fc-daygrid-event {
+    cursor: default !important;
+    opacity: 0.8 !important;
+    pointer-events: none !important; /* Prevenir clicks */
+}
+
+/* Eliminar borde de puntos en eventos */
+.fc-daygrid-event-dot {
+    display: none;
+}
+
+/* Mejor aspecto para tiempos dentro de eventos */
+.fc-event-time {
+    font-weight: 500;
+}

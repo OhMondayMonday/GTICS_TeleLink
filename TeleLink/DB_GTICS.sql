@@ -388,7 +388,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
   `fin_reserva` TIMESTAMP NOT NULL,
   `numero_carril_piscina` INT NULL DEFAULT NULL,
   `numero_carril_pista` INT NULL DEFAULT NULL,
-  `estado` ENUM('pendiente', 'confirmada', 'cancelada','completada') NULL DEFAULT 'pendiente',
+  `estado` ENUM('pendiente', 'confirmada', 'cancelada','completada', 'en_proceso') NULL DEFAULT 'pendiente',
   `razon_cancelacion` TEXT NULL DEFAULT NULL,
   `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_actualizacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
