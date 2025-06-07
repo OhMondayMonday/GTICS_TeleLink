@@ -129,7 +129,7 @@ public class UsuarioController {
         model.addAttribute("activeItem", "inicio");
         model.addAttribute("ultimoAviso", ultimoAviso);
         model.addAttribute("canchasPopulares", canchasPopulares);
-        return "vecino/vecino-index";
+        return "Vecino/vecino-index";
     }
 
     @GetMapping("/reservas/{id}")
@@ -145,7 +145,7 @@ public class UsuarioController {
         }
         model.addAttribute("usuario", usuario);
 
-        return "vecino/vecino-servicioDeportivo";
+        return "Vecino/vecino-servicioDeportivo";
     }
 
     @GetMapping("/reembolsos")
@@ -168,14 +168,14 @@ public class UsuarioController {
     public String mostrarPerfil(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         model.addAttribute("usuario", usuario);
-        return "vecino/vecino-perfil";
+        return "Vecino/vecino-perfil";
     }
 
     @GetMapping("/editar-perfil")
     public String mostrarEditarPerfil(@ModelAttribute("usuario") Usuario usuarioActualizado, Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         model.addAttribute("usuario", usuario);
-        return "vecino/vecino-editarPerfil";
+        return "Vecino/vecino-editarPerfil";
     }
 
     @PostMapping("/actualizar-perfil")
@@ -207,7 +207,7 @@ public class UsuarioController {
             });
             model.addAttribute("usuario", usuario);
             model.addAttribute("org.springframework.validation.BindingResult.usuario", result);
-            return "vecino/vecino-editarPerfil";
+            return "Vecino/vecino-editarPerfil";
         }
 
         // Actualizar los campos permitidos (teléfono)
@@ -272,7 +272,7 @@ public class UsuarioController {
         model.addAttribute("pagos", pagos); // importante para mostrarlos en la vista
         model.addAttribute("activeItem", "pagos");
 
-        return "vecino/vecino-pago";
+        return "Vecino/vecino-pago";
     }
 
     /*
@@ -295,7 +295,7 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("reservasWithCancelFlag", reservasWithCancelFlag);
         model.addAttribute("activeItem", "reservas");
-        return "vecino/vecino-mis-reservas";
+        return "Vecino/vecino-mis-reservas";
     }*/
     @GetMapping("/mis-reservas")
     public String mostrarReservas(Model model, HttpSession session) {
@@ -321,7 +321,7 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("reservasWithCancelFlag", reservasWithCancelFlag);
         model.addAttribute("activeItem", "reservas");
-        return "vecino/vecino-mis-reservas";
+        return "Vecino/vecino-mis-reservas";
     }
 
     @PostMapping("/reserva/cancelar/{id}")
@@ -393,7 +393,7 @@ public class UsuarioController {
         model.addAttribute("usuario", usuario);
         model.addAttribute("espacios", espacios);
         model.addAttribute("activeItem", "canchas");
-        return "vecino/vecino-cancha";
+        return "Vecino/vecino-cancha";
     }
 
     // Endpoint para obtener espacios filtrados via AJAX
@@ -521,13 +521,13 @@ public class UsuarioController {
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "ayuda");
-        return "vecino/vecino-ayuda";
+        return "Vecino/vecino-ayuda";
     }
 
     @GetMapping("/calendario")
     public String mostrarCalendario(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
-        return "vecino/vecino-calendario";
+        return "Vecino/vecino-calendario";
     }    
     
     @GetMapping("/reservar/{espacioId}")
@@ -568,7 +568,7 @@ public class UsuarioController {
 
                 if (conflictos > 0) {
                     model.addAttribute("error", "Ya existe una reserva en este horario.");
-                    return "vecino/vecino-reservar";
+                    return "Vecino/vecino-reservar";
                 }
 
                 // Crear reserva en estado pendiente
@@ -616,7 +616,7 @@ public class UsuarioController {
             }
         }
 
-        return "vecino/vecino-reservar";
+        return "Vecino/vecino-reservar";
     }
 
     @PostMapping("/confirmar-reserva{espacioId}")
@@ -755,7 +755,7 @@ public class UsuarioController {
         model.addAttribute("espacioId", id);
         model.addAttribute("espacio", espacioDeportivo);
 
-        return "vecino/reservas-futbol-calendario";
+        return "Vecino/reservas-futbol-calendario";
     }
 
     // --- FLUJO DE PAGO DE RESERVA ---
@@ -777,7 +777,7 @@ public class UsuarioController {
             return "redirect:/usuarios/mis-reservas";
         }
         model.addAttribute("reserva", reserva);
-        return "vecino/vecino-reservar";
+        return "Vecino/vecino-reservar";
     }
 
     @PostMapping("/pagar/{reservaId}")
@@ -819,7 +819,7 @@ public class UsuarioController {
         }
         Reserva reserva = optReserva.get();
         model.addAttribute("reserva", reserva);
-        return "vecino/vecino-pago-tarjeta";
+        return "Vecino/vecino-pago-tarjeta";
     }
 
     @PostMapping("/pago-tarjeta/{reservaId}")
@@ -879,7 +879,7 @@ public class UsuarioController {
         }
         Reserva reserva = optReserva.get();
         model.addAttribute("reserva", reserva);
-        return "vecino/vecino-pago-deposito";
+        return "Vecino/vecino-pago-deposito";
     }
 
     @PostMapping("/pago-deposito/{reservaId}")
@@ -938,7 +938,7 @@ public class UsuarioController {
 
         model.addAttribute("reserva", reserva);
         model.addAttribute("activeItem", "reservas");
-        return "vecino/vecino-pagar";
+        return "Vecino/vecino-pagar";
     }
 
     // Procesar selección de método de pago
@@ -992,7 +992,7 @@ public class UsuarioController {
 
         model.addAttribute("reserva", reserva);
         model.addAttribute("activeItem", "reservas");
-        return "vecino/vecino-pago-tarjeta";
+        return "Vecino/vecino-pago-tarjeta";
     }
 
     // Procesar pago con tarjeta (simulado)
@@ -1108,7 +1108,7 @@ public class UsuarioController {
 
         model.addAttribute("reserva", reserva);
         model.addAttribute("activeItem", "reservas");
-        return "vecino/vecino-pago-deposito";
+        return "Vecino/vecino-pago-deposito";
     }
 
     // Procesar pago por depósito con subida de comprobante
