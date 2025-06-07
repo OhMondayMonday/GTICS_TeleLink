@@ -94,7 +94,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
            "WHERE r.espacio_deportivo_id = :espacioId " +
            "AND r.inicio_reserva < :fin " +
            "AND r.fin_reserva > :inicio " +
-           "AND r.estado IN ('pendiente', 'confirmada', 'en_proceso')",
+           "AND r.estado IN ('confirmada', 'en_proceso')",
            nativeQuery = true)
     long countActiveReservationConflicts(
             @Param("espacioId") Integer espacioId,
