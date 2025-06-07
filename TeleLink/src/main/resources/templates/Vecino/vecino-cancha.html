@@ -241,7 +241,7 @@
                                                     </p>
 
                                                     <!-- Botón -->
-                                                    <a th:href="@{'/usuarios/reservas/' + ${espacio.espacioDeportivoId}}"
+                                                    <a th:href="@{'/usuarios/reservasCalendario/' + ${espacio.espacioDeportivoId}}"
                                                        class="btn btn-sm btn-primary mt-2">Reservar</a>
                                                 </div>
                                             </div>
@@ -367,7 +367,7 @@
                                                 precio: `S/ ${espacio.precioPorHora}`,
                                                 tipo: mapearTipoServicio(espacio.servicioDeportivo.servicioDeportivo),
                                                 imagen: espacio.fotoEspacioDeportivoUrl || '/api/placeholder/400/320',
-                                                enlace: `/usuarios/reservas/${espacio.espacioDeportivoId}`,
+                                                enlace: `/usuarios/reservasCalendario/${espacio.espacioDeportivoId}`,
                                                 horario: formatearHorario(espacio.horarioApertura, espacio.horarioCierre),
                                                 caracteristicas: obtenerCaracteristicas(espacio),
                                                 estado: espacio.estadoServicio

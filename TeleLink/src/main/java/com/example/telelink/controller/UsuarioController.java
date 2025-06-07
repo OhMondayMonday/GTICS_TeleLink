@@ -23,9 +23,6 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.io.File;
-import java.io.IOException;
-
 import java.io.*;
 import java.net.*;
 import java.util.stream.Collectors;
@@ -33,11 +30,7 @@ import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 
 import com.example.telelink.dto.ReservaCalendarioDTO;
-import com.example.telelink.entity.EspacioDeportivo;
-import com.example.telelink.repository.EspacioDeportivoRepository;
-import com.example.telelink.repository.ReservaRepository;
-import com.example.telelink.repository.UsuarioRepository;
-import com.example.telelink.entity.Reserva;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -46,8 +39,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
@@ -1182,6 +1173,214 @@ public class UsuarioController {
     }
 
      */
+
+     @GetMapping("/pagar/{reservaId}")
+    public String mostrarPagoReserva(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
+            return "redirect:/usuarios/inicio";
+        }
+
+        Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
+        if (optReserva.isEmpty() || !optReserva.get().getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+            redirectAttributes.addFlashAttribute("error", "Reserva no encontrada o no autorizada");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        Reserva reserva = optReserva.get();
+        if (!reserva.getEstado().equals(Reserva.Estado.pendiente)) {
+            redirectAttributes.addFlashAttribute("error", "La reserva no está pendiente de pago");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        Optional<Pago> optPago = pagoRepository.findByReserva(reserva);
+        if (optPago.isPresent() && optPago.get().getEstadoTransaccion().equals(Pago.EstadoTransaccion.completado)) {
+            redirectAttributes.addFlashAttribute("error", "La reserva ya ha sido pagada");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        model.addAttribute("reserva", reserva);
+        model.addAttribute("activeItem", "reservas");
+        return "vecino/vecino-pagar";
+    }
+
+    // Procesar selección de método de pago
+    @PostMapping("/pagar/{reservaId}")
+    public String procesarMetodoPago(@PathVariable("reservaId") Integer reservaId,
+                                     @RequestParam("metodoPagoId") Integer metodoPagoId,
+                                     HttpSession session,
+                                     RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
+            return "redirect:/usuarios/inicio";
+        }
+
+        Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
+        if (optReserva.isEmpty() || !optReserva.get().getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+            redirectAttributes.addFlashAttribute("error", "Reserva no encontrada o no autorizada");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        if (metodoPagoId == 1) {
+            return "redirect:/usuarios/pago-tarjeta/" + reservaId;
+        } else if (metodoPagoId == 2) {
+            return "redirect:/usuarios/pago-deposito/" + reservaId;
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Método de pago no válido");
+            return "redirect:/usuarios/pagar/" + reservaId;
+        }
+    }
+
+    // Mostrar formulario de pago con tarjeta
+    @GetMapping("/pago-tarjeta/{reservaId}")
+    public String mostrarPagoTarjeta(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
+            return "redirect:/usuarios/inicio";
+        }
+
+        Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
+        if (optReserva.isEmpty() || !optReserva.get().getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+            redirectAttributes.addFlashAttribute("error", "Reserva no encontrada o no autorizada");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        Reserva reserva = optReserva.get();
+        if (!reserva.getEstado().equals(Reserva.Estado.pendiente)) {
+            redirectAttributes.addFlashAttribute("error", "La reserva no está pendiente de pago");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        model.addAttribute("reserva", reserva);
+        model.addAttribute("activeItem", "reservas");
+        return "vecino/vecino-pago-tarjeta";
+    }
+
+    // Procesar pago con tarjeta (simulado)
+    @PostMapping("/pago-tarjeta/{reservaId}")
+    public String procesarPagoTarjeta(@PathVariable("reservaId") Integer reservaId,
+                                      @RequestParam("numeroTarjeta") String numeroTarjeta,
+                                      @RequestParam("nombreTitular") String nombreTitular,
+                                      @RequestParam("fechaExpiracion") String fechaExpiracion,
+                                      @RequestParam("cvv") String cvv,
+                                      HttpSession session,
+                                      RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
+            return "redirect:/usuarios/inicio";
+        }
+
+        Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
+        if (optReserva.isEmpty() || !optReserva.get().getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+            redirectAttributes.addFlashAttribute("error", "Reserva no encontrada o no autorizada");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        Reserva reserva = optReserva.get();
+        if (!reserva.getEstado().equals(Reserva.Estado.pendiente)) {
+            redirectAttributes.addFlashAttribute("error", "La reserva no está pendiente de pago");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        // Validaciones de tarjeta
+        boolean isValid = true;
+        String errorMessage = "";
+        numeroTarjeta = numeroTarjeta.replaceAll("[^0-9]", "");
+        if (!numeroTarjeta.matches("\\d{16}")) {
+            isValid = false;
+            errorMessage = "El número de tarjeta debe tener 16 dígitos.";
+        } else if (!isValidLuhn(numeroTarjeta)) {
+            isValid = false;
+            errorMessage = "El número de tarjeta no es válido.";
+        }
+        if (nombreTitular == null || nombreTitular.trim().isEmpty()) {
+            isValid = false;
+            errorMessage = "El nombre del titular es requerido.";
+        }
+        if (!fechaExpiracion.matches("(0[1-9]|1[0-2])/\\d{2}")) {
+            isValid = false;
+            errorMessage = "La fecha de expiración debe estar en formato MM/AA.";
+        } else {
+            try {
+                String[] parts = fechaExpiracion.split("/");
+                int mes = Integer.parseInt(parts[0]);
+                int anio = Integer.parseInt(parts[1]) + 2000;
+                LocalDate expiryDate = LocalDate.of(anio, mes, 1);
+                if (expiryDate.isBefore(LocalDate.now().withDayOfMonth(1))) {
+                    isValid = false;
+                    errorMessage = "La tarjeta está vencida.";
+                }
+            } catch (Exception e) {
+                isValid = false;
+                errorMessage = "Formato de fecha de expiración inválido.";
+            }
+        }
+        if (!cvv.matches("\\d{3,4}")) {
+            isValid = false;
+            errorMessage = "El CVV debe tener 3 o 4 dígitos.";
+        }
+
+        // Calcular monto
+        long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
+        BigDecimal monto = reserva.getEspacioDeportivo().getPrecioPorHora().multiply(BigDecimal.valueOf(duracionHoras));
+
+        // Crear o actualizar pago
+        Optional<Pago> optPago = pagoRepository.findByReserva(reserva);
+        Pago pago = optPago.orElse(new Pago());
+        pago.setReserva(reserva);
+        pago.setMetodoPago(metodoPagoRepository.findById(1)
+                .orElseThrow(() -> new RuntimeException("Método de pago 'Pago Online' no encontrado")));
+        pago.setMonto(monto);
+        pago.setFechaPago(LocalDateTime.now());
+        pago.setDetallesTransaccion("Pago simulado con tarjeta terminada en " + numeroTarjeta.substring(12));
+
+        if (isValid) {
+            pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
+            reserva.setEstado(Reserva.Estado.completada);
+            reserva.setFechaActualizacion(LocalDateTime.now());
+            redirectAttributes.addFlashAttribute("mensaje", "Pago realizado con éxito");
+        } else {
+            pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
+            pago.setMotivoRechazo(errorMessage);
+            redirectAttributes.addFlashAttribute("error", "Pago rechazado: " + errorMessage);
+        }
+
+        pagoRepository.save(pago);
+        reservaRepository.save(reserva);
+        return "redirect:/usuarios/mis-reservas";
+    }
+
+    // Mostrar formulario de pago por depósito
+    @GetMapping("/pago-deposito/{reservaId}")
+    public String mostrarPagoDeposito(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
+            return "redirect:/usuarios/inicio";
+        }
+
+        Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
+        if (optReserva.isEmpty() || !optReserva.get().getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+            redirectAttributes.addFlashAttribute("error", "Reserva no encontrada o no autorizada");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        Reserva reserva = optReserva.get();
+        if (!reserva.getEstado().equals(Reserva.Estado.pendiente)) {
+            redirectAttributes.addFlashAttribute("error", "La reserva no está pendiente de pago");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        model.addAttribute("reserva", reserva);
+        model.addAttribute("activeItem", "reservas");
+        return "vecino/vecino-pago-deposito";
+    }
+
+    
     @PostMapping("/pago-deposito/{reservaId}")
     public String procesarPagoDeposito(@PathVariable("reservaId") Integer reservaId,
                                        @RequestParam("comprobante") MultipartFile comprobante,
@@ -1572,6 +1771,7 @@ public class UsuarioController {
             if (conflictos > 0) {
                 redirectAttributes.addFlashAttribute("conflictoDetectado", true);
                 redirectAttributes.addFlashAttribute("mensajeConflicto", "Ya existe otra reserva activa en este horario. Por favor, selecciona otro horario.");
+                System.out.println("Conflictos detectados en wasawasawa");
                 return "redirect:/usuarios/reservasCalendario/" + espacioId;
             }
 
