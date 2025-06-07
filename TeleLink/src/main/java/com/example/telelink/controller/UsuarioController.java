@@ -1202,7 +1202,7 @@ public class UsuarioController {
 
         model.addAttribute("reserva", reserva);
         model.addAttribute("activeItem", "reservas");
-        return "vecino/vecino-pagar";
+        return "Vecino/vecino-pagar";
     }
 
     // Procesar selección de método de pago
@@ -1256,7 +1256,7 @@ public class UsuarioController {
 
         model.addAttribute("reserva", reserva);
         model.addAttribute("activeItem", "reservas");
-        return "vecino/vecino-pago-tarjeta";
+        return "Vecino/vecino-pago-tarjeta";
     }
 
     // Procesar pago con tarjeta (simulado)
@@ -1377,7 +1377,7 @@ public class UsuarioController {
 
         model.addAttribute("reserva", reserva);
         model.addAttribute("activeItem", "reservas");
-        return "vecino/vecino-pago-deposito";
+        return "Vecino/vecino-pago-deposito";
     }
 
     
