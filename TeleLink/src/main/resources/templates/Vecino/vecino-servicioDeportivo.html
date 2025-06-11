@@ -49,7 +49,7 @@
                                                 <div class="card-body text-center py-3">
                                                     <h6 class="fw-semibold mb-3">Reserva tu horario</h6>
                                                     <div class="d-flex justify-content-center gap-2">
-                                                        <a th:src="@{${espacio.fotoEspacioDeportivoUrl}}" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
+                                                        <a th:href="@{'/usuarios/reservasCalendario/' + ${espacio.espacioDeportivoId}}" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
                                                             <i class="mdi mdi-calendar-clock me-1"></i> Ver horarios
                                                         </a>
                                                     </div>
@@ -107,7 +107,7 @@
                                                         <i class="mdi mdi-timer-sand text-warning me-2 fs-5"></i>
                                                         <span><strong>Estado:</strong>
                                                             <span th:text="${espacio.estadoServicio != null ? espacio.estadoServicio : 'Desconocido'}"
-                                                                  th:classappend="${espacio.estadoServicio == 'Disponible' ? 'text-success' : 'text-danger'}">
+                                                                  th:classappend="${espacio.estadoServicio == 'operativo' ? 'text-success' : 'text-danger'}">
                                                                 Estado
                                                             </span>
                                                         </span>
