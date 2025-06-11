@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Mis Reembolsos')}"></head>
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
@@ -56,27 +56,27 @@
                                     <td th:text="${#temporals.format(reembolso.pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
                                     <td th:text="'S/ ' + ${reembolso.monto}">S/ 0.00</td>
                                     <td>
-                                            <span th:switch="${reembolso.estado?.name()}">
-                                                <span th:case="'completado'"
-                                                      class="badge bg-success-subtle text-success"
-                                                      th:text="${#strings.toUpperCase(reembolso.estado)}">COMPLETADO
-                                                </span>
-                                                <span th:case="'pendiente'"
-                                                      class="badge bg-warning-subtle text-warning"
-                                                      th:text="${#strings.toUpperCase(reembolso.estado)}">PENDIENTE
-                                                </span>
-                                                <span th:case="'rechazado'"
-                                                      class="badge bg-danger-subtle text-danger"
-                                                      th:text="${#strings.toUpperCase(reembolso.estado)}">RECHAZADO
-                                                </span>
-                                                <span th:case="'cancelado'"
-                                                      class="badge bg-secondary-subtle text-secondary"
-                                                      th:text="${#strings.toUpperCase(reembolso.estado)}">CANCELADO
-                                                </span>
-                                                <span th:case="*"
-                                                      class="badge bg-info-subtle text-info">NO ELEGIBLE
-                                                </span>
+                                        <span th:switch="${reembolso.estado?.name()}">
+                                            <span th:case="'completado'"
+                                                  class="badge bg-success-subtle text-success"
+                                                  th:text="${#strings.toUpperCase(reembolso.estado)}">COMPLETADO
                                             </span>
+                                            <span th:case="'pendiente'"
+                                                  class="badge bg-warning-subtle text-warning"
+                                                  th:text="${#strings.toUpperCase(reembolso.estado)}">PENDIENTE
+                                            </span>
+                                            <span th:case="'rechazado'"
+                                                  class="badge bg-danger-subtle text-danger"
+                                                  th:text="${#strings.toUpperCase(reembolso.estado)}">RECHAZADO
+                                            </span>
+                                            <span th:case="'cancelado'"
+                                                  class="badge bg-secondary-subtle text-secondary"
+                                                  th:text="${#strings.toUpperCase(reembolso.estado)}">CANCELADO
+                                            </span>
+                                            <span th:case="*"
+                                                  class="badge bg-info-subtle text-info">NO ELEGIBLE
+                                            </span>
+                                        </span>
                                     </td>
                                     <td th:text="${reembolso.motivo} ?: 'Sin motivo'">Motivo</td>
                                     <td th:text="${#temporals.format(reembolso.fechaReembolso, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
@@ -103,7 +103,7 @@
                             </table>
                         </div>
                         <!-- Modal Comprobante -->
-                        <div class="modal fade" id="modalComprobante" tabindex="-1-2" aria-label="modalCompletado" aria-hidden="true">
+                        <div class="modal fade" id="modalComprobante" tabindex="-1" aria-labelledby="modal-header-label" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -117,10 +117,10 @@
                             </div>
                         </div>
                         <!-- Modal Detalles -->
-                        <div class="modal fade" id="modalDetalles" tabindex="-1-1" aria-label="modalDetallesTransaccion" aria-hidden="true">
+                        <div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content border-warning">
-                                    <div class="modal-header bg-warning-subtle">
+                                <div class="modal-content" id="modalDetallesContent">
+                                    <div class="modal-header" id="modalDetallesHeader">
                                         <h5 class="modal-title" id="modalDetallesLabel">Detalles del reembolso</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                     </div>
@@ -128,7 +128,7 @@
                                         <p class="mb-2">Estado del reembolso:</p>
                                         <div class="alert fw-semibold" id="textoEstado"></div>
                                         <p class="mb-2">Detalles:</p>
-                                        <div class="alert alert-warning fw-semibold" id="textoDetalles"></div>
+                                        <div class="alert fw-semibold" id="textoDetalles"></div>
                                         <hr>
                                         <p class="mb-2">¿Cómo proceder?</p>
                                         <ul class="mb-0" id="instruccionesEstado">
@@ -173,8 +173,8 @@
         modalComprobante.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             const imgSrc = button.getAttribute('data-img');
-            const img = modalComprobante.querySelector('#imgComprobante');
-            img.src = imgSrc;
+            const img = modalComprobante.querySelector('#image');
+            img.src = imgSrc || '/assets/images/placeholder.png'; // Fallback si la URL es inválida
         });
 
         // Script para cargar detalles en modal
@@ -186,22 +186,38 @@
             const textoDetalles = modalDetalles.querySelector('#textoDetalles');
             const textoEstado = modalDetalles.querySelector('#textoEstado');
             const instruccionesEstado = modalDetalles.querySelector('#instruccionesEstado');
+            const modalContent = modalDetalles.querySelector('#modalDetallesContent');
+            const modalHeader = modalDetalles.querySelector('#modalDetallesHeader');
 
+            // Actualizar contenido
             textoDetalles.textContent = detalles || 'Sin detalles disponibles.';
             textoEstado.textContent = (estado || 'No elegible').toUpperCase();
 
-            // Ajustar clase del estado
+            // Ajustar clases del estado
             textoEstado.className = 'alert fw-semibold';
+            modalContent.className = 'modal-content';
+            modalHeader.className = 'modal-header';
+
             if (estado === 'completado') {
                 textoEstado.classList.add('alert-success');
+                modalContent.classList.add('border-success');
+                modalHeader.classList.add('bg-success-subtle');
             } else if (estado === 'pendiente') {
                 textoEstado.classList.add('alert-warning');
+                modalContent.classList.add('border-warning');
+                modalHeader.classList.add('bg-warning-subtle');
             } else if (estado === 'rechazado') {
                 textoEstado.classList.add('alert-danger');
+                modalContent.classList.add('border-danger');
+                modalHeader.classList.add('bg-danger-subtle');
             } else if (estado === 'cancelado') {
                 textoEstado.classList.add('alert-secondary');
+                modalContent.classList.add('border-secondary');
+                modalHeader.classList.add('bg-secondary-subtle');
             } else {
                 textoEstado.classList.add('alert-info');
+                modalContent.classList.add('border-info');
+                modalHeader.classList.add('bg-info-subtle');
             }
 
             // Instrucciones dinámicas según el estado

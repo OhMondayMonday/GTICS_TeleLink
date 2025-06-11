@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headList.html :: headList(title='Detalle de Reembolso')}">
+    <meta charset="UTF-8">
+</head>
+<body class="vertical-collpsed" data-sidebar="dark">
+<div id="layout-wrapper">
+    <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Detalle Reembolso')}"></div>
+
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title mb-4 fw-semibold mt-3">Detalle de Reembolso</h4>
+
+                                <!-- Mostrar mensajes flash -->
+                                <div th:if="${message}" class="alert" th:classappend="${messageType == 'success' ? 'alert-success' : 'alert-danger'}">
+                                    <span th:text="${message}"></span>
+                                </div>
+
+                                <!-- Motivo -->
+                                <div class="mb-4">
+                                    <label class="form-label">Motivo</label>
+                                    <textarea class="form-control border-0 bg-light" rows="3"
+                                              th:text="${reembolso.motivo}"
+                                              readonly disabled></textarea>
+                                </div>
+
+                                <!-- Fecha de Reembolso and Monto -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha de Reembolso</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${#temporals.format(reembolso.fechaReembolso, 'dd/MM/yyyy HH:mm')} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Monto</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="'S/ ' + ${reembolso.monto}"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Estado and Usuario -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Estado</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${#strings.capitalizeWords(#strings.replace(reembolso.estado.name(), '_', ' '))}"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Usuario</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${reembolso.pago.reserva.usuario.nombres} + ' ' + ${reembolso.pago.reserva.usuario.apellidos}"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Espacio Deportivo and Establecimiento Deportivo -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Espacio Deportivo</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${reembolso.pago.reserva.espacioDeportivo?.nombre} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Establecimiento Deportivo</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${reembolso.pago.reserva.espacioDeportivo?.establecimientoDeportivo?.establecimientoDeportivoNombre} ?: 'N/A'"
+                                               readonly disabled />
+                                    </div>
+                                </div>
+
+                                <!-- Foto de Comprobación (si existe) -->
+                                <div class="mb-4" th:if="${reembolso.fotoComprobacionReembolsoUrl != null}">
+                                    <label class="form-label">Foto de Comprobación</label>
+                                    <div class="text-center mt-3">
+                                        <img th:src="${reembolso.fotoComprobacionReembolsoUrl} ?: '/assets/images/placeholder.png'"
+                                             alt="Foto de comprobación"
+                                             class="img-fluid rounded border"
+                                             style="max-height: 400px;" />
+                                    </div>
+                                </div>
+
+                                <!-- Formulario para completar reembolso -->
+                                <div th:if="${reembolso.estado.name() == 'pendiente'}">
+                                    <form method="post" th:action="@{/admin/reembolsos/completar}" enctype="multipart/form-data">
+                                        <input type="hidden" name="id" th:value="${reembolso.reembolsoId}" />
+                                        <div class="mb-4">
+                                            <label for="fotoComprobante" class="form-label">Foto de Comprobación <span class="text-danger">*</span></label>
+                                            <input type="file" class="form-control" name="fotoComprobante" id="fotoComprobante"
+                                                   accept="image/jpeg,image/png,image/jpg"
+                                                   required />
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="detallesTransaccion" class="form-label">Detalles de la Transacción</label>
+                                            <textarea name="detallesTransaccion" id="detallesTransaccion" rows="4"
+                                                      class="form-control" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Completar Reembolso</button>
+                                        <a th:href="@{/admin/reembolsos}" class="btn btn-secondary ms-2">Cancelar</a>
+                                    </form>
+                                </div>
+                                <div th:if="${reembolso.estado.name() == 'completado'}">
+                                    <p class="text-muted">El reembolso ya fue completado.</p>
+                                </div>
+                                <div th:if="${reembolso.estado.name() == 'rechazado'}">
+                                    <p class="text-muted">El reembolso fue rechazado.</p>
+                                </div>
+                                <div th:if="${reembolso.estado.name() == 'cancelado'}">
+                                    <p class="text-muted">El reembolso fue cancelado.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+    </div>
+</div>
+
+<div class="sidebar-overlay"></div>
+<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+</body>
+</html>
