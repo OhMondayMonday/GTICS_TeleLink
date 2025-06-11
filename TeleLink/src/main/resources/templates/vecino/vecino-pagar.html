@@ -22,7 +22,7 @@
           <div class="col-lg-8 offset-lg-2">
             <div class="card">
               <div class="card-body">
-                <h4 class="card-title mb-4">Resumen de la reserva</h4>
+                <h4 class="card-title text-center mb-4">Resumen de la reserva</h4>
 
                 <!-- Detalles de la reserva -->
                 <div class="mb-4 bg-light p-3 rounded-3">
@@ -39,7 +39,7 @@
 
                 <form th:action="@{/usuarios/pagar/{id}(id=${reserva.reservaId})}" method="post">
                   <div class="mb-4">
-                    <label class="form-label fw-semibold mb-3 d-block">Elige tu método de pago preferido</label>
+                    <label class="form-label fw-semibold mb-3 d-block">Elige tu método de pago preferido:</label>
 
                     <div class="row g-3">
                       <!-- Pago Online -->

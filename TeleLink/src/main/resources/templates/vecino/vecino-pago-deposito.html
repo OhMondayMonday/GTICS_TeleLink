@@ -17,24 +17,29 @@
                     <span th:text="${error}"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="row">
-                    <div class="col-lg-6 offset-lg-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title mb-4">Pago por Depósito Bancario</h4>
-                                <div class="mb-3">
-                                    <p><strong>Espacio:</strong> <span th:text="${reserva.espacioDeportivo.nombre}"></span></p>
-                                    <p><strong>Fecha:</strong> <span th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}"></span> hasta <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}"></span></p>
-                                    <p><strong>Monto Total:</strong>
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card shadow-lg border-0 rounded-4">
+                            <div class="card-body p-4">
+                                <h3 class="card-title text-center mb-4">Pago por Depósito Bancario</h3>
+
+                                <!-- Detalles de la reserva -->
+                                <div class="mb-4 bg-light p-3 rounded-3 border">
+                                    <p class="mb-1"><i class="bi bi-geo-alt-fill text-primary me-2"></i><strong>Espacio:</strong> <span th:text="${reserva.espacioDeportivo.nombre}"></span></p>
+                                    <p class="mb-1"><i class="bi bi-calendar-event-fill text-success me-2"></i><strong>Fecha:</strong>
+                                        <span th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}"></span>
+                                        hasta <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}"></span></p>
+                                    <p class="mb-0"><i class="bi bi-cash-coin text-warning me-2"></i><strong>Monto Total:</strong>
                                         <span th:with="duracion=${T(java.time.Duration).between(reserva.inicioReserva, reserva.finReserva).toHours()},
-                                                           precioTotal=${reserva.espacioDeportivo.precioPorHora.multiply(duracion)}"
+                            precioTotal=${reserva.espacioDeportivo.precioPorHora.multiply(duracion)}"
                                               th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}"></span>
                                     </p>
                                 </div>
+
                                 <div class="mb-4">
-                                    <h5>Instrucciones para el Depósito</h5>
-                                    <p>Realice el depósito a la siguiente cuenta bancaria:</p>
-                                    <ul>
+                                    <h5 class="fw-bold">Instrucciones para el Depósito</h5>
+                                    <p class="mb-1">Realice el depósito a la siguiente cuenta bancaria:</p>
+                                    <ul class="list-unstyled ms-3">
                                         <li><strong>Banco:</strong> BCP</li>
                                         <li><strong>Número de Cuenta:</strong> 123-456-789012-34</li>
                                         <li><strong>Titular:</strong> Telelink S.A.</li>
@@ -44,11 +49,14 @@
                                                   th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}"></span>
                                         </li>
                                     </ul>
-                                    <p>Una vez realizado el depósito, suba el comprobante en el formulario a continuación.</p>
+                                    <p class="mb-0">Una vez realizado el depósito, suba el comprobante en el formulario a continuación:</p>
                                 </div>
                                 <form th:action="@{/usuarios/pago-deposito/{id}(id=${reserva.reservaId})}" method="post" enctype="multipart/form-data" id="depositForm">
                                     <div class="mb-3">
-                                        <label for="comprobante" class="form-label">Comprobante de Pago</label>
+                                        <label for="comprobante" class="form-label">
+                                            <i class="bi bi-receipt-cutoff me-1"></i> Comprobante de Pago
+                                        </label>
+
                                         <input type="file" class="form-control" id="comprobante" name="comprobante" accept="image/jpeg,image/png,image/jpg,application/pdf" required>
                                         <small class="form-text text-muted">Formatos aceptados: JPEG, PNG, JPG, PDF</small>
                                     </div>
