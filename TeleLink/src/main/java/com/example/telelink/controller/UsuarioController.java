@@ -315,6 +315,7 @@ public class UsuarioController {
         return "Vecino/vecino-mis-reservas";
     }
 
+    /*
     @PostMapping("/reserva/cancelar/{id}")
     public String cancelarReserva(@PathVariable("id") Integer id,
                                   @RequestParam(required = false) String razon,
@@ -366,6 +367,82 @@ public class UsuarioController {
                 // pago.setEstado("reembolsado");
                 // pagoRepository.save(pago);
             }
+        }
+
+        redirectAttributes.addFlashAttribute("success", mensaje);
+        return "redirect:/usuarios/mis-reservas";
+    }
+    */
+
+    @PostMapping("/reserva/cancelar/{id}")
+    public String cancelarReserva(@PathVariable("id") Integer id,
+                                  @RequestParam(required = false) String razon,
+                                  RedirectAttributes redirectAttributes,
+                                  HttpSession session) {
+
+        // Obtener el usuario actual de la sesión
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/usuarios/inicio";
+        }
+
+        // Buscar la reserva por ID
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva no encontrada"));
+
+        // Verificar que la reserva pertenezca al usuario actual
+        if (!reserva.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permiso para cancelar esta reserva");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        // Verificar si la cancelación es con menos de 48 horas de anticipación
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime limite = reserva.getInicioReserva().minusHours(48);
+        boolean dentroDe48Horas = ahora.isAfter(limite);
+
+        // Cambiar el estado de la reserva a cancelada
+        reserva.setEstado(Reserva.Estado.cancelada);
+        reserva.setRazonCancelacion(razon != null ? razon : "Cancelación por el usuario");
+        reserva.setFechaActualizacion(LocalDateTime.now());
+        reservaRepository.save(reserva);
+
+        // Buscar el pago asociado a la reserva
+        Optional<Pago> pagoOptional = pagoRepository.findByReserva(reserva);
+        String mensaje;
+
+        if (pagoOptional.isPresent()) {
+            Pago pago = pagoOptional.get();
+
+            if (!dentroDe48Horas) {
+                // Elegible para reembolso (cancelación con 48+ horas de anticipación)
+                Reembolso reembolso = new Reembolso();
+                reembolso.setMonto(pago.getMonto());
+                reembolso.setMotivo(razon != null ? razon : "Cancelación de reserva");
+                reembolso.setFechaReembolso(LocalDateTime.now());
+                reembolso.setPago(pago);
+
+                // Verificar el método de pago
+                if (pago.getMetodoPago().getMetodoPago().equals("Pago Online")) {
+                    // Reembolso instantáneo para Pago Online
+                    reembolso.setEstado(Reembolso.Estado.completado);
+                    reembolso.setDetallesTransaccion("Reembolso procesado automáticamente para Pago Online");
+                    mensaje = "Reserva cancelada y reembolso procesado automáticamente.";
+                } else {
+                    // Depósito Bancario: requiere aprobación del administrador
+                    reembolso.setEstado(Reembolso.Estado.pendiente);
+                    reembolso.setDetallesTransaccion("Esperando aprobación del administrador");
+                    mensaje = "Reserva cancelada. El reembolso está pendiente de aprobación.";
+                }
+
+                reembolsoRepository.save(reembolso);
+            } else {
+                // No elegible para reembolso
+                mensaje = "Reserva cancelada, pero no se procesó reembolso debido a cancelación con menos de 48 horas.";
+            }
+        } else {
+            // No hay pago asociado
+            mensaje = "Reserva cancelada correctamente. No se encontró un pago asociado.";
         }
 
         redirectAttributes.addFlashAttribute("success", mensaje);

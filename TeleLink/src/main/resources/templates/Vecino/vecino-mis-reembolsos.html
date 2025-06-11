@@ -21,11 +21,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Usuarios sin Reembolsos -->
-                <div th:if="${#lists.isEmpty(reembolsos)}">
-                    <p class="text-danger">No se encontraron reembolsos para este usuario.</p>
-                </div>
-                <!-- Usuario con Reembolsos Existentes -->
                 <div class="card">
                     <div class="card-body pt-0">
                         <ul class="nav nav-tabs nav-tabs-custom mb-4">
@@ -42,44 +37,48 @@
                         <div class="table-responsive">
                             <table id="tablaReembolso" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                 <thead class="thead-light">
-                                    <tr>
-                                        <th>ID Reembolso</th>
-                                        <th>ID Pago</th>
-                                        <th>Monto</th>
-                                        <th>Estado</th>
-                                        <th>Motivo</th>
-                                        <th>Fecha Reembolso</th>
-                                        <th>Comprobante</th>
-                                        <th>Detalles Transacción</th>
-                                    </tr>
+                                <tr>
+                                    <th></th>
+                                    <th>Servicio Deportivo</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                    <th>Motivo</th>
+                                    <th>Fecha Reembolso</th>
+                                    <th>Comprobante</th>
+                                    <th>Detalles</th>
+                                </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="reembolso : ${reembolsos}">
-                                    <td th:text="${reembolso.reembolsoId}">1</td>
-                                    <td th:text="${reembolso.pago.pagoId}">123</td>
+                                    <td></td>
+                                    <td th:text="${reembolso.pago.reserva.espacioDeportivo.nombre}">Nombre</td>
+                                    <td th:text="${#temporals.format(reembolso.pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
                                     <td th:text="'S/ ' + ${reembolso.monto}">S/ 0.00</td>
                                     <td>
-                                        <span th:switch="${reembolso.estado}">
-                                          <span th:case="'completado'"
-                                                class="badge bg-success-subtle text-success"
-                                                th:text="${reembolso.estado}">completado
-                                          </span>
-                                          <span th:case="'pendiente'"
-                                                class="badge bg-warning-subtle text-warning"
-                                                th:text="${reembolso.estado}">pendiente
-                                          </span>
-                                          <span th:case="'rechazado'" class="badge bg-danger-subtle text-danger"
-                                                th:text="${reembolso.estado}">rechazado
-                                          </span>
-                                          <span th:case="'cancelado'"
-                                                class="badge bg-secondary-subtle text-secondary"
-                                                th:text="${reembolso.estado}">cancelado
-                                          </span>
-                                          <span th:case="*">Desconocido</span>
-                                        </span>
+                                            <span th:switch="${reembolso.estado?.name()}">
+                                                <span th:case="'completado'"
+                                                      class="badge bg-success-subtle text-success"
+                                                      th:text="${#strings.toUpperCase(reembolso.estado)}">COMPLETADO
+                                                </span>
+                                                <span th:case="'pendiente'"
+                                                      class="badge bg-warning-subtle text-warning"
+                                                      th:text="${#strings.toUpperCase(reembolso.estado)}">PENDIENTE
+                                                </span>
+                                                <span th:case="'rechazado'"
+                                                      class="badge bg-danger-subtle text-danger"
+                                                      th:text="${#strings.toUpperCase(reembolso.estado)}">RECHAZADO
+                                                </span>
+                                                <span th:case="'cancelado'"
+                                                      class="badge bg-secondary-subtle text-secondary"
+                                                      th:text="${#strings.toUpperCase(reembolso.estado)}">CANCELADO
+                                                </span>
+                                                <span th:case="*"
+                                                      class="badge bg-info-subtle text-info">NO ELEGIBLE
+                                                </span>
+                                            </span>
                                     </td>
-
-                                    <td th:text="${reembolso.motivo}">Motivo</td>
+                                    <td th:text="${reembolso.motivo} ?: 'Sin motivo'">Motivo</td>
                                     <td th:text="${#temporals.format(reembolso.fechaReembolso, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary"
@@ -95,7 +94,7 @@
                                         <button class="btn btn-sm btn-outline-warning"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#modalDetalles"
-                                                th:attr="data-detalles=${reembolso.detallesTransaccion}">
+                                                th:attr="data-detalles=${reembolso.detallesTransaccion}, data-estado=${reembolso.estado?.name()}">
                                             Ver detalles
                                         </button>
                                     </td>
@@ -104,30 +103,37 @@
                             </table>
                         </div>
                         <!-- Modal Comprobante -->
-                        <div class="modal fade" id="modalComprobante" tabindex="-1" aria-labelledby="modalComprobanteLabel" aria-hidden="true">
+                        <div class="modal fade" id="modalComprobante" tabindex="-1-2" aria-label="modalCompletado" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="modalComprobanteLabel">Imagen del comprobante</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        <h5 class="modal-title" id="modal-header-label">Imagen de Comprobante</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <img id="imgComprobante" src="" alt="Comprobante" class="img-fluid">
+                                        <img id="image" src="" alt="Comprobante" class="img-fluid">
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                         <!-- Modal Detalles -->
-                        <div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
+                        <div class="modal fade" id="modalDetalles" tabindex="-1-1" aria-label="modalDetallesTransaccion" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content border-warning">
                                     <div class="modal-header bg-warning-subtle">
-                                        <h5 class="modal-title" id="modalDetallesLabel">Detalles de la transacción</h5>
+                                        <h5 class="modal-title" id="modalDetallesLabel">Detalles del reembolso</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <p id="textoDetalles"></p>
+                                        <p class="mb-2">Estado del reembolso:</p>
+                                        <div class="alert fw-semibold" id="textoEstado"></div>
+                                        <p class="mb-2">Detalles:</p>
+                                        <div class="alert alert-warning fw-semibold" id="textoDetalles"></div>
+                                        <hr>
+                                        <p class="mb-2">¿Cómo proceder?</p>
+                                        <ul class="mb-0" id="instruccionesEstado">
+                                            <!-- Instrucciones dinámicas se llenan vía JavaScript -->
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -161,48 +167,79 @@
 <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
 <script th:src="@{/assets/js/app.js}"></script>
 <script>
-    // Script para cargar imagen en modal comprobante
-    var modalComprobante = document.getElementById('modalComprobante')
-    modalComprobante.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget
-        var imgSrc = button.getAttribute('data-img')
-        var img = modalComprobante.querySelector('#imgComprobante')
-        img.src = imgSrc
-    })
-
-    // Script para cargar detalles en modal
-    var modalDetalles = document.getElementById('modalDetalles')
-    modalDetalles.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget
-        var detalles = button.getAttribute('data-detalles')
-        var textoDetalles = modalDetalles.querySelector('#textoDetalles')
-        textoDetalles.textContent = detalles || 'No hay detalles disponibles.'
-    })
     document.addEventListener('DOMContentLoaded', function () {
-        const facturaButtons = document.querySelectorAll('[data-bs-target="#modalFactura"]');
-        facturaButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const factura = this.getAttribute('data-factura');
-                document.getElementById('facturaImagen').src = factura;
-            });
+        // Script para cargar imagen en modal comprobante
+        const modalComprobante = document.getElementById('modalComprobante');
+        modalComprobante.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const imgSrc = button.getAttribute('data-img');
+            const img = modalComprobante.querySelector('#imgComprobante');
+            img.src = imgSrc;
         });
 
-        const modalRechazo = document.getElementById('modalRechazo');
-        modalRechazo.addEventListener('show.bs.modal', function (event) {
+        // Script para cargar detalles en modal
+        const modalDetalles = document.getElementById('modalDetalles');
+        modalDetalles.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
-            const estado = button.getAttribute('data-estado');
-            const motivo = button.getAttribute('data-motivo');
             const detalles = button.getAttribute('data-detalles');
-            const textoDetalle = modalRechazo.querySelector('#textoDetalle');
-            if (estado.toLowerCase() === 'fallido') {
-                textoDetalle.textContent = motivo ? motivo : 'Sin motivo especificado.';
+            const estado = button.getAttribute('data-estado');
+            const textoDetalles = modalDetalles.querySelector('#textoDetalles');
+            const textoEstado = modalDetalles.querySelector('#textoEstado');
+            const instruccionesEstado = modalDetalles.querySelector('#instruccionesEstado');
+
+            textoDetalles.textContent = detalles || 'Sin detalles disponibles.';
+            textoEstado.textContent = (estado || 'No elegible').toUpperCase();
+
+            // Ajustar clase del estado
+            textoEstado.className = 'alert fw-semibold';
+            if (estado === 'completado') {
+                textoEstado.classList.add('alert-success');
+            } else if (estado === 'pendiente') {
+                textoEstado.classList.add('alert-warning');
+            } else if (estado === 'rechazado') {
+                textoEstado.classList.add('alert-danger');
+            } else if (estado === 'cancelado') {
+                textoEstado.classList.add('alert-secondary');
             } else {
-                textoDetalle.textContent = detalles ? detalles : 'Sin detalles disponibles.';
+                textoEstado.classList.add('alert-info');
             }
+
+            // Instrucciones dinámicas según el estado
+            let instrucciones = '';
+            if (estado === 'completado') {
+                instrucciones = `
+                    <li>Tu reembolso ha sido procesado exitosamente.</li>
+                    <li>El monto ya ha sido devuelto a tu cuenta o método de pago.</li>
+                    <li>Si no ves el reembolso reflejado, contáctanos a través del área de soporte.</li>
+                `;
+            } else if (estado === 'pendiente') {
+                instrucciones = `
+                    <li>Tu reembolso está en espera de aprobación por el administrador.</li>
+                    <li>Por favor, espera la confirmación. Esto puede tomar hasta 48 horas.</li>
+                    <li>Si tienes dudas, contáctanos a través del área de soporte.</li>
+                `;
+            } else if (estado === 'rechazado') {
+                instrucciones = `
+                    <li>Tu reembolso fue rechazado por el administrador.</li>
+                    <li>Revisa los detalles para conocer el motivo del rechazo.</li>
+                    <li>Si necesitas más información, contáctanos a través del área de soporte.</li>
+                `;
+            } else if (estado === 'cancelado') {
+                instrucciones = `
+                    <li>El reembolso fue cancelado, posiblemente por decisión tuya o del administrador.</li>
+                    <li>Si crees que esto es un error, contáctanos a través del área de soporte.</li>
+                `;
+            } else {
+                instrucciones = `
+                    <li>Tu cancelación no fue elegible para reembolso, probablemente porque se realizó con menos de 48 horas de anticipación.</li>
+                    <li>Si tienes dudas, contáctanos a través del área de soporte.</li>
+                `;
+            }
+            instruccionesEstado.innerHTML = instrucciones;
         });
 
         // Inicializar DataTable
-        $('#tablaPagos').DataTable({
+        $('#tablaReembolso').DataTable({
             responsive: true,
             columnDefs: [{ orderable: false, targets: [0, 7, 8] }]
         });

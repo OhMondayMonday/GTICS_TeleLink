@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Mis pagos')}"></head>
+<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Mis Pagos')}"></head>
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
-    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Mis pagos')}"></div>
+    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Mis Pagos')}"></div>
     <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('pagos')}"></div>
     <div class="main-content">
         <div class="page-content">
@@ -78,48 +78,52 @@
                                     <th>Método de Pago</th>
                                     <th>Total</th>
                                     <th>Estado</th>
-                                    <th>Comprobante de Transacción</th>
+                                    <th>Comprobante</th>
                                     <th>Detalles</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="pago, iStat : ${pagos}">
+                                <tr th:each="pago : ${pagos}">
                                     <td></td>
                                     <td th:text="${pago.reserva.espacioDeportivo.nombre}">Nombre</td>
                                     <td th:text="${#temporals.format(pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
                                     <td th:text="${pago.reserva.usuario.nombres + ' ' + pago.reserva.usuario.apellidos}">Usuario</td>
-                                    <td th:text="${pago.metodoPago.metodoPago}">Metodo</td>
+                                    <td th:text="${pago.metodoPago.metodoPago}">Método</td>
                                     <td th:text="'S/ ' + ${pago.monto}">Monto</td>
                                     <td>
-                                            <span th:if="${pago.estadoTransaccion == 'completado'}"
+                                        <span th:switch="${pago.estadoTransaccion?.name()}">
+                                            <span th:case="'completado'"
                                                   class="badge bg-success-subtle text-success"
-                                                  th:text="${pago.estadoTransaccion}">
+                                                  th:text="${#strings.toUpperCase(pago.estadoTransaccion)}">COMPLETADO
                                             </span>
-                                        <span th:if="${pago.estadoTransaccion == 'pendiente'}"
-                                              class="badge bg-warning-subtle text-warning"
-                                              th:text="${pago.estadoTransaccion}">
+                                            <span th:case="'pendiente'"
+                                                  class="badge bg-warning-subtle text-warning"
+                                                  th:text="${#strings.toUpperCase(pago.estadoTransaccion)}">PENDIENTE
                                             </span>
-                                        <span th:if="${pago.estadoTransaccion != 'completado' and pago.estadoTransaccion != 'pendiente'}"
-                                              class="badge bg-danger-subtle text-danger"
-                                              th:text="${pago.estadoTransaccion}">
+                                            <span th:case="'fallido'"
+                                                  class="badge bg-danger-subtle text-danger"
+                                                  th:text="${#strings.toUpperCase(pago.estadoTransaccion)}">FALLIDO
                                             </span>
+                                        </span>
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary"
-                                                th:if="${pago.metodoPago.metodoPago == 'Depósito Bancario'}"
+                                                th:if="${pago.metodoPago.metodoPago == 'Depósito Bancario' and pago.fotoComprobanteUrl != null}"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#modalFactura"
-                                                th:attr="data-factura=${pago.fotoComprobanteUrl}">
+                                                data-bs-target="#modalComprobante"
+                                                th:attr="data-img=${pago.fotoComprobanteUrl}">
                                             Ver imagen
                                         </button>
+                                        <span th:if="${pago.metodoPago.metodoPago == 'Depósito Bancario' and pago.fotoComprobanteUrl == null}">No disponible</span>
+                                        <span th:if="${pago.metodoPago.metodoPago == 'Pago online'}">No aplica</span>
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-warning"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#modalRechazo"
-                                                th:attr="data-estado=${pago.estadoTransaccion},
-                                                             data-motivo=${pago.motivoRechazo},
-                                                             data-detalles=${pago.detallesTransaccion}">
+                                                data-bs-target="#modalDetalles"
+                                                th:attr="data-estado=${pago.estadoTransaccion?.name()},
+                                                         data-motivo=${pago.motivoRechazo},
+                                                         data-detalles=${pago.detallesTransaccion}">
                                             Ver detalles
                                         </button>
                                     </td>
@@ -127,36 +131,37 @@
                                 </tbody>
                             </table>
                         </div>
-                        <!-- Modal Factura -->
-                        <div class="modal fade" id="modalFactura" tabindex="-1" aria-labelledby="modalFacturaLabel" aria-hidden="true">
+                        <!-- Modal Comprobante -->
+                        <div class="modal fade" id="modalComprobante" tabindex="-1" aria-labelledby="modalComprobanteLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="modalFacturaLabel">Imagen de la factura</h5>
+                                        <h5 class="modal-title" id="modalComprobanteLabel">Imagen del comprobante</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <img id="facturaImagen" src="" alt="Factura" class="img-fluid">
+                                        <img id="imgComprobante" src="" alt="Comprobante" class="img-fluid">
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- Modal Rechazo -->
-                        <div class="modal fade" id="modalRechazo" tabindex="-1" aria-labelledby="modalRechazoLabel" aria-hidden="true">
+                        <!-- Modal Detalles -->
+                        <div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content border-warning">
                                     <div class="modal-header bg-warning-subtle">
-                                        <h5 class="modal-title" id="modalRechazoLabel">Detalle de la transacción</h5>
+                                        <h5 class="modal-title" id="modalDetallesLabel">Detalles del pago</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <p class="mb-2">Hemos detectado lo siguiente con tu transacción:</p>
-                                        <div class="alert alert-warning fw-semibold" id="textoDetalle"></div>
+                                        <p class="mb-2">Estado del pago:</p>
+                                        <div class="alert fw-semibold" id="textoEstado"></div>
+                                        <p class="mb-2">Detalles:</p>
+                                        <div class="alert alert-warning fw-semibold" id="textoDetalles"></div>
                                         <hr>
-                                        <p class="mb-2">¿Cómo puedo solucionarlo?</p>
-                                        <ul class="mb-0">
-                                            <li>Si el motivo está relacionado con el comprobante, intenta subir una imagen clara y legible.</li>
-                                            <li>Si el inconveniente persiste o tienes dudas, <strong>contáctanos a través del área de soporte</strong>.</li>
+                                        <p class="mb-2">¿Cómo proceder?</p>
+                                        <ul class="mb-0" id="instruccionesEstado">
+                                            <!-- Instrucciones dinámicas se llenan vía JavaScript -->
                                         </ul>
                                     </div>
                                 </div>
@@ -192,26 +197,61 @@
 <script th:src="@{/assets/js/app.js}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const facturaButtons = document.querySelectorAll('[data-bs-target="#modalFactura"]');
-        facturaButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const factura = this.getAttribute('data-factura');
-                document.getElementById('facturaImagen').src = factura;
-            });
+        // Script para cargar imagen en modal comprobante
+        const modalComprobante = document.getElementById('modalComprobante');
+        modalComprobante.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const imgSrc = button.getAttribute('data-img');
+            const img = modalComprobante.querySelector('#imgComprobante');
+            img.src = imgSrc;
         });
 
-        const modalRechazo = document.getElementById('modalRechazo');
-        modalRechazo.addEventListener('show.bs.modal', function (event) {
+        // Script para cargar detalles en modal
+        const modalDetalles = document.getElementById('modalDetalles');
+        modalDetalles.addEventListener('show.bs.modal', function (event) {
             const button = event.relatedTarget;
             const estado = button.getAttribute('data-estado');
             const motivo = button.getAttribute('data-motivo');
             const detalles = button.getAttribute('data-detalles');
-            const textoDetalle = modalRechazo.querySelector('#textoDetalle');
-            if (estado.toLowerCase() === 'fallido') {
-                textoDetalle.textContent = motivo ? motivo : 'Sin motivo especificado.';
-            } else {
-                textoDetalle.textContent = detalles ? detalles : 'Sin detalles disponibles.';
+            const textoEstado = modalDetalles.querySelector('#textoEstado');
+            const textoDetalles = modalDetalles.querySelector('#textoDetalles');
+            const instruccionesEstado = modalDetalles.querySelector('#instruccionesEstado');
+
+            textoEstado.textContent = estado || 'Sin estado';
+            textoDetalles.textContent = (estado === 'fallido' && motivo) ? motivo : (detalles || 'Sin detalles disponibles.');
+
+            // Ajustar clase del estado
+            textoEstado.className = 'alert fw-semibold';
+            if (estado === 'completado') {
+                textoEstado.classList.add('alert-success');
+            } else if (estado === 'pendiente') {
+                textoEstado.classList.add('alert-warning');
+            } else if (estado === 'fallido') {
+                textoEstado.classList.add('alert-danger');
             }
+
+            // Instrucciones dinámicas según el estado
+            let instrucciones = '';
+            if (estado === 'completado') {
+                instrucciones = `
+                    <li>Tu pago ha sido procesado exitosamente.</li>
+                    <li>El monto ha sido registrado para tu reserva.</li>
+                    <li>Si tienes dudas, contáctanos a través del área de soporte.</li>
+                `;
+            } else if (estado === 'pendiente') {
+                instrucciones = `
+                    <li>Tu pago está en espera de verificación por el administrador.</li>
+                    <li>Por favor, espera la confirmación. Esto puede tomar hasta 48 horas.</li>
+                    <li>Si tienes dudas, contáctanos a través del área de soporte.</li>
+                `;
+            } else if (estado === 'fallido') {
+                instrucciones = `
+                    <li>Tu pago no pudo ser procesado.</li>
+                    <li>Revisa los detalles para conocer el motivo del fallo.</li>
+                    <li>Intenta realizar el pago nuevamente o contáctanos a través del área de soporte.</li>
+                `;
+            }
+            instruccionesEstado.innerHTML = instrucciones;
         });
 
         // Inicializar DataTable
