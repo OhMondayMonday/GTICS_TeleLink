@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headList.html :: headList(title='Lista de Reembolsos')}">
+    <meta charset="UTF-8">
+</head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+    <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Reembolsos')}"></div>
+
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <!-- Export buttons will be positioned via JavaScript after DataTable initialization -->
+                                <div id="export-buttons-container" class="d-none">
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/admin/reembolsos/export/excel}"
+                                           class="btn btn-success btn-sm">
+                                            <i class="fas fa-file-excel me-1"></i>
+                                            Exportar Excel
+                                        </a>
+                                        <a th:href="@{/admin/reembolsos/export/pdf}"
+                                           class="btn btn-danger btn-sm">
+                                            <i class="fas fa-file-pdf me-1"></i>
+                                            Exportar PDF
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Tabla responsive -->
+                                <div class="table-responsive">
+                                    <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="6" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                        <thead>
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Establecimiento Deportivo</th>
+                                            <th>Monto</th>
+                                            <th>Motivo</th>
+                                            <th>Estado</th>
+                                            <th>Fecha y Hora</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="reembolso : ${reembolsosPendientes}">
+                                            <td th:text="${reembolso.pago.reserva.usuario.nombres} + ' ' + ${reembolso.pago.reserva.usuario.apellidos}"></td>
+                                            <td th:text="${reembolso.pago.reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}"></td>
+                                            <td th:text="'S/ ' + ${reembolso.monto}"></td>
+                                            <td th:text="${reembolso.motivo}"></td>
+                                            <td>
+                                                    <span th:switch="${reembolso.estado.name()}">
+                                                        <span th:case="'pendiente'" class="badge bg-warning">Pendiente</span>
+                                                        <span th:case="'completado'" class="badge bg-success">Completado</span>
+                                                        <span th:case="'rechazado'" class="badge bg-danger">Rechazado</span>
+                                                        <span th:case="'cancelado'" class="badge bg-secondary">Cancelado</span>
+                                                    </span>
+                                            </td>
+                                            <td th:text="${#temporals.format(reembolso.fechaReembolso, 'dd/MM/yyyy HH:mm')}"></td>
+                                            <td>
+                                                <a th:href="@{/admin/reembolsos/info(id=${reembolso.reembolsoId})}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+    </div>
+</div>
+
+<div class="sidebar-overlay"></div>
+<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+<script th:src="@{/assets/js/pages/reembolsosAdmin.init.js}"></script>
+<script>
+    $(document).ready(function() {
+        setTimeout(function() {
+            var datatableWrapper = $('.dataTables_wrapper');
+            if (datatableWrapper.length > 0) {
+                var topContainer = datatableWrapper.find('.dataTables_length').parent();
+                if (topContainer.length > 0) {
+                    var exportButtons = $('#export-buttons-container').html();
+                    topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
+                    var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
+                    if (filterContainer.length > 0) {
+                        filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                    }
+                    topContainer.addClass('row');
+                }
+            }
+        }, 100);
+    });
+</script>
+</body>
+</html>
