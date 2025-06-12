@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
     <head th:replace="~{Superadmin/fragments/head.html :: head(title='Realizar reserva')}"></head>
+    <!-- Meta tag CSRF para JavaScript -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
     <body data-sidebar="dark" class="vertical-collpsed">
         <div id="layout-wrapper">
@@ -537,7 +540,7 @@
                 marcarHorariosPasadosComoNoDisponibles(calendar);
                 
                 // Actualizar cada minuto
-                setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);                // Manejador del submit para redirigir con parámetros
+                setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);                // Manejador del submit para crear reserva directamente
                 document.getElementById("form-event").addEventListener("submit", function(e) {
                     e.preventDefault();
 
@@ -549,7 +552,89 @@
                         return;
                     }
 
-                    window.location.href = `/usuarios/reservar/${espacioId}?inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}`;
+                    // Verificar disponibilidad antes de enviar
+                    const btnSave = document.getElementById("btn-save-event");
+                    const originalText = btnSave.textContent;
+                    btnSave.disabled = true;
+                    btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verificando...';
+
+                    // Primero verificar disponibilidad
+                    const startDate = new Date(rawStart);
+                    const endDate = new Date(rawEnd);
+                    
+                    const verificarUrl = `/api/verificar-disponibilidad?espacioId=${espacioId}&inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}`;
+                    
+                    fetch(verificarUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.disponible) {
+                                // Si está disponible, crear la reserva
+                                btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creando...';
+                                
+                                // Crear formulario para enviar datos
+                                const form = document.createElement('form');
+                                form.method = 'POST';
+                                form.action = '/usuarios/crear-reserva-calendario';
+                                
+                                // Agregar token CSRF si existe
+                                const csrfToken = document.querySelector('meta[name="_csrf"]');
+                                if (csrfToken) {
+                                    const csrfInput = document.createElement('input');
+                                    csrfInput.type = 'hidden';
+                                    csrfInput.name = '_token';
+                                    csrfInput.value = csrfToken.content;
+                                    form.appendChild(csrfInput);
+                                }
+                                
+                                // Agregar campos de datos
+                                const espacioInput = document.createElement('input');
+                                espacioInput.type = 'hidden';
+                                espacioInput.name = 'espacioId';
+                                espacioInput.value = espacioId;
+                                form.appendChild(espacioInput);
+                                
+                                const inicioInput = document.createElement('input');
+                                inicioInput.type = 'hidden';
+                                inicioInput.name = 'fechaInicio';
+                                inicioInput.value = rawStart;
+                                form.appendChild(inicioInput);
+                                
+                                const finInput = document.createElement('input');
+                                finInput.type = 'hidden';
+                                finInput.name = 'fechaFin';
+                                finInput.value = rawEnd;
+                                form.appendChild(finInput);
+                                
+                                // Enviar formulario
+                                document.body.appendChild(form);
+                                form.submit();
+                            } else {
+                                // Si no está disponible, mostrar mensaje
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Horario no disponible',
+                                    text: data.mensaje || 'Este horario ya no está disponible. Por favor selecciona otro.',
+                                    confirmButtonText: 'Aceptar'
+                                });
+                                
+                                // Restaurar botón
+                                btnSave.disabled = false;
+                                btnSave.textContent = originalText;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Error al verificar disponibilidad. Por favor intenta nuevamente.',
+                                confirmButtonText: 'Aceptar'
+                            });
+                            
+                            // Restaurar botón
+                            btnSave.disabled = false;
+                            btnSave.textContent = originalText;
+                        });
                 });
                 
                 // Inicializar tooltips de Bootstrap

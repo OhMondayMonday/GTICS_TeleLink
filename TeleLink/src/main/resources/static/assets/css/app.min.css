@@ -566,7 +566,7 @@ body[data-layout=horizontal] .footer {
     font-size: 13.3px;
     -webkit-transition: all .4s;
     transition: all .4s;
-    font-family: Inter, sans-serif;
+    font-family: Inter var, sans-serif;
     font-weight: 500
 }
 
@@ -623,7 +623,7 @@ body[data-layout=horizontal] .footer {
     text-transform: uppercase;
     color: var(--bs-sidebar-menu-item-icon-color);
     font-weight: 600;
-    font-family: Inter, sans-serif;
+    font-family: Inter var, sans-serif;
     opacity: .5
 }
 
@@ -1075,7 +1075,7 @@ body[data-sidebar=colored] .menu-title {
     position: relative;
     padding: 1rem 1.3rem;
     color: var(--bs-menu-item-color);
-    font-family: Inter, sans-serif
+    font-family: Inter var, sans-serif
 }
 
 .topnav .navbar-nav .nav-link i {
@@ -1700,7 +1700,7 @@ body[data-layout=horizontal][data-layout-size=boxed] .topnav {
 }
 
 .font-family-secondary {
-    font-family: Inter, sans-serif
+    font-family: Inter var, sans-serif
 }
 
 .font-size-10 {
@@ -2316,7 +2316,7 @@ body[data-layout=horizontal][data-layout-size=boxed] .topnav {
     border: none;
     cursor: move;
     font-size: .8125rem;
-    margin: 5px 7px;
+    margin: 2px 5px;
     padding: 5px 5px;
     text-align: center
 }

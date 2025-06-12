@@ -51,7 +51,7 @@
 
 /* BASE STYLES */
 .fc {
-  font-family: 'Inter-var', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter var', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.875rem;
   line-height: 1.5;
 }
@@ -291,38 +291,39 @@
 
 /* ESTILOS PARA EVENTOS ESPECÍFICOS DE RESERVA (PRESERVAR) */
 .reserva-propia-confirmada {
-  background-color: rgb(28, 187, 140) !important;
-  border-color: rgb(25, 168, 126) !important;
-  color: white !important;
+  background-color: #eaf6f2 !important;
+  border-color: #2ca87f !important;
+  color: #2ca87f !important;
   cursor: pointer !important;
   font-weight: bold !important;
   box-shadow: 0 2px 4px rgba(28, 187, 140, 0.3) !important;
 }
 
 .reserva-propia-pendiente {
-  background-color: #ffc107 !important; /* bg-warning */
-  border-color: #e0a800 !important;
-  color: #212529 !important;
+  background-color: #fcf3e6 !important; /* bg-warning-subtle*/
+  border-color: #e58a00 !important;
+  color: #e58a00 !important;
   cursor: pointer !important;
   font-weight: bold !important;
   box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3) !important;
 }
 
 .reserva-propia-en-proceso {
-  background-color: #3b82f6 !important; /* azul */
-  border-color: #2563eb !important;
-  color: white !important;
+  background-color: #edf2ff !important; /* azul */
+  border-color: #4680ff !important;
+  color: #4680ff !important;
   cursor: pointer !important;
   font-weight: bold !important;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3) !important;
 }
 
 .reserva-ajena {
-  background-color: #9ca3af !important;
-  border-color: #6b7280 !important;
-  color: white !important;
+  background-color: #eff0f2 !important;
+  border-color: #5b6b79 !important;
+  color: #5b6b79 !important;
   cursor: default !important;
   opacity: 0.8 !important;
+  font-weight: bold !important;
   pointer-events: none !important; /* Prevenir clicks */
 }
 
