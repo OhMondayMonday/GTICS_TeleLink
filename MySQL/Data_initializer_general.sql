@@ -273,16 +273,46 @@ VALUES
 INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, fecha_creacion)
 VALUES (4, 1, 1, '2025-05-15 9:00:00', '2025-05-15 15:00:00', '2025-05-09 07:00:00');
 
+-- Verificacion del flujo de reembolsos
 
-INSERT INTO `db_gtics`.`reservas` (
-    `usuario_id`,
-    `espacio_deportivo_id`,
-    `inicio_reserva`,
-    `fin_reserva`,
-    `estado`,
-    `fecha_creacion`,
-    `fecha_actualizacion`
-) VALUES
-    (6, 1, '2025-06-01 10:00:00', '2025-06-01 11:00:00', 'pendiente', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (6, 2, '2025-06-02 14:00:00', '2025-06-02 16:00:00', 'pendiente', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (6, 3, '2025-06-03 09:00:00', '2025-06-03 10:00:00', 'pendiente', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- Insertar reservas
+INSERT INTO reservas (usuario_id, espacio_deportivo_id, inicio_reserva, fin_reserva, estado, fecha_creacion, fecha_actualizacion, razon_cancelacion)
+VALUES
+    (6, 1, '2025-06-15 14:00:00', '2025-06-15 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-10 12:00:00', 'Cambio de planes'), -- Dentro de 48h, elegible
+    (6, 1, '2025-06-12 14:00:00', '2025-06-12 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-11 10:00:00', 'Error en reserva'), -- Fuera de 48h
+    (6, 1, '2025-06-16 14:00:00', '2025-06-16 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-09 12:00:00', 'Motivo personal'), -- Dentro de 48h
+    (6, 1, '2025-06-13 14:00:00', '2025-06-13 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-12 10:00:00', 'Cambio de horario'), -- Fuera de 48h
+    (6, 1, '2025-06-17 14:00:00', '2025-06-17 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-10 12:00:00', 'No asistire'), -- Dentro de 48h
+    (6, 1, '2025-06-14 14:00:00', '2025-06-14 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-13 10:00:00', 'Motivo de salud'), -- Fuera de 48h
+    (6, 1, '2025-06-18 14:00:00', '2025-06-18 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-10 12:00:00', 'Conflicto de horario'), -- Dentro de 48h
+    (6, 1, '2025-06-19 14:00:00', '2025-06-19 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-10 12:00:00', 'Cambio de planes'), -- Dentro de 48h
+    (6, 1, '2025-06-20 14:00:00', '2025-06-20 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-10 12:00:00', 'No especificado'), -- Dentro de 48h
+    (6, 1, '2025-06-11 14:00:00', '2025-06-11 15:00:00', 'cancelada', '2025-06-01 10:00:00', '2025-06-11 11:00:00', 'Cancelación tardia'); -- Fuera de 48h
+-- Insertar pagos
+INSERT INTO pagos (reserva_id, metodo_pago_id, monto, estado_transaccion, transaccion_id, fecha_pago, detalles_transaccion)
+VALUES
+    (25, 1, 50.00, 'completado', 'TXN1', '2025-06-01 10:00:00', 'Pago por reserva'), -- Pago Online
+    (26, 2, 50.00, 'completado', 'TXN2', '2025-06-01 10:00:00', 'Deposito bancario'), -- Deposito
+    (27, 1, 50.00, 'completado', 'TXN3', '2025-06-01 10:00:00', 'Pago por reserva'), -- Pago Online
+    (28, 2, 50.00, 'completado', 'TXN4', '2025-06-01 10:00:00', 'Deposito bancario'), -- Deposito
+    (29, 1, 50.00, 'completado', 'TXN5', '2025-06-01 10:00:00', 'Pago por reserva'), -- Pago Online
+    (30, 2, 50.00, 'completado', 'TXN6', '2025-06-01 10:00:00', 'Deposito bancario'), -- Deposito
+    (31, 1, 50.00, 'completado', 'TXN7', '2025-06-01 10:00:00', 'Pago por reserva'), -- Pago Online
+    (32, 2, 50.00, 'completado', 'TXN8', '2025-06-01 10:00:00', 'Deposito bancario'), -- Deposito
+    (33, 1, 50.00, 'completado', 'TXN9', '2025-06-01 10:00:00', 'Pago por reserva'), -- Pago Online
+    (34, 2, 50.00, 'completado', 'TXN10', '2025-06-01 10:00:00', 'Deposito bancario'); -- Deposito
+
+-- Insertar reembolsos
+INSERT INTO reembolsos (monto, estado, motivo, fecha_reembolso, foto_comprobacion_reembolso_url, detalles_transaccion, pago_id)
+VALUES
+    (50.00, 'completado', 'Cambio de planes', '2025-06-10 12:00:00', NULL, 'Reembolso automatico por Pago Online', 8), -- Pago Online, dentro de 48h
+    (50.00, 'pendiente', 'Error en reserva', '2025-06-11 10:00:00', NULL, 'Esperando aprobacion del administrador', 9), -- Deposito, dentro de 48h
+    (50.00, 'completado', 'Motivo personal', '2025-06-09 12:00:00', NULL, 'Reembolso automatico por Pago Online', 10), -- Pago Online, dentro de 48h
+    (50.00, 'rechazado', 'Cambio de horario', '2025-06-12 10:00:00', NULL, 'Reembolso rechazado: fuera de plazo', 11), -- Deposito, fuera de 48h
+    (50.00, 'completado', 'No asistire', '2025-06-10 12:00:00', NULL, 'Reembolso automatico por Pago Online', 12), -- Pago Online, dentro de 48h
+    (50.00, 'cancelado', 'Motivo de salud', '2025-06-13 10:00:00', NULL, 'Reembolso cancelado por el usuario', 13), -- Deposito, fuera de 48h
+    (50.00, 'pendiente', 'Conflicto de horario', '2025-06-10 12:00:00', NULL, 'Esperando aprobacion del administrador', 14), -- Deposito, dentro de 48h
+    (50.00, 'completado', 'Cambio de planes', '2025-06-10 12:00:00', 's3://comprobante1.jpg', 'Reembolso procesado por admin', 15), -- Deposito, dentro de 48h
+    (50.00, 'completado', 'No especificado', '2025-06-10 12:00:00', NULL, 'Reembolso automatico por Pago Online', 16), -- Pago Online, dentro de 48h
+    (50.00, NULL, 'Cancelación tardia', '2025-06-11 10:00:00', NULL, 'No elegible por cancelación tardia', 17); -- Deposito, fuera de 50h
+
