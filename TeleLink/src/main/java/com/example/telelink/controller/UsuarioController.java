@@ -1343,7 +1343,9 @@ public class UsuarioController {
         model.addAttribute("espacio", espacioDeportivo);
         
         return "Vecino/vecino-calendario";
-    }    @PostMapping("/procesar-reserva")
+    }
+
+    @PostMapping("/procesar-reserva")
     public String procesarReserva(@RequestParam("reservaId") Integer reservaId,
                                   @RequestParam("espacioId") Integer espacioId,
                                   @RequestParam("cantidadPersonas") Integer cantidadPersonas,
