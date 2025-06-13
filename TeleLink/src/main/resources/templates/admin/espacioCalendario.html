@@ -7,16 +7,17 @@
 <style>
   /* Estilos personalizados para el modal */
   .modal-backdrop {
-    z-index: 9998 !important;
+    z-index: 99999 !important;
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
   }
   
   #modalCrearAsistencia {
-    z-index: 9999 !important;
+    z-index: 100000 !important;
   }
   
   #modalCrearAsistencia .modal-dialog {
@@ -28,6 +29,32 @@
   
   #modalCrearAsistencia .modal-content {
     width: 100% !important;
+  }
+  
+  /* Asegurar que el backdrop cubra el navbar y sidebar */
+  body.modal-open .navbar,
+  body.modal-open .topbar,
+  body.modal-open .navbar-header,
+  body.modal-open .vertical-menu,
+  body.modal-open .navbar-brand-box,
+  body.modal-open .app-search,
+  body.modal-open .dropdown,
+  body.modal-open .header-item {
+    z-index: 1000 !important;
+  }
+  
+  /* Forzar que todos los elementos del layout estén por debajo del backdrop */
+  body.modal-open #layout-wrapper,
+  body.modal-open .main-content,
+  body.modal-open .page-content {
+    position: relative !important;
+    z-index: 999 !important;
+  }
+  
+  /* Asegurar que el backdrop sea visible sobre todos los elementos */
+  .modal-backdrop.show {
+    opacity: 0.5 !important;
+    z-index: 99999 !important;
   }
 </style>
 <body data-sidebar="dark" class="vertical-collpsed">
