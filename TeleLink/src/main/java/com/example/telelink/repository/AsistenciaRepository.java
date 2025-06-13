@@ -58,9 +58,7 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
     List<Asistencia> findOverlappingAsistencias(
             @Param("coordinadorId") int coordinadorId,
             @Param("startCheck") LocalDateTime startCheck,
-            @Param("endCheck") LocalDateTime endCheck);
-
-    @Query("SELECT a FROM Asistencia a " +
+            @Param("endCheck") LocalDateTime endCheck);    @Query("SELECT a FROM Asistencia a " +
            "JOIN FETCH a.coordinador " +
            "WHERE a.espacioDeportivo.espacioDeportivoId = :espacioId " +
            "AND a.horarioEntrada < :fin " +
@@ -69,4 +67,13 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
             @Param("espacioId") Integer espacioId,
             @Param("inicio") LocalDateTime inicio,
             @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT a FROM Asistencia a " +
+            "WHERE a.coordinador.usuarioId = :coordinadorId " +
+            "AND a.horarioEntrada < :finRango " +
+            "AND a.horarioSalida > :inicioRango")
+    List<Asistencia> findAsistenciasSuperpuestas(
+            @Param("coordinadorId") Integer coordinadorId,
+            @Param("inicioRango") LocalDateTime inicioRango,
+            @Param("finRango") LocalDateTime finRango);
 }

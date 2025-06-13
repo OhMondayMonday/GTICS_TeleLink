@@ -318,3 +318,11 @@ VALUES
     (50.00, 'completado', 'Cambio de planes', '2025-06-10 12:00:00', 's3://comprobante1.jpg', 'Reembolso procesado por admin', 15), -- Deposito, dentro de 48h
     (50.00, 'completado', 'No especificado', '2025-06-10 12:00:00', NULL, 'Reembolso automatico por Pago Online', 16), -- Pago Online, dentro de 48h
     (50.00, NULL, 'Cancelación tardia', '2025-06-11 10:00:00', NULL, 'No elegible por cancelación tardia', 17); -- Deposito, fuera de 50h
+    
+INSERT INTO `db_gtics`.`reservas` (
+    `usuario_id`, `espacio_deportivo_id`, `inicio_reserva`, `fin_reserva`, `estado`, `fecha_creacion`, `fecha_actualizacion`
+) VALUES
+    (6, 4, '2025-06-15 08:00:00', '2025-06-15 10:00:00', 'pendiente', '2025-06-13 10:00:00', '2025-06-13 10:00:00'),
+    (7, 4, '2025-06-15 10:00:00', '2025-06-15 12:00:00', 'confirmada', '2025-06-13 11:00:00', '2025-06-13 11:00:00'),
+    (9, 4, '2025-06-15 14:00:00', '2025-06-15 16:00:00', 'confirmada', '2025-06-13 13:00:00', '2025-06-13 13:00:00'),
+    (10, 4, '2025-06-15 16:00:00', '2025-06-15 18:00:00', 'confirmada', '2025-06-13 14:00:00', '2025-06-13 14:00:00');

@@ -2,8 +2,10 @@ package com.example.telelink.service;
 
 import com.example.telelink.dto.EventoCalendarioDTO;
 import com.example.telelink.entity.Asistencia;
+import com.example.telelink.entity.EspacioDeportivo;
 import com.example.telelink.entity.Reserva;
 import com.example.telelink.repository.AsistenciaRepository;
+import com.example.telelink.repository.EspacioDeportivoRepository;
 import com.example.telelink.repository.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,8 @@ public class CalendarioService {
     @Autowired
     private AsistenciaRepository asistenciaRepository;
 
-    public List<EventoCalendarioDTO> obtenerReservasConsolidadas(Integer espacioId, LocalDateTime inicio, LocalDateTime fin) {
+    @Autowired
+    private EspacioDeportivoRepository espacioDeportivoRepository;public List<EventoCalendarioDTO> obtenerReservasConsolidadas(Integer espacioId, LocalDateTime inicio, LocalDateTime fin) {
         List<Reserva> reservas = reservaRepository.findReservasEnRango(espacioId, inicio, fin);
         
         // Ordenar las reservas por fecha de inicio
@@ -48,12 +51,18 @@ public class CalendarioService {
                     }
                 } else {
                     // No hay solapamiento, guardar el periodo actual y comenzar uno nuevo
+                    // Verificar si este periodo tiene asistencias solapadas
+                    boolean tieneAsistenciaSolapada = verificarAsistenciasSolapadas(espacioId, inicioActual, finActual);
+                    
                     eventos.add(new EventoCalendarioDTO(
                         inicioActual.toString(),
                         finActual.toString(),
                         null,
                         null,
-                        inicioActual.format(formatter) + " - " + finActual.format(formatter)
+                        inicioActual.format(formatter) + " - " + finActual.format(formatter),
+                        tieneAsistenciaSolapada,
+                        espacioId,
+                        obtenerNombreEspacioDeportivo(espacioId)
                     ));
 
                     inicioActual = reservaActual.getInicioReserva();
@@ -62,16 +71,29 @@ public class CalendarioService {
             }
 
             // Añadir el último periodo
+            boolean tieneAsistenciaSolapada = verificarAsistenciasSolapadas(espacioId, inicioActual, finActual);
             eventos.add(new EventoCalendarioDTO(
                 inicioActual.toString(),
                 finActual.toString(),
                 null,
                 null,
-                inicioActual.format(formatter) + " - " + finActual.format(formatter)
+                inicioActual.format(formatter) + " - " + finActual.format(formatter),
+                tieneAsistenciaSolapada,
+                espacioId,
+                obtenerNombreEspacioDeportivo(espacioId)
             ));
         }
 
         return eventos;
+    }
+
+    private boolean verificarAsistenciasSolapadas(Integer espacioId, LocalDateTime inicioReserva, LocalDateTime finReserva) {
+        List<Asistencia> asistenciasSuperpuestas = asistenciaRepository.findAsistenciasEnRango(espacioId, inicioReserva, finReserva);
+        return !asistenciasSuperpuestas.isEmpty();
+    }    private String obtenerNombreEspacioDeportivo(Integer espacioId) {
+        return espacioDeportivoRepository.findById(espacioId)
+                .map(EspacioDeportivo::getNombre)
+                .orElse("Espacio Deportivo");
     }
 
     public List<EventoCalendarioDTO> obtenerAsistencias(Integer espacioId, LocalDateTime inicio, LocalDateTime fin) {

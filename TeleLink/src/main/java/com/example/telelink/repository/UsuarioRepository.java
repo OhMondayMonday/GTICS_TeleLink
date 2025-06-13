@@ -100,9 +100,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
 
     Usuario findByCorreoElectronico(String correoElectronico);
-    Usuario findByDni(String dni);
-
-    @Query("SELECT u FROM Usuario u WHERE u.rol.rolId = :rolId ORDER BY u.apellidos, u.nombres")
+    Usuario findByDni(String dni);    @Query("SELECT u FROM Usuario u WHERE u.rol.rolId = :rolId ORDER BY u.apellidos, u.nombres")
     List<Usuario> findByRolId(@Param("rolId") Integer rolId);
+
+    @Query("SELECT u FROM Usuario u WHERE u.rol.rol = :rol AND u.estadoCuenta = :estado ORDER BY u.apellidos, u.nombres")
+    List<Usuario> findByRol_RolAndEstadoCuenta(@Param("rol") String rol, @Param("estado") Usuario.EstadoCuenta estado);
 
 }

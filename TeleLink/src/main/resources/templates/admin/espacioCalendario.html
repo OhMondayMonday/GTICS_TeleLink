@@ -4,6 +4,32 @@
   <meta charset="UTF-8">
   <title>Calendario del Espacio Deportivo</title>
 </head>
+<style>
+  /* Estilos personalizados para el modal */
+  .modal-backdrop {
+    z-index: 9998 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+  
+  #modalCrearAsistencia {
+    z-index: 9999 !important;
+  }
+  
+  #modalCrearAsistencia .modal-dialog {
+    margin: 1.75rem auto !important;
+    display: flex !important;
+    align-items: center !important;
+    min-height: calc(100% - 3.5rem) !important;
+  }
+  
+  #modalCrearAsistencia .modal-content {
+    width: 100% !important;
+  }
+</style>
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
 
@@ -66,7 +92,65 @@
       </div>
     </div>
 
-    <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+    <div th:replace="~{admin/fragments/footer.html :: footer}"></div>  </div>
+</div>
+
+<!-- Modal para crear asistencia -->
+<div class="modal fade" id="modalCrearAsistencia" tabindex="-1" aria-labelledby="modalCrearAsistenciaLabel" aria-hidden="true" data-bs-backdrop="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCrearAsistenciaLabel">Crear Asistencia</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="formCrearAsistencia" th:action="@{/admin/asistencias/crear-desde-evento}" method="post">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="espacioDeportivoNombre" class="form-label">Espacio Deportivo</label>
+                <input type="text" class="form-control" id="espacioDeportivoNombre" readonly disabled>
+                <input type="hidden" name="espacioDeportivoId" id="espacioDeportivoId">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="coordinadorId" class="form-label">Coordinador <span class="text-danger">*</span></label>
+                <select class="form-select" name="coordinadorId" id="coordinadorId" required>
+                  <option value="">Seleccionar coordinador...</option>
+                </select>
+                <div class="invalid-feedback">
+                  Por favor seleccione un coordinador.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="horarioEntrada" class="form-label">Horario de Entrada</label>
+                <input type="datetime-local" class="form-control" name="horarioEntrada" id="horarioEntrada" readonly>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="horarioSalida" class="form-label">Horario de Salida</label>
+                <input type="datetime-local" class="form-control" name="horarioSalida" id="horarioSalida" readonly>
+              </div>
+            </div>          </div>
+          <div class="alert alert-info d-none" id="alertCoordinadoresDisponibles">
+            <i class="mdi mdi-information-outline me-2"></i>
+            <span id="textoCoordinadoresDisponibles"></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="mdi mdi-check me-1"></i>Crear Asistencia
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 

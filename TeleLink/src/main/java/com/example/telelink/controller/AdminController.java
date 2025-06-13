@@ -15,12 +15,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.stream.Collectors;
 
 // Apache POI imports for Excel
 import org.apache.poi.ss.usermodel.*;
@@ -2018,6 +2022,321 @@ public class AdminController {
 
         redirectAttributes.addFlashAttribute("msg", "Reembolso completado satisfactoriamente");
         return "redirect:/admin/reembolsos";
+    }
+
+    // Export methods for Reembolsos
+    @GetMapping("/reembolsos/export/excel")
+    public ResponseEntity<byte[]> exportarReembolsosExcel() {
+        try {
+            List<Reembolso> reembolsos = reembolsoRepository.findAll();
+
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Reembolsos");
+
+            // Estilo para el encabezado
+            CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+            headerStyle.setBorderTop(BorderStyle.THIN);
+            headerStyle.setBorderRight(BorderStyle.THIN);
+            headerStyle.setBorderLeft(BorderStyle.THIN);
+
+            // Estilo para las celdas de datos
+            CellStyle dataStyle = workbook.createCellStyle();
+            dataStyle.setBorderBottom(BorderStyle.THIN);
+            dataStyle.setBorderTop(BorderStyle.THIN);
+            dataStyle.setBorderRight(BorderStyle.THIN);
+            dataStyle.setBorderLeft(BorderStyle.THIN);
+            dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+            // Estilo para fechas
+            CellStyle dateStyle = workbook.createCellStyle();
+            dateStyle.cloneStyleFrom(dataStyle);
+            dateStyle.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("dd/mm/yyyy hh:mm"));
+
+            // Crear encabezados
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"Usuario", "Establecimiento Deportivo", "Monto", "Motivo", "Estado", "Fecha y Hora"};
+
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // Llenar datos
+            int rowNum = 1;
+            for (Reembolso reembolso : reembolsos) {
+                Row row = sheet.createRow(rowNum++);
+
+                Cell usuarioCell = row.createCell(0);
+                usuarioCell.setCellValue(reembolso.getPago().getReserva().getUsuario().getNombres() + " " + 
+                    reembolso.getPago().getReserva().getUsuario().getApellidos());
+                usuarioCell.setCellStyle(dataStyle);
+
+                Cell establecimientoCell = row.createCell(1);
+                establecimientoCell.setCellValue(reembolso.getPago().getReserva().getEspacioDeportivo()
+                    .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
+                establecimientoCell.setCellStyle(dataStyle);
+
+                Cell montoCell = row.createCell(2);
+                montoCell.setCellValue("S/ " + reembolso.getMonto().toString());
+                montoCell.setCellStyle(dataStyle);
+
+                Cell motivoCell = row.createCell(3);
+                motivoCell.setCellValue(reembolso.getMotivo());
+                motivoCell.setCellStyle(dataStyle);
+
+                Cell estadoCell = row.createCell(4);
+                estadoCell.setCellValue(getEstadoReembolsoTexto(reembolso.getEstado()));
+                estadoCell.setCellStyle(dataStyle);
+
+                Cell fechaCell = row.createCell(5);
+                fechaCell.setCellValue(reembolso.getFechaReembolso());
+                fechaCell.setCellStyle(dateStyle);
+            }
+
+            // Ajustar ancho de columnas
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+                if (sheet.getColumnWidth(i) < 3000) {
+                    sheet.setColumnWidth(i, 3000);
+                }
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            responseHeaders.setContentDispositionFormData("attachment", "reembolsos_admin.xlsx");
+
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .body(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/reembolsos/export/pdf")
+    public ResponseEntity<byte[]> exportarReembolsosPdf() {
+        try {
+            List<Reembolso> reembolsos = reembolsoRepository.findAll();
+
+            Document document = new Document(PageSize.A4.rotate());
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            PdfWriter.getInstance(document, outputStream);
+
+            document.open();
+
+            // Título
+            com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+            Paragraph title = new Paragraph("Reporte de Reembolsos - Admin", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            title.setSpacingAfter(20);
+            document.add(title);
+
+            // Fecha de generación
+            com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+            Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+            dateGenerated.setAlignment(Element.ALIGN_CENTER);
+            dateGenerated.setSpacingAfter(20);
+            document.add(dateGenerated);
+
+            // Crear tabla
+            PdfPTable table = new PdfPTable(6);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+
+            // Configurar anchos de columnas
+            float[] columnWidths = {2.5f, 3.5f, 1.5f, 3f, 1.5f, 2.5f};
+            table.setWidths(columnWidths);
+
+            // Estilo para encabezados
+            com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, BaseColor.WHITE);
+            BaseColor headerColor = new BaseColor(52, 58, 64);
+
+            // Agregar encabezados
+            String[] headers = {"Usuario", "Establecimiento Deportivo", "Monto", "Motivo", "Estado", "Fecha y Hora"};
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+                cell.setBackgroundColor(headerColor);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                cell.setPadding(8);
+                table.addCell(cell);
+            }
+
+            // Estilo para datos
+            com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 9, BaseColor.BLACK);
+
+            // Agregar datos
+            for (Reembolso reembolso : reembolsos) {
+                // Usuario
+                PdfPCell usuarioCell = new PdfPCell(new Phrase(
+                    reembolso.getPago().getReserva().getUsuario().getNombres() + " " + 
+                    reembolso.getPago().getReserva().getUsuario().getApellidos(), dataFont));
+                usuarioCell.setPadding(5);
+                table.addCell(usuarioCell);
+
+                // Establecimiento
+                PdfPCell establecimientoCell = new PdfPCell(new Phrase(
+                    reembolso.getPago().getReserva().getEspacioDeportivo()
+                        .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre(), dataFont));
+                establecimientoCell.setPadding(5);
+                table.addCell(establecimientoCell);
+
+                // Monto
+                PdfPCell montoCell = new PdfPCell(new Phrase("S/ " + reembolso.getMonto().toString(), dataFont));
+                montoCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                montoCell.setPadding(5);
+                table.addCell(montoCell);
+
+                // Motivo
+                PdfPCell motivoCell = new PdfPCell(new Phrase(reembolso.getMotivo(), dataFont));
+                motivoCell.setPadding(5);
+                table.addCell(motivoCell);
+
+                // Estado
+                PdfPCell estadoCell = new PdfPCell(new Phrase(getEstadoReembolsoTexto(reembolso.getEstado()), dataFont));
+                estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                estadoCell.setPadding(5);
+                table.addCell(estadoCell);
+
+                // Fecha
+                PdfPCell fechaCell = new PdfPCell(new Phrase(
+                    reembolso.getFechaReembolso().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dataFont));
+                fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                fechaCell.setPadding(5);
+                table.addCell(fechaCell);
+            }
+
+            document.add(table);
+            document.close();
+
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+            responseHeaders.setContentDispositionFormData("attachment", "reembolsos_admin.pdf");
+
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .body(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }    // Método auxiliar para obtener texto del estado de reembolso
+    private String getEstadoReembolsoTexto(Reembolso.Estado estado) {
+        switch (estado) {
+            case pendiente:
+                return "Pendiente";
+            case completado:
+                return "Completado";
+            case rechazado:
+                return "Rechazado";
+            case cancelado:
+                return "Cancelado";
+            default:
+                return "Desconocido";
+        }
+    }
+
+    // ================= ASISTENCIAS DESDE EVENTOS =================
+
+    @GetMapping("/coordinadores-disponibles")
+    @ResponseBody
+    public List<Usuario> obtenerCoordinadoresDisponibles(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime horarioEntrada,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime horarioSalida) {
+        
+        // Calcular rango con margen de 15 minutos
+        LocalDateTime inicioRango = horarioEntrada.minusMinutes(15);
+        LocalDateTime finRango = horarioSalida.plusMinutes(15);
+        
+        // Obtener todos los coordinadores activos
+        List<Usuario> todosCoordinadores = usuarioRepository.findByRol_RolAndEstadoCuenta("coordinador", Usuario.EstadoCuenta.activo);
+        
+        // Filtrar coordinadores que NO tienen asistencias en el rango de tiempo
+        return todosCoordinadores.stream()
+                .filter(coordinador -> {
+                    List<Asistencia> asistenciasSuperpuestas = asistenciaRepository
+                            .findAsistenciasSuperpuestas(coordinador.getUsuarioId(), inicioRango, finRango);
+                    return asistenciasSuperpuestas.isEmpty();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @PostMapping("/asistencias/crear-desde-evento")
+    public String crearAsistenciaDesdeEvento(
+            @RequestParam Integer coordinadorId,
+            @RequestParam Integer espacioDeportivoId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime horarioEntrada,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime horarioSalida,
+            @RequestParam(required = false) String observacionAsistencia,
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request) {
+        
+        try {
+            // Validar que el coordinador esté disponible
+            LocalDateTime inicioRango = horarioEntrada.minusMinutes(15);
+            LocalDateTime finRango = horarioSalida.plusMinutes(15);
+            
+            List<Asistencia> asistenciasSuperpuestas = asistenciaRepository
+                    .findAsistenciasSuperpuestas(coordinadorId, inicioRango, finRango);
+              if (!asistenciasSuperpuestas.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "El coordinador seleccionado ya tiene una asistencia asignada en este horario.");
+                return "redirect:/admin/espacios/calendario?id=" + espacioDeportivoId;
+            }
+              // Obtener usuario autenticado (administrador)
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Usuario administrador = usuarioRepository.findByCorreoElectronico(auth.getName());
+            if (administrador == null) {
+                throw new IllegalArgumentException("Administrador no encontrado");
+            }
+            
+            // Obtener coordinador y espacio deportivo
+            Usuario coordinador = usuarioRepository.findById(coordinadorId)
+                    .orElseThrow(() -> new IllegalArgumentException("Coordinador no encontrado"));
+            
+            EspacioDeportivo espacioDeportivo = espacioDeportivoRepository.findById(espacioDeportivoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Espacio deportivo no encontrado"));
+            
+            // Crear nueva asistencia
+            Asistencia nuevaAsistencia = new Asistencia();
+            nuevaAsistencia.setAdministrador(administrador);
+            nuevaAsistencia.setCoordinador(coordinador);
+            nuevaAsistencia.setEspacioDeportivo(espacioDeportivo);
+            nuevaAsistencia.setHorarioEntrada(horarioEntrada);
+            nuevaAsistencia.setHorarioSalida(horarioSalida);
+            nuevaAsistencia.setEstadoEntrada(Asistencia.EstadoEntrada.pendiente);
+            nuevaAsistencia.setEstadoSalida(Asistencia.EstadoSalida.pendiente);
+            nuevaAsistencia.setObservacionAsistencia(observacionAsistencia != null ? observacionAsistencia : "");
+            nuevaAsistencia.setFechaCreacion(LocalDateTime.now());
+            
+            // Guardar en la base de datos
+            asistenciaRepository.save(nuevaAsistencia);
+            
+            redirectAttributes.addFlashAttribute("success", 
+                "Asistencia creada exitosamente para " + coordinador.getNombres() + " " + coordinador.getApellidos());
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al crear la asistencia: " + e.getMessage());
+        }
+        
+        return "redirect:/admin/espacios/calendario?id=" + espacioDeportivoId;
     }
 
 }
