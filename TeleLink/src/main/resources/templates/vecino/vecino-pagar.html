@@ -1,74 +1,95 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Seleccionar Método de Pago')}">
 </head>
+
 <body data-sidebar="dark" class="vertical-collpsed">
-<div id="layout-wrapper">
-  <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Seleccionar Método de Pago')}"></div>
-  <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('reservas')}"></div>
-  <div class="main-content">
-    <div class="page-content">
-      <div class="container-fluid">
-        <!-- Flash Messages -->
-        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
-          <span th:text="${mensaje}"></span>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-          <span th:text="${error}"></span>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <div class="row">
-          <div class="col-lg-8 offset-lg-2">
-            <div class="card">
-              <div class="card-body">
-                <h4 class="card-title text-center mb-4">Resumen de la reserva</h4>
+  <div id="layout-wrapper">
+    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Seleccionar Método de Pago')}"></div>
+    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('reservas')}"></div>
+    <div class="main-content">
+      <div class="page-content">
+        <div class="container-fluid">
+          <!-- Flash Messages -->
+          <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
 
-                <!-- Detalles de la reserva -->
-                <div class="mb-4 bg-light p-3 rounded-3">
-                  <p class="mb-1"><i class="bi bi-geo-alt-fill text-primary me-2"></i><strong>Espacio:</strong> <span th:text="${reserva.espacioDeportivo.nombre}"></span></p>
-                  <p class="mb-1"><i class="bi bi-calendar-event-fill text-success me-2"></i><strong>Fecha:</strong>
-                    <span th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}"></span>
-                    hasta <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}"></span></p>
-                  <p class="mb-0"><i class="bi bi-cash-coin text-warning me-2"></i><strong>Monto Total:</strong>
-                    <span th:with="duracion=${T(java.time.Duration).between(reserva.inicioReserva, reserva.finReserva).toHours()},
+          <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+              <div class="card">
+                <div class="card-body">
+                  <!-- Temporizador en la esquina superior izquierda -->
+                  <div th:if="${reserva.estado.name() == 'pendiente'}" class="">
+                    <span id="timer" class="badge bg-warning text-dark fs-5 px-2 py-2 shadow font-size-12">
+                      <i class="mdi mdi-timer-outline me-1"></i>
+                      <span class="fw-semibold">Tiempo restante:</span>
+                      <span id="timer-text"></span>
+                    </span>
+                  </div>
+                  <h4 class="card-title text-center mb-4">Resumen de la reserva</h4>
+
+                  <!-- Detalles de la reserva -->
+                  <div class="mb-4 bg-light p-3 rounded-3">
+                    <p class="mb-1"><i class="bi bi-geo-alt-fill text-primary me-2"></i><strong>Espacio:</strong> <span
+                        th:text="${reserva.espacioDeportivo.nombre}"></span></p>
+                    <p class="mb-1"><i class="bi bi-calendar-event-fill text-success me-2"></i><strong>Fecha:</strong>
+                      <span th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}"></span>
+                      hasta <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}"></span>
+                    </p>
+                    <p class="mb-0"><i class="bi bi-cash-coin text-warning me-2"></i><strong>Monto Total:</strong>
+                      <span th:with="duracion=${T(java.time.Duration).between(reserva.inicioReserva, reserva.finReserva).toHours()},
                             precioTotal=${reserva.espacioDeportivo.precioPorHora.multiply(duracion)}"
-                          th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}"></span>
-                  </p>
-                </div>
+                        th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}"></span>
+                    </p>
+                  </div>
 
-                <form th:action="@{/usuarios/pagar/{id}(id=${reserva.reservaId})}" method="post">
-                  <div class="mb-4">
-                    <label class="form-label fw-semibold mb-3 d-block">Elige tu método de pago preferido:</label>
+                  <form th:action="@{/usuarios/pagar/{id}(id=${reserva.reservaId})}" method="post">
+                    <div class="mb-4">
+                      <label class="form-label fw-semibold mb-3 d-block">Elige tu método de pago preferido:</label>
 
-                    <div class="row g-3">
-                      <!-- Pago Online -->
-                      <div class="col-md-6">
-                        <input type="radio" class="btn-check" name="metodoPagoId" id="pagoOnline" value="1" autocomplete="off" checked>
-                        <label class="btn btn-outline-primary w-100 py-4 d-flex flex-column align-items-center justify-content-center rounded-4 shadow-sm text-center" for="pagoOnline">
-                          <i class="bi bi-credit-card-2-front fs-1 mb-2"></i>
-                          <div class="fs-5 fw-semibold">Pago Online</div>
-                          <small class="text-muted">Usa tarjeta de crédito o débito</small>
-                        </label>
-                      </div>
+                      <div class="row g-3">
+                        <!-- Pago Online -->
+                        <div class="col-md-6">
+                          <input type="radio" class="btn-check" name="metodoPagoId" id="pagoOnline" value="1"
+                            autocomplete="off" checked>
+                          <label
+                            class="btn btn-outline-primary w-100 py-4 d-flex flex-column align-items-center justify-content-center rounded-4 shadow-sm text-center"
+                            for="pagoOnline">
+                            <i class="bi bi-credit-card-2-front fs-1 mb-2"></i>
+                            <div class="fs-5 fw-semibold">Pago Online</div>
+                            <small class="text-muted">Usa tarjeta de crédito o débito</small>
+                          </label>
+                        </div>
 
-                      <!-- Depósito Bancario -->
-                      <div class="col-md-6">
-                        <input type="radio" class="btn-check" name="metodoPagoId" id="deposito" value="2" autocomplete="off">
-                        <label class="btn btn-outline-success w-100 py-4 d-flex flex-column align-items-center justify-content-center rounded-4 shadow-sm text-center" for="deposito">
-                          <i class="bi bi-bank fs-1 mb-2"></i>
-                          <div class="fs-5 fw-semibold">Depósito Bancario</div>
-                          <small class="text-muted">Transferencia o depósito en cuenta</small>
-                        </label>
+                        <!-- Depósito Bancario -->
+                        <div class="col-md-6">
+                          <input type="radio" class="btn-check" name="metodoPagoId" id="deposito" value="2"
+                            autocomplete="off">
+                          <label
+                            class="btn btn-outline-success w-100 py-4 d-flex flex-column align-items-center justify-content-center rounded-4 shadow-sm text-center"
+                            for="deposito">
+                            <i class="bi bi-bank fs-1 mb-2"></i>
+                            <div class="fs-5 fw-semibold">Depósito Bancario</div>
+                            <small class="text-muted">Transferencia o depósito en cuenta</small>
+                          </label>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div class="d-flex justify-content-end">
-                    <a th:href="@{/usuarios/mis-reservas}" class="btn btn-secondary me-2">Volver</a>
-                    <button type="submit" class="btn btn-primary">Continuar</button>
-                  </div>
-                </form>
+                    <div class="d-flex justify-content-end">
+                      <a th:href="@{/usuarios/confirmarReserva/{id}(id=${reserva.reservaId})}"
+                        class="btn btn-secondary me-2">Volver</a>
+                      <button type="submit" class="btn btn-primary">Continuar</button>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
@@ -76,14 +97,80 @@
       </div>
     </div>
   </div>
-</div>
-<div class="sidebar-overlay"></div>
-<!-- JavaScript -->
-<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
-<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
-<script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
-<script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
-<script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
-<script th:src="@{/assets/js/app.js}"></script>
+  <div class="sidebar-overlay"></div>
+  <!-- JavaScript -->
+  <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+  <script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+  <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+  <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+  <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+  <script th:src="@{/assets/js/app.js}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    var fechaCreacion = /*[[${#temporals.format(reserva.fechaCreacion, 'yyyy-MM-dd''T''HH:mm:ss')}]]*/ '';
+    if (fechaCreacion) {
+      var createdAt = new Date(fechaCreacion.replace(' ', 'T'));
+      var now = new Date();
+      var maxSeconds = 299; // 4 minutos y 59 (ajustar a 270 para producción)
+      var elapsed = Math.floor((now - createdAt) / 1000);
+      var remaining = maxSeconds - elapsed;
+      function pad(n) { return n < 10 ? '0' + n : n; }
+      var alertShown = false;
+      function showExpiredAlert() {
+        if (alertShown) return;
+        alertShown = true;
+        const swalWithBootstrapButtons = Swal.mixin({
+          customClass: {
+            confirmButton: 'btn btn-primary',
+          },
+          buttonsStyling: false
+        });
+        swalWithBootstrapButtons.fire({
+          icon: 'error',
+          title: 'Tiempo expirado',
+          html: 'El tiempo para completar la reserva ha expirado.<br>Debes volver a seleccionar el horario.',
+          confirmButtonText: 'Ir a Mis Reservas',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          showCancelButton: false
+        }).then(function (result) {
+          if (result.isConfirmed) {
+            window.location.href = '/usuarios/mis-reservas';
+          }
+        });
+      }
+      function updateTimer() {
+        var timerEl = document.getElementById('timer');
+        if (remaining > 0) {
+          var min = Math.floor(remaining / 60);
+          var sec = remaining % 60;
+          document.getElementById('timer-text').textContent = pad(min) + ':' + pad(sec);
+          if (remaining <= 15) {
+            timerEl.classList.remove('bg-warning', 'text-dark');
+            timerEl.classList.add('bg-danger', 'text-white');
+          } else {
+            timerEl.classList.remove('bg-danger', 'text-white');
+            timerEl.classList.add('bg-warning', 'text-dark');
+          }
+          remaining--;
+        } else {
+          document.getElementById('timer-text').textContent = '00:00';
+          timerEl.classList.remove('bg-warning', 'text-dark');
+          timerEl.classList.add('bg-danger', 'text-white');
+          document.getElementById('btn-pagar').style.display = 'none';
+          var formCancelar = document.getElementById('form-cancelar');
+          if (formCancelar) formCancelar.style.display = 'none';
+          clearInterval(timerInterval);
+          showExpiredAlert();
+        }
+      }
+      updateTimer();
+      var timerInterval = setInterval(updateTimer, 1000);
+    }
+    /*]]>*/
+  </script>
 </body>
+
 </html>

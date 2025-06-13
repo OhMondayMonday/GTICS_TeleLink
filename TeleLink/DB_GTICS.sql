@@ -638,22 +638,23 @@ DELIMITER ;
 -- Habilitar el event scheduler
 SET GLOBAL event_scheduler = ON;
 
--- Event scheduler para cancelar reservas pendientes después de 3 minutos
+-- Event scheduler para cancelar reservas pendientes después de 5 minutos
 DELIMITER $$
 
 CREATE EVENT IF NOT EXISTS `cancelar_reservas_pendientes_timeout`
 ON SCHEDULE EVERY 1 MINUTE
 STARTS CURRENT_TIMESTAMP
 DO
-BEGIN    -- Cancelar reservas que están en estado 'pendiente' por más de 3 minutos
+BEGIN
+    -- Cancelar reservas que están en estado 'pendiente' por más de 5 minutos
     UPDATE `db_gtics`.`reservas`
     SET 
         `estado` = 'cancelada',
-        `razon_cancelacion` = 'Reserva cancelada automáticamente por timeout de pago (3 minutos)',
+        `razon_cancelacion` = 'Reserva cancelada automáticamente por timeout de pago (5 minutos)',
         `fecha_actualizacion` = CURRENT_TIMESTAMP
     WHERE 
         `estado` = 'pendiente' 
-        AND TIMESTAMPDIFF(MINUTE, `fecha_creacion`, CURRENT_TIMESTAMP) >= 3;
+        AND TIMESTAMPDIFF(MINUTE, `fecha_creacion`, CURRENT_TIMESTAMP) >= 5;
 END$$
 
 DELIMITER ;
@@ -701,3 +702,9 @@ DELIMITER ;
 
 
 select * from db_gtics.usuarios;
+
+SELECT 
+    'Event schedulers configurados correctamente' as mensaje,
+    COUNT(*) as reservas_actualizadas
+FROM reservas 
+WHERE fecha_actualizacion >= NOW() - INTERVAL 1 MINUTE;

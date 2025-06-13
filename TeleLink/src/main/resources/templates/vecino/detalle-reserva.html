@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:replace="~{Superadmin/fragments/head :: head(title='Detalle Reserva')}"></th:block>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+</head>
+
+<body data-sidebar="dark" class="vertical-collpsed">
+    <div th:replace="~{Superadmin/fragments/header :: header(title='Detalle de Reserva')}"></div>
+    <div th:replace="~{Superadmin/fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content" style="overflow: hidden;">
+        <div class="page-content" style="min-height: 100%;">
+            <div class="container-fluid">
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                            <h4 class="mb-sm-0">Detalle de Reserva</h4>
+                            <div class="page-title-right">
+                                <a th:href="@{/usuarios/mis-reservas}" class="btn btn-outline-secondary"><i
+                                        class="mdi mdi-arrow-left"></i> Mis reservas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end page title -->
+                <div class="row justify-content-center" data-aos="fade-left">
+                    <div class="col-12 col-xl-12 col-xxl-11">
+                        <div class="card shadow-sm border-0 rounded-4" style="min-height: 70vh;" data-aos="zoom-in">
+                            <div class="card-body p-4">
+                                <div th:if="${reserva.estado.name() == 'pendiente'}">
+                                    <span id="timer" class="badge bg-warning text-dark fs-6">
+                                        <i class="mdi mdi-timer-outline me-1"></i>
+                                        <span id="timer-text"></span>
+                                    </span>
+                                </div>
+                                <div class="row g-4 align-items-center">
+                                    <!-- Imagen del espacio -->
+                                    <div class="col-md-5" data-aos="zoom-in">
+                                        <div class="rounded-2 p-3">
+                                            <div class="text-center">
+                                                <img th:src="${reserva.espacioDeportivo.establecimientoDeportivo.fotoEstablecimientoUrl != null ? reserva.espacioDeportivo.establecimientoDeportivo.fotoEstablecimientoUrl : '/assets/images/canchita.jpg'}"
+                                                    alt="Espacio Deportivo" class="img-fluid rounded-3 mb-3"
+                                                    style="height: 256px; width: 75%; object-fit: cover;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Detalles de la reserva -->
+                                    <div class="col-md-7 p-3 border border-1 border-secondary-subtle rounded-2">
+                                        <h4 class="fw-bold mb-2" th:text="${reserva.espacioDeportivo.nombre}"></h4>
+                                        <span class="badge bg-primary mb-2"
+                                            th:text="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo}"></span>
+                                        <ul class="list-unstyled mb-3">
+                                            <li class="mb-2"><i
+                                                    class="mdi mdi-account-outline text-primary me-2"></i><strong>Titular:</strong>
+                                                <span
+                                                    th:text="${reserva.usuario.nombres + ' ' + reserva.usuario.apellidos}"></span>
+                                            </li>
+                                            <li class="mb-2"><i
+                                                    class="mdi mdi-store text-info me-2"></i><strong>Establecimiento:</strong>
+                                                <span
+                                                    th:text="${reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}"></span>
+                                            </li>
+                                            <li class="mb-2"><i
+                                                    class="mdi mdi-calendar-clock text-success me-2"></i><strong>Fecha:</strong>
+                                                <span
+                                                    th:text="${#temporals.format(reserva.inicioReserva, 'dd/MM/yyyy')}"></span>
+                                            </li>
+                                            <li class="mb-2"><i
+                                                    class="mdi mdi-clock-outline text-warning me-2"></i><strong>Horario:</strong>
+                                                <span
+                                                    th:text="${#temporals.format(reserva.inicioReserva, 'HH:mm') + ' - ' + #temporals.format(reserva.finReserva, 'HH:mm')}"></span>
+                                            </li>
+                                            <li class="mb-2" th:if="${reserva.numeroCarrilPiscina != null}"><i
+                                                    class="mdi mdi-swim text-primary me-2"></i><strong>Carril
+                                                    Piscina:</strong> <span
+                                                    th:text="${reserva.numeroCarrilPiscina}"></span></li>
+                                            <li class="mb-2" th:if="${reserva.numeroCarrilPista != null}"><i
+                                                    class="mdi mdi-run text-primary me-2"></i><strong>Carril
+                                                    Pista:</strong> <span th:text="${reserva.numeroCarrilPista}"></span>
+                                            </li>
+                                            <li class="mb-2" th:if="${reserva.razonCancelacion != null}"><i
+                                                    class="mdi mdi-alert-circle-outline text-danger me-2"></i><strong>Razón
+                                                    Cancelación:</strong> <span
+                                                    th:text="${reserva.razonCancelacion}"></span></li>
+                                            <li class="mb-2"><i
+                                                    class="mdi mdi-cash text-success me-2"></i><strong>Precio por
+                                                    hora:</strong> S/. <span
+                                                    th:text="${reserva.espacioDeportivo.precioPorHora}"></span></li>
+                                            <li class="mb-2"><i
+                                                    class="mdi mdi-cash-multiple text-info me-2"></i><strong>Total a
+                                                    pagar:</strong> S/. <span
+                                                    th:text="${#numbers.formatDecimal((duracionHoras * reserva.espacioDeportivo.precioPorHora), 1, 'POINT', 2, 'NONE')}"></span>
+                                            </li>
+                                        </ul>
+                                        <div class="d-flex gap-2 mt-3 align-items-center">
+                                            <a th:if="${reserva.estado.name() == 'pendiente'}" id="btn-pagar"
+                                                th:href="@{/usuarios/pagar/{id}(id=${reserva.reservaId})}"
+                                                class="btn btn-success"><i class="mdi mdi-credit-card"></i> Pagar
+                                                ahora</a>
+                                            <form th:if="${reserva.estado.name() == 'pendiente'}" id="form-cancelar"
+                                                th:action="@{/usuarios/reserva/cancelar/{id}(id=${reserva.reservaId})}"
+                                                method="post"
+                                                onsubmit="return confirm('¿Seguro que deseas cancelar la reserva?');"
+                                                style="display:inline;">
+                                                <button type="submit" class="btn btn-outline-danger"><i
+                                                        class="mdi mdi-cancel"></i> Cancelar reserva</button>
+                                            </form>
+                                        </div>
+                                        <div id="timer-expired-msg" class="alert alert-danger mt-2 d-none">El tiempo para completar la reserva ha expirado. Debe volver a seleccionar el horario.</div>
+                                        <!-- Modal de tiempo vencido (eliminado en favor de SweetAlert2) -->
+                                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                                        <script th:inline="javascript">
+                                            /*<![CDATA[*/
+                                            var fechaCreacion = /*[[${#temporals.format(reserva.fechaCreacion, 'yyyy-MM-dd''T''HH:mm:ss')}]]*/ '';
+                                            if (fechaCreacion) {
+                                                var createdAt = new Date(fechaCreacion.replace(' ', 'T'));
+                                                var now = new Date();
+                                                var maxSeconds = 299; // 4 minutos y 59 (ajustar a 270 para producción)
+                                                var elapsed = Math.floor((now - createdAt) / 1000);
+                                                var remaining = maxSeconds - elapsed;
+                                                function pad(n) { return n < 10 ? '0' + n : n; }
+                                                var alertShown = false;
+                                                function showExpiredAlert() {
+                                                    if (alertShown) return;
+                                                    alertShown = true;
+                                                    const swalWithBootstrapButtons = Swal.mixin({
+                                                      customClass: {
+                                                        confirmButton: 'btn btn-primary',
+                                                      },
+                                                      buttonsStyling: false
+                                                    });
+                                                    swalWithBootstrapButtons.fire({
+                                                      icon: 'error',
+                                                      title: 'Tiempo expirado',
+                                                      html: 'El tiempo para completar la reserva ha expirado.<br>Debes volver a seleccionar el horario.',
+                                                      confirmButtonText: 'Ir a Mis Reservas',
+                                                      allowOutsideClick: false,
+                                                      allowEscapeKey: false,
+                                                      showCancelButton: false
+                                                    }).then(function(result){
+                                                      if (result.isConfirmed) {
+                                                        window.location.href = '/usuarios/mis-reservas';
+                                                      }
+                                                    });
+                                                }
+                                                function updateTimer() {
+                                                    var timerEl = document.getElementById('timer');
+                                                    if (remaining > 0) {
+                                                        var min = Math.floor(remaining / 60);
+                                                        var sec = remaining % 60;
+                                                        document.getElementById('timer-text').textContent = pad(min) + ':' + pad(sec);
+                                                        if (remaining <= 15) {
+                                                            timerEl.classList.remove('bg-warning', 'text-dark');
+                                                            timerEl.classList.add('bg-danger', 'text-white');
+                                                        } else {
+                                                            timerEl.classList.remove('bg-danger', 'text-white');
+                                                            timerEl.classList.add('bg-warning', 'text-dark');
+                                                        }
+                                                        remaining--;
+                                                    } else {
+                                                        document.getElementById('timer-text').textContent = '00:00';
+                                                        timerEl.classList.remove('bg-warning', 'text-dark');
+                                                        timerEl.classList.add('bg-danger', 'text-white');
+                                                        document.getElementById('btn-pagar').style.display = 'none';
+                                                        var formCancelar = document.getElementById('form-cancelar');
+                                                        if (formCancelar) formCancelar.style.display = 'none';
+                                                        clearInterval(timerInterval);
+                                                        showExpiredAlert();
+                                                    }
+                                                }
+                                                updateTimer();
+                                                var timerInterval = setInterval(updateTimer, 1000);
+                                            }
+                                            /*]]>*/
+                                        </script>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-12 col-lg-7 mb-3 mb-lg-0">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-body p-4">
+                                                <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+                                                    <li class="nav-item">
+                                                        <a class="nav-link active" id="details-tab" data-bs-toggle="tab"
+                                                            href="#details" role="tab">Detalles</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="history-tab" data-bs-toggle="tab"
+                                                            href="#history" role="tab">Historial</a>
+                                                    </li>
+                                                </ul>
+                                                <div class="tab-content border border-top-0 p-4">
+                                                    <!-- Detalles -->
+                                                    <div class="tab-pane fade show active" id="details" role="tabpanel"
+                                                        data-aos="fade-left">
+                                                        <div class="row">
+                                                            <div class="col-md-6">
+                                                                <h5>Información del Espacio</h5>
+                                                                <p
+                                                                    th:text="${reserva.espacioDeportivo.descripcion ?: 'No hay descripción disponible'}">
+                                                                </p>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <h5>Políticas</h5>
+                                                                <p>Cancelación permitida hasta 24 horas antes sin
+                                                                    penalidad.</p>
+                                                                <p>En caso de no presentarse, se aplicará una
+                                                                    penalización.</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Historial -->
+                                                    <div class="tab-pane fade" id="history" role="tabpanel"
+                                                        data-aos="zoom-in">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-nowrap mb-0">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <th scope="row" style="width: 200px;">Estado
+                                                                            Actual</th>
+                                                                        <td>
+                                                                            <span th:switch="${reserva.estado}"
+                                                                                class="badge">
+                                                                                <span th:case="'pendiente'"
+                                                                                    class="badge bg-warning">Pendiente</span>
+                                                                                <span th:case="'confirmada'"
+                                                                                    class="badge bg-success">Confirmada</span>
+                                                                                <span th:case="'cancelada'"
+                                                                                    class="badge bg-danger">Cancelada</span>
+                                                                            </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Fecha Creación</th>
+                                                                        <td
+                                                                            th:text="${#temporals.format(reserva.fechaCreacion, 'dd/MM/yyyy HH:mm')}">
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Última Actualización</th>
+                                                                        <td
+                                                                            th:text="${reserva.fechaActualizacion != null ? #temporals.format(reserva.fechaActualizacion, 'dd/MM/yyyy HH:mm') : 'Sin actualizaciones'}">
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-lg-5">
+                                        <div th:if="${reserva.espacioDeportivo.establecimientoDeportivo.geolocalizacion != null}"
+                                            class="rounded-3 overflow-hidden mb-0 pb-0 h-100">
+                                            <iframe
+                                                th:src="@{'https://www.google.com/maps?q=' + ${reserva.espacioDeportivo.establecimientoDeportivo.geolocalizacion} + '&output=embed'}"
+                                                width="100%" height="300" style="border:0;min-height:250px;"
+                                                allowfullscreen="" loading="lazy"
+                                                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end row -->
+                    </div>
+                    <!-- container-fluid -->
+                </div>
+                <!-- End Page-content -->
+                <th:block th:replace="~{Superadmin/fragments/footer :: footer}"></th:block>
+            </div>
+            <th:block th:replace="~{Superadmin/fragments/foot :: foot}"></th:block>
+            <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+            <script>
+                AOS.init({
+                    once: true,
+                    disableMutationObserver: true,
+                    startEvent: 'DOMContentLoaded',
+                    // Evita que el fade cause scroll
+                    offset: 0,
+                    duration: 700
+                });
+                // Opcional: fuerza overflow hidden en body y main-content durante animación
+                document.body.style.overflow = 'hidden';
+                window.addEventListener('load', function () {
+                    setTimeout(function () {
+                        document.body.style.overflow = '';
+                    }, 800);
+                });
+            </script>
+</body>
+
+</html>

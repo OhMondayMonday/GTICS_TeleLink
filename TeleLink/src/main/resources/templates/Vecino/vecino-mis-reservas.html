@@ -106,7 +106,7 @@
                                                         <div th:with="pago=${@pagoRepository.findByReserva(reservaMap.reserva).orElse(null)}">
                                                             <li th:if="${reservaMap.reserva.estado.name() == 'pendiente' && (pago == null || pago.estadoTransaccion.name() == 'pendiente' || pago.estadoTransaccion.name() == 'fallido')}"
                                                                 th:remove="tag">
-                                                                <a class="dropdown-item" th:href="@{'/usuarios/pagar/' + ${reservaMap.reserva.reservaId}}">
+                                                                <a class="dropdown-item" th:href="@{'/usuarios/confirmarReserva/' + ${reservaMap.reserva.reservaId}}">
                                                                     <i class="fas fa-credit-card me-2"></i> Pagar
                                                                 </a>
                                                             </li>

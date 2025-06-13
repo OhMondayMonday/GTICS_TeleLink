@@ -71,13 +71,13 @@ public class UsuarioController {
     @Autowired
     private ReembolsoRepository reembolsoRepository;
 
-
     public class EspacioDeportivoConRatingDTO {
         private EspacioDeportivo espacioDeportivo;
         private double promedioCalificacion;
         private long reviewCount;
 
-        public EspacioDeportivoConRatingDTO(EspacioDeportivo espacioDeportivo, double promedioCalificacion, long reviewCount) {
+        public EspacioDeportivoConRatingDTO(EspacioDeportivo espacioDeportivo, double promedioCalificacion,
+                long reviewCount) {
             this.espacioDeportivo = espacioDeportivo;
             this.promedioCalificacion = promedioCalificacion;
             this.reviewCount = reviewCount;
@@ -111,8 +111,7 @@ public class UsuarioController {
                 .map(result -> new EspacioDeportivoConRatingDTO(
                         (EspacioDeportivo) result[0],
                         ((Number) result[1]).doubleValue(),
-                        ((Number) result[2]).longValue()
-                ))
+                        ((Number) result[2]).longValue()))
                 .collect(Collectors.toList());
 
         // Pasar datos al modelo
@@ -163,7 +162,8 @@ public class UsuarioController {
     }
 
     @GetMapping("/editar-perfil")
-    public String mostrarEditarPerfil(@ModelAttribute("usuario") Usuario usuarioActualizado, Model model, HttpSession session) {
+    public String mostrarEditarPerfil(@ModelAttribute("usuario") Usuario usuarioActualizado, Model model,
+            HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         model.addAttribute("usuario", usuario);
         return "Vecino/vecino-editarPerfil";
@@ -179,7 +179,8 @@ public class UsuarioController {
             RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-        // Validar el formato de la foto si se subió una y asociar el error a fotoPerfilUrl
+        // Validar el formato de la foto si se subió una y asociar el error a
+        // fotoPerfilUrl
         if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
             String contentType = fotoPerfil.getContentType();
             if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
@@ -205,7 +206,8 @@ public class UsuarioController {
         usuario.setTelefono(usuarioActualizado.getTelefono());
 
         // Manejar la subida de la foto al bucket S3
-        String defaultFotoPerfilUrl = usuario.getFotoPerfilUrl() != null ? usuario.getFotoPerfilUrl() : "https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg";
+        String defaultFotoPerfilUrl = usuario.getFotoPerfilUrl() != null ? usuario.getFotoPerfilUrl()
+                : "https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg";
         if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
             System.out.println("Intentando subir archivo a S3...");
             String uploadResult = s3Service.uploadFile(fotoPerfil);
@@ -221,13 +223,15 @@ public class UsuarioController {
                 // Manejar el caso de error (incluyendo ExpiredToken)
                 System.out.println("Error detectado en el resultado: " + uploadResult);
                 usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
-                redirectAttributes.addFlashAttribute("message", "Error al subir la foto de perfil: " + uploadResult + ". Se usó una imagen por defecto.");
+                redirectAttributes.addFlashAttribute("message",
+                        "Error al subir la foto de perfil: " + uploadResult + ". Se usó una imagen por defecto.");
                 redirectAttributes.addFlashAttribute("messageType", "error");
             } else {
                 // Caso inesperado
                 System.out.println("Resultado inválido de la subida: " + uploadResult);
                 usuario.setFotoPerfilUrl(defaultFotoPerfilUrl);
-                redirectAttributes.addFlashAttribute("message", "Error desconocido al subir la foto. Se usó una imagen por defecto.");
+                redirectAttributes.addFlashAttribute("message",
+                        "Error desconocido al subir la foto. Se usó una imagen por defecto.");
                 redirectAttributes.addFlashAttribute("messageType", "error");
             }
         } else {
@@ -249,7 +253,6 @@ public class UsuarioController {
         return "lista-usuarios";
     }
 
-
     @GetMapping("/pagos")
     public String mostrarPagos(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
@@ -267,27 +270,31 @@ public class UsuarioController {
     }
 
     /*
-    @GetMapping("/mis-reservas")
-    public String mostrarReservas(Model model, HttpSession session) {
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario == null) {
-            return "redirect:/usuarios/inicio";
-        }
-        List<Reserva> reservas = reservaRepository.findByUsuarioOrderByInicioReservaDesc(usuario);
-        // Create a list of maps to include canCancel flag
-        List<Map<String, Object>> reservasWithCancelFlag = reservas.stream().map(reserva -> {
-            Map<String, Object> reservaMap = new HashMap<>();
-            reservaMap.put("reserva", reserva);
-            reservaMap.put("canCancel", LocalDateTime.now().isBefore(reserva.getInicioReserva().minusHours(48))
-                    && !reserva.getEstado().name().equals("cancelada"));
-            return reservaMap;
-        }).collect(Collectors.toList());
-
-        model.addAttribute("usuario", usuario);
-        model.addAttribute("reservasWithCancelFlag", reservasWithCancelFlag);
-        model.addAttribute("activeItem", "reservas");
-        return "Vecino/vecino-mis-reservas";
-    }*/
+     * @GetMapping("/mis-reservas")
+     * public String mostrarReservas(Model model, HttpSession session) {
+     * Usuario usuario = (Usuario) session.getAttribute("usuario");
+     * if (usuario == null) {
+     * return "redirect:/usuarios/inicio";
+     * }
+     * List<Reserva> reservas =
+     * reservaRepository.findByUsuarioOrderByInicioReservaDesc(usuario);
+     * // Create a list of maps to include canCancel flag
+     * List<Map<String, Object>> reservasWithCancelFlag =
+     * reservas.stream().map(reserva -> {
+     * Map<String, Object> reservaMap = new HashMap<>();
+     * reservaMap.put("reserva", reserva);
+     * reservaMap.put("canCancel",
+     * LocalDateTime.now().isBefore(reserva.getInicioReserva().minusHours(48))
+     * && !reserva.getEstado().name().equals("cancelada"));
+     * return reservaMap;
+     * }).collect(Collectors.toList());
+     * 
+     * model.addAttribute("usuario", usuario);
+     * model.addAttribute("reservasWithCancelFlag", reservasWithCancelFlag);
+     * model.addAttribute("activeItem", "reservas");
+     * return "Vecino/vecino-mis-reservas";
+     * }
+     */
     @GetMapping("/mis-reservas")
     public String mostrarReservas(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
@@ -304,7 +311,8 @@ public class UsuarioController {
             long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
             reservaMap.put("duracionHoras", duracionHoras);
             // Calculate total price
-            BigDecimal precioTotal = reserva.getEspacioDeportivo().getPrecioPorHora().multiply(BigDecimal.valueOf(duracionHoras));
+            BigDecimal precioTotal = reserva.getEspacioDeportivo().getPrecioPorHora()
+                    .multiply(BigDecimal.valueOf(duracionHoras));
             reservaMap.put("precioTotal", precioTotal);
             return reservaMap;
         }).collect(Collectors.toList());
@@ -316,69 +324,75 @@ public class UsuarioController {
     }
 
     /*
+     * @PostMapping("/reserva/cancelar/{id}")
+     * public String cancelarReserva(@PathVariable("id") Integer id,
+     * 
+     * @RequestParam(required = false) String razon,
+     * RedirectAttributes redirectAttributes,
+     * HttpSession session) {
+     * 
+     * // Obtener el usuario actual de la sesión
+     * Usuario usuario = (Usuario) session.getAttribute("usuario");
+     * if (usuario == null) {
+     * return "redirect:/usuarios/inicio";
+     * }
+     * 
+     * // Buscar la reserva por ID
+     * Reserva reserva = reservaRepository.findById(id)
+     * .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+     * "Reserva no encontrada"));
+     * 
+     * // Verificar que la reserva pertenezca al usuario actual
+     * if (!reserva.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+     * redirectAttributes.addFlashAttribute("error",
+     * "No tienes permiso para cancelar esta reserva");
+     * return "redirect:/usuarios/mis-reservas";
+     * }
+     * 
+     * // Verificar si la cancelación es con menos de 48 horas de anticipación
+     * LocalDateTime ahora = LocalDateTime.now();
+     * LocalDateTime limite = reserva.getInicioReserva().minusHours(48);
+     * 
+     * boolean conPenalidad = ahora.isAfter(limite);
+     * 
+     * // Cambiar el estado de la reserva
+     * reserva.setEstado(Reserva.Estado.cancelada);
+     * reserva.setRazonCancelacion(razon);
+     * reserva.setFechaActualizacion(LocalDateTime.now());
+     * reservaRepository.save(reserva);
+     * 
+     * // Buscar si existe un pago asociado a esta reserva
+     * Optional<Pago> pagoOptional = pagoRepository.findByReserva(reserva);
+     * 
+     * // Mensaje para el usuario
+     * String mensaje;
+     * if (conPenalidad) {
+     * mensaje =
+     * "Reserva cancelada. Se ha aplicado la penalidad por cancelación con menos de 48 horas de anticipación."
+     * ;
+     * } else {
+     * mensaje = "Reserva cancelada correctamente sin penalidad.";
+     * 
+     * // Si hay un pago y no hay penalidad, podríamos marcar el pago como
+     * reembolsable
+     * if (pagoOptional.isPresent()) {
+     * Pago pago = pagoOptional.get();
+     * // Aquí podrías implementar la lógica de reembolso
+     * // pago.setEstado("reembolsado");
+     * // pagoRepository.save(pago);
+     * }
+     * }
+     * 
+     * redirectAttributes.addFlashAttribute("success", mensaje);
+     * return "redirect:/usuarios/mis-reservas";
+     * }
+     */
+
     @PostMapping("/reserva/cancelar/{id}")
     public String cancelarReserva(@PathVariable("id") Integer id,
-                                  @RequestParam(required = false) String razon,
-                                  RedirectAttributes redirectAttributes,
-                                  HttpSession session) {
-
-        // Obtener el usuario actual de la sesión
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario == null) {
-            return "redirect:/usuarios/inicio";
-        }
-
-        // Buscar la reserva por ID
-        Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva no encontrada"));
-
-        // Verificar que la reserva pertenezca al usuario actual
-        if (!reserva.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
-            redirectAttributes.addFlashAttribute("error", "No tienes permiso para cancelar esta reserva");
-            return "redirect:/usuarios/mis-reservas";
-        }
-
-        // Verificar si la cancelación es con menos de 48 horas de anticipación
-        LocalDateTime ahora = LocalDateTime.now();
-        LocalDateTime limite = reserva.getInicioReserva().minusHours(48);
-
-        boolean conPenalidad = ahora.isAfter(limite);
-
-        // Cambiar el estado de la reserva
-        reserva.setEstado(Reserva.Estado.cancelada);
-        reserva.setRazonCancelacion(razon);
-        reserva.setFechaActualizacion(LocalDateTime.now());
-        reservaRepository.save(reserva);
-
-        // Buscar si existe un pago asociado a esta reserva
-        Optional<Pago> pagoOptional = pagoRepository.findByReserva(reserva);
-
-        // Mensaje para el usuario
-        String mensaje;
-        if (conPenalidad) {
-            mensaje = "Reserva cancelada. Se ha aplicado la penalidad por cancelación con menos de 48 horas de anticipación.";
-        } else {
-            mensaje = "Reserva cancelada correctamente sin penalidad.";
-
-            // Si hay un pago y no hay penalidad, podríamos marcar el pago como reembolsable
-            if (pagoOptional.isPresent()) {
-                Pago pago = pagoOptional.get();
-                // Aquí podrías implementar la lógica de reembolso
-                // pago.setEstado("reembolsado");
-                // pagoRepository.save(pago);
-            }
-        }
-
-        redirectAttributes.addFlashAttribute("success", mensaje);
-        return "redirect:/usuarios/mis-reservas";
-    }
-    */
-
-    @PostMapping("/reserva/cancelar/{id}")
-    public String cancelarReserva(@PathVariable("id") Integer id,
-                                  @RequestParam(required = false) String razon,
-                                  RedirectAttributes redirectAttributes,
-                                  HttpSession session) {
+            @RequestParam(required = false) String razon,
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
 
         // Obtener el usuario actual de la sesión
         Usuario usuario = (Usuario) session.getAttribute("usuario");
@@ -519,12 +533,14 @@ public class UsuarioController {
         if (busqueda != null && !busqueda.trim().isEmpty()) {
             String busquedaLower = busqueda.toLowerCase().trim();
             espacios = espacios.stream()
-                    .filter(espacio ->
-                            espacio.getNombre().toLowerCase().contains(busquedaLower) ||
-                                    (espacio.getDescripcion() != null && espacio.getDescripcion().toLowerCase().contains(busquedaLower)) ||
-                                    espacio.getServicioDeportivo().getServicioDeportivo().toLowerCase().contains(busquedaLower) ||
-                                    espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre().toLowerCase().contains(busquedaLower)
-                    )
+                    .filter(espacio -> espacio.getNombre().toLowerCase().contains(busquedaLower) ||
+                            (espacio.getDescripcion() != null
+                                    && espacio.getDescripcion().toLowerCase().contains(busquedaLower))
+                            ||
+                            espacio.getServicioDeportivo().getServicioDeportivo().toLowerCase().contains(busquedaLower)
+                            ||
+                            espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre().toLowerCase()
+                                    .contains(busquedaLower))
                     .collect(Collectors.toList());
         }
 
@@ -596,14 +612,14 @@ public class UsuarioController {
     public String mostrarCalendario(Model model) {
         // Aquí puedes agregar cualquier lógica que necesites
         return "Vecino/vecino-calendario";
-    }    
-    
+    }
+
     @GetMapping("/reservar/{espacioId}")
     public String mostrarReservar(@PathVariable("espacioId") Integer espacioId,
-                                  @RequestParam(value = "inicio", required = false) String inicio,
-                                  @RequestParam(value = "fin", required = false) String fin,
-                                  Model model, HttpSession session,
-                                  RedirectAttributes redirectAttributes) {
+            @RequestParam(value = "inicio", required = false) String inicio,
+            @RequestParam(value = "fin", required = false) String fin,
+            Model model, HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
@@ -653,7 +669,7 @@ public class UsuarioController {
                 if (duracionHoras == 0) {
                     duracionHoras = 1; // Mínimo 1 hora
                 }
-                
+
                 BigDecimal precioPorHora = espacio.getPrecioPorHora();
                 BigDecimal precioTotal = precioPorHora.multiply(BigDecimal.valueOf(duracionHoras));
 
@@ -675,7 +691,8 @@ public class UsuarioController {
                 model.addAttribute("duracionHoras", duracionHoras);
                 model.addAttribute("precioTotal", precioTotal);
                 model.addAttribute("tieneReserva", true);
-                model.addAttribute("mensaje", "Horario seleccionado correctamente. Complete los datos para confirmar su reserva.");
+                model.addAttribute("mensaje",
+                        "Horario seleccionado correctamente. Complete los datos para confirmar su reserva.");
 
             } catch (DateTimeParseException e) {
                 model.addAttribute("error", "Formato de fecha/hora inválido: " + e.getMessage());
@@ -779,7 +796,8 @@ public class UsuarioController {
         }
         in.close();
 
-        // Extrae el link de pago de la respuesta JSON (usa una librería JSON en producción)
+        // Extrae el link de pago de la respuesta JSON (usa una librería JSON en
+        // producción)
         String linkPago = response.toString().split("\"checkout_url\":\"")[1].split("\"")[0].replace("\\/", "/");
         return ResponseEntity.ok(linkPago);
     }
@@ -798,9 +816,9 @@ public class UsuarioController {
     @GetMapping("/api/reservas")
     @ResponseBody
     public List<ReservaCalendarioDTO> obtenerReservas(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha
-    ) {
-        if (fecha == null) fecha = LocalDate.now();
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        if (fecha == null)
+            fecha = LocalDate.now();
         LocalDateTime inicio = fecha.atStartOfDay();
         LocalDateTime fin = inicio.plusDays(1);
 
@@ -809,28 +827,30 @@ public class UsuarioController {
                         r.getEspacioDeportivo().getEspacioDeportivoId().toString(),
                         "Reservado",
                         r.getInicioReserva().toString(),
-                        r.getFinReserva().toString()
-                )).collect(Collectors.toList());
+                        r.getFinReserva().toString()))
+                .collect(Collectors.toList());
     }
 
+    // Modificado: Si no se encuentra el espacio, redirige a /usuarios/cancha con
+    // mensaje de error
     @GetMapping("/reservasCalendario/{id}")
-    public String verCalendarioReservas(@PathVariable("id") Integer id, Model model) {
-        // Buscar el espacio deportivo por ID
-        EspacioDeportivo espacioDeportivo = espacioDeportivoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Espacio deportivo no encontrado"));
-
-        // Pasar el objeto completo y el ID al modelo
+    public String verCalendarioReservas(@PathVariable("id") Integer id, Model model,
+            RedirectAttributes redirectAttributes) {
+        Optional<EspacioDeportivo> optEspacio = espacioDeportivoRepository.findById(id);
+        if (optEspacio.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Espacio deportivo no encontrado");
+            return "redirect:/usuarios/cancha";
+        }
+        EspacioDeportivo espacioDeportivo = optEspacio.get();
         model.addAttribute("espacioId", id);
         model.addAttribute("espacio", espacioDeportivo);
-
         return "Vecino/reservas-futbol-calendario";
     }
-
-
     // ---- Flujo de pagos ----
 
-     @GetMapping("/pagar/{reservaId}")
-    public String mostrarPagoReserva(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    @GetMapping("/pagar/{reservaId}")
+    public String mostrarPagoReserva(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
@@ -863,9 +883,9 @@ public class UsuarioController {
     // Procesar selección de método de pago
     @PostMapping("/pagar/{reservaId}")
     public String procesarMetodoPago(@PathVariable("reservaId") Integer reservaId,
-                                     @RequestParam("metodoPagoId") Integer metodoPagoId,
-                                     HttpSession session,
-                                     RedirectAttributes redirectAttributes) {
+            @RequestParam("metodoPagoId") Integer metodoPagoId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
@@ -890,7 +910,8 @@ public class UsuarioController {
 
     // Mostrar formulario de pago con tarjeta
     @GetMapping("/pago-tarjeta/{reservaId}")
-    public String mostrarPagoTarjeta(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String mostrarPagoTarjeta(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
@@ -917,12 +938,12 @@ public class UsuarioController {
     // Procesar pago con tarjeta (simulado)
     @PostMapping("/pago-tarjeta/{reservaId}")
     public String procesarPagoTarjeta(@PathVariable("reservaId") Integer reservaId,
-                                      @RequestParam("numeroTarjeta") String numeroTarjeta,
-                                      @RequestParam("nombreTitular") String nombreTitular,
-                                      @RequestParam("fechaExpiracion") String fechaExpiracion,
-                                      @RequestParam("cvv") String cvv,
-                                      HttpSession session,
-                                      RedirectAttributes redirectAttributes) {
+            @RequestParam("numeroTarjeta") String numeroTarjeta,
+            @RequestParam("nombreTitular") String nombreTitular,
+            @RequestParam("fechaExpiracion") String fechaExpiracion,
+            @RequestParam("cvv") String cvv,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
@@ -995,7 +1016,7 @@ public class UsuarioController {
 
         if (isValid) {
             pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
-            reserva.setEstado(Reserva.Estado.completada);
+            reserva.setEstado(Reserva.Estado.confirmada);
             reserva.setFechaActualizacion(LocalDateTime.now());
             redirectAttributes.addFlashAttribute("mensaje", "Pago realizado con éxito");
         } else {
@@ -1011,7 +1032,8 @@ public class UsuarioController {
 
     // Mostrar formulario de pago por depósito
     @GetMapping("/pago-deposito/{reservaId}")
-    public String mostrarPagoDeposito(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String mostrarPagoDeposito(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
@@ -1035,12 +1057,11 @@ public class UsuarioController {
         return "Vecino/vecino-pago-deposito";
     }
 
-
     @PostMapping("/pago-deposito/{reservaId}")
     public String procesarPagoDeposito(@PathVariable("reservaId") Integer reservaId,
-                                       @RequestParam("comprobante") MultipartFile comprobante,
-                                       HttpSession session,
-                                       RedirectAttributes redirectAttributes) {
+            @RequestParam("comprobante") MultipartFile comprobante,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para pagar.");
@@ -1090,7 +1111,8 @@ public class UsuarioController {
                     return "redirect:/usuarios/pago-deposito/" + reservaId;
                 }
             } else {
-                redirectAttributes.addFlashAttribute("error", "Error al subir el comprobante: " + (uploadResult != null ? uploadResult : "Resultado inválido"));
+                redirectAttributes.addFlashAttribute("error", "Error al subir el comprobante: "
+                        + (uploadResult != null ? uploadResult : "Resultado inválido"));
                 return "redirect:/usuarios/pago-deposito/" + reservaId;
             }
         } catch (Exception e) {
@@ -1108,8 +1130,13 @@ public class UsuarioController {
         pago.setFechaPago(LocalDateTime.now());
         pago.setEstadoTransaccion(Pago.EstadoTransaccion.pendiente);
         pago.setFotoComprobanteUrl(comprobanteUrl); // Store URL in foto_comprobante_url
-        pago.setDetallesTransaccion("Comprobante subido: Pendiente revisión del Administrador"); // Update detalles_transaccion
+        pago.setDetallesTransaccion("Comprobante subido: Pendiente revisión del Administrador"); // Update
+                                                                                                 // detalles_transaccion
         pagoRepository.save(pago);
+        // Cambiar estado de la reserva a en_proceso
+        reserva.setEstado(Reserva.Estado.en_proceso);
+        reserva.setFechaActualizacion(LocalDateTime.now());
+        reservaRepository.save(reserva);
 
         redirectAttributes.addFlashAttribute("mensaje", "Pago por depósito registrado. Pendiente de validación.");
         return "redirect:/usuarios/mis-reservas";
@@ -1139,8 +1166,7 @@ public class UsuarioController {
     @ResponseBody
     public List<Map<String, Object>> obtenerReservasPorEspacio(
             @PathVariable("espacioId") Integer espacioId,
-            HttpSession session
-    ) {
+            HttpSession session) {
         // Obtener el usuario actual de la sesión
         Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
         Integer usuarioId = usuarioActual != null ? usuarioActual.getUsuarioId() : null;
@@ -1225,9 +1251,8 @@ public class UsuarioController {
 
             // Generar eventos fantasma para cada slot de tiempo pasado sin reserva
             // Recorremos día por día
-            for (LocalDateTime diaActual = inicioRango.toLocalDate().atStartOfDay();
-                 !diaActual.toLocalDate().isAfter(ahora.toLocalDate());
-                 diaActual = diaActual.plusDays(1)) {
+            for (LocalDateTime diaActual = inicioRango.toLocalDate().atStartOfDay(); !diaActual.toLocalDate()
+                    .isAfter(ahora.toLocalDate()); diaActual = diaActual.plusDays(1)) {
 
                 // Para cada día, recorremos los slots de tiempo dentro del horario de operación
                 LocalDateTime inicioSlot = diaActual.with(horaInicio);
@@ -1235,7 +1260,8 @@ public class UsuarioController {
 
                 // Si el día es hoy, solo generamos eventos hasta la hora actual
                 LocalDateTime limiteFinal = diaActual.toLocalDate().equals(ahora.toLocalDate())
-                        ? ahora : finDia;
+                        ? ahora
+                        : finDia;
 
                 // Generamos slots de 1 hora
                 while (inicioSlot.isBefore(limiteFinal)) {
@@ -1287,8 +1313,7 @@ public class UsuarioController {
     @ResponseBody
     public ResponseEntity<?> obtenerDetallesReserva(
             @PathVariable("reservaId") Integer reservaId,
-            HttpSession session
-    ) {
+            HttpSession session) {
         // Obtener el usuario actual de la sesión
         Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
         if (usuarioActual == null) {
@@ -1321,37 +1346,27 @@ public class UsuarioController {
         detallesReserva.put("duracionHoras", duracionHoras);
 
         // Calcular precio total
-        BigDecimal precioTotal = reserva.getEspacioDeportivo().getPrecioPorHora().multiply(BigDecimal.valueOf(duracionHoras));
+        BigDecimal precioTotal = reserva.getEspacioDeportivo().getPrecioPorHora()
+                .multiply(BigDecimal.valueOf(duracionHoras));
         detallesReserva.put("precioTotal", precioTotal);
 
         // Información del espacio deportivo
         detallesReserva.put("espacioDeportivo", reserva.getEspacioDeportivo().getNombre());
-        detallesReserva.put("tipoServicio", reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo());
-        detallesReserva.put("establecimiento", reserva.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
+        detallesReserva.put("tipoServicio",
+                reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo());
+        detallesReserva.put("establecimiento",
+                reserva.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
 
         return ResponseEntity.ok(detallesReserva);
     }
 
-    @GetMapping("/calendario/{espacioId}")
-    public String mostrarCalendario(@PathVariable("espacioId") Integer espacioId, Model model) {
-        // Buscar el espacio deportivo por ID
-        EspacioDeportivo espacioDeportivo = espacioDeportivoRepository.findById(espacioId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Espacio deportivo no encontrado"));
-        
-        // Pasar el objeto completo y el ID al modelo
-        model.addAttribute("espacioId", espacioId);
-        model.addAttribute("espacio", espacioDeportivo);
-        
-        return "Vecino/vecino-calendario";
-    }
-
     @PostMapping("/procesar-reserva")
     public String procesarReserva(@RequestParam("reservaId") Integer reservaId,
-                                  @RequestParam("espacioId") Integer espacioId,
-                                  @RequestParam("cantidadPersonas") Integer cantidadPersonas,
-                                  @RequestParam(value = "payment-method", defaultValue = "online") String metodoPago,
-                                  HttpSession session,
-                                  RedirectAttributes redirectAttributes) {
+            @RequestParam("espacioId") Integer espacioId,
+            @RequestParam("cantidadPersonas") Integer cantidadPersonas,
+            @RequestParam(value = "payment-method", defaultValue = "online") String metodoPago,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para continuar.");
@@ -1377,9 +1392,10 @@ public class UsuarioController {
 
             // Final validation - check for conflicts with other active reservations
             long conflictos = reservaRepository.countActiveReservationConflicts(
-                espacioId, reserva.getInicioReserva(), reserva.getFinReserva());
+                    espacioId, reserva.getInicioReserva(), reserva.getFinReserva());
             if (conflictos > 1) { // > 1 porque la reserva actual cuenta como 1
-                redirectAttributes.addFlashAttribute("error", "Conflicto detectado: ya existe otra reserva en este horario.");
+                redirectAttributes.addFlashAttribute("error",
+                        "Conflicto detectado: ya existe otra reserva en este horario.");
                 return "redirect:/usuarios/calendario/" + espacioId;
             }
 
@@ -1395,46 +1411,59 @@ public class UsuarioController {
                 // Para otros métodos de pago en el futuro
                 redirectAttributes.addFlashAttribute("error", "Método de pago no soportado actualmente.");
                 return "redirect:/usuarios/reservar/" + espacioId;
-            }        } catch (Exception e) {
+            }
+        } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
             return "redirect:/usuarios/reservar/" + espacioId;
         }
     }
 
-    @PostMapping("/crear-reserva")
-    public String crearReserva(@RequestParam("espacioId") Integer espacioId,
-                               @RequestParam("fechaInicio") String fechaInicio,
-                               @RequestParam("fechaFin") String fechaFin,
-                               @RequestParam("cantidadPersonas") Integer cantidadPersonas,
-                               @RequestParam(value = "payment-method", defaultValue = "online") String metodoPago,
-                               HttpSession session,
-                               RedirectAttributes redirectAttributes) {
+    @PostMapping("/crear-reserva-calendario")
+    public String crearReservaDesdeCalendario(@RequestParam("espacioId") Integer espacioId,
+            @RequestParam("fechaInicio") String fechaInicio,
+            @RequestParam("fechaFin") String fechaFin,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para continuar.");
             return "redirect:/usuarios/inicio";
         }
-
         try {
-            // Obtener el espacio deportivo
             EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId)
                     .orElseThrow(() -> new RuntimeException("Espacio deportivo no encontrado"));
-
-            // Parsear fechas
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-            LocalDateTime inicioReserva = LocalDateTime.parse(fechaInicio, formatter);
-            LocalDateTime finReserva = LocalDateTime.parse(fechaFin, formatter);
-
-            // Verificar conflictos ANTES de crear la reserva
-            long conflictos = reservaRepository.countActiveReservationConflicts(espacioId, inicioReserva, finReserva);
-            if (conflictos > 0) {
-                redirectAttributes.addFlashAttribute("conflictoDetectado", true);
-                redirectAttributes.addFlashAttribute("mensajeConflicto", "Ya existe otra reserva activa en este horario. Por favor, selecciona otro horario.");
-                System.out.println("Conflictos detectados en wasawasawa");
+            if (espacio.getEstadoServicio() != EspacioDeportivo.EstadoServicio.operativo) {
+                redirectAttributes.addFlashAttribute("error", "El espacio deportivo no está disponible");
                 return "redirect:/usuarios/reservasCalendario/" + espacioId;
             }
-
-            // Crear la reserva en estado pendiente
+            LocalDateTime inicioReserva;
+            LocalDateTime finReserva;
+            try {
+                inicioReserva = parsearFechaISOManteniendomHora(fechaInicio);
+                finReserva = parsearFechaISOManteniendomHora(fechaFin);
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Formato de fecha inválido");
+                return "redirect:/usuarios/reservasCalendario/" + espacioId;
+            }
+            if (!inicioReserva.isBefore(finReserva)) {
+                redirectAttributes.addFlashAttribute("error", "La hora de inicio debe ser anterior a la hora de fin");
+                return "redirect:/usuarios/reservasCalendario/" + espacioId;
+            }
+            if (inicioReserva.isBefore(LocalDateTime.now())) {
+                redirectAttributes.addFlashAttribute("error", "No se pueden hacer reservas en horarios pasados");
+                return "redirect:/usuarios/reservasCalendario/" + espacioId;
+            }
+            long duracionHoras = Duration.between(inicioReserva, finReserva).toHours();
+            if (duracionHoras > 3) {
+                redirectAttributes.addFlashAttribute("error", "La duración máxima de una reserva es de 3 horas");
+                return "redirect:/usuarios/reservasCalendario/" + espacioId;
+            }
+            long conflictos = reservaRepository.countActiveReservationConflicts(espacioId, inicioReserva, finReserva);
+            if (conflictos > 0) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Ya existe otra reserva activa en este horario. Por favor, selecciona otro horario.");
+                return "redirect:/usuarios/reservasCalendario/" + espacioId;
+            }
             Reserva nuevaReserva = new Reserva();
             nuevaReserva.setUsuario(usuario);
             nuevaReserva.setEspacioDeportivo(espacio);
@@ -1442,22 +1471,58 @@ public class UsuarioController {
             nuevaReserva.setFinReserva(finReserva);
             nuevaReserva.setEstado(Reserva.Estado.pendiente);
             nuevaReserva.setFechaCreacion(LocalDateTime.now());
-
-            // Guardar la reserva
-            reservaRepository.save(nuevaReserva);
-
-            // Redirigir al proceso de pago
-            if ("online".equals(metodoPago)) {
-                return "redirect:/usuarios/pagar/" + nuevaReserva.getReservaId();
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Método de pago no soportado actualmente.");
-                return "redirect:/usuarios/reservar/" + espacioId;
-            }
-
+            Reserva reservaGuardada = reservaRepository.save(nuevaReserva);
+            return "redirect:/usuarios/confirmarReserva/" + reservaGuardada.getReservaId();
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al crear la reserva: " + e.getMessage());
-            return "redirect:/usuarios/reservar/" + espacioId;
+            return "redirect:/usuarios/reservasCalendario/" + espacioId;
         }
     }
 
+    @GetMapping("/confirmarReserva/{reservaId}")
+    public String verDetalleReserva(@PathVariable("reservaId") Integer reservaId, Model model, HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para continuar.");
+            return "redirect:/usuarios/inicio";
+        }
+        Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
+        if (optReserva.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Reserva no encontrada");
+            return "redirect:/usuarios/mis-reservas";
+        }
+        Reserva reserva = optReserva.get();
+        if (!reserva.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+            redirectAttributes.addFlashAttribute("error", "No tienes permiso para ver esta reserva");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        if (!reserva.getEstado().equals(Reserva.Estado.pendiente)) {
+            redirectAttributes.addFlashAttribute("error", "La reserva no está pendiente de pago");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        long duracionHoras = java.time.Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
+        model.addAttribute("reserva", reserva);
+        model.addAttribute("espacio", reserva.getEspacioDeportivo());
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("duracionHoras", duracionHoras);
+        return "Vecino/detalle-reserva";
+    }
+
+    // Método auxiliar para parsear fechas ISO manteniendo la hora exacta
+    private LocalDateTime parsearFechaISOManteniendomHora(String fechaISO) {
+        // Manejar formato ISO con zona horaria (ej: "2025-06-11T16:00:00.000Z")
+        if (fechaISO.endsWith("Z")) {
+            // Remover la Z y milisegundos, mantener la hora exacta como local
+            String fechaSinZ = fechaISO.substring(0, fechaISO.length() - 1);
+            if (fechaSinZ.contains(".")) {
+                fechaSinZ = fechaSinZ.substring(0, fechaSinZ.indexOf('.'));
+            }
+            return LocalDateTime.parse(fechaSinZ);
+        } else {
+            return LocalDateTime.parse(fechaISO);
+        }
+    }
 }

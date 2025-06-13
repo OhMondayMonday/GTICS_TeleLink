@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Realizar reserva')}"></head>
-    <!-- Meta tag CSRF para JavaScript -->
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Realizar reserva')}">
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    </head>
 
     <body data-sidebar="dark" class="vertical-collpsed">
         <div id="layout-wrapper">
@@ -148,10 +148,12 @@
                                         <h5 class="modal-title" id="modal-title">Crear Reserva</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>                                    <div class="modal-body p-4">
-                                        <form class="needs-validation" name="event-form" id="form-event" novalidate>
+                                        <form class="needs-validation" name="event-form" id="form-event" novalidate th:action="@{/usuarios/crear-reserva-calendario}" method="post">
                                             <input type="hidden" name="title" id="event-title" value="Reservado">
                                             <input type="hidden" name="reservaId" id="reserva-id">
-
+                                            <input type="hidden" name="espacioId" id="input-espacio-id">
+                                            <input type="hidden" name="fechaInicio" id="input-fecha-inicio">
+                                            <input type="hidden" name="fechaFin" id="input-fecha-fin">
                                             <div id="create-reservation-form">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="event-start">Hora de inicio</label>
@@ -446,7 +448,7 @@
                         const start = new Date(info.date);
                         clickInfo = info;
 
-                        document.getElementById("event-start").dataset.raw = start.toISOString();
+                        document.getElementById("event-start").dataset.raw = toLocalISOString(start);
 
                         const formattedDate = start.toLocaleDateString('es-PE');
                         const formattedHour = start.toLocaleTimeString('es-PE', {
@@ -477,9 +479,8 @@
                         while (current < limiteMax) {
                             current.setMinutes(current.getMinutes() + 60);
                             if (current > limiteMax) break;
-
                             const option = document.createElement("option");
-                            option.value = current.toISOString();
+                            option.value = toLocalISOString(current);
                             option.textContent = current.toLocaleTimeString('es-PE', {
                                 hour: '2-digit', minute: '2-digit', hour12: false
                             });
@@ -559,78 +560,39 @@
                     btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verificando...';
 
                     // Primero verificar disponibilidad
-                    const startDate = new Date(rawStart);
-                    const endDate = new Date(rawEnd);
-                    
                     const verificarUrl = `/api/verificar-disponibilidad?espacioId=${espacioId}&inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}`;
                     
                     fetch(verificarUrl)
                         .then(response => response.json())
                         .then(data => {
                             if (data.disponible) {
-                                // Si está disponible, crear la reserva
-                                btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creando...';
-                                
-                                // Crear formulario para enviar datos
-                                const form = document.createElement('form');
-                                form.method = 'POST';
-                                form.action = '/usuarios/crear-reserva-calendario';
-                                
-                                // Agregar token CSRF si existe
-                                const csrfToken = document.querySelector('meta[name="_csrf"]');
-                                if (csrfToken) {
-                                    const csrfInput = document.createElement('input');
-                                    csrfInput.type = 'hidden';
-                                    csrfInput.name = '_token';
-                                    csrfInput.value = csrfToken.content;
-                                    form.appendChild(csrfInput);
-                                }
-                                
-                                // Agregar campos de datos
-                                const espacioInput = document.createElement('input');
-                                espacioInput.type = 'hidden';
-                                espacioInput.name = 'espacioId';
-                                espacioInput.value = espacioId;
-                                form.appendChild(espacioInput);
-                                
-                                const inicioInput = document.createElement('input');
-                                inicioInput.type = 'hidden';
-                                inicioInput.name = 'fechaInicio';
-                                inicioInput.value = rawStart;
-                                form.appendChild(inicioInput);
-                                
-                                const finInput = document.createElement('input');
-                                finInput.type = 'hidden';
-                                finInput.name = 'fechaFin';
-                                finInput.value = rawEnd;
-                                form.appendChild(finInput);
-                                
-                                // Enviar formulario
-                                document.body.appendChild(form);
+                                // Actualizar los campos ocultos antes de enviar
+                                document.getElementById("input-espacio-id").value = espacioId;
+                                document.getElementById("input-fecha-inicio").value = rawStart;
+                                document.getElementById("input-fecha-fin").value = rawEnd;
                                 form.submit();
                             } else {
-                                // Si no está disponible, mostrar mensaje
+                                // Mostrar mensaje de error
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Horario no disponible',
-                                    text: data.mensaje || 'Este horario ya no está disponible. Por favor selecciona otro.',
-                                    confirmButtonText: 'Aceptar'
+                                    text: data.mensaje,
+                                    confirmButtonText: 'Entendido'
                                 });
-                                
-                                // Restaurar botón
-                                btnSave.disabled = false;
-                                btnSave.textContent = originalText;
+                                // Actualizar calendario para mostrar cambios
+                                calendar.refetchEvents();
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Error',
-                                text: 'Error al verificar disponibilidad. Por favor intenta nuevamente.',
+                                title: 'Error de conexión',
+                                text: 'No se pudo verificar la disponibilidad. Intente nuevamente.',
                                 confirmButtonText: 'Aceptar'
                             });
-                            
+                        })
+                        .finally(() => {
                             // Restaurar botón
                             btnSave.disabled = false;
                             btnSave.textContent = originalText;
@@ -654,6 +616,17 @@
                     }
                 });
             });
+            
+            // Función para obtener string local en formato YYYY-MM-DDTHH:mm:ss
+            function toLocalISOString(date) {
+                const pad = n => n < 10 ? '0' + n : n;
+                return date.getFullYear() + '-' +
+                    pad(date.getMonth() + 1) + '-' +
+                    pad(date.getDate()) + 'T' +
+                    pad(date.getHours()) + ':' +
+                    pad(date.getMinutes()) + ':' +
+                    pad(date.getSeconds());
+            }
         </script>
     </body>
 </html>
