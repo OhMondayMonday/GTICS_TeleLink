@@ -1,6 +1,7 @@
 package com.example.telelink.config;
 
 import com.example.telelink.repository.UsuarioRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,8 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
 
 @Configuration
 public class WebSecurityConfig {
@@ -39,6 +42,16 @@ public class WebSecurityConfig {
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
+
+            String path = request.getRequestURI();
+            // Si es un endpoint del API, responde 401 en lugar de redirigir
+            if (path.startsWith("/api/")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // No redirige
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                return;
+            }
+
             // Si el usuario está autenticado, redirige según su rol
             if (request.getUserPrincipal() != null) {
                 Authentication authentication = (Authentication) request.getUserPrincipal();
@@ -65,8 +78,11 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher(request -> true)  // Esto aplica la regla a todas las rutas
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Permitir acceso público a recursos estáticos
+                        .requestMatchers("/api/chatbot").permitAll()
                         .requestMatchers(
                                 "/assets/**",
                                 "/superadmin/assets/**"

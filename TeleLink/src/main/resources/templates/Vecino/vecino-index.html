@@ -199,6 +199,12 @@
 
                         <!-- Respuesta dinámica -->
                         <div id="chat-response" class="mt-3"></div>
+
+                        <div class="mt-3">
+                            <input type="text" id="preguntaUsuario" class="form-control" placeholder="Escribe tu pregunta aquí...">
+                            <button class="btn btn-primary btn-sm mt-2" onclick="enviarPregunta()">Enviar</button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -255,7 +261,7 @@
         const chatbox = document.getElementById("chatbox");
         chatbox.style.display = (chatbox.style.display === "none" || chatbox.style.display === "") ? "block" : "none";
     }
-
+    /*
     function respuestaBot(opcion) {
         const respuestaDiv = document.getElementById("chat-response");
         let respuesta = '';
@@ -269,35 +275,63 @@
         }
 
         respuestaDiv.innerHTML = `<div class="bg-light rounded p-2"><strong>SanMI Bot:</strong><br>${respuesta}</div>`;
-    }
+    }*/
 
-    /*
     function respuestaBot(opcion) {
-        fetch("https://cm31mhtld2.execute-api.us-east-1.amazonaws.com/chatbotSanMI", {
+        fetch("/api/chatbot", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ pregunta: opcion })
+            body: JSON.stringify({ pregunta: opcion, usuarioId: 6 })
         })
             .then(response => response.json())
             .then(data => {
                 document.getElementById("chat-response").innerHTML = `
-            <div class="bg-white rounded p-2 mt-2 border">
+            <div class="bg-light rounded p-2 mt-2">
                 <strong>SanMI Bot:</strong><br>${data.respuesta}
-            </div>
-        `;
+            </div>`;
             })
             .catch(error => {
                 console.error("Error:", error);
                 document.getElementById("chat-response").innerHTML = `
             <div class="bg-danger text-white rounded p-2 mt-2">
                 Error al conectar con el servidor.
-            </div>
-        `;
+            </div>`;
             });
     }
-    * */
+
+    function enviarPregunta() {
+        const input = document.getElementById("preguntaUsuario");
+        const pregunta = input.value;
+
+        if (!pregunta.trim()) return;
+
+        fetch("/api/chatbot", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ pregunta: pregunta, usuarioId: 6 })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("chat-response").innerHTML = `
+                <div class="bg-light rounded p-2 mt-2">
+                    <strong>SanMI Bot:</strong><br>${data.respuesta}
+                </div>`;
+                input.value = ""; // limpia el input
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("chat-response").innerHTML = `
+                <div class="bg-danger text-white rounded p-2 mt-2">
+                    Error al conectar con el servidor.
+                </div>`;
+            });
+    }
+
+
 </script>
 </body>
 </html>
