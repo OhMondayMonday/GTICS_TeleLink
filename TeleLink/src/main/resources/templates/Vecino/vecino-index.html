@@ -261,21 +261,7 @@
         const chatbox = document.getElementById("chatbox");
         chatbox.style.display = (chatbox.style.display === "none" || chatbox.style.display === "") ? "block" : "none";
     }
-    /*
-    function respuestaBot(opcion) {
-        const respuestaDiv = document.getElementById("chat-response");
-        let respuesta = '';
 
-        if (opcion === 'reservar') {
-            respuesta = '¡Genial! Puedes ver las canchas disponibles más abajo en la página o ir a la sección de reservas.';
-        } else if (opcion === 'horarios') {
-            respuesta = 'Los horarios disponibles son de 8:00 a.m. a 10:00 p.m. todos los días. ¿Quieres ver una cancha específica?';
-        } else if (opcion === 'contacto') {
-            respuesta = 'Puedes comunicarte con la municipalidad al 📞 (01) 555-1234 o enviar un correo a contacto@sanmiguel.gob.pe';
-        }
-
-        respuestaDiv.innerHTML = `<div class="bg-light rounded p-2"><strong>SanMI Bot:</strong><br>${respuesta}</div>`;
-    }*/
 
     function respuestaBot(opcion) {
         fetch("/api/chatbot", {
@@ -330,7 +316,6 @@
                 </div>`;
             });
     }
-
 
 </script>
 </body>

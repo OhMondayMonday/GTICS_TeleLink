@@ -14,14 +14,13 @@ public class GeminiService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    // ✅ URL base correcta para Gemini API
+    // URL base correcta para Gemini API
     private final WebClient webClient = WebClient.create("https://generativelanguage.googleapis.com");
 
     public String responder(String pregunta) {
-        // ✅ Usar gemini-1.5-flash o gemini-1.5-pro (gemini-pro está deprecado)
+
         String modelo = "gemini-1.5-flash";
 
-        // ✅ Estructura correcta del payload
         Map<String, Object> payload = Map.of(
                 "contents", List.of(
                         Map.of(
@@ -45,7 +44,6 @@ public class GeminiService {
                     .bodyToMono(Map.class)
                     .block();
 
-            // ✅ Extraer la respuesta
             List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
             if (candidates != null && !candidates.isEmpty()) {
                 Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
