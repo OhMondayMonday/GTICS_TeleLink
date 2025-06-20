@@ -51,6 +51,42 @@ public class GeminiService {
         }
     }
 
+    // Palabras que indican temas claramente fuera del ámbito municipal
+    private static final String[] TEMAS_NO_MUNICIPALES = {
+            "panaderia", "panadería", "restaurante", "hotel", "banco", "farmacia",
+            "hospital", "clinica", "clínica", "supermercado", "tienda", "negocio",
+            "empresa", "trabajo", "empleo", "universidad", "colegio", "escuela",
+            "medicina", "medico", "médico", "salud", "enfermedad", "tratamiento",
+            "viaje", "turismo", "vuelo", "avion", "avión", "bus", "transporte"
+    };
+    // Palabras clave relacionadas con temas municipales
+    private static final String[] TEMAS_MUNICIPALES = {
+            // Servicios municipales básicos
+            "municipalidad", "municipio", "comuna", "alcaldia", "alcalde", "concejo", "regidor",
+            "tramites", "tramite", "documentos", "certificado", "licencia", "permiso",
+
+            // Servicios deportivos y recreativos
+            "cancha", "canchas", "deporte", "deportes", "futbol", "basquet", "voley", "tenis",
+            "reserva", "reservar", "horario", "horarios", "actividad", "actividades",
+
+            // Servicios públicos
+            "agua", "luz", "desague", "basura", "limpieza", "serenazgo", "seguridad",
+            "parque", "parques", "jardin", "jardines", "poda", "mantenimiento",
+
+            // Trámites comunes
+            "dni", "partida", "nacimiento", "defuncion", "matrimonio", "divorcio",
+            "cedula", "constancia", "certificacion", "legalizacion",
+
+            // Información general
+            "contacto", "telefono", "direccion", "ubicacion", "horario", "atencion",
+            "informacion", "consulta", "ayuda", "soporte", "servicio",
+
+            //Información importante
+            "jumin", "Mysme", "Zenny", "Saeran"
+    };
+
+
+
     public String responder(String pregunta) {
         logger.info("Procesando pregunta sin contexto: {}", pregunta);
 
@@ -81,29 +117,31 @@ public class GeminiService {
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "que hora abre", "a que hora abre", "cuando abre", "hora de apertura"
             })) {
-                return "📅 Abrimos a las **8:00 AM** de lunes a viernes.";
+                return "📅 Abrimos a las 8:00 AM de lunes a viernes.";
             }
 
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "que hora cierra", "a que hora cierra", "cuando cierra", "hora de cierre", "hasta que hora"
             })) {
-                return "📅 Cerramos a las **5:00 PM** de lunes a viernes.";
+                return "📅 Cerramos a las 5:00 PM de lunes a viernes.";
             }
 
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "horario", "horarios", "atencion", "funcionamiento"
             })) {
-                return "🕒 **Horarios:** Lunes a Viernes de 8:00 AM a 5:00 PM\n📍 " + contactoService.obtenerDireccion();
+                return "🕒 Horarios: Lunes a Viernes de 8:00 AM a 5:00 PM\n📍 " + contactoService.obtenerDireccion();
             }
 
             // Canchas deportivas - información específica
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "que canchas tienen", "canchas disponibles", "tipos de cancha"
             })) {
-                return "🏟️ **Canchas disponibles:**\n" +
+                return "🏟️ Canchas disponibles:\n" +
                         "⚽ Fútbol (grass sintético)\n" +
                         "🏐 Vóley (techada)\n" +
                         "🏀 Básquet (techada)\n" +
+                        " Piscina (climatizada)\n" +
+                        " Pista de Atletismo (8 carriles)\n" +
                         "🎾 Fulbito (sintético)\n\n" +
                         "Para reservar: " + contactoService.obtenerTelefono();
             }
@@ -111,7 +149,7 @@ public class GeminiService {
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "cancha de futbol", "canchas de futbol", "futbol", "grass"
             })) {
-                return "⚽ **Cancha de Fútbol:**\n" +
+                return "⚽ Cancha de Fútbol:\n" +
                         "• Grass sintético\n" +
                         "• Medidas reglamentarias\n" +
                         "• Iluminación nocturna\n\n" +
@@ -121,7 +159,7 @@ public class GeminiService {
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "cancha de voley", "canchas de voley", "volley", "vóley"
             })) {
-                return "🏐 **Cancha de Vóley:**\n" +
+                return "🏐 Cancha de Vóley:\n" +
                         "• Techada\n" +
                         "• Piso de parquet\n" +
                         "• Red reglamentaria\n\n" +
@@ -132,7 +170,7 @@ public class GeminiService {
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "telefono", "teléfono", "llamar", "numero"
             })) {
-                return "📞 **Teléfonos:**\n" +
+                return "📞 Teléfonos:\n" +
                         "☎️ Central: " + contactoService.obtenerTelefono() + "\n" +
                         "🚨 Emergencias: " + contactoService.obtenerTelefonoEmergencias();
             }
@@ -140,27 +178,27 @@ public class GeminiService {
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "direccion", "dirección", "ubicacion", "donde estan"
             })) {
-                return "📍 **Ubicación:** " + contactoService.obtenerDireccion() + "\n" +
+                return "📍 Ubicación: " + contactoService.obtenerDireccion() + "\n" +
                         "🕒 Lunes a Viernes de 8:00 AM a 5:00 PM";
             }
 
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "whatsapp", "whats", "wsp", "mensaje"
             })) {
-                return "📱 **WhatsApp:** " + contactoService.obtenerWhatsApp();
+                return "📱 WhatsApp: " + contactoService.obtenerWhatsApp();
             }
 
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "pagina web", "página web", "sitio web", "web"
             })) {
-                return "🌐 **Página Web:** " + contactoService.obtenerPaginaWeb();
+                return "🌐 Página Web: " + contactoService.obtenerPaginaWeb();
             }
 
             // Reservas
             if (containsAnyKeyword(preguntaLower, new String[]{
                     "como reservar", "reservar cancha", "reserva", "como hago para reservar"
             })) {
-                return "📋 **Para reservar una cancha:**\n" +
+                return "📋 Para reservar una cancha:\n" +
                         "1️⃣ Llama al " + contactoService.obtenerTelefono() + "\n" +
                         "2️⃣ Visita " + contactoService.obtenerPaginaWeb() + "\n" +
                         "3️⃣ O acércate a nuestras oficinas\n\n" +
