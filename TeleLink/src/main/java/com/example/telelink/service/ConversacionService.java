@@ -143,4 +143,38 @@ public class ConversacionService {
     public List<Conversacion> obtenerConversacionesUsuario(Integer usuarioId) {
         return conversacionRepository.findByUsuarioUsuarioIdOrderByInicioConversacionDesc(usuarioId);
     }
+
+    public void eliminarMensajesDeConversacion(Integer conversacionId) {
+        List<Mensaje> mensajes = mensajeRepository.findByConversacionConversacionIdOrderByFechaAsc(conversacionId);
+        mensajeRepository.deleteAll(mensajes);
+    }
+
+    // ConversacionService.java
+    public Optional<Conversacion> obtenerConversacionActiva(Usuario usuario) {
+        return conversacionRepository.findByUsuarioIdAndEstado(
+                usuario.getUsuarioId(),
+                Conversacion.Estado.en_proceso
+        );
+    }
+
+    public Conversacion obtenerConversacionActivaOCrear(Usuario usuario) {
+        return conversacionRepository.findByUsuarioIdAndEstado(usuario.getUsuarioId(), Conversacion.Estado.en_proceso)
+                .orElseGet(() -> {
+                    Conversacion nueva = new Conversacion();
+                    nueva.setUsuario(usuario);
+                    nueva.setInicioConversacion(LocalDateTime.now());
+                    nueva.setEstado(Conversacion.Estado.en_proceso);
+                    return conversacionRepository.save(nueva);
+                });
+    }
+
+    /**
+     * Obtener conversación activa por ID de usuario
+     */
+    public Optional<Conversacion> obtenerConversacionActivaPorUsuarioId(Integer usuarioId) {
+        return conversacionRepository.findByUsuarioIdAndEstado(
+                usuarioId,
+                Conversacion.Estado.en_proceso
+        );
+    }
 }

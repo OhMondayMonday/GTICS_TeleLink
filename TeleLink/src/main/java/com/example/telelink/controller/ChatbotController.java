@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -176,4 +177,27 @@ public class ChatbotController {
                 "usuarioId", usuarioId
         ));
     }
+
+    @DeleteMapping("/historial/{usuarioId}")
+    public Map<String, Object> eliminarHistorial(@PathVariable Integer usuarioId) {
+        try {
+            Optional<Conversacion> conversacionActiva = conversacionService
+                    .obtenerConversacionActivaPorUsuarioId(usuarioId);
+
+            if (conversacionActiva.isPresent()) {
+                Conversacion conversacion = conversacionActiva.get();
+                conversacionService.eliminarMensajesDeConversacion(conversacion.getConversacionId());
+            }
+
+            return Map.of("mensaje", "Historial eliminado", "error", false);
+
+        } catch (Exception e) {
+            return Map.of(
+                    "error", true,
+                    "mensaje", "Error al eliminar historial: " + e.getMessage()
+            );
+        }
+    }
+
+
 }

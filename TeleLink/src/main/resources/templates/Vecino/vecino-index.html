@@ -204,6 +204,8 @@
                             <input type="text" id="preguntaUsuario" class="form-control" placeholder="Escribe tu pregunta aquí...">
                             <button class="btn btn-primary btn-sm mt-2" onclick="enviarPregunta()">Enviar</button>
                         </div>
+                        <button class="btn btn-danger btn-sm mt-2" onclick="eliminarHistorial()">🗑 Borrar historial</button>
+
 
                     </div>
                 </div>
@@ -255,7 +257,7 @@
     <script th:src="@{/assets/js/app.js}"></script>
 
 
-<!-- Script -->
+<!-------------------------------------------------------------Chatbot-------------------------------------------------------------------------->
 <script>
 
     let historialCargado = false;
@@ -516,6 +518,25 @@
         }
     });
 
+    function eliminarHistorial() {
+        fetch(`/api/chatbot/historial/${USUARIO_ID}`, {
+            method: "DELETE"
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.error) {
+                    agregarMensajeAlChat("SanMI Bot", "Historial eliminado.", "bg-warning text-dark");
+                    document.getElementById("chat-response").innerHTML = "";
+                } else {
+                    agregarMensajeAlChat("SanMI Bot", "Error al borrar historial.", "bg-danger text-white");
+                }
+            });
+    }
+
+
 </script>
+
+<!-------------------------------------------------------------Chatbot-------------------------------------------------------------------------->
+
 </body>
 </html>
