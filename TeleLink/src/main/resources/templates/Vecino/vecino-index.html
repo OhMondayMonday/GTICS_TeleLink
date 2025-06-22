@@ -199,6 +199,14 @@
 
                         <!-- Respuesta dinámica -->
                         <div id="chat-response" class="mt-3"></div>
+
+                        <div class="mt-3">
+                            <input type="text" id="preguntaUsuario" class="form-control" placeholder="Escribe tu pregunta aquí...">
+                            <button class="btn btn-primary btn-sm mt-2" onclick="enviarPregunta()">Enviar</button>
+                        </div>
+                        <button class="btn btn-danger btn-sm mt-2" onclick="eliminarHistorial()">🗑 Borrar historial</button>
+
+
                     </div>
                 </div>
 
@@ -249,55 +257,286 @@
     <script th:src="@{/assets/js/app.js}"></script>
 
 
-<!-- Script -->
+<!-------------------------------------------------------------Chatbot-------------------------------------------------------------------------->
 <script>
+
+    let historialCargado = false;
+    const USUARIO_ID = 6;
+
+    /**
+     * Función mejorada para toggle del chat
+     */
     function toggleChat() {
         const chatbox = document.getElementById("chatbox");
-        chatbox.style.display = (chatbox.style.display === "none" || chatbox.style.display === "") ? "block" : "none";
-    }
+        const isVisible = chatbox.style.display === "block";
 
-    function respuestaBot(opcion) {
-        const respuestaDiv = document.getElementById("chat-response");
-        let respuesta = '';
-
-        if (opcion === 'reservar') {
-            respuesta = '¡Genial! Puedes ver las canchas disponibles más abajo en la página o ir a la sección de reservas.';
-        } else if (opcion === 'horarios') {
-            respuesta = 'Los horarios disponibles son de 8:00 a.m. a 10:00 p.m. todos los días. ¿Quieres ver una cancha específica?';
-        } else if (opcion === 'contacto') {
-            respuesta = 'Puedes comunicarte con la municipalidad al 📞 (01) 555-1234 o enviar un correo a contacto@sanmiguel.gob.pe';
+        if (isVisible) {
+            chatbox.style.display = "none";
+        } else {
+            chatbox.style.display = "block";
+            // Cargar historial al abrir el chat
+            if (!historialCargado) {
+                cargarHistorialConversacion();
+                historialCargado = true;
+            }
         }
-
-        respuestaDiv.innerHTML = `<div class="bg-light rounded p-2"><strong>SanMI Bot:</strong><br>${respuesta}</div>`;
     }
 
-    /*
+    /**
+     * Cargar historial de conversación
+     */
+    function cargarHistorialConversacion() {
+        fetch(`/api/chatbot/historial/${USUARIO_ID}`)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.error && data.historial && data.historial.length > 0) {
+                    mostrarHistorial(data.historial);
+                } else {
+                    // Si no hay historial, mostrar mensaje de bienvenida
+                    mostrarMensajeBienvenida();
+                }
+            })
+            .catch(error => {
+                console.error("Error al cargar historial:", error);
+                mostrarMensajeBienvenida();
+            });
+    }
+
+    /**
+     * Mostrar historial en el chat
+     */
+    function mostrarHistorial(historial) {
+        const chatResponse = document.getElementById("chat-response");
+        chatResponse.innerHTML = ""; // Limpiar contenido existente
+
+        historial.forEach(mensaje => {
+            const esChatbot = mensaje.origen === 'chatbot';
+            const bgClass = esChatbot ? 'bg-light' : 'bg-primary text-white';
+            const autor = esChatbot ? 'SanMI Bot' : 'Tú';
+
+            const mensajeDiv = document.createElement('div');
+            mensajeDiv.className = 'mb-2';
+            mensajeDiv.innerHTML = `
+            <div class="${bgClass} rounded p-2 mb-1">
+                <strong>${autor}:</strong><br>${mensaje.texto}
+            </div>
+        `;
+
+            chatResponse.appendChild(mensajeDiv);
+        });
+
+        // Scroll al final del chat
+        chatResponse.scrollTop = chatResponse.scrollHeight;
+    }
+
+    /**
+     * Mostrar mensaje de bienvenida
+     */
+    function mostrarMensajeBienvenida() {
+        const chatResponse = document.getElementById("chat-response");
+        chatResponse.innerHTML = `
+        <div class="mb-3">
+            <div class="bg-light rounded p-2 mb-1">
+                <strong>SanMI Bot:</strong><br>
+                ¡Hola, vecino! 👋<br>
+                ¿En qué puedo ayudarte hoy?
+            </div>
+        </div>
+    `;
+    }
+
+    /**
+     * Función mejorada para respuestas de botones
+     */
     function respuestaBot(opcion) {
-        fetch("https://cm31mhtld2.execute-api.us-east-1.amazonaws.com/chatbotSanMI", {
+        // Mostrar mensaje del usuario inmediatamente
+        agregarMensajeAlChat("Tú", obtenerTextoOpcion(opcion), "bg-primary text-white");
+
+        // Mostrar indicador de "escribiendo..."
+        mostrarIndicadorEscribiendo();
+
+        fetch("/api/chatbot/respuesta-rapida", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ pregunta: opcion })
+            body: JSON.stringify({ opcion: opcion, usuarioId: USUARIO_ID })
         })
             .then(response => response.json())
             .then(data => {
-                document.getElementById("chat-response").innerHTML = `
-            <div class="bg-white rounded p-2 mt-2 border">
-                <strong>SanMI Bot:</strong><br>${data.respuesta}
-            </div>
-        `;
+                ocultarIndicadorEscribiendo();
+
+                if (!data.error) {
+                    agregarMensajeAlChat("SanMI Bot", data.respuesta, "bg-light");
+                } else {
+                    agregarMensajeAlChat("SanMI Bot", "Error al procesar tu solicitud. Intenta nuevamente.", "bg-danger text-white");
+                }
             })
             .catch(error => {
                 console.error("Error:", error);
-                document.getElementById("chat-response").innerHTML = `
-            <div class="bg-danger text-white rounded p-2 mt-2">
-                Error al conectar con el servidor.
-            </div>
-        `;
+                ocultarIndicadorEscribiendo();
+                agregarMensajeAlChat("SanMI Bot", "Error al conectar con el servidor.", "bg-danger text-white");
             });
     }
-    * */
+
+
+    /**
+     * Función mejorada para enviar preguntas
+     */
+    function enviarPregunta() {
+        const input = document.getElementById("preguntaUsuario");
+        const pregunta = input.value.trim();
+
+        if (!pregunta) return;
+
+        // Limpiar input inmediatamente
+        input.value = "";
+
+        // Mostrar mensaje del usuario
+        agregarMensajeAlChat("Tú", pregunta, "bg-primary text-white");
+
+        // Mostrar indicador de "escribiendo..."
+        mostrarIndicadorEscribiendo();
+
+        fetch("/api/chatbot", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ pregunta: pregunta, usuarioId: USUARIO_ID })
+        })
+            .then(response => response.json())
+            .then(data => {
+                ocultarIndicadorEscribiendo();
+
+                if (!data.error) {
+                    agregarMensajeAlChat("SanMI Bot", data.respuesta, "bg-light");
+                } else {
+                    agregarMensajeAlChat("SanMI Bot", "Error al procesar tu pregunta. Intenta nuevamente.", "bg-danger text-white");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                ocultarIndicadorEscribiendo();
+                agregarMensajeAlChat("SanMI Bot", "Error al conectar con el servidor.", "bg-danger text-white");
+            });
+    }
+
+    /**
+     * Agregar mensaje al chat
+     */
+    function agregarMensajeAlChat(autor, texto, claseCSS) {
+        const chatResponse = document.getElementById("chat-response");
+
+        const mensajeDiv = document.createElement('div');
+        mensajeDiv.className = 'mb-2';
+        mensajeDiv.innerHTML = `
+        <div class="${claseCSS} rounded p-2 mb-1">
+            <strong>${autor}:</strong><br>${texto}
+        </div>
+    `;
+
+        chatResponse.appendChild(mensajeDiv);
+
+        // Scroll al final del chat
+        chatResponse.scrollTop = chatResponse.scrollHeight;
+    }
+
+    /**
+     * Mostrar indicador de "escribiendo..."
+     */
+    function mostrarIndicadorEscribiendo() {
+        const chatResponse = document.getElementById("chat-response");
+
+        const indicadorDiv = document.createElement('div');
+        indicadorDiv.id = 'indicador-escribiendo';
+        indicadorDiv.className = 'mb-2';
+        indicadorDiv.innerHTML = `
+        <div class="bg-light rounded p-2 mb-1">
+            <strong>SanMI Bot:</strong><br>
+            <span class="text-muted">Escribiendo...</span>
+            <span class="spinner-border spinner-border-sm ms-2" role="status"></span>
+        </div>
+    `;
+
+        chatResponse.appendChild(indicadorDiv);
+        chatResponse.scrollTop = chatResponse.scrollHeight;
+    }
+
+    /**
+     * Ocultar indicador de "escribiendo..."
+     */
+    function ocultarIndicadorEscribiendo() {
+        const indicador = document.getElementById('indicador-escribiendo');
+        if (indicador) {
+            indicador.remove();
+        }
+    }
+
+    /**
+     * Obtener texto amigable para las opciones
+     */
+    function obtenerTextoOpcion(opcion) {
+        switch(opcion) {
+            case 'reservar': return '📝 Reservar una cancha';
+            case 'horarios': return '🕒 Ver horarios disponibles';
+            case 'contacto': return '📞 Contactar a la municipalidad';
+            default: return opcion;
+        }
+    }
+
+    /**
+     * Función para finalizar conversación
+     */
+    function finalizarConversacion() {
+        fetch(`/api/chatbot/finalizar/${USUARIO_ID}`, {
+            method: "POST"
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.error) {
+                    agregarMensajeAlChat("Sistema", "Conversación finalizada. ¡Hasta luego!", "bg-info text-white");
+                    historialCargado = false; // Resetear para próxima conversación
+                }
+            })
+            .catch(error => {
+                console.error("Error al finalizar conversación:", error);
+            });
+    }
+
+    /**
+     * Permitir envío con Enter
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById("preguntaUsuario");
+        if (input) {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    enviarPregunta();
+                }
+            });
+        }
+    });
+
+    function eliminarHistorial() {
+        fetch(`/api/chatbot/historial/${USUARIO_ID}`, {
+            method: "DELETE"
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.error) {
+                    agregarMensajeAlChat("SanMI Bot", "Historial eliminado.", "bg-warning text-dark");
+                    document.getElementById("chat-response").innerHTML = "";
+                } else {
+                    agregarMensajeAlChat("SanMI Bot", "Error al borrar historial.", "bg-danger text-white");
+                }
+            });
+    }
+
+
 </script>
+
+<!-------------------------------------------------------------Chatbot-------------------------------------------------------------------------->
+
 </body>
 </html>

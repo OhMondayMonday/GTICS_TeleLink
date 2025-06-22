@@ -7,10 +7,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 public class SecurityConfig {
+    /*
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/api/chatbot").permitAll()
                         .requestMatchers("/", "/webjars/**", "/static/**", "/public/**").permitAll()
                         .requestMatchers("/vecino/**").hasRole("VECINO")
                         .anyRequest().authenticated()
@@ -28,7 +30,7 @@ public class SecurityConfig {
                 );
 
         return http.build();
-    }
+    }*/
 
     @Bean
     public PasswordEncoder passwordEncoder() {
