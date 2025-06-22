@@ -4,8 +4,10 @@ import com.example.telelink.dto.EventoCalendarioDTO;
 import com.example.telelink.dto.admin.CantidadReservasPorDiaDto;
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
+import com.example.telelink.service.EmailService;
 import com.example.telelink.service.S3Service;
 import com.example.telelink.service.CalendarioService;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -99,6 +101,9 @@ public class AdminController {
 
     @Autowired
     private ReembolsoRepository reembolsoRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/calendario")
     public ResponseEntity<List<Asistencia>> getAsistenciasParaCalendario(
@@ -266,7 +271,7 @@ public class AdminController {
         }
 
         if (!overlappingMantenimientos.isEmpty()) {
-            attr.addFlashAttribute("msg", "El espacio deportivo tiene un mantenimiento programado en ese horario");
+            attr.addFlashAttribute("msg", "El espacio deportivo tiene un mantenimiento programada en ese horario");
             attr.addFlashAttribute("error", true);
             return "redirect:/admin/asistencias/nueva?coordinadorId=" + coordinadorId;
         }
@@ -302,6 +307,14 @@ public class AdminController {
             }
         } catch (Exception e) {
             // Ignore notification failure as per requirement
+        }
+
+        // Send email to coordinator
+        try {
+            emailService.sendAssistanceNotification(optCoordinador.get(), asistencia);
+        } catch (MessagingException e) {
+            // Log the error but don't interrupt the flow
+            System.err.println("Failed to send email to coordinator: " + e.getMessage());
         }
 
         attr.addFlashAttribute("msg", "Asistencia creada satisfactoriamente");
@@ -465,7 +478,6 @@ public class AdminController {
     }
 
 
-
     // List all sports spaces
     @GetMapping("espacios")
     public String listarEspacios(Model model) {
@@ -594,8 +606,6 @@ public class AdminController {
         espacioDeportivoRepository.save(espacio);
         return "redirect:/admin/establecimientos/info?id=" + espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoId();
     }
-
-
 
 
     @GetMapping("espacios/detalle")
@@ -760,6 +770,7 @@ public class AdminController {
 
      */
 
+    /*
     @GetMapping("/pagos/aceptar")
     public String aceptarPago(@RequestParam("id") Integer id) {
         Optional<Pago> optPago = pagoRepository.findById(id);
@@ -778,6 +789,46 @@ public class AdminController {
 
             pagoRepository.save(pago);
         }
+        return "redirect:/admin/pagos";
+    }*/
+    @GetMapping("/pagos/aceptar")
+    public String aceptarPago(@RequestParam("id") Integer id, RedirectAttributes redirectAttributes) {
+        Optional<Pago> optPago = pagoRepository.findById(id);
+        if (optPago.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Pago no encontrado");
+            return "redirect:/admin/pagos";
+        }
+
+        Pago pago = optPago.get();
+        if (!pago.getEstadoTransaccion().equals(Pago.EstadoTransaccion.pendiente)) {
+            redirectAttributes.addFlashAttribute("error", "El pago no está pendiente de validación");
+            return "redirect:/admin/pagos";
+        }
+
+        Reserva reserva = pago.getReserva();
+        if (reserva == null) {
+            redirectAttributes.addFlashAttribute("error", "Reserva asociada no encontrada");
+            return "redirect:/admin/pagos";
+        }
+
+        // Update payment and reservation status
+        pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
+        pago.setDetallesTransaccion("Pago aceptado por el administrador");
+        pago.setFechaPago(LocalDateTime.now());
+        reserva.setEstado(Reserva.Estado.confirmada); // Corrected to 'confirmada' to align with pago-tarjeta
+        reserva.setFechaActualizacion(LocalDateTime.now());
+        pagoRepository.save(pago);
+        reservaRepository.save(reserva);
+
+        // Send email to user
+        try {
+            emailService.sendReservationConfirmation(reserva.getUsuario(), reserva);
+        } catch (MessagingException e) {
+            // Log the error but don't interrupt the flow
+            System.err.println("Failed to send reservation confirmation email: " + e.getMessage());
+        }
+
+        redirectAttributes.addFlashAttribute("mensaje", "Pago aceptado exitosamente");
         return "redirect:/admin/pagos";
     }
 
@@ -2288,32 +2339,33 @@ public class AdminController {
             @RequestParam(required = false) String observacionAsistencia,
             RedirectAttributes redirectAttributes,
             HttpServletRequest request) {
-        
+
         try {
             // Validar que el coordinador esté disponible
             LocalDateTime inicioRango = horarioEntrada.minusMinutes(15);
             LocalDateTime finRango = horarioSalida.plusMinutes(15);
-            
+
             List<Asistencia> asistenciasSuperpuestas = asistenciaRepository
                     .findAsistenciasSuperpuestas(coordinadorId, inicioRango, finRango);
-              if (!asistenciasSuperpuestas.isEmpty()) {
+            if (!asistenciasSuperpuestas.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "El coordinador seleccionado ya tiene una asistencia asignada en este horario.");
                 return "redirect:/admin/espacios/calendario?id=" + espacioDeportivoId;
             }
-              // Obtener usuario autenticado (administrador)
+
+            // Obtener usuario autenticado (administrador)
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Usuario administrador = usuarioRepository.findByCorreoElectronico(auth.getName());
             if (administrador == null) {
                 throw new IllegalArgumentException("Administrador no encontrado");
             }
-            
+
             // Obtener coordinador y espacio deportivo
             Usuario coordinador = usuarioRepository.findById(coordinadorId)
                     .orElseThrow(() -> new IllegalArgumentException("Coordinador no encontrado"));
-            
+
             EspacioDeportivo espacioDeportivo = espacioDeportivoRepository.findById(espacioDeportivoId)
                     .orElseThrow(() -> new IllegalArgumentException("Espacio deportivo no encontrado"));
-            
+
             // Crear nueva asistencia
             Asistencia nuevaAsistencia = new Asistencia();
             nuevaAsistencia.setAdministrador(administrador);
@@ -2325,17 +2377,25 @@ public class AdminController {
             nuevaAsistencia.setEstadoSalida(Asistencia.EstadoSalida.pendiente);
             nuevaAsistencia.setObservacionAsistencia(observacionAsistencia != null ? observacionAsistencia : "");
             nuevaAsistencia.setFechaCreacion(LocalDateTime.now());
-            
+
             // Guardar en la base de datos
             asistenciaRepository.save(nuevaAsistencia);
-            
-            redirectAttributes.addFlashAttribute("success", 
-                "Asistencia creada exitosamente para " + coordinador.getNombres() + " " + coordinador.getApellidos());
-            
+
+            // Send email to coordinator
+            try {
+                emailService.sendAssistanceNotification(coordinador, nuevaAsistencia);
+            } catch (MessagingException e) {
+                // Log the error but don't interrupt the flow
+                System.err.println("Failed to send email to coordinator: " + e.getMessage());
+            }
+
+            redirectAttributes.addFlashAttribute("success",
+                    "Asistencia creada exitosamente para " + coordinador.getNombres() + " " + coordinador.getApellidos());
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al crear la asistencia: " + e.getMessage());
         }
-        
+
         return "redirect:/admin/espacios/calendario?id=" + espacioDeportivoId;
     }
 
