@@ -388,6 +388,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
   `fin_reserva` TIMESTAMP NOT NULL,
   `numero_carril_piscina` INT NULL DEFAULT NULL,
   `numero_carril_pista` INT NULL DEFAULT NULL,
+  `numero_participantes_piscina` INT NULL DEFAULT 1,
   `estado` ENUM('pendiente', 'confirmada', 'cancelada','completada', 'en_proceso') NULL DEFAULT 'pendiente',
   `razon_cancelacion` TEXT NULL DEFAULT NULL,
   `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -395,6 +396,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
   PRIMARY KEY (`reserva_id`),
   INDEX `usuario_id` (`usuario_id` ASC) VISIBLE,
   INDEX `idx_reserva_piscina` (`espacio_deportivo_id` ASC, `inicio_reserva` ASC, `fin_reserva` ASC, `numero_carril_piscina` ASC) VISIBLE,
+  INDEX `idx_reserva_participantes` (`espacio_deportivo_id` ASC, `numero_carril_piscina` ASC, `inicio_reserva` ASC, `fin_reserva` ASC, `numero_participantes_piscina` ASC) VISIBLE,
   INDEX `idx_reserva_pista` (`espacio_deportivo_id` ASC, `inicio_reserva` ASC, `fin_reserva` ASC, `numero_carril_pista` ASC) VISIBLE,
   INDEX `idx_reserva_gimnasio_cancha` (`espacio_deportivo_id` ASC, `inicio_reserva` ASC, `fin_reserva` ASC) VISIBLE,
   CONSTRAINT `reservas_ibfk_1`

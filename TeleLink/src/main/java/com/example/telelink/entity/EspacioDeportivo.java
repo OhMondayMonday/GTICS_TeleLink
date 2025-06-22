@@ -33,6 +33,7 @@ public class EspacioDeportivo {
     @JoinColumn(name = "establecimiento_deportivo_id", nullable = false)
     private EstablecimientoDeportivo establecimientoDeportivo;
 
+    // Numero de personas por carril en la piscina
     @Min(value = 1, message = "Debe haber al menos una persona por carril")
     @Max(value = 10, message = "No puede haber más de 10 personas por carril")
     @Column(name = "max_personas_por_carril")

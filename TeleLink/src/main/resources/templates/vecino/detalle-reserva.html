@@ -89,10 +89,27 @@
                                                     class="mdi mdi-cash text-success me-2"></i><strong>Precio por
                                                     hora:</strong> S/. <span
                                                     th:text="${reserva.espacioDeportivo.precioPorHora}"></span></li>
-                                            <li class="mb-2"><i
-                                                    class="mdi mdi-cash-multiple text-info me-2"></i><strong>Total a
-                                                    pagar:</strong> S/. <span
-                                                    th:text="${#numbers.formatDecimal((duracionHoras * reserva.espacioDeportivo.precioPorHora), 1, 'POINT', 2, 'NONE')}"></span>
+
+                                            <!-- Mostrar número de participantes para piscina -->
+                                            <li class="mb-2"
+                                                th:if="${reserva.numeroParticipantesPiscina != null && reserva.numeroParticipantesPiscina > 0}">
+                                                <i class="mdi mdi-account-group text-primary me-2"></i>
+                                                <strong>Participantes:</strong>
+                                                <span th:text="${reserva.numeroParticipantesPiscina}">1</span>
+                                            </li>
+
+                                            <!-- Cálculo del precio total considerando participantes para piscina -->
+                                            <li class="mb-2">
+                                                <i class="mdi mdi-cash-multiple text-info me-2"></i>
+                                                <strong>Total a pagar:</strong> S/.
+                                                <span
+                                                    th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'piscina' && reserva.numeroParticipantesPiscina != null && reserva.numeroParticipantesPiscina > 0}"
+                                                    th:text="${#numbers.formatDecimal((duracionHoras * reserva.espacioDeportivo.precioPorHora * reserva.numeroParticipantesPiscina), 0, 'COMMA', 2, 'POINT')}">
+                                                </span>
+                                                <span
+                                                    th:unless="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'piscina' && reserva.numeroParticipantesPiscina != null && reserva.numeroParticipantesPiscina > 0}"
+                                                    th:text="${#numbers.formatDecimal((duracionHoras * reserva.espacioDeportivo.precioPorHora), 0, 'COMMA', 2, 'POINT')}">
+                                                </span>
                                             </li>
                                         </ul>
                                         <div class="d-flex gap-2 mt-3 align-items-center">
@@ -109,7 +126,9 @@
                                                         class="mdi mdi-cancel"></i> Cancelar reserva</button>
                                             </form>
                                         </div>
-                                        <div id="timer-expired-msg" class="alert alert-danger mt-2 d-none">El tiempo para completar la reserva ha expirado. Debe volver a seleccionar el horario.</div>
+                                        <div id="timer-expired-msg" class="alert alert-danger mt-2 d-none">El tiempo
+                                            para completar la reserva ha expirado. Debe volver a seleccionar el horario.
+                                        </div>
                                         <!-- Modal de tiempo vencido (eliminado en favor de SweetAlert2) -->
                                         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                                         <script th:inline="javascript">
@@ -127,23 +146,23 @@
                                                     if (alertShown) return;
                                                     alertShown = true;
                                                     const swalWithBootstrapButtons = Swal.mixin({
-                                                      customClass: {
-                                                        confirmButton: 'btn btn-primary',
-                                                      },
-                                                      buttonsStyling: false
+                                                        customClass: {
+                                                            confirmButton: 'btn btn-primary',
+                                                        },
+                                                        buttonsStyling: false
                                                     });
                                                     swalWithBootstrapButtons.fire({
-                                                      icon: 'error',
-                                                      title: 'Tiempo expirado',
-                                                      html: 'El tiempo para completar la reserva ha expirado.<br>Debes volver a seleccionar el horario.',
-                                                      confirmButtonText: 'Ir a Mis Reservas',
-                                                      allowOutsideClick: false,
-                                                      allowEscapeKey: false,
-                                                      showCancelButton: false
-                                                    }).then(function(result){
-                                                      if (result.isConfirmed) {
-                                                        window.location.href = '/usuarios/mis-reservas';
-                                                      }
+                                                        icon: 'error',
+                                                        title: 'Tiempo expirado',
+                                                        html: 'El tiempo para completar la reserva ha expirado.<br>Debes volver a seleccionar el horario.',
+                                                        confirmButtonText: 'Ir a Mis Reservas',
+                                                        allowOutsideClick: false,
+                                                        allowEscapeKey: false,
+                                                        showCancelButton: false
+                                                    }).then(function (result) {
+                                                        if (result.isConfirmed) {
+                                                            window.location.href = '/usuarios/mis-reservas';
+                                                        }
                                                     });
                                                 }
                                                 function updateTimer() {

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{Superadmin/fragments/head.html :: head(title='Realizar reserva')}">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+
+<body data-sidebar="dark" class="vertical-collpsed">
+    <div id="layout-wrapper">
+        <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Calendario')}"></div>
+        <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Calendario')}"></div>
+
+        <div class="main-content">
+            <div class="page-content" style="min-height: 100%;">
+                <div class="container-fluid">
+
+                    <!-- start page title -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                <h4 class="mb-sm-0">Reservar espacio deportivo</h4>
+                                <div class="page-title-right">
+                                    <a th:href="@{/Vecino/espacios-deportivos}" class="btn ms-2 btn-outline-primary">
+                                        <i class="fas fa-arrow-left me-1"></i> Regresar a espacios
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- end page title -->
+                    <div class="row mb-4">
+                        <!-- Detalles del espacio deportivo -->
+                        <div class="col-xl-3 col-lg-4">
+                            <div class="card">
+                                <!-- Foto del establecimiento deportivo -->
+                                <div class="position-relative">
+                                    <img th:src="${espacio.fotoEspacioDeportivoUrl != null ? espacio.fotoEspacioDeportivoUrl : '/assets/images/canchita.jpg'}"
+                                        alt="Establecimiento Deportivo" class="card-img-top"
+                                        style="height: 160px; object-fit: cover;">
+                                </div>
+                                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                                    <h4 class="card-title mb-0 fw-bold py-1" th:text="${espacio.nombre}">Espacio
+                                        Deportivo</h4>
+                                    <button class="btn btn-link p-0 text-primary" data-bs-toggle="tooltip"
+                                        data-bs-placement="left" data-bs-trigger="click" data-bs-html="true"
+                                        th:attr="data-bs-title='<div class=&quot;text-start&quot;><strong>Información de reservas:</strong><br>• Haz clic en un horario disponible para reservar<br>• Las reservas deben ser confirmadas<br>• Cancela con 2 horas de anticipación<br>• Máximo 2 horas por reserva</div>'">
+                                        <i class="fas fa-info-circle fs-4"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body py-4">
+                                    <div class="space-details">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted">Capacidad:</span>
+                                            <span class="fw-medium">
+                                                <i class="fas fa-users text-info me-2"></i>
+                                                <span th:text="${espacio.aforoGimnasio != null ? espacio.aforoGimnasio : 
+                                                                     (espacio.maxPersonasPorCarril != null ? espacio.maxPersonasPorCarril + ' por carril' : 
+                                                                      '22')}">22</span>
+                                            </span>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted">Precio por hora:</span>
+                                            <span class="text-success fw-bold">
+                                                <i class="fas fa-dollar-sign me-2"></i>
+                                                S/. <span
+                                                    th:text="${espacio.precioPorHora != null ? espacio.precioPorHora : '50.00'}">50.00</span>
+                                            </span>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted">Horario:</span>
+                                            <span>
+                                                <i class="fas fa-clock text-warning me-2"></i>
+                                                <span th:text="${espacio.horarioApertura != null && espacio.horarioCierre != null ? 
+                                                                     #temporals.format(espacio.horarioApertura, 'HH:mm') + ' - ' + #temporals.format(espacio.horarioCierre, 'HH:mm') : 
+                                                                     '7:00 - 22:00'}">7:00 - 22:00</span>
+                                            </span>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted">Estado:</span>
+                                            <span>
+                                                <span class="badge bg-success-subtle text-success"
+                                                    th:if="${espacio.estadoServicio.name() == 'operativo'}">
+                                                    <i class="fas fa-check-circle me-1"></i>Disponible
+                                                </span>
+                                                <span class="badge bg-warning-subtle text-warning"
+                                                    th:if="${espacio.estadoServicio.name() == 'mantenimiento'}">
+                                                    <i class="fas fa-tools me-1"></i>Mantenimiento
+                                                </span>
+                                                <span class="badge bg-danger-subtle text-danger"
+                                                    th:if="${espacio.estadoServicio.name() == 'clausurado'}">
+                                                    <i class="fas fa-times-circle me-1"></i>Clausurado
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div th:if="${espacio.descripcion}" class="mb-3 pb-3 border-bottom">
+                                            <div class="d-flex align-items-start mb-2">
+                                                <i class="fas fa-info-circle text-primary me-2 mt-1"></i>
+                                                <span class="text-muted fw-medium">Descripción</span>
+                                            </div>
+                                            <p th:text="${espacio.descripcion}"
+                                                class="text-secondary mb-0 lh-base ps-4">Descripción del espacio...</p>
+                                        </div>
+
+                                        <div th:if="${espacio.geolocalizacion}" class="mb-0">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                                <span class="text-muted fw-medium">Ubicación</span>
+                                            </div>
+                                            <div class="map-container"
+                                                style="height: 150px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+                                                <!-- Alternativa 1: Si las coordenadas están en formato "lat,lng" -->
+                                                <iframe th:if="${#strings.contains(espacio.geolocalizacion, ',')}"
+                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${espacio.geolocalizacion}"
+                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
+                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                                                </iframe>
+                                                <!-- Alternativa 2: Si es una dirección de texto -->
+                                                <iframe th:unless="${#strings.contains(espacio.geolocalizacion, ',')}"
+                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${#strings.replace(espacio.geolocalizacion, ' ', '+')}"
+                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
+                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                                                </iframe>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calendario -->
+                        <div class="col-xl-9 col-lg-8">
+                            <div class="card mb-0">
+                                <div class="card-body calendar-container">
+                                    <div id="calendar" style="height: 100%;" th:attr="data-espacio-id=${espacioId}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end row-->
+                    <div style='clear:both'></div>
+
+                    <!-- Add New Event MODAL -->
+                    <div class="modal fade" id="event-modal" data-bs-backdrop="static" data-bs-keyboard="false"
+                        tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header py-3 px-4">
+                                    <h5 class="modal-title" id="modal-title">Crear Reserva</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <form class="needs-validation" name="event-form" id="form-event" novalidate
+                                        th:action="@{/usuarios/crear-reserva-calendario}" method="post">
+                                        <input type="hidden" name="title" id="event-title" value="Reservado">
+                                        <input type="hidden" name="reservaId" id="reserva-id">
+                                        <input type="hidden" name="espacioId" id="input-espacio-id">
+                                        <input type="hidden" name="fechaInicio" id="input-fecha-inicio">
+                                        <input type="hidden" name="fechaFin" id="input-fecha-fin">
+                                        <div id="create-reservation-form">
+                                            <div id="gimnasio-disponibilidad" class="mb-3">
+                                                <!-- Aquí se insertará dinámicamente la información de disponibilidad -->
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label" for="event-start">Hora de inicio</label>
+                                                <input class="form-control" type="text" id="event-start" name="start"
+                                                    readonly>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label" for="event-end">Hora de fin</label>
+                                                <select class="form-select" id="event-end" name="end" required>
+                                                    <option value="" disabled selected>Seleccione hora de fin</option>
+                                                    <!-- Opciones generadas dinámicamente con JS -->
+                                                </select>
+                                                <div class="invalid-feedback">Seleccione una hora de fin válida</div>
+                                            </div>
+
+                                            <div class="row mt-2">
+                                                <div class="col-6">
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                    <button type="button" class="btn btn-light me-1"
+                                                        data-bs-dismiss="modal">Cerrar</button>
+                                                    <button type="submit" class="btn btn-success"
+                                                        id="btn-save-event">Crear</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="view-reservation-details" style="display: none;">
+                                            <div class="mb-3">
+                                                <h6>Detalles de tu reserva</h6>
+                                                <table class="table table-borderless mb-0">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th scope="row">Inicio:</th>
+                                                            <td id="detail-start"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="row">Fin:</th>
+                                                            <td id="detail-end"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="row">Estado:</th>
+                                                            <td id="detail-status"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-12 text-end">
+                                                    <button type="button" class="btn btn-light"
+                                                        data-bs-dismiss="modal">Cerrar</button>
+                                                    <a href="#" id="btn-cancel-reservation"
+                                                        class="btn btn-danger">Cancelar reserva</a>
+                                                    <a href="/usuarios/mis-reservas" class="btn btn-primary">Ver todas
+                                                        mis reservas</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- end modal-->
+
+                </div>
+            </div>
+
+            <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
+        </div>
+    </div> <!-- Scripts -->
+    <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+
+    <!-- SweetAlert2 para notificaciones de conflictos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function () {
+            // Variables Thymeleaf
+            const espacioId = document.getElementById('calendar').dataset.espacioId;
+            // Obtener directamente el valor del aforo desde Thymeleaf
+            // Corregir la obtención del aforo
+            const aforoElement = document.querySelector('.space-details .d-flex:first-child .fw-medium span');
+            console.log('Elemento aforo encontrado:', aforoElement); // Añadir este log
+
+            let aforoGimnasio = 0;
+            if (aforoElement) {
+                const textoAforo = aforoElement.textContent;
+                console.log('Texto aforo:', textoAforo); // Añadir este log
+
+                const match = textoAforo.match(/\d+/);
+                if (match) {
+                    aforoGimnasio = parseInt(match[0], 10);
+                }
+            }
+
+            console.log('Aforo gimnasio calculado:', aforoGimnasio); // Añadir este log
+
+            // Establecer un valor por defecto si no se pudo obtener
+            if (!aforoGimnasio || isNaN(aforoGimnasio)) {
+                aforoGimnasio = 40; // Valor por defecto
+                console.log('Usando aforo por defecto:', aforoGimnasio);
+            }
+
+            // Referencias a elementos DOM usando JavaScript puro
+            const modalEl = document.getElementById('event-modal');
+            const modal = new bootstrap.Modal(modalEl);
+            const modalTitle = document.getElementById('modal-title');
+            const form = document.getElementById('form-event');
+            const calendarEl = document.getElementById('calendar');
+
+            let selectedEvent = null;
+            let clickInfo = null;
+            const now = new Date();
+
+            // Usar la configuración base del archivo calendar-config.js
+            const customConfig = {
+                // Configuración de eventos específica para este calendario
+                eventClassNames: function (arg) {
+                    try {
+                        const evento = arg.event;
+                        const esPropia = evento.extendedProps && evento.extendedProps.esPropia === true;
+                        const estado = evento.extendedProps && evento.extendedProps.estado;
+
+                        // Si no es propia, siempre mostrar como ajena
+                        if (!esPropia) return ['reserva-ajena'];
+
+                        // Si es propia, asignar clase según estado
+                        if (estado === 'confirmada') {
+                            return ['reserva-propia-confirmada'];
+                        } else if (estado === 'pendiente') {
+                            return ['reserva-propia-pendiente'];
+                        } else if (estado === 'en_proceso') {
+                            return ['reserva-propia-en-proceso'];
+                        }
+
+                        // Por defecto
+                        return ['reserva-propia-pendiente'];
+                    } catch (error) {
+                        console.error("Error al asignar clases a evento:", error);
+                        return [];
+                    }
+                },
+
+                events: function (info, successCallback, failureCallback) {
+                    fetch('/api/reservas/gimnasio/' + espacioId)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error al cargar reservas: ' + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Filtrar reservas canceladas
+                            const reservasFiltradas = data.filter(evento =>
+                                evento.estado !== 'cancelada' && evento.estado !== 'CANCELADA');
+
+                            // Procesar los eventos para FullCalendar
+                            const events = reservasFiltradas.map(evento => {
+                                const esPropia = evento.esPropia === true;
+                                const estado = evento.estado ? evento.estado.toLowerCase() : null;
+
+                                let title = evento.title || (esPropia ? 'Mi reserva' : 'Reservado');
+                                if (esPropia && estado) {
+                                    switch (estado) {
+                                        case 'pendiente': title += ' (Pendiente)'; break;
+                                        case 'en_proceso': title += ' (En proceso)'; break;
+                                        case 'confirmada': title += ' (Confirmada)'; break;
+                                    }
+                                }
+
+                                return {
+                                    id: evento.id,
+                                    title: title,
+                                    start: evento.start,
+                                    end: evento.end,
+                                    rendering: evento.rendering || null,
+                                    backgroundColor: evento.backgroundColor,
+                                    borderColor: evento.borderColor,
+                                    extendedProps: {
+                                        esPropia: esPropia,
+                                        estado: estado
+                                    }
+                                };
+                            });
+
+                            successCallback(events);
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar reservas:', error);
+                            alert('No se pudieron cargar las reservas. Por favor, intente nuevamente.');
+                            failureCallback(error);
+                        });
+                },
+
+                eventClick: function (info) {
+                    // Solo permitir interacción con eventos propios
+                    if (!info.event.extendedProps.esPropia) {
+                        alert("Este horario ya está reservado por otro usuario y no se puede modificar.");
+                        return;
+                    }
+
+                    // Mostrar modal con detalles de la reserva
+                    modal.show();
+                    form.reset();
+                    selectedEvent = info.event;
+
+                    // Ocultar formulario de creación y mostrar vista de detalles
+                    document.getElementById("create-reservation-form").style.display = "none";
+                    document.getElementById("view-reservation-details").style.display = "block";
+
+                    // Establecer título modal
+                    modalTitle.textContent = "Tu reserva";
+
+                    // Obtener ID de la reserva
+                    const reservaId = info.event.id;
+                    document.getElementById("reserva-id").value = reservaId;
+
+                    // Obtener datos detallados de la reserva mediante API
+                    fetch(`/usuarios/api/reservas/${reservaId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Formatear fechas
+                            const startDate = new Date(data.inicioReserva);
+                            const endDate = new Date(data.finReserva);
+
+                            document.getElementById("detail-start").textContent = startDate.toLocaleString('es-PE', {
+                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            });
+
+                            document.getElementById("detail-end").textContent = endDate.toLocaleString('es-PE', {
+                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            });
+
+                            // Mostrar estado con formato más amigable
+                            let estadoTexto = "Desconocido";
+                            let estadoClase = "";
+
+                            switch (data.estado.toLowerCase()) {
+                                case 'confirmada': estadoTexto = "Confirmada"; estadoClase = "text-success"; break;
+                                case 'pendiente': estadoTexto = "Pendiente de pago"; estadoClase = "text-warning"; break;
+                                case 'en_proceso': estadoTexto = "En proceso"; estadoClase = "text-primary"; break;
+                                case 'cancelada': estadoTexto = "Cancelada"; estadoClase = "text-danger"; break;
+                                case 'completada': estadoTexto = "Completada"; estadoClase = "text-info"; break;
+                            }
+
+                            const detailStatus = document.getElementById("detail-status");
+                            detailStatus.textContent = estadoTexto;
+                            detailStatus.className = estadoClase;
+
+                            // Configurar enlaces a acciones
+                            document.getElementById("btn-cancel-reservation").href = `/usuarios/reserva/cancelar/${reservaId}`;
+
+                            // Deshabilitar botón de cancelar si ya está cancelada o completada
+                            const btnCancelar = document.getElementById("btn-cancel-reservation");
+                            if (data.estado === 'cancelada' || data.estado === 'completada') {
+                                btnCancelar.classList.add('disabled');
+                                btnCancelar.setAttribute('aria-disabled', 'true');
+                            } else {
+                                btnCancelar.classList.remove('disabled');
+                                btnCancelar.removeAttribute('aria-disabled');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('No se pudo cargar los detalles de la reserva');
+                        });
+                },
+
+                dateClick: function (info) {
+                    // Verificar si la fecha es pasada
+                    const clickedTime = info.date;
+                    if (clickedTime < now) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Fecha inválida',
+                            text: 'No puedes reservar en fechas pasadas.',
+                            confirmButtonText: 'Aceptar'
+                        });
+                        return;
+                    }
+
+                    // Verificar si hay un evento de aforo completo en esta hora
+                    const eventosAforoCompleto = calendar.getEvents().filter(event => {
+                        return (event.start <= clickedTime && event.end > clickedTime &&
+                            event.rendering === 'background' && event.title === 'Aforo completo');
+                    });
+
+                    // Si el aforo está completo, no permitir la reserva
+                    if (eventosAforoCompleto.length > 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Aforo completo',
+                            text: 'El gimnasio ha alcanzado su capacidad máxima para este horario. Por favor selecciona otro horario.',
+                            confirmButtonText: 'Aceptar'
+                        });
+                        return;
+                    }
+
+                    // Verificar si el usuario ya tiene una reserva en este horario
+                    const reservasPropias = calendar.getEvents().filter(event => {
+                        return (event.start <= clickedTime && event.end > clickedTime &&
+                            event.extendedProps && event.extendedProps.esPropia === true);
+                    });
+
+                    if (reservasPropias.length > 0) {
+                        alert(`Ya tienes una reserva activa para esta hora. Puedes ver sus detalles haciendo clic en ella.`);
+                        return;
+                    }
+
+                    form.reset();
+
+                    // Mostrar formulario de creación y ocultar vista de detalles
+                    document.getElementById("create-reservation-form").style.display = "block";
+                    document.getElementById("view-reservation-details").style.display = "none";
+
+                    const start = new Date(info.date);
+                    clickInfo = info;
+
+                    document.getElementById("event-start").dataset.raw = toLocalISOString(start);
+
+                    const formattedDate = start.toLocaleDateString('es-PE');
+                    const formattedHour = start.toLocaleTimeString('es-PE', {
+                        hour: '2-digit', minute: '2-digit', hour12: false
+                    });
+                    document.getElementById("event-start").value = `${formattedDate} ${formattedHour}`;
+
+                    // Obtener eventos del mismo día posteriores
+                    const eventosDelDia = calendar.getEvents()
+                        .filter(e => e.start > start && e.start.toDateString() === start.toDateString())
+                        .sort((a, b) => a.start - b.start);
+
+                    const limiteMax = new Date(start);
+                    limiteMax.setHours(start.getHours() + 2);
+
+                    if (eventosDelDia.length > 0 && eventosDelDia[0].start < limiteMax) {
+                        limiteMax.setTime(eventosDelDia[0].start.getTime());
+                    }
+
+                    const endSelect = document.getElementById("event-end");
+                    endSelect.innerHTML = '<option value="" disabled selected>Seleccione hora de fin</option>';
+
+                    const current = new Date(start);
+                    current.setMinutes(0);
+                    current.setSeconds(0);
+                    current.setMilliseconds(0);
+
+                    while (current < limiteMax) {
+                        current.setMinutes(current.getMinutes() + 60);
+                        if (current > limiteMax) break;
+                        const option = document.createElement("option");
+                        option.value = toLocalISOString(current);
+                        option.textContent = current.toLocaleTimeString('es-PE', {
+                            hour: '2-digit', minute: '2-digit', hour12: false
+                        });
+                        endSelect.appendChild(option);
+                    }
+
+                    // Calcular disponibilidad para mostrar en el modal
+                    // Obtener disponibilidad desde el servidor
+                    const fechaHora = toLocalISOString(clickedTime);
+                    const fecha = fechaHora.split('T')[0];
+                    const hora = fechaHora.split('T')[1];
+
+                    // Mostrar indicador de carga en el contenedor de disponibilidad
+                    const disponibilidadEl = document.getElementById("gimnasio-disponibilidad");
+                    disponibilidadEl.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Verificando disponibilidad...</p></div>';
+
+                    // Realizar la consulta al servidor
+                    fetch(`/api/disponibilidad/gimnasio?espacioId=${espacioId}&fecha=${fecha}&hora=${hora}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error al consultar disponibilidad');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.error) {
+                                throw new Error(data.error);
+                            }
+                            
+                            // Limpiar el contenedor
+                            disponibilidadEl.innerHTML = '';
+                            
+                            const disponibilidadInfo = document.createElement("div");
+                            disponibilidadInfo.className = "alert alert-info mb-3";
+                            
+                            // Obtener los datos
+                            const aforoTotal = data.aforoTotal;
+                            const espaciosDisponibles = data.espaciosDisponibles;
+                            const ocupacionActual = data.ocupacionActual;
+                            const porcentajeOcupacion = data.porcentajeOcupacion;
+                            const completo = data.completo;
+                            
+                            // Si está completo, mostrar mensaje y no permitir reservar
+                            if (completo) {
+                                disponibilidadInfo.className = "alert alert-danger mb-3";
+                                disponibilidadInfo.innerHTML = `
+                                    <i class="fas fa-times-circle me-2"></i>
+                                    <strong>No hay disponibilidad:</strong> El aforo está completo para este horario.
+                                `;
+                                disponibilidadEl.appendChild(disponibilidadInfo);
+                                
+                                // Deshabilitar el botón de guardar
+                                document.getElementById("btn-save-event").disabled = true;
+                                document.getElementById("btn-save-event").classList.add("disabled");
+                                return;
+                            }
+                            
+                            // Determinar el color según la disponibilidad
+                            let colorBarra = "bg-success";
+                            let colorTexto = "text-success";
+                            let icono = "fa-check-circle";
+                            
+                            if (porcentajeOcupacion > 75) {
+                                colorBarra = "bg-danger";
+                                colorTexto = "text-danger";
+                                icono = "fa-exclamation-circle";
+                            } else if (porcentajeOcupacion > 50) {
+                                colorBarra = "bg-warning";
+                                colorTexto = "text-warning";
+                                icono = "fa-exclamation-triangle";
+                            }
+                            
+                            disponibilidadInfo.innerHTML = `
+                                <i class="fas ${icono} me-2 ${colorTexto}"></i>
+                                <strong>Disponibilidad actual:</strong> ${espaciosDisponibles} de ${aforoTotal} espacios disponibles
+                                <div class="progress mt-2" style="height: 10px;">
+                                    <div class="progress-bar ${colorBarra}" role="progressbar" 
+                                        style="width: ${porcentajeOcupacion}%" 
+                                        aria-valuenow="${ocupacionActual}" aria-valuemin="0" aria-valuemax="${aforoTotal}">
+                                    </div>
+                                </div>`;
+                            
+                            disponibilidadEl.appendChild(disponibilidadInfo);
+                            
+                            // Habilitar el botón de guardar
+                            document.getElementById("btn-save-event").disabled = false;
+                            document.getElementById("btn-save-event").classList.remove("disabled");
+                        })
+                        .catch(error => {
+                            console.error('Error al obtener disponibilidad:', error);
+                            
+                            disponibilidadEl.innerHTML = '';
+                            const errorInfo = document.createElement("div");
+                            errorInfo.className = "alert alert-warning mb-3";
+                            errorInfo.innerHTML = `
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Error al verificar disponibilidad:</strong> ${error.message || 'Intente nuevamente'}
+                            `;
+                            disponibilidadEl.appendChild(errorInfo);
+                        });
+                }
+            };
+
+            // Inicializar el calendario con la configuración personalizada
+            const calendar = initializeCalendar(calendarEl, customConfig);
+            calendar.render();
+
+            // Función para controlar la navegación
+            function controlNavigation() {
+                const now = new Date();
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Lunes de esta semana
+                startOfWeek.setHours(0, 0, 0, 0);
+
+                const currentView = calendar.view;
+                const viewStart = new Date(currentView.activeStart);
+
+                // Controlar botón prev
+                const prevButton = document.querySelector('.fc-prev-button');
+                if (prevButton) {
+                    if (viewStart < startOfWeek) {
+                        prevButton.disabled = true;
+                        prevButton.style.opacity = '0.5';
+                        prevButton.style.cursor = 'not-allowed';
+                        prevButton.title = 'No se pueden ver semanas pasadas';
+                    } else {
+                        prevButton.disabled = false;
+                        prevButton.style.opacity = '1';
+                        prevButton.style.cursor = 'pointer';
+                        prevButton.title = 'Semana anterior';
+                    }
+                }
+            }
+
+            // Ejecutar control de navegación después del render
+            setTimeout(controlNavigation, 100);
+
+            // Agregar event listener para controlar navegación en cada cambio de vista
+            calendar.on('datesSet', controlNavigation);
+
+            // Interceptar clics en el botón prev para prevenir navegación a semanas pasadas
+            document.addEventListener('click', function (e) {
+                if (e.target.classList.contains('fc-prev-button') && e.target.disabled) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+
+            // Verificar si existe la función marcarHorariosPasadosComoNoDisponibles
+            if (typeof marcarHorariosPasadosComoNoDisponibles === 'function') {
+                // Marcar horarios pasados como no disponibles
+                marcarHorariosPasadosComoNoDisponibles(calendar);
+                // Actualizar cada minuto
+                setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);
+            }
+
+            // Manejador del submit para crear reserva directamente
+            document.getElementById("form-event").addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const rawStart = document.getElementById("event-start").dataset.raw;
+                const rawEnd = document.getElementById("event-end").value;
+
+                if (!rawStart || !rawEnd) {
+                    alert("Seleccione una hora de inicio y fin válidas.");
+                    return;
+                }
+
+                // Actualizar los campos ocultos antes de enviar
+                document.getElementById("input-espacio-id").value = espacioId;
+                document.getElementById("input-fecha-inicio").value = rawStart;
+                document.getElementById("input-fecha-fin").value = rawEnd;
+
+                // Mostrar indicador de carga
+                const btnSave = document.getElementById("btn-save-event");
+                const originalText = btnSave.textContent;
+                btnSave.disabled = true;
+                btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creando...';
+
+                // Enviar el formulario directamente (sin verificación extra)
+                form.submit();
+            });
+
+            // Inicializar tooltips de Bootstrap
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'click',
+                    placement: 'left',
+                    html: true
+                });
+            });
+
+            // Cerrar tooltip al hacer clic fuera
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('[data-bs-toggle="tooltip"]')) {
+                    tooltipList.forEach(tooltip => tooltip.hide());
+                }
+            });
+        });
+
+        // Función para obtener string local en formato YYYY-MM-DDTHH:mm:ss
+        function toLocalISOString(date) {
+            const pad = n => n < 10 ? '0' + n : n;
+            return date.getFullYear() + '-' +
+                pad(date.getMonth() + 1) + '-' +
+                pad(date.getDate()) + 'T' +
+                pad(date.getHours()) + ':' +
+                pad(date.getMinutes()) + ':' +
+                pad(date.getSeconds());
+        }
+
+        // Corregir la función para contar reservas en un horario específico
+        function contarReservasEnHorario(time, calendar) {
+            // Buscar todos los eventos en este horario que representan reservas reales
+            // (no los eventos de fondo como "Aforo completo")
+            const eventosEnHorario = calendar.getEvents().filter(event => {
+                // Verificar que el evento está en el horario seleccionado
+                const eventoEnHorario = event.start <= time && event.end > time;
+                
+                // Excluir eventos de fondo (como "Aforo completo")
+                const noEsFondo = !event.rendering || event.rendering !== 'background';
+                
+                // Excluir eventos propios para no contarlos dos veces
+                const noEsPropio = !event.extendedProps || !event.extendedProps.esPropia;
+                
+                return eventoEnHorario && noEsFondo && noEsPropio;
+            });
+            
+            console.log('Eventos en horario:', eventosEnHorario.length, eventosEnHorario);
+            
+            // Cada evento representa una persona inscrita
+            return eventosEnHorario.length;
+        }
+
+    </script>
+</body>
+
+</html>
