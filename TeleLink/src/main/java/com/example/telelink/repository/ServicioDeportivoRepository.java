@@ -12,4 +12,6 @@ import java.util.List;
 public interface ServicioDeportivoRepository extends JpaRepository<ServicioDeportivo, Integer> {
     @Query("SELECT DISTINCT s FROM EspacioDeportivo e JOIN e.servicioDeportivo s WHERE e.establecimientoDeportivo.establecimientoDeportivoId = :establecimientoId")
     List<ServicioDeportivo> findByEstablecimientoDeportivoId(@Param("establecimientoId") Integer establecimientoId);
+
+    ServicioDeportivo findByServicioDeportivo(String servicioDeportivo);
 }
