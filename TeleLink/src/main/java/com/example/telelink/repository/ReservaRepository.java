@@ -195,6 +195,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 @Param("inicio") LocalDateTime inicio,
                 @Param("fin") LocalDateTime fin);
 
+
         @Query("SELECT r FROM Reserva r WHERE r.espacioDeportivo.espacioDeportivoId = :espacioId " +
                 "AND r.inicioReserva < :fin AND r.finReserva > :inicio " +
                 "AND r.estado IN ('pendiente', 'confirmada', 'en_proceso')")
@@ -203,6 +204,15 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 @Param("inicio") LocalDateTime inicio,
                 @Param("fin") LocalDateTime fin);
 
+        @Query("SELECT r FROM Reserva r WHERE r.usuario = :usuario " +
+                "AND r.espacioDeportivo.espacioDeportivoId = :espacioId " +
+                "AND r.inicioReserva < :fin AND r.finReserva > :inicio " +
+                "AND r.estado IN ('pendiente', 'confirmada', 'en_proceso')")
+        List<Reserva> findByUsuarioAndEspacioDeportivoAndTimeRange(
+                @Param("usuario") Usuario usuario,
+                @Param("espacioId") Integer espacioId,
+                @Param("inicio") LocalDateTime inicio,
+                @Param("fin") LocalDateTime fin);
 
 
 }

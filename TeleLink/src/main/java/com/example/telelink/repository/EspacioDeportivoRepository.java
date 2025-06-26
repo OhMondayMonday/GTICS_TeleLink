@@ -57,4 +57,6 @@ public interface EspacioDeportivoRepository extends JpaRepository<EspacioDeporti
     List<EspacioDeportivo> findByServicioDeportivo(ServicioDeportivo servicio);
 
     EspacioDeportivo findByNombre(String espacioNombre);
+
+    List<EspacioDeportivo> findByNombreContainingIgnoreCase(String espacioNombre);
 }
