@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Tab Fragment</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    #chat-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+    #chatbox {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 320px;
+      display: none;
+      z-index: 9999;
+    }
+    #chatbox .card-body {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .chat-message {
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      max-width: 80%;
+    }
+    .chat-message.user {
+      background: #007bff;
+      color: white;
+      align-self: flex-end;
+    }
+    .chat-message.bot {
+      background: #e9ecef;
+      align-self: flex-start;
+    }
+    .typing-indicator {
+      margin-bottom: 10px;
+      padding: 8px;
+      background: #e9ecef;
+      border-radius: 8px;
+      align-self: flex-start;
+    }
+  </style>
+</head>
+<body>
+<div th:fragment="chat-tab" sec:authorize="hasRole('vecino')">
+  <!-- Botón flotante del chatbot -->
+  <div id="chat-button">
+    <button class="btn btn-primary rounded-circle shadow" style="width: 60px; height: 60px;" onclick="toggleChat()">
+      💬
+    </button>
+  </div>
+
+  <!-- Ventana del chatbot -->
+  <div id="chatbox" class="card shadow">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <span>Asistente SanMI 🤖</span>
+      <button class="btn btn-sm btn-light" onclick="toggleChat()">✖</button>
+    </div>
+    <div class="card-body">
+      <!-- Mensaje de bienvenida inicial -->
+      <div class="mb-3" id="welcome-message">
+        <div class="chat-message bot">
+          <strong>SanMI Bot:</strong><br>
+          ¡Hola, vecino! 👋<br>
+          ¿En qué puedo ayudarte hoy?
+        </div>
+      </div>
+
+      <!-- Respuesta dinámica -->
+      <div id="chat-response"></div>
+
+      <!-- Input y botón de envío -->
+      <div class="mt-3">
+        <input type="text" id="chat-input" class="form-control" placeholder="Escribe tu pregunta aquí...">
+        <button class="btn btn-primary btn-sm mt-2 w-100" onclick="sendMessage()">Enviar</button>
+      </div>
+      <button class="btn btn-danger btn-sm mt-2 w-100" onclick="clearHistory()">🗑 Borrar historial</button>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script th:inline="javascript">
+    let chatId = /*[[${#strings.randomAlphanumeric(16)}]]*/ 'defaultChatId';
+
+    function toggleChat() {
+      const chatbox = document.getElementById("chatbox");
+      const isVisible = chatbox.style.display === "block";
+      if (isVisible) {
+        chatbox.style.display = "none";
+      } else {
+        chatbox.style.display = "block";
+        if (!document.getElementById("welcome-message").classList.contains("shown")) {
+          document.getElementById("welcome-message").classList.add("shown");
+        }
+      }
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("chat-input");
+      const message = input.value.trim();
+      if (!message) return;
+
+      addMessage("Tú", message, "user");
+      input.value = "";
+
+      showTypingIndicator();
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chatId: chatId, message: message })
+      })
+              .then(response => response.text())
+              .then(data => {
+                hideTypingIndicator();
+                addMessage("SanMI Bot", data, "bot");
+              })
+              .catch(error => {
+                hideTypingIndicator();
+                addMessage("SanMI Bot", "Error: No se pudo conectar con el servidor.", "bot");
+                console.error("Error:", error);
+              });
+    }
+
+    function addMessage(author, text, type) {
+      const chatResponse = document.getElementById("chat-response");
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "chat-message " + type;
+      messageDiv.innerHTML = `<strong>${author}:</strong><br>${text}`;
+      chatResponse.appendChild(messageDiv);
+      chatResponse.scrollTop = chatResponse.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const chatResponse = document.getElementById("chat-response");
+      const indicator = document.createElement("div");
+      indicator.id = "typing-indicator";
+      indicator.className = "typing-indicator";
+      indicator.innerHTML = `<strong>SanMI Bot:</strong><br><span class="text-muted">Escribiendo...</span> <span class="spinner-border spinner-border-sm ms-2" role="status"></span>`;
+      chatResponse.appendChild(indicator);
+      chatResponse.scrollTop = chatResponse.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const indicator = document.getElementById("typing-indicator");
+      if (indicator) indicator.remove();
+    }
+
+    function clearHistory() {
+      chatId = /*[[${#strings.randomAlphanumeric(16)}]]*/ 'newChatId';
+      document.getElementById("chat-response").innerHTML = "";
+      addMessage("SanMI Bot", "Historial borrado. ¡Empecemos de nuevo! 👋", "bot");
+    }
+
+    document.getElementById("chat-input").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</div>
+</body>
+</html>
