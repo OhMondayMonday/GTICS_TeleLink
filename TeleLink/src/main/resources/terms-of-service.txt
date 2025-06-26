@@ -1,22 +1,28 @@
-Términos de Servicio
+Términos de Servicio del Chatbot Deportivo de la Municipalidad de San Miguel
+Al usar el chatbot SanMI Bot para reservar espacios deportivos, aceptas los siguientes términos:
+1. Consulta de Disponibilidad
 
-Estos Términos de Servicio regulan el uso del Chatbot Deportivo de la Municipalidad de San Miguel y la reserva de espacios deportivos gestionados por la municipalidad. Al utilizar el chatbot o realizar una reserva, aceptas estos términos.
+- Puedes consultar la disponibilidad de espacios deportivos (e.g., Cancha de Futbol Grass) para una fecha y hora específicas.
+- El chatbot verifica si el espacio está libre revisando reservas existentes.
+- Las consultas deben respetar los horarios de operación del espacio (consultar apertura y cierre).
 
-1. Consulta de Espacios Deportivos Disponibles
-- Puedes consultar la disponibilidad de espacios deportivos (por ejemplo, canchas de fútbol) a través del chatbot para una fecha y hora específicas.
-- El chatbot verifica la disponibilidad consultando las reservas existentes en la base de datos. Por ejemplo, una consulta para canchas de fútbol el 25 de junio de 2025 de 6:00 p.m. a 8:00 p.m. revisará todas las canchas de fútbol para ese horario.
-- Las consultas deben respetar los horarios de operación de los espacios deportivos (consultar horarios de apertura y cierre).
+2. Creación de Reservas
 
-2. Reserva de Espacios Deportivos
-- Las reservas se realizan a través del chatbot, el sitio web o la aplicación móvil de la Municipalidad de San Miguel, utilizando los datos de tu sesión activa.
-- Debes proporcionar información personal precisa (nombre, DNI, etc.) al hacer una reserva. Las correcciones de datos incurrirán en una tarifa de S/10.
-- Al realizar una reserva, esta se crea como "pendiente" hasta que se complete el pago en una pestaña separada de la aplicación.
-- Se requiere el pago completo para confirmar la reserva, según el precio por hora del espacio deportivo (por ejemplo, S/50 por una cancha de fútbol). Una vez confirmado el pago, la reserva pasa a "confirmada".
-- Las reservas deben realizarse dentro de los horarios de operación del espacio deportivo.
+- Las reservas se hacen a través del chatbot, requiriendo una sesión activa (inicio de sesión).
+- Debes proporcionar datos precisos (nombre, DNI). Corregir datos cuesta S/10.
+- La reserva se crea como "pendiente" hasta que pagues en la pestaña de pagos.
+- El pago confirma la reserva (e.g., S/50/hora para Cancha de Futbol Grass).
+- Las reservas deben estar dentro de los horarios de operación.
 
 3. Cancelación de Reservas
-- Las cancelaciones se permiten hasta 48 horas antes del inicio de la reserva para ser elegibles para un reembolso.
-- Puedes cancelar a través del chatbot o contactando al soporte.
-- Tarifas de cancelación: S/30 para espacios deportivos estándar (por ejemplo, Cancha de Fútbol Grass), S/15 para espacios comunitarios (por ejemplo, Cancha de Fútbol Loza).
-- Los reembolsos, si son aplicables, se procesan dentro de los 7 días hábiles. Los pagos realizados en línea se reembolsan automáticamente; los depósitos bancarios requieren aprobación administrativa.
-- Las cancelaciones realizadas después de las 48 horas antes del inicio de la reserva resultarán en la cancelación del pago, pero no se emitirá ningún reembolso.
+
+- Cancela hasta 48 horas antes del inicio para un reembolso.
+- Usa el chatbot o contacta soporte para cancelar.
+- Reembolsos (si aplican) se procesan en 7 días hábiles. Pagos en línea son automáticos; depósitos requieren aprobación.
+- Cancelaciones dentro de las 48 horas no son reembolsables.
+
+4. Uso del Chatbot
+
+Proporciona información clara (servicio, espacio, fecha, hora).
+El chatbot no asume datos faltantes y te pedirá detalles si es necesario.
+Solo se admiten consultas relacionadas con reservas de espacios deportivos.

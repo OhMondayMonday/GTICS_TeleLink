@@ -1,6 +1,7 @@
 package com.example.telelink.repository;
 
 import com.example.telelink.entity.EspacioDeportivo;
+import com.example.telelink.entity.ServicioDeportivo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.example.telelink.entity.EstablecimientoDeportivo;
@@ -52,4 +53,8 @@ public interface EspacioDeportivoRepository extends JpaRepository<EspacioDeporti
             "ORDER BY avgRating DESC, e.espacioDeportivoId ASC " +
             "FETCH FIRST 3 ROWS ONLY")
     List<Object[]> findTop3ByEstadoServicioOrderByAverageRatingDesc(EspacioDeportivo.EstadoServicio estadoServicio);
+
+    List<EspacioDeportivo> findByServicioDeportivo(ServicioDeportivo servicio);
+
+    EspacioDeportivo findByNombre(String espacioNombre);
 }
