@@ -2391,6 +2391,26 @@ public class AdminController {
             // Guardar en la base de datos
             asistenciaRepository.save(nuevaAsistencia);
 
+            // Create notification
+            try {
+                Optional<TipoNotificacion> optTipo = tipoNotificacionRepository.findAll().stream()
+                        .filter(t -> t.getTipoNotificacion().equals("creación"))
+                        .findFirst();
+                if (optTipo.isPresent()) {
+                    Notificacion notificacion = new Notificacion();
+                    notificacion.setUsuario(coordinador);
+                    notificacion.setTipoNotificacion(optTipo.get());
+                    notificacion.setTituloNotificacion("Nueva Asistencia Asignada");
+                    notificacion.setMensaje("Se te ha asignado una nueva asistencia para el " + horarioEntrada.toLocalDate() + " de " + horarioEntrada.toLocalTime() + " a " + horarioSalida.toLocalTime());
+                    notificacion.setUrlRedireccion("/coordinador/asistencia");
+                    notificacion.setFechaCreacion(LocalDateTime.now());
+                    notificacion.setEstado(Notificacion.Estado.no_leido);
+                    notificacionRepository.save(notificacion);
+                }
+            } catch (Exception e) {
+                // Ignore notification failure as per requirement
+            }
+
             // Send email to coordinator
             try {
                 emailService.sendAssistanceNotification(coordinador, nuevaAsistencia);
@@ -2654,6 +2674,26 @@ public class AdminController {
             
             // Guardar nueva asistencia
             asistenciaRepository.save(nuevaAsistencia);
+            
+            // Create notification for new coordinator
+            try {
+                Optional<TipoNotificacion> optTipo = tipoNotificacionRepository.findAll().stream()
+                        .filter(t -> t.getTipoNotificacion().equals("creación"))
+                        .findFirst();
+                if (optTipo.isPresent()) {
+                    Notificacion notificacion = new Notificacion();
+                    notificacion.setUsuario(nuevoCoordinador);
+                    notificacion.setTipoNotificacion(optTipo.get());
+                    notificacion.setTituloNotificacion("Nueva Asistencia Reasignada");
+                    notificacion.setMensaje("Se te ha reasignado una asistencia para el " + nuevaAsistencia.getHorarioEntrada().toLocalDate() + " de " + nuevaAsistencia.getHorarioEntrada().toLocalTime() + " a " + nuevaAsistencia.getHorarioSalida().toLocalTime());
+                    notificacion.setUrlRedireccion("/coordinador/asistencia");
+                    notificacion.setFechaCreacion(LocalDateTime.now());
+                    notificacion.setEstado(Notificacion.Estado.no_leido);
+                    notificacionRepository.save(notificacion);
+                }
+            } catch (Exception e) {
+                // Ignore notification failure as per requirement
+            }
             
             // Enviar email al nuevo coordinador
             try {
