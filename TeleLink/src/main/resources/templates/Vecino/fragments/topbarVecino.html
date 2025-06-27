@@ -65,91 +65,36 @@
 
         <div class="d-flex">
             <div class="dropdown d-inline-block">
-                <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
+                <button type="button" class="btn header-item noti-icon waves-effect position-relative" 
+                        id="page-header-notifications-dropdown"
                         data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="ri-notification-3-line"></i>
-                    <span class="noti-dot"></span>
+                    <!-- Badge para notificaciones no leídas -->
+                    <span id="notification-badge" class="noti-dot" style="display: none;"></span>
                 </button>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                     aria-labelledby="page-header-notifications-dropdown">
-                    <div class="p-3">
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0 notification-dropdown"
+                     aria-labelledby="page-header-notifications-dropdown" style="width: 350px; max-height: 400px;">
+                    <div class="p-3 bg-light">
                         <div class="row align-items-center">
                             <div class="col">
-                                <h6 class="m-0"> Notificaciones </h6>
+                                <h6 class="m-0">Notificaciones</h6>
                             </div>
                             <div class="col-auto">
-                                <a href="#" class="small"> Ver todas</a>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="mark-all-read-btn">
+                                    Marcar todas como leídas
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div data-simplebar style="max-height: 230px;">
-                        <a href="#" class="text-reset notification-item">
-                            <div class="d-flex">
-                                <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                    <i class="ri-shopping-cart-line"></i>
-                                                </span>
-                                </div>
-                                <div class="flex-1">
-                                    <h6 class="mb-1">Your order is placed</h6>
-                                    <div class="font-size-12 text-muted">
-                                        <p class="mb-1">If several languages coalesce the grammar</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                        <a href="#" class="text-reset notification-item">
-                            <div class="d-flex">
-                                <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                    <i class="ri-shopping-cart-line"></i>
-                                                </span>
-                                </div>
-                                <div class="flex-1">
-                                    <h6 class="mb-1">James Lemire</h6>
-                                    <div class="font-size-12 text-muted">
-                                        <p class="mb-1">It will seem like simplified English.</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                        <a href="#" class="text-reset notification-item">
-                            <div class="d-flex">
-                                <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-success rounded-circle font-size-16">
-                                                    <i class="ri-checkbox-circle-line"></i>
-                                                </span>
-                                </div>
-                                <div class="flex-1">
-                                    <h6 class="mb-1">Your item is shipped</h6>
-                                    <div class="font-size-12 text-muted">
-                                        <p class="mb-1">If several languages coalesce the grammar</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-
-                        <a href="#" class="text-reset notification-item">
-                            <div class="d-flex">
-                                <div class="avatar-xs me-3">
-                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                    <i class="ri-shopping-cart-line"></i>
-                                                </span>
-                                </div>
-                                <div class="flex-1">
-                                    <h6 class="mb-1">Salena Layfield</h6>
-                                    <div class="font-size-12 text-muted">
-                                        <p class="mb-1">As a skeptical Cambridge friend of mine occidental.</p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hours ago</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
+                    <div data-simplebar style="max-height: 220px; overflow-y: auto;" id="notification-list">
+                        <!-- Las notificaciones se cargarán aquí dinámicamente -->
+                        <div class="text-center p-3" id="loading-notifications">
+                            <i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i> Cargando...
+                        </div>
                     </div>
-
+                    <div class="p-2 border-top text-center">
+                        <a href="/notificaciones/vecino/lista" class="btn btn-sm btn-primary">Ver todas las notificaciones</a>
+                    </div>
                 </div>
             </div>
 
@@ -173,6 +118,223 @@
 
         </div>
     </div>
+
+    <!-- JavaScript para notificaciones -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let notificationPollingInterval;
+            
+            // Función para formatear tiempo relativo
+            function timeAgo(date) {
+                const now = new Date();
+                const diffInMinutes = Math.floor((now - date) / 60000);
+                
+                if (diffInMinutes < 1) return 'Hace un momento';
+                if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`;
+                
+                const diffInHours = Math.floor(diffInMinutes / 60);
+                if (diffInHours < 24) return `Hace ${diffInHours}h`;
+                
+                const diffInDays = Math.floor(diffInHours / 24);
+                if (diffInDays < 7) return `Hace ${diffInDays}d`;
+                
+                return date.toLocaleDateString();
+            }
+            
+            // Función para obtener información del tipo de notificación
+            function getTipoInfo(tipo) {
+                // Mapeo exacto del backend - FontAwesome icons
+                const tipoMap = {
+                    'creación': { icono: 'fas fa-plus-circle', color: '#28a745' },
+                    'aviso': { icono: 'fas fa-exclamation-triangle', color: '#ffc107' },
+                    'cancelación': { icono: 'fas fa-times-circle', color: '#dc3545' },
+                    'actualización': { icono: 'fas fa-edit', color: '#17a2b8' },
+                    'aprobación': { icono: 'fas fa-check-circle', color: '#007bff' },
+                    'asignación': { icono: 'fas fa-user-plus', color: '#6610f2' }
+                };
+                
+                return tipoMap[tipo] || { icono: 'fas fa-bell', color: '#6c757d' };
+            }
+            
+            // Función para crear un item de notificación
+            function createNotificationItem(notification) {
+                const tipoInfo = getTipoInfo(notification.tipoNotificacion.tipoNotificacion);
+                const isUnread = notification.estado === 'no_leido';
+                
+                return `
+                    <a href="#" class="text-reset notification-item d-block p-3 border-bottom ${isUnread ? 'bg-light' : ''}" 
+                       onclick="markAsReadAndRedirect(${notification.notificacionId}); return false;">
+                        <div class="d-flex">
+                            <div class="avatar-xs me-3">
+                                <span class="avatar-title rounded-circle font-size-16" style="background-color: ${tipoInfo.color};">
+                                    <i class="${tipoInfo.icono}"></i>
+                                </span>
+                            </div>
+                            <div class="flex-1">
+                                <h6 class="mb-1 font-size-14">${notification.tituloNotificacion || 'Notificación'}</h6>
+                                <div class="font-size-12 text-muted">
+                                    <p class="mb-1">${notification.mensaje || ''}</p>
+                                    <p class="mb-0">
+                                        <i class="ri-time-line"></i> ${timeAgo(new Date(notification.fechaCreacion))}
+                                        ${isUnread ? '<span class="badge bg-primary ms-2">Nueva</span>' : ''}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>`;
+            }
+            
+            // Función para cargar notificaciones
+            let isLoadingNotifications = false;
+            async function loadNotifications() {
+                if (isLoadingNotifications) return; // Evitar múltiples cargas concurrentes
+                
+                isLoadingNotifications = true;
+                const notificationList = document.getElementById('notification-list');
+                
+                try {
+                    // Mostrar indicador de carga solo si la lista está vacía
+                    if (!notificationList.innerHTML.trim() || notificationList.querySelector('#loading-notifications')) {
+                        notificationList.innerHTML = '<div class="text-center p-3" id="loading-notifications"><i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i> Cargando...</div>';
+                    }
+                    
+                    const response = await fetch('/notificaciones/api/latest');
+                    if (!response.ok) {
+                        throw new Error('Error al cargar notificaciones');
+                    }
+                    
+                    const data = await response.json();
+                    const notifications = data.notificaciones || [];
+                    const unreadCount = data.conteoNoLeidas || 0;
+                    
+                    // Actualizar badge
+                    updateNotificationBadge(unreadCount);
+                    
+                    // Limpiar lista
+                    notificationList.innerHTML = '';
+                    
+                    if (notifications.length === 0) {
+                        notificationList.innerHTML = '<div class="text-center p-3"><p class="text-muted">No hay notificaciones</p></div>';
+                        return;
+                    }
+                    
+                    // Crear items de notificación
+                    const notificationItems = notifications.map(notification => createNotificationItem(notification));
+                    
+                    notificationList.innerHTML = notificationItems.join('');
+                    
+                } catch (error) {
+                    console.error('Error cargando notificaciones:', error);
+                    notificationList.innerHTML = '<div class="text-center p-3"><p class="text-danger">Error al cargar notificaciones</p></div>';
+                } finally {
+                    isLoadingNotifications = false;
+                }
+            }
+            
+            // Función para actualizar el badge
+            function updateNotificationBadge(count) {
+                const badge = document.getElementById('notification-badge');
+                
+                if (count > 0) {
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            
+            // Función para marcar como leída y redirigir
+            function markAsReadAndRedirect(notificationId) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/notificaciones/vecino/marcar-leida/${notificationId}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+            
+            // Función para marcar todas como leídas
+            async function markAllAsRead() {
+                try {
+                    const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        await loadNotifications();
+                    } else {
+                        throw new Error('Error al marcar todas como leídas');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al marcar todas las notificaciones como leídas');
+                }
+            }
+            
+            // Event listeners
+            if (document.getElementById('mark-all-read-btn')) {
+                document.getElementById('mark-all-read-btn').addEventListener('click', markAllAsRead);
+            }
+            
+            // Cargar notificaciones al mostrar el dropdown (no en click)
+            const dropdownElement = document.getElementById('page-header-notifications-dropdown');
+            if (dropdownElement) {
+                // Usar el evento de Bootstrap para cuando se muestra el dropdown
+                const dropdown = new bootstrap.Dropdown(dropdownElement);
+                dropdownElement.addEventListener('shown.bs.dropdown', function(e) {
+                    // Solo cargar si no hay contenido aún o solo hay loading
+                    const notificationList = document.getElementById('notification-list');
+                    if (notificationList && (notificationList.children.length === 0 || notificationList.querySelector('#loading-notifications'))) {
+                        loadNotifications();
+                    }
+                });
+            }
+            
+            // Configurar polling cada 20 segundos
+            function startNotificationPolling() {
+                notificationPollingInterval = setInterval(async function() {
+                    try {
+                        const response = await fetch('/notificaciones/api/unread-count');
+                        if (response.ok) {
+                            const data = await response.json();
+                            updateNotificationBadge(data.conteoNoLeidas || 0);
+                        }
+                    } catch (error) {
+                        console.error('Error en polling de notificaciones:', error);
+                    }
+                }, 20000); // 20 segundos
+            }
+            
+            function stopNotificationPolling() {
+                if (notificationPollingInterval) {
+                    clearInterval(notificationPollingInterval);
+                }
+            }
+            
+            // Inicializar - solo cargar conteo de badge inicialmente
+            async function initializeNotifications() {
+                try {
+                    const response = await fetch('/notificaciones/api/unread-count');
+                    if (response.ok) {
+                        const data = await response.json();
+                        updateNotificationBadge(data.conteoNoLeidas || 0);
+                    }
+                } catch (error) {
+                    console.error('Error inicializando notificaciones:', error);
+                }
+            }
+            
+            initializeNotifications();
+            startNotificationPolling();
+            
+            // Limpiar interval al cerrar la página
+            window.addEventListener('beforeunload', stopNotificationPolling);
+            
+            // Hacer la función global para poder usarla en los onclick
+            window.markAsReadAndRedirect = markAsReadAndRedirect;
+        });
+    </script>
 </header>
 
 </html>

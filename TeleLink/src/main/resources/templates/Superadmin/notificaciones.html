@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{Superadmin/fragments/head.html :: head(title='Notificaciones')}"></head>
+<body data-sidebar="dark" class="vertical-collpsed">
+
+<!-- Begin page -->
+<div id="layout-wrapper">
+
+    <div th:replace="~{Superadmin/fragments/header.html :: header(title='Notificaciones')}"></div>
+
+    <!-- ========== Left Sidebar Start ========== -->
+    <div th:replace="~{Superadmin/fragments/sidebar.html :: sidebar}"></div>
+    <!-- Left Sidebar End -->
+
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+
+                <!-- Filtros -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">
+                                    <i class="ri-filter-line me-2"></i>Filtros
+                                </h5>
+                                <form method="GET" action="/notificaciones/superadmin/lista">
+                                    <div class="row g-3">
+                                        <div class="col-md-3">
+                                            <label for="estado" class="form-label">Estado</label>
+                                            <select class="form-select" id="estado" name="estado">
+                                                <option value="">Todos</option>
+                                                <option value="no_leido" th:selected="${estadoSeleccionado == 'no_leido'}">No leídas</option>
+                                                <option value="leido" th:selected="${estadoSeleccionado == 'leido'}">Leídas</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="fechaInicio" class="form-label">Desde</label>
+                                            <input type="date" class="form-control" id="fechaInicio" name="fechaInicio" 
+                                                   th:value="${fechaInicio != null ? #temporals.format(fechaInicio, 'yyyy-MM-dd') : ''}">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="fechaFin" class="form-label">Hasta</label>
+                                            <input type="date" class="form-control" id="fechaFin" name="fechaFin" 
+                                                   th:value="${fechaFin != null ? #temporals.format(fechaFin, 'yyyy-MM-dd') : ''}">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">&nbsp;</label>
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="ri-search-line me-1"></i>Filtrar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h4>Mis Notificaciones</h4>
+                        <p class="text-muted mb-0">
+                            Total: <span class="fw-semibold" th:text="${totalElements}">0</span> notificaciones
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button type="button" class="btn btn-outline-primary" onclick="markAllAsRead()">
+                            <i class="ri-check-double-line me-2"></i>Marcar todas como leídas
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de notificaciones -->
+                <div class="row" th:if="${notificaciones.hasContent()}">
+                    <div class="col-12">
+                        <div th:each="notification : ${notificaciones.content}">
+                            <!-- Card de notificación -->
+                            <div class="card notification-card mb-3" 
+                                 th:classappend="${notification.estado.name() == 'no_leido'} ? 'border-primary bg-primary-subtle' : 'border-light'"
+                                 th:data-notification-id="${notification.notificacionId}"
+                                 style="cursor: pointer; transition: all 0.2s ease;" 
+                                 onclick="markAsReadAndRedirect(this.getAttribute('data-notification-id'))"
+                                 onmouseover="this.style.boxShadow='0 0.125rem 0.25rem rgba(0, 0, 0, 0.075)'; this.style.transform='translateY(-2px)'"
+                                 onmouseout="this.style.boxShadow=''; this.style.transform=''">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start">
+                                        <!-- Icono de tipo -->
+                                        <div class="notification-icon flex-shrink-0 me-3" 
+                                             th:data-tipo="${notification.tipoNotificacion.tipoNotificacion}"
+                                             style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; background-color: #6c757d;">
+                                            <i class="ri-notification-3-line"></i>
+                                        </div>
+                                        
+                                        <!-- Contenido -->
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-1 fw-semibold" th:text="${notification.tituloNotificacion}">
+                                                    Título de la notificación
+                                                </h6>
+                                                <span class="badge" 
+                                                      th:classappend="${notification.estado.name() == 'no_leido'} ? 'bg-primary' : 'bg-secondary'"
+                                                      th:text="${notification.estado.name() == 'no_leido'} ? 'No leída' : 'Leída'">
+                                                </span>
+                                            </div>
+                                            <p class="text-muted mb-2" th:text="${notification.mensaje}">
+                                                Mensaje de la notificación
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="ri-time-line me-1"></i>
+                                                    <span th:text="${#temporals.format(notification.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span>
+                                                </small>
+                                                
+                                                <!-- Acciones -->
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                            type="button" data-bs-toggle="dropdown" 
+                                                            onclick="event.stopPropagation()">
+                                                        <i class="ri-more-2-line"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li th:if="${notification.estado.name() == 'no_leido'}">
+                                                            <a class="dropdown-item" href="#" 
+                                                               th:data-notification-id="${notification.notificacionId}"
+                                                               onclick="markAsRead(this.getAttribute('data-notification-id')); event.preventDefault(); event.stopPropagation();">
+                                                                <i class="ri-check-line me-2"></i>Marcar como leída
+                                                            </a>
+                                                        </li>
+                                                        <li th:if="${notification.urlRedireccion != null and !notification.urlRedireccion.isEmpty()}">
+                                                            <a class="dropdown-item" th:href="${notification.urlRedireccion}">
+                                                                <i class="ri-external-link-line me-2"></i>Ir al elemento
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sin notificaciones -->
+                <div th:unless="${notificaciones.hasContent()}" class="text-center py-5">
+                    <i class="ri-notification-off-line" style="font-size: 4rem; color: #6c757d; opacity: 0.5;"></i>
+                    <h4 class="mt-3">No hay notificaciones</h4>
+                    <p class="text-muted">No se encontraron notificaciones con los filtros aplicados.</p>
+                </div>
+
+                <!-- Paginación -->
+                <nav th:if="${totalPages > 1}" aria-label="Navegación de notificaciones">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/notificaciones/superadmin/lista(page=${currentPage - 1}, size=10, estado=${estadoSeleccionado}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}">
+                                Anterior
+                            </a>
+                        </li>
+                        
+                        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                            class="page-item" 
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link" 
+                               th:href="@{/notificaciones/superadmin/lista(page=${i}, size=10, estado=${estadoSeleccionado}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}"
+                               th:text="${i + 1}">
+                            </a>
+                        </li>
+                        
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/notificaciones/superadmin/lista(page=${currentPage + 1}, size=10, estado=${estadoSeleccionado}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}">
+                                Siguiente
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </div> <!-- container-fluid -->
+        </div> <!-- page-content -->
+
+        <!-- Footer -->
+        <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
+        
+    </div> <!-- main-content -->
+    <!-- ============================================================== -->
+    <!-- End main content -->
+    <!-- ============================================================== -->
+
+</div> <!-- layout-wrapper -->
+<!-- END layout-wrapper -->
+
+<!-- Scripts del template principal -->
+<div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+
+<script>
+    // Función para obtener información del tipo de notificación
+    async function getTipoInfo(tipo) {
+        try {
+            const response = await fetch(`/notificaciones/api/tipo-info/${encodeURIComponent(tipo)}`);
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.error('Error obteniendo info del tipo:', error);
+        }
+        
+        return {
+            icono: 'ri-notification-3-line',
+            color: '#6c757d'
+        };
+    }
+
+    // Aplicar iconos y colores a las notificaciones
+    document.addEventListener('DOMContentLoaded', async function() {
+        const notificationIcons = document.querySelectorAll('.notification-icon');
+        
+        for (const iconElement of notificationIcons) {
+            try {
+                const tipo = iconElement.getAttribute('data-tipo');
+                if (!tipo) {
+                    console.warn('Tipo de notificación no encontrado para el elemento:', iconElement);
+                    continue;
+                }
+                
+                const tipoInfo = await getTipoInfo(tipo);
+                
+                iconElement.style.backgroundColor = tipoInfo.color;
+                const icon = iconElement.querySelector('i');
+                if (icon) {
+                    icon.className = tipoInfo.icono;
+                }
+            } catch (error) {
+                console.error('Error aplicando estilo a notificación:', error);
+                // Aplicar estilo por defecto en caso de error
+                iconElement.style.backgroundColor = '#6c757d';
+                const icon = iconElement.querySelector('i');
+                if (icon) {
+                    icon.className = 'ri-notification-3-line';
+                }
+            }
+        }
+    });
+
+    // Función para marcar como leída y redirigir
+    function markAsReadAndRedirect(notificationId) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/notificaciones/superadmin/marcar-leida/${notificationId}`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // Función para marcar como leída sin redirigir
+    async function markAsRead(notificationId) {
+        try {
+            const response = await fetch(`/notificaciones/superadmin/marcar-leida/${notificationId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('Error al marcar como leída');
+            }
+        } catch (error) {
+            console.error('Error marcando como leída:', error);
+            alert('Error al marcar la notificación como leída');
+        }
+    }
+
+    // Función para marcar todas como leídas
+    async function markAllAsRead() {
+        if (!confirm('¿Estás seguro de que quieres marcar todas las notificaciones como leídas?')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
+                throw new Error(errorData.message || 'Error al marcar todas como leídas');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al marcar todas las notificaciones como leídas: ' + error.message);
+        }
+    }
+</script>
+</body>
+</html>

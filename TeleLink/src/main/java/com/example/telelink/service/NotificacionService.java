@@ -191,4 +191,60 @@ public class NotificacionService {
             "/coordinador/dashboard"
         );
     }
+
+    /**
+     * Métodos específicos para SUPERADMIN
+     */
+
+    /**
+     * Crea notificación para superadmin sobre nuevos registros de usuarios
+     */
+    public void crearNotificacionNuevoUsuario(Integer superadminId, String nombreUsuario, String rol) {
+        crearNotificacion(
+            superadminId,
+            "creación",
+            "Nuevo usuario registrado",
+            "Se ha registrado un nuevo " + rol + ": " + nombreUsuario,
+            "/superadmin/usuarios"
+        );
+    }
+
+    /**
+     * Crea notificación para superadmin sobre problemas del sistema
+     */
+    public void crearNotificacionProblema(Integer superadminId, String problema) {
+        crearNotificacion(
+            superadminId,
+            "aviso",
+            "Problema del sistema",
+            problema,
+            "/superadmin/dashboard"
+        );
+    }
+
+    /**
+     * Crea notificación para superadmin sobre transacciones importantes
+     */
+    public void crearNotificacionTransaccion(Integer superadminId, String tipoTransaccion, String monto) {
+        crearNotificacion(
+            superadminId,
+            "actualización",
+            tipoTransaccion + " procesado",
+            "Se ha procesado un " + tipoTransaccion.toLowerCase() + " por " + monto,
+            "/superadmin/transacciones"
+        );
+    }
+
+    /**
+     * Crea notificación para superadmin sobre cambios en establecimientos
+     */
+    public void crearNotificacionEstablecimiento(Integer superadminId, String accion, String nombreEstablecimiento) {
+        crearNotificacion(
+            superadminId,
+            "actualización",
+            "Establecimiento " + accion.toLowerCase(),
+            "El establecimiento " + nombreEstablecimiento + " ha sido " + accion.toLowerCase(),
+            "/superadmin/establecimientos"
+        );
+    }
 }

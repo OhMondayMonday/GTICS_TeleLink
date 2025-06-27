@@ -59,9 +59,6 @@
                         </div>
                         <div data-simplebar style="max-height: 220px; overflow-y: auto;" id="notification-list">
                             <!-- Las notificaciones se cargarán aquí dinámicamente -->
-                            <div class="text-center p-3" id="loading-notifications">
-                                <i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i> Cargando...
-                            </div>
                         </div>
                         <div class="p-2 border-top text-center">
                             <a href="/notificaciones/admin/lista" class="btn btn-sm btn-primary">Ver todas las notificaciones</a>
@@ -173,25 +170,23 @@
             }
             
             // Función para obtener información del tipo de notificación
-            async function getTipoInfo(tipo) {
-                try {
-                    const response = await fetch(`/notificaciones/api/tipo-info/${encodeURIComponent(tipo)}`);
-                    if (response.ok) {
-                        return await response.json();
-                    }
-                } catch (error) {
-                    console.error('Error obteniendo info del tipo:', error);
-                }
-                
-                return {
-                    icono: 'ri-notification-3-line',
-                    color: '#6c757d'
+            function getTipoInfo(tipo) {
+                // Mapeo exacto del backend - FontAwesome icons
+                const tipoMap = {
+                    'creación': { icono: 'fas fa-plus-circle', color: '#28a745' },
+                    'aviso': { icono: 'fas fa-exclamation-triangle', color: '#ffc107' },
+                    'cancelación': { icono: 'fas fa-times-circle', color: '#dc3545' },
+                    'actualización': { icono: 'fas fa-edit', color: '#17a2b8' },
+                    'aprobación': { icono: 'fas fa-check-circle', color: '#007bff' },
+                    'asignación': { icono: 'fas fa-user-plus', color: '#6610f2' }
                 };
+                
+                return tipoMap[tipo] || { icono: 'fas fa-bell', color: '#6c757d' };
             }
             
             // Función para crear un item de notificación
-            async function createNotificationItem(notification) {
-                const tipoInfo = await getTipoInfo(notification.tipoNotificacion.tipoNotificacion);
+            function createNotificationItem(notification) {
+                const tipoInfo = getTipoInfo(notification.tipoNotificacion.tipoNotificacion);
                 const isUnread = notification.estado === 'no_leido';
                 
                 return `
@@ -218,8 +213,19 @@
             }
             
             // Función para cargar notificaciones
+            let isLoadingNotifications = false;
             async function loadNotifications() {
+                if (isLoadingNotifications) return; // Evitar múltiples cargas concurrentes
+                
+                isLoadingNotifications = true;
+                const notificationList = document.getElementById('notification-list');
+                
                 try {
+                    // Mostrar indicador de carga solo si la lista está vacía
+                    if (!notificationList.innerHTML.trim() || notificationList.querySelector('#loading-notifications')) {
+                        notificationList.innerHTML = '<div class="text-center p-3" id="loading-notifications"><i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i> Cargando...</div>';
+                    }
+                    
                     const response = await fetch('/notificaciones/api/latest');
                     if (!response.ok) {
                         throw new Error('Error al cargar notificaciones');
@@ -232,8 +238,7 @@
                     // Actualizar badge
                     updateNotificationBadge(unreadCount);
                     
-                    // Actualizar lista de notificaciones
-                    const notificationList = document.getElementById('notification-list');
+                    // Limpiar lista
                     notificationList.innerHTML = '';
                     
                     if (notifications.length === 0) {
@@ -242,15 +247,15 @@
                     }
                     
                     // Crear items de notificación
-                    for (const notification of notifications) {
-                        const itemHtml = await createNotificationItem(notification);
-                        notificationList.insertAdjacentHTML('beforeend', itemHtml);
-                    }
+                    const notificationItems = notifications.map(notification => createNotificationItem(notification));
+                    
+                    notificationList.innerHTML = notificationItems.join('');
                     
                 } catch (error) {
                     console.error('Error cargando notificaciones:', error);
-                    document.getElementById('notification-list').innerHTML = 
-                        '<div class="text-center p-3"><p class="text-danger">Error al cargar notificaciones</p></div>';
+                    notificationList.innerHTML = '<div class="text-center p-3"><p class="text-danger">Error al cargar notificaciones</p></div>';
+                } finally {
+                    isLoadingNotifications = false;
                 }
             }
             
@@ -300,9 +305,11 @@
                 document.getElementById('mark-all-read-btn').addEventListener('click', markAllAsRead);
             }
             
-            // Cargar notificaciones al abrir el dropdown
-            if (document.getElementById('page-header-notifications-dropdown')) {
-                document.getElementById('page-header-notifications-dropdown').addEventListener('click', function(e) {
+            // Cargar notificaciones al mostrar el dropdown (no en click)
+            const dropdownElement = document.getElementById('page-header-notifications-dropdown');
+            if (dropdownElement) {
+                // Usar el evento de Bootstrap para cuando se muestra el dropdown
+                dropdownElement.addEventListener('shown.bs.dropdown', function(e) {
                     loadNotifications();
                 });
             }
@@ -328,8 +335,20 @@
                 }
             }
             
-            // Inicializar
-            loadNotifications();
+            // Inicializar - solo cargar conteo de badge inicialmente
+            async function initializeNotifications() {
+                try {
+                    const response = await fetch('/notificaciones/api/unread-count');
+                    if (response.ok) {
+                        const data = await response.json();
+                        updateNotificationBadge(data.conteoNoLeidas || 0);
+                    }
+                } catch (error) {
+                    console.error('Error inicializando notificaciones:', error);
+                }
+            }
+            
+            initializeNotifications();
             startNotificationPolling();
             
             // Limpiar interval al cerrar la página

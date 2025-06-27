@@ -265,6 +265,186 @@ public class NotificacionController {
     }
 
     /**
+     * Endpoints específicos para SUPERADMIN
+     */
+    
+    /**
+     * Página de notificaciones completa para SUPERADMIN
+     */
+    @GetMapping("/superadmin/lista")
+    public String listaNotificacionesSuperadmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            HttpSession session,
+            Model model) {
+        
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        
+        // Valores por defecto
+        LocalDate fechaInicioDefault = fechaInicio != null ? fechaInicio : LocalDate.now().minusDays(30);
+        LocalDate fechaFinDefault = fechaFin != null ? fechaFin : LocalDate.now();
+        String estadoDefault = estado != null && !estado.isEmpty() ? estado : "";
+        
+        // Convertir estado string a enum
+        Notificacion.Estado estadoEnum = null;
+        if (estadoDefault != null && !estadoDefault.isEmpty()) {
+            try {
+                estadoEnum = Notificacion.Estado.valueOf(estadoDefault);
+            } catch (IllegalArgumentException e) {
+                // Estado inválido, ignorar
+            }
+        }
+
+        Page<Notificacion> notificaciones;
+        
+        // Convertir LocalDate a LocalDateTime para el servicio
+        LocalDateTime fechaInicioDateTime = fechaInicioDefault.atStartOfDay();
+        LocalDateTime fechaFinDateTime = fechaFinDefault.atTime(23, 59, 59);
+        
+        // Usar siempre filtros con las fechas por defecto
+        notificaciones = notificacionService.obtenerNotificacionesConFiltros(
+            usuario.getUsuarioId(), estadoEnum, null, fechaInicioDateTime, fechaFinDateTime, pageable);
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("notificaciones", notificaciones);
+        model.addAttribute("estadoSeleccionado", estadoDefault);
+        model.addAttribute("fechaInicio", fechaInicioDefault);
+        model.addAttribute("fechaFin", fechaFinDefault);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", notificaciones.getTotalPages());
+        model.addAttribute("totalElements", notificaciones.getTotalElements());
+
+        return "Superadmin/notificaciones";
+    }
+
+    /**
+     * Endpoint para marcar una notificación como leída y redirigir - SUPERADMIN
+     */
+    @PostMapping("/superadmin/marcar-leida/{notificacionId}")
+    public String marcarComoLeidaYRedirigirSuperadmin(@PathVariable Integer notificacionId, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        Optional<Notificacion> notificacionOpt = notificacionService.obtenerNotificacionPorId(notificacionId);
+        if (notificacionOpt.isPresent()) {
+            Notificacion notificacion = notificacionOpt.get();
+            
+            // Verificar que la notificación pertenece al usuario logueado
+            if (notificacion.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+                notificacionService.marcarComoLeida(notificacionId);
+                
+                // Redirigir a la URL especificada o al dashboard por defecto
+                String urlRedireccion = notificacion.getUrlRedireccion();
+                if (urlRedireccion != null && !urlRedireccion.isEmpty()) {
+                    return "redirect:" + urlRedireccion;
+                }
+            }
+        }
+        
+        return "redirect:/superadmin/dashboard";
+    }
+
+    /**
+     * Endpoints específicos para VECINO
+     */
+    
+    /**
+     * Página de notificaciones completa para VECINO
+     */
+    @GetMapping("/vecino/lista")
+    public String listaNotificacionesVecino(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            HttpSession session,
+            Model model) {
+        
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        
+        // Valores por defecto
+        LocalDate fechaInicioDefault = fechaInicio != null ? fechaInicio : LocalDate.now().minusDays(30);
+        LocalDate fechaFinDefault = fechaFin != null ? fechaFin : LocalDate.now();
+        String estadoDefault = estado != null && !estado.isEmpty() ? estado : "";
+        
+        // Convertir estado string a enum
+        Notificacion.Estado estadoEnum = null;
+        if (estadoDefault != null && !estadoDefault.isEmpty()) {
+            try {
+                estadoEnum = Notificacion.Estado.valueOf(estadoDefault);
+            } catch (IllegalArgumentException e) {
+                // Estado inválido, ignorar
+            }
+        }
+
+        Page<Notificacion> notificaciones;
+        
+        // Convertir LocalDate a LocalDateTime para el servicio
+        LocalDateTime fechaInicioDateTime = fechaInicioDefault.atStartOfDay();
+        LocalDateTime fechaFinDateTime = fechaFinDefault.atTime(23, 59, 59);
+        
+        // Usar siempre filtros con las fechas por defecto
+        notificaciones = notificacionService.obtenerNotificacionesConFiltros(
+            usuario.getUsuarioId(), estadoEnum, null, fechaInicioDateTime, fechaFinDateTime, pageable);
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("notificaciones", notificaciones);
+        model.addAttribute("estadoSeleccionado", estadoDefault);
+        model.addAttribute("fechaInicio", fechaInicioDefault);
+        model.addAttribute("fechaFin", fechaFinDefault);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", notificaciones.getTotalPages());
+        model.addAttribute("totalElements", notificaciones.getTotalElements());
+
+        return "Vecino/notificaciones";
+    }
+
+    /**
+     * Endpoint para marcar una notificación como leída y redirigir - VECINO
+     */
+    @PostMapping("/vecino/marcar-leida/{notificacionId}")
+    public String marcarComoLeidaYRedirigirVecino(@PathVariable Integer notificacionId, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        Optional<Notificacion> notificacionOpt = notificacionService.obtenerNotificacionPorId(notificacionId);
+        if (notificacionOpt.isPresent()) {
+            Notificacion notificacion = notificacionOpt.get();
+            
+            // Verificar que la notificación pertenece al usuario logueado
+            if (notificacion.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+                notificacionService.marcarComoLeida(notificacionId);
+                
+                // Redirigir a la URL especificada o al inicio por defecto
+                String urlRedireccion = notificacion.getUrlRedireccion();
+                if (urlRedireccion != null && !urlRedireccion.isEmpty()) {
+                    return "redirect:" + urlRedireccion;
+                }
+            }
+        }
+        
+        return "redirect:/usuarios/inicio";
+    }
+
+    /**
      * Endpoint para obtener información de icono y color por tipo de notificación
      */
     @GetMapping("/api/tipo-info/{tipo}")
