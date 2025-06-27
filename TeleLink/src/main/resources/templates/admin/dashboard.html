@@ -294,8 +294,9 @@
 
 <!-- Incluir los scripts del listado -->
 <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
-  <!-- Dashboard init -->
-  <script th:src="@{/admin/assets/js/pages/dashboard.init.js}"></script>
+
+<!-- NO cargar dashboard.init.js para evitar conflictos -->
+<!-- <script th:src="@{/admin/assets/js/pages/dashboard.init.js}"></script> -->
 
 <script th:inline="javascript">
 document.addEventListener("DOMContentLoaded", function() {

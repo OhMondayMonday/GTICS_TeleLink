@@ -42,27 +42,37 @@
     <script th:src="@{/admin/assets/libs/datatables.net-keytable/js/dataTables.keyTable.min.js}"></script>
     <script th:src="@{/admin/assets/libs/datatables.net-select/js/dataTables.select.min.js}"></script>
 
-
+    <!-- Flatpickr JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.9/dist/flatpickr.min.js"></script>
 
     <!-- App js -->
     <script th:src="@{/superadmin/assets/js/app.js}"></script>
 
     <!-- Flatpickr init -->
     <script>
-        flatpickr("#inicio", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-            minuteIncrement: 30,
-            time_24hr: false,
-            allowInput: false
-        });
-        flatpickr("#fin", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-            minuteIncrement: 30,
-            time_24hr: false,
-            allowInput: false
-        });
+        // Verificar que flatpickr esté disponible antes de usarlo
+        if (typeof flatpickr !== 'undefined') {
+            // Solo inicializar si existen los elementos
+            if (document.getElementById('inicio')) {
+                flatpickr("#inicio", {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    minuteIncrement: 30,
+                    time_24hr: false,
+                    allowInput: false
+                });
+            }
+            
+            if (document.getElementById('fin')) {
+                flatpickr("#fin", {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    minuteIncrement: 30,
+                    time_24hr: false,
+                    allowInput: false
+                });
+            }
+        }
     </script>
 
     <!-- DataTable init -->

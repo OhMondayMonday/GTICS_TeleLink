@@ -334,4 +334,5 @@ INSERT INTO `db_gtics`.`reservas` (
     `usuario_id`, `espacio_deportivo_id`, `inicio_reserva`, `fin_reserva`, `estado`, `fecha_creacion`, `fecha_actualizacion`
 ) VALUES
     (6, 7, '2025-06-26 21:00:00', '2025-06-26 23:00:00', 'confirmada', '2025-06-13 10:00:00', '2025-06-13 10:00:00'),
+    (6, 7, '2025-06-26 15:00:00', '2025-06-26 17:00:00', 'confirmada', '2025-06-13 10:00:00', '2025-06-13 10:00:00'),
     (7, 7, '2025-06-28 21:30:00', '2025-06-28 23:00:00', 'confirmada', '2025-06-13 11:00:00', '2025-06-13 11:00:00');
