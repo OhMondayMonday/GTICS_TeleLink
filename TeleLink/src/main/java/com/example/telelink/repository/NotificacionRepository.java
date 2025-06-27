@@ -14,8 +14,8 @@ import java.util.List;
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, Integer> {
     
-    // Métodos para el dropdown - obtener las últimas 7 notificaciones
-    List<Notificacion> findTop7ByUsuario_UsuarioIdOrderByFechaCreacionDesc(Integer usuarioId);
+    // Métodos para el dropdown - obtener las últimas notificaciones
+    List<Notificacion> findTop5ByUsuario_UsuarioIdOrderByFechaCreacionDesc(Integer usuarioId);
     
     // Contar notificaciones no leídas
     long countByUsuario_UsuarioIdAndEstado(Integer usuarioId, Notificacion.Estado estado);

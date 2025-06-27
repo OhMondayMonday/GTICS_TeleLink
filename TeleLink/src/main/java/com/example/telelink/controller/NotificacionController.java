@@ -29,7 +29,7 @@ public class NotificacionController {
     private NotificacionService notificacionService;
 
     /**
-     * Endpoint para obtener las últimas 7 notificaciones (dropdown)
+     * Endpoint para obtener las últimas 5 notificaciones (dropdown)
      */
     @GetMapping("/api/latest")
     @ResponseBody
@@ -39,14 +39,8 @@ public class NotificacionController {
             return ResponseEntity.status(401).build();
         }
 
-        List<Notificacion> notificaciones = notificacionService.obtenerUltimas7Notificaciones(usuario.getUsuarioId());
+        List<Notificacion> notificaciones = notificacionService.obtenerUltimas5Notificaciones(usuario.getUsuarioId());
         long conteoNoLeidas = notificacionService.contarNotificacionesNoLeidas(usuario.getUsuarioId());
-
-        // Agregar información de iconos y colores
-        for (Notificacion notificacion : notificaciones) {
-            Map<String, String> iconInfo = obtenerIconoYColor(notificacion.getTipoNotificacion().getTipoNotificacion());
-            // Estos valores se pueden usar en el frontend, aunque no los agregamos directamente al objeto
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("notificaciones", notificaciones);
@@ -178,6 +172,96 @@ public class NotificacionController {
         model.addAttribute("totalElements", notificaciones.getTotalElements());
 
         return "Coordinador/notificaciones";
+    }
+
+    /**
+     * Endpoints específicos para ADMIN
+     */
+    
+    /**
+     * Página de notificaciones completa para ADMIN
+     */
+    @GetMapping("/admin/lista")
+    public String listaNotificacionesAdmin(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            HttpSession session,
+            Model model) {
+        
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        
+        // Valores por defecto
+        LocalDate fechaInicioDefault = fechaInicio != null ? fechaInicio : LocalDate.now().minusDays(30);
+        LocalDate fechaFinDefault = fechaFin != null ? fechaFin : LocalDate.now();
+        String estadoDefault = estado != null && !estado.isEmpty() ? estado : "";
+        
+        // Convertir estado string a enum
+        Notificacion.Estado estadoEnum = null;
+        if (estadoDefault != null && !estadoDefault.isEmpty()) {
+            try {
+                estadoEnum = Notificacion.Estado.valueOf(estadoDefault);
+            } catch (IllegalArgumentException e) {
+                // Estado inválido, ignorar
+            }
+        }
+
+        Page<Notificacion> notificaciones;
+        
+        // Convertir LocalDate a LocalDateTime para el servicio
+        LocalDateTime fechaInicioDateTime = fechaInicioDefault.atStartOfDay();
+        LocalDateTime fechaFinDateTime = fechaFinDefault.atTime(23, 59, 59);
+        
+        // Usar siempre filtros con las fechas por defecto
+        notificaciones = notificacionService.obtenerNotificacionesConFiltros(
+            usuario.getUsuarioId(), estadoEnum, null, fechaInicioDateTime, fechaFinDateTime, pageable);
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("notificaciones", notificaciones);
+        model.addAttribute("estadoSeleccionado", estadoDefault);
+        model.addAttribute("fechaInicio", fechaInicioDefault);
+        model.addAttribute("fechaFin", fechaFinDefault);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", notificaciones.getTotalPages());
+        model.addAttribute("totalElements", notificaciones.getTotalElements());
+
+        return "admin/notificaciones";
+    }
+
+    /**
+     * Endpoint para marcar una notificación como leída y redirigir - ADMIN
+     */
+    @PostMapping("/admin/marcar-leida/{notificacionId}")
+    public String marcarComoLeidaYRedirigirAdmin(@PathVariable Integer notificacionId, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        Optional<Notificacion> notificacionOpt = notificacionService.obtenerNotificacionPorId(notificacionId);
+        if (notificacionOpt.isPresent()) {
+            Notificacion notificacion = notificacionOpt.get();
+            
+            // Verificar que la notificación pertenece al usuario logueado
+            if (notificacion.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+                notificacionService.marcarComoLeida(notificacionId);
+                
+                // Redirigir a la URL especificada o al dashboard por defecto
+                String urlRedireccion = notificacion.getUrlRedireccion();
+                if (urlRedireccion != null && !urlRedireccion.isEmpty()) {
+                    return "redirect:" + urlRedireccion;
+                }
+            }
+        }
+        
+        return "redirect:/admin/dashboard";
     }
 
     /**

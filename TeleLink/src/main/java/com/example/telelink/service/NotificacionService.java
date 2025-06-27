@@ -30,10 +30,10 @@ public class NotificacionService {
     private UsuarioRepository usuarioRepository;
 
     /**
-     * Obtiene las últimas 7 notificaciones para el dropdown
+     * Obtiene las últimas 5 notificaciones para el dropdown
      */
-    public List<Notificacion> obtenerUltimas7Notificaciones(Integer usuarioId) {
-        return notificacionRepository.findTop7ByUsuario_UsuarioIdOrderByFechaCreacionDesc(usuarioId);
+    public List<Notificacion> obtenerUltimas5Notificaciones(Integer usuarioId) {
+        return notificacionRepository.findTop5ByUsuario_UsuarioIdOrderByFechaCreacionDesc(usuarioId);
     }
 
     /**
@@ -59,7 +59,7 @@ public class NotificacionService {
      * Marca todas las notificaciones como leídas para un usuario
      */
     public void marcarTodasComoLeidas(Integer usuarioId) {
-        List<Notificacion> notificaciones = notificacionRepository.findTop7ByUsuario_UsuarioIdOrderByFechaCreacionDesc(usuarioId);
+        List<Notificacion> notificaciones = notificacionRepository.findTop5ByUsuario_UsuarioIdOrderByFechaCreacionDesc(usuarioId);
         for (Notificacion notificacion : notificaciones) {
             if (notificacion.getEstado() == Notificacion.Estado.no_leido) {
                 notificacion.setEstado(Notificacion.Estado.leido);
