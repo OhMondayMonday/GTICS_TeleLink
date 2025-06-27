@@ -121,64 +121,120 @@
                 flex-wrap: wrap;
               }
 
-              .row.equal-height > .col-xl-6 {
+              .row.equal-height > .col-xl-4 {
                 display: flex;
               }
 
-              .row.equal-height > .col-xl-6 > .card {
+              .row.equal-height > .col-xl-4 > .card {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
               }
 
-              .row.equal-height > .col-xl-6 > .card > .card-body {
+              .row.equal-height > .col-xl-4 > .card > .card-body {
                 flex: 1;
               }
             </style>
 
             <div class="row equal-height">
 
-              <div class="col-xl-6">
-                <!-- Tarjeta para reservas por día (Sales Analytics con gráfico de dona) -->
+              <div class="col-xl-4">
+                <!-- Gráfico de Reservas por Día de la Semana -->
                 <div class="card">
-                  <div class="card-body donut-card">
-                    <h4 class="card-title mb-4 fw-semibold">Reservas por Día</h4>
-                    <div id="donut-chart" class="apex-charts donut-chart-container"></div>
-                    <div class="row">
-                      <div class="col-4" th:if="${top3Dias.size() >= 1}">
-                        <div class="text-center mt-4">
-                          <p class="mb-2 text-truncate">
-                            <i class="mdi mdi-circle text-primary font-size-10 me-1"></i>
-                            <span th:text="${top3Dias[0][0]}"></span>
-                          </p>
-                          <h5 th:text="${top3Dias[0][1]}"></h5>
-                        </div>
-                      </div>
-                      <div class="col-4" th:if="${top3Dias.size() >= 2}">
-                        <div class="text-center mt-4">
-                          <p class="mb-2 text-truncate">
-                            <i class="mdi mdi-circle text-success font-size-10 me-1"></i>
-                            <span th:text="${top3Dias[1][0]}"></span>
-                          </p>
-                          <h5 th:text="${top3Dias[1][1]}"></h5>
-                        </div>
-                      </div>
-                      <div class="col-4" th:if="${top3Dias.size() >= 3}">
-                        <div class="text-center mt-4">
-                          <p class="mb-2 text-truncate">
-                            <i class="mdi mdi-circle text-warning font-size-10 me-1"></i>
-                            <span th:text="${top3Dias[2][0]}"></span>
-                          </p>
-                          <h5 th:text="${top3Dias[2][1]}"></h5>
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h4 class="card-title mb-0 fw-semibold">Reservas por Día - Semana Actual</h4>
+                    </div>
+                    
+                    <!-- Filtro de Establecimiento -->
+                    <div class="mb-3">
+                      <select id="filtroEstablecimiento" class="form-select form-select-sm">
+                        <option value="">Todos los Establecimientos</option>
+                        <option th:each="establecimiento : ${establecimientos}" 
+                                th:value="${establecimiento.establecimientoDeportivoId}" 
+                                th:text="${establecimiento.establecimientoDeportivoNombre}"></option>
+                      </select>
+                    </div>
+                    
+                    <div id="reservas-chart" class="apex-charts"></div>
+                    
+                    <!-- Resumen de datos -->
+                    <div class="row mt-3">
+                      <div class="col-12">
+                        <div class="text-center">
+                          <p class="mb-1 text-muted">Total de Reservas esta Semana</p>
+                          <h5 id="totalReservasSemana" class="text-primary">0</h5>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-
               </div>
 
-              <div class="col-xl-6">
+              <div class="col-xl-4">
+                <!-- Gráfico de Asistencias por Coordinador -->
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h4 class="card-title mb-0 fw-semibold">Estado de Asistencias</h4>
+                    </div>
+                    
+                    <!-- Filtro de Coordinador -->
+                    <div class="mb-3">
+                      <select id="filtroCoordinador" class="form-select form-select-sm">
+                        <option value="">Todos los Coordinadores</option>
+                        <option th:each="coordinador : ${coordinadores}" 
+                                th:value="${coordinador.usuarioId}" 
+                                th:text="${coordinador.nombres + ' ' + coordinador.apellidos}"></option>
+                      </select>
+                    </div>
+                    
+                    <div id="asistencias-chart" class="apex-charts"></div>
+                    
+                    <!-- Leyenda personalizada -->
+                    <div class="row mt-3">
+                      <div class="col-6">
+                        <div class="text-center">
+                          <p class="mb-1 text-truncate">
+                            <i class="mdi mdi-circle text-success font-size-10 me-1"></i>
+                            Puntual
+                          </p>
+                          <h6 id="contadorPuntual">0</h6>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="text-center">
+                          <p class="mb-1 text-truncate">
+                            <i class="mdi mdi-circle text-warning font-size-10 me-1"></i>
+                            Tardanza
+                          </p>
+                          <h6 id="contadorTarde">0</h6>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="text-center">
+                          <p class="mb-1 text-truncate">
+                            <i class="mdi mdi-circle text-danger font-size-10 me-1"></i>
+                            Inasistencia
+                          </p>
+                          <h6 id="contadorInasistencia">0</h6>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="text-center">
+                          <p class="mb-1 text-truncate">
+                            <i class="mdi mdi-circle text-secondary font-size-10 me-1"></i>
+                            Cancelada
+                          </p>
+                          <h6 id="contadorCancelada">0</h6>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-xl-4">
                 <div class="card">
                   <div class="card-body">
                     <h4 class="card-title mb-4 fw-semibold">Último aviso</h4>
@@ -241,126 +297,188 @@
   <!-- Dashboard init -->
   <script th:src="@{/admin/assets/js/pages/dashboard.init.js}"></script>
 
-<!-- Script estático de prueba -->
-<!--
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    console.log("Iniciando script de prueba para ApexCharts");
-    if (typeof ApexCharts === "undefined") {
-      console.error("ApexCharts no está definido. Asegúrate de que el script de ApexCharts esté cargado.");
-      return;
-    }
-    var chartElement = document.querySelector("#donut-chart");
-    if (!chartElement) {
-      console.error("Elemento #donut-chart no encontrado en el DOM");
-      return;
-    }
-    console.log("Contenedor #donut-chart encontrado. Intentando renderizar gráfico.");
-    var options = {
-      series: [44, 55, 41, 17, 15],
-      chart: {
-        type: 'donut',
-        height: 300
-      },
-      labels: ['A', 'B', 'C', 'D', 'E'],
-      dataLabels: {
-        enabled: true
-      },
-      responsive: [{
-        breakpoint: 480,
-        options: {
-          chart: {
-            width: 200
-          },
-          legend: {
-            show: false
-          }
-        }
-      }],
-      legend: {
-        position: 'right',
-        offsetY: 0,
-        height: 230
-      }
-    };
-    console.log("Renderizando gráfico de prueba");
-    try {
-      var chart = new ApexCharts(chartElement, options);
-      chart.render();
-      console.log("Gráfico renderizado exitosamente");
-    } catch (error) {
-      console.error("Error al renderizar el gráfico:", error);
-    }
-  });
-</script>
--->
-
-<!-- Script dinámico (comentado) -->
-
 <script th:inline="javascript">
-  document.addEventListener("DOMContentLoaded", function() {
-    console.log("Iniciando script dinámico para ApexCharts");
-    var chartData = /*[[${chartData}]]*/ [];
-    var chartLabels = /*[[${chartLabels}]]*/ [];
-    console.log("chartData:", chartData);
-    console.log("chartLabels:", chartLabels);
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("Iniciando gráficos del dashboard Admin");
+    
+    // Verificar que ApexCharts esté disponible
     if (typeof ApexCharts === "undefined") {
-      console.error("ApexCharts no está definido. Asegúrate de que el script de ApexCharts esté cargado.");
-      return;
+        console.error("ApexCharts no está definido. Asegúrate de que el script de ApexCharts esté cargado.");
+        return;
     }
-    if (chartData.length === 0 || chartLabels.length === 0) {
-      console.warn("No hay datos para el gráfico: chartData o chartLabels están vacíos");
-      return;
-    }
-    var chartElement = document.querySelector("#donut-chart");
-    if (!chartElement) {
-      console.error("Elemento #donut-chart no encontrado en el DOM");
-      return;
-    }
-    console.log("Renderizando gráfico dinámico");
-    var options = {
-      series: chartData,
-      chart: {
-        type: 'donut',
-        height: 300
-      },
-      labels: chartLabels,
-      colors: ['#5b73e8', '#34c38f', '#f1b44c', '#ff3d60', '#6f42c1', '#fd7e14', '#17a2b8'],
-      dataLabels: {
-        enabled: true
-      },
-      responsive: [{
-        breakpoint: 480,
-        options: {
-          chart: {
-            width: 200
-          },
-          legend: {
-            show: false
-          }
+    
+    // Variables para los gráficos
+    var reservasChart = null;
+    var asistenciasChart = null;
+    
+    // ============ GRÁFICO DE RESERVAS POR DÍA DE LA SEMANA ============
+    function initReservasChart() {
+        var reservasChartElement = document.querySelector("#reservas-chart");
+        if (!reservasChartElement) {
+            console.error("Elemento #reservas-chart no encontrado");
+            return;
         }
-      }],
-      legend: {
-        position: 'right',
-        offsetY: 0,
-        height: 230
-      },
-      tooltip: {
-        y: {
-          formatter: function(val) {
-            return val + " reservas";
-          }
-        }
-      }
-    };
-    try {
-      var chart = new ApexCharts(chartElement, options);
-      chart.render();
-      console.log("Gráfico dinámico renderizado exitosamente");
-    } catch (error) {
-      console.error("Error al renderizar el gráfico dinámico:", error);
+        
+        var reservasOptions = {
+            chart: {
+                type: 'bar',
+                height: 350,
+                toolbar: {
+                    show: false
+                }
+            },
+            series: [{
+                name: 'Reservas',
+                data: [0, 0, 0, 0, 0, 0, 0] // Datos iniciales
+            }],
+            xaxis: {
+                categories: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+            },
+            colors: ['#5b73e8'],
+            title: {
+                text: 'Reservas por Día - Semana Actual',
+                align: 'center'
+            },
+            dataLabels: {
+                enabled: true
+            },
+            grid: {
+                borderColor: '#f1f1f1'
+            }
+        };
+        
+        reservasChart = new ApexCharts(reservasChartElement, reservasOptions);
+        reservasChart.render();
+        console.log("Gráfico de reservas inicializado");
     }
-  });
+    
+    // ============ GRÁFICO DE ASISTENCIAS POR ESTADO ============
+    function initAsistenciasChart() {
+        var asistenciasChartElement = document.querySelector("#asistencias-chart");
+        if (!asistenciasChartElement) {
+            console.error("Elemento #asistencias-chart no encontrado");
+            return;
+        }
+        
+        var asistenciasOptions = {
+            chart: {
+                type: 'donut',
+                height: 350
+            },
+            series: [0, 0, 0, 0], // Datos iniciales
+            labels: ['Puntual', 'Tarde', 'Inasistencia', 'Cancelada'],
+            colors: ['#34c38f', '#f1b44c', '#ff3d60', '#6c757d'],
+            legend: {
+                position: 'bottom'
+            },
+            dataLabels: {
+                enabled: true
+            },
+            title: {
+                text: 'Estado de Asistencias',
+                align: 'center'
+            }
+        };
+        
+        asistenciasChart = new ApexCharts(asistenciasChartElement, asistenciasOptions);
+        asistenciasChart.render();
+        console.log("Gráfico de asistencias inicializado");
+    }
+    
+    // ============ FUNCIONES PARA CARGAR DATOS ============
+    function cargarReservasPorDia(establecimientoId = '') {
+        var url = '/admin/api/reservas-semana';
+        if (establecimientoId) {
+            url += '?establecimientoId=' + establecimientoId;
+        }
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Datos de reservas recibidos:', data);
+                
+                var diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+                var valores = diasSemana.map(dia => data[dia] || 0);
+                var total = valores.reduce((sum, val) => sum + val, 0);
+                
+                // Actualizar gráfico
+                if (reservasChart) {
+                    reservasChart.updateSeries([{
+                        name: 'Reservas',
+                        data: valores
+                    }]);
+                }
+                
+                // Actualizar total
+                document.getElementById('totalReservasSemana').textContent = total;
+            })
+            .catch(error => {
+                console.error('Error al cargar datos de reservas:', error);
+            });
+    }
+    
+    function cargarAsistenciasPorEstado(coordinadorId = '') {
+        var url = '/admin/api/asistencias-coordinador';
+        if (coordinadorId) {
+            url += '?coordinadorId=' + coordinadorId;
+        }
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Datos de asistencias recibidos:', data);
+                
+                var valores = [
+                    data.puntual || 0,
+                    data.tarde || 0,
+                    data.inasistencia || 0,
+                    data.cancelada || 0
+                ];
+                
+                // Actualizar gráfico
+                if (asistenciasChart) {
+                    asistenciasChart.updateSeries(valores);
+                }
+                
+                // Actualizar contadores
+                document.getElementById('contadorPuntual').textContent = data.puntual || 0;
+                document.getElementById('contadorTarde').textContent = data.tarde || 0;
+                document.getElementById('contadorInasistencia').textContent = data.inasistencia || 0;
+                document.getElementById('contadorCancelada').textContent = data.cancelada || 0;
+            })
+            .catch(error => {
+                console.error('Error al cargar datos de asistencias:', error);
+            });
+    }
+    
+    // ============ INICIALIZACIÓN ============
+    // Inicializar gráficos
+    initReservasChart();
+    initAsistenciasChart();
+    
+    // Cargar datos iniciales
+    cargarReservasPorDia();
+    cargarAsistenciasPorEstado();
+    
+    // ============ EVENT LISTENERS PARA FILTROS ============
+    // Filtro de establecimiento
+    var filtroEstablecimiento = document.getElementById('filtroEstablecimiento');
+    if (filtroEstablecimiento) {
+        filtroEstablecimiento.addEventListener('change', function() {
+            cargarReservasPorDia(this.value);
+        });
+    }
+    
+    // Filtro de coordinador
+    var filtroCoordinador = document.getElementById('filtroCoordinador');
+    if (filtroCoordinador) {
+        filtroCoordinador.addEventListener('change', function() {
+            cargarAsistenciasPorEstado(this.value);
+        });
+    }
+    
+    console.log("Dashboard Admin inicializado correctamente");
+});
 </script>
 
 

@@ -47,6 +47,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -110,7 +111,7 @@ public class AdminController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
             @RequestParam int userId) {
-        List<Asistencia> asistencias = asistenciaRepository.findForCalendarRange(start, end, userId);
+        List<Asistencia> asistencias = asistenciaRepository.findForCalendarRangeExcludingCanceled(start, end, userId);
         return ResponseEntity.ok(asistencias);
     }
 
@@ -965,6 +966,12 @@ public class AdminController {
 
         Aviso ultimoAviso = avisoRepository.findLatestAviso();
         model.addAttribute("ultimoAviso", ultimoAviso);
+
+        // Agregar establecimientos y coordinadores para los filtros de los gráficos
+        List<EstablecimientoDeportivo> establecimientos = establecimientoDeportivoRepository.findAll();
+        List<Usuario> coordinadores = usuarioRepository.findAllByRol_Rol("coordinador");
+        model.addAttribute("establecimientos", establecimientos);
+        model.addAttribute("coordinadores", coordinadores);
 
         return "admin/dashboard";
     }
@@ -2397,6 +2404,109 @@ public class AdminController {
         }
 
         return "redirect:/admin/espacios/calendario?id=" + espacioDeportivoId;
+    }
+
+    // ================= API ENDPOINTS PARA GRÁFICOS DEL DASHBOARD =================
+
+    @GetMapping("/api/reservas-semana")
+    @ResponseBody
+    public ResponseEntity<Map<String, Integer>> obtenerReservasPorDiaSemana(
+            @RequestParam(required = false) Integer establecimientoId) {
+        
+        Map<String, Integer> reservasPorDia = new HashMap<>();
+        
+        // Inicializar todos los días de la semana con 0
+        String[] diasSemana = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+        for (String dia : diasSemana) {
+            reservasPorDia.put(dia, 0);
+        }
+        
+        try {
+            // Obtener fechas de inicio y fin de la semana actual
+            LocalDate hoy = LocalDate.now();
+            LocalDate inicioSemana = hoy.with(DayOfWeek.MONDAY);
+            LocalDate finSemana = hoy.with(DayOfWeek.SUNDAY);
+            
+            LocalDateTime inicioDateTime = inicioSemana.atStartOfDay();
+            LocalDateTime finDateTime = finSemana.atTime(23, 59, 59);
+            
+            List<Reserva> reservas;
+            if (establecimientoId != null && establecimientoId > 0) {
+                // Filtrar por establecimiento específico
+                reservas = reservaRepository.findReservasSemanaByEstablecimiento(
+                    inicioDateTime, finDateTime, establecimientoId);
+            } else {
+                // Todas las reservas de la semana
+                reservas = reservaRepository.findReservasSemana(inicioDateTime, finDateTime);
+            }
+            
+            // Mapear cada reserva al día de la semana correspondiente
+            for (Reserva reserva : reservas) {
+                LocalDate fechaReserva = reserva.getInicioReserva().toLocalDate();
+                DayOfWeek dayOfWeek = fechaReserva.getDayOfWeek();
+                String nombreDia = obtenerNombreDia(dayOfWeek);
+                reservasPorDia.merge(nombreDia, 1, Integer::sum);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            // En caso de error, devolver valores vacíos
+        }
+        
+        return ResponseEntity.ok(reservasPorDia);
+    }
+
+    @GetMapping("/api/asistencias-coordinador")
+    @ResponseBody
+    public ResponseEntity<Map<String, Integer>> obtenerAsistenciasPorCoordinador(
+            @RequestParam(required = false) Integer coordinadorId) {
+        
+        Map<String, Integer> asistenciasPorEstado = new HashMap<>();
+        
+        // Inicializar contadores
+        asistenciasPorEstado.put("puntual", 0);
+        asistenciasPorEstado.put("tarde", 0);
+        asistenciasPorEstado.put("inasistencia", 0);
+        asistenciasPorEstado.put("cancelada", 0);
+        
+        try {
+            List<Asistencia> asistencias;
+            if (coordinadorId != null && coordinadorId > 0) {
+                // Filtrar por coordinador específico
+                asistencias = asistenciaRepository.findByCoordinadorUsuarioId(coordinadorId);
+            } else {
+                // Todas las asistencias
+                asistencias = asistenciaRepository.findAll();
+            }
+            
+            // Contar por estado de entrada
+            for (Asistencia asistencia : asistencias) {
+                String estado = asistencia.getEstadoEntrada().toString().toLowerCase();
+                if (asistenciasPorEstado.containsKey(estado)) {
+                    asistenciasPorEstado.merge(estado, 1, Integer::sum);
+                }
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            // En caso de error, devolver valores vacíos
+        }
+        
+        return ResponseEntity.ok(asistenciasPorEstado);
+    }
+
+    // Método auxiliar para obtener el nombre del día en español
+    private String obtenerNombreDia(DayOfWeek dayOfWeek) {
+        switch (dayOfWeek) {
+            case MONDAY: return "Lunes";
+            case TUESDAY: return "Martes";
+            case WEDNESDAY: return "Miércoles";
+            case THURSDAY: return "Jueves";
+            case FRIDAY: return "Viernes";
+            case SATURDAY: return "Sábado";
+            case SUNDAY: return "Domingo";
+            default: return "Desconocido";
+        }
     }
 
 }

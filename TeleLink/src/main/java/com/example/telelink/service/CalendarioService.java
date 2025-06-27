@@ -97,7 +97,7 @@ public class CalendarioService {
     }
 
     public List<EventoCalendarioDTO> obtenerAsistencias(Integer espacioId, LocalDateTime inicio, LocalDateTime fin) {
-        List<Asistencia> asistencias = asistenciaRepository.findAsistenciasEnRango(espacioId, inicio, fin);
+        List<Asistencia> asistencias = asistenciaRepository.findAsistenciasEnRangoExcludingCanceled(espacioId, inicio, fin);
         List<EventoCalendarioDTO> eventos = new ArrayList<>();
         
         for (Asistencia asistencia : asistencias) {

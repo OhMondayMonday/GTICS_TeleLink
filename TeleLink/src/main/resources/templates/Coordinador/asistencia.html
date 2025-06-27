@@ -39,6 +39,42 @@
             color: white;
             margin-top: 10px;
         }
+        
+        /* Estilos para el modal de detalle de asistencia */
+        .modal {
+            z-index: 10055 !important;
+        }
+        
+        .modal-backdrop {
+            z-index: 10050 !important;
+        }
+        
+        #modalDetalleAsistencia {
+            z-index: 10055 !important;
+        }
+        
+        /* Centrar verticalmente el modal */
+        #modalDetalleAsistencia .modal-dialog {
+            display: flex;
+            align-items: center;
+            min-height: calc(100vh - 1rem);
+            margin: 0.5rem auto;
+        }
+        
+        /* Forzar que el navbar y elementos del layout tengan z-index menor */
+        .navbar,
+        .topbar,
+        .navbar-header,
+        .vertical-menu,
+        .navbar-brand-box,
+        .app-search,
+        .dropdown,
+        .header-item,
+        #layout-wrapper,
+        .main-content,
+        .page-content {
+            z-index: 1000 !important;
+        }
     </style>
     <body data-sidebar="dark" class="vertical-collpsed"
           th:data-horario-entrada="${asistenciaActiva != null ? #temporals.format(asistenciaActiva.horarioEntrada, 'yyyy-MM-dd HH:mm:ss') : ''}"
@@ -144,13 +180,14 @@
                                     <div class="card-body">
                                         <h4 class="card-title mb-4 fw-semibold">Historial de asistencia</h4>
                                         <div class="table-responsive">
-                                            <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                            <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="4" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                                 <thead>
                                                     <tr>
                                                         <th>Fecha</th>
                                                         <th>Establecimiento</th>
                                                         <th>Hora de entrada</th>
                                                         <th>Hora de salida</th>
+                                                        <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -159,9 +196,16 @@
                                                         <td th:text="${asistencia.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}"></td>
                                                         <td th:text="${asistencia.registroEntrada != null} ? ${#temporals.format(asistencia.registroEntrada, 'h:mm a')} : '--'"></td>
                                                         <td th:text="${asistencia.registroSalida != null} ? ${#temporals.format(asistencia.registroSalida, 'h:mm a')} : '--'"></td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-outline-secondary btn-sm edit waves-effect waves-light" 
+                                                                    title="Ver detalle"
+                                                                    th:onclick="'verDetalleAsistencia(' + ${asistencia.asistenciaId} + ')'">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                        </td>
                                                     </tr>
                                                     <tr th:if="${asistencias.isEmpty()}">
-                                                        <td colspan="4" class="text-center">No hay asistencias para mostrar</td>
+                                                        <td colspan="5" class="text-center">No hay asistencias para mostrar</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -407,6 +451,18 @@
                         btnEntrada.classList.add('btn-disabled');
                         btnSalida.classList.add('btn-disabled');
                     } else {
+                        // Obtener el estado de la asistencia
+                        var estadoEntrada = /*[[${asistenciaActiva != null ? asistenciaActiva.estadoEntrada : null}]]*/ null;
+                        
+                        // Si la asistencia está en estado de inasistencia, bloquear ambos botones
+                        if (estadoEntrada === 'inasistencia') {
+                            btnEntrada.disabled = true;
+                            btnSalida.disabled = true;
+                            btnEntrada.classList.add('btn-disabled');
+                            btnSalida.classList.add('btn-disabled');
+                            return;
+                        }
+
                         var ahora = new Date();
                         var limiteEntrada = horarioEntrada ? new Date(horarioEntrada.getTime() - 15 * 60 * 1000) : null; // 15 minutos antes
                         var limiteSalida = horarioSalida ? new Date(horarioSalida.getTime() + 15 * 60 * 1000) : null;  // 15 minutos después
@@ -516,6 +572,198 @@
                     }
                 });
             });
+        </script>
+
+        <!-- Modal de detalle de asistencia -->
+        <div class="modal fade" id="modalDetalleAsistencia" tabindex="-1" role="dialog" aria-labelledby="modalDetalleAsistenciaLabel" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalDetalleAsistenciaLabel">Detalle de Asistencia</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Fecha</label>
+                                    <input type="text" class="form-control" id="detalleFecha" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Establecimiento</label>
+                                    <input type="text" class="form-control" id="detalleEstablecimiento" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Espacio Deportivo</label>
+                                    <input type="text" class="form-control" id="detalleEspacio" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Servicio Deportivo</label>
+                                    <input type="text" class="form-control" id="detalleServicio" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Horario Programado</label>
+                                    <input type="text" class="form-control" id="detalleHorarioProgramado" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Registro de Entrada</label>
+                                    <input type="text" class="form-control" id="detalleRegistroEntrada" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Registro de Salida</label>
+                                    <input type="text" class="form-control" id="detalleRegistroSalida" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Estado</label>
+                                    <input type="text" class="form-control" id="detalleEstado" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="seccionCancelacion" style="display: none;">
+                            <div class="col-12">
+                                <hr>
+                                <h6>Cancelar Asistencia</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Motivo de cancelación</label>
+                                    <textarea class="form-control" id="motivoCancelacion" rows="3" placeholder="Ingrese el motivo de la cancelación..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="seccionObservaciones" style="display: none;">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Observaciones</label>
+                                    <textarea class="form-control" id="detalleObservaciones" rows="3" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-danger" id="btnCancelarAsistencia" style="display: none;" onclick="cancelarAsistencia()">
+                            <i class="mdi mdi-cancel"></i> Cancelar Asistencia
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function verDetalleAsistencia(asistenciaId) {
+                fetch(`/coordinador/asistencia/${asistenciaId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Llenar los datos básicos
+                        document.getElementById('detalleFecha').value = formatearFecha(data.horarioEntrada);
+                        document.getElementById('detalleEstablecimiento').value = data.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre;
+                        document.getElementById('detalleEspacio').value = data.espacioDeportivo.nombre;
+                        document.getElementById('detalleServicio').value = data.espacioDeportivo.servicioDeportivo.servicioDeportivo;
+                        
+                        const horarioProgramado = formatearHora(data.horarioEntrada) + ' - ' + formatearHora(data.horarioSalida);
+                        document.getElementById('detalleHorarioProgramado').value = horarioProgramado;
+                        
+                        document.getElementById('detalleRegistroEntrada').value = data.registroEntrada ? formatearHora(data.registroEntrada) : 'Sin registro';
+                        document.getElementById('detalleRegistroSalida').value = data.registroSalida ? formatearHora(data.registroSalida) : 'Sin registro';
+                        document.getElementById('detalleEstado').value = traducirEstado(data.estadoEntrada);
+                        document.getElementById('detalleObservaciones').value = data.observacionAsistencia || 'Sin observaciones';
+                        
+                        // Verificar si se puede cancelar (debe ser pendiente y para al menos el día siguiente)
+                        const puedeCantelar = data.estadoEntrada === 'pendiente' && esDiaSiguienteOPosterior(data.horarioEntrada);
+                        
+                        if (puedeCantelar) {
+                            document.getElementById('seccionCancelacion').style.display = 'block';
+                            document.getElementById('btnCancelarAsistencia').style.display = 'inline-block';
+                            document.getElementById('btnCancelarAsistencia').setAttribute('data-asistencia-id', asistenciaId);
+                            document.getElementById('seccionObservaciones').style.display = 'none'; // Ocultar observaciones si es cancelable
+                        } else {
+                            document.getElementById('seccionCancelacion').style.display = 'none';
+                            document.getElementById('btnCancelarAsistencia').style.display = 'none';
+                            document.getElementById('seccionObservaciones').style.display = 'none'; // Siempre ocultar observaciones si no es cancelable
+                        }
+                        
+                        // Mostrar el modal
+                        const modal = new bootstrap.Modal(document.getElementById('modalDetalleAsistencia'), {
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                        modal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al cargar los detalles de la asistencia');
+                    });
+            }
+            
+            function cancelarAsistencia() {
+                const asistenciaId = document.getElementById('btnCancelarAsistencia').getAttribute('data-asistencia-id');
+                const motivo = document.getElementById('motivoCancelacion').value.trim();
+                
+                if (!motivo) {
+                    alert('Debe ingresar un motivo para la cancelación');
+                    return;
+                }
+                
+                if (confirm('¿Está seguro que desea cancelar esta asistencia?')) {
+                    fetch(`/coordinador/asistencia/${asistenciaId}/cancelar`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ motivo: motivo })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Asistencia cancelada exitosamente');
+                            location.reload(); // Recargar la página para actualizar la tabla
+                        } else {
+                            throw new Error('Error al cancelar la asistencia');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al cancelar la asistencia');
+                    });
+                }
+            }
+            
+            function formatearFecha(fechaString) {
+                const fecha = new Date(fechaString);
+                return fecha.toLocaleDateString('es-PE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            }
+            
+            function formatearHora(fechaString) {
+                const fecha = new Date(fechaString);
+                return fecha.toLocaleTimeString('es-PE', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+            }
+            
+            function traducirEstado(estado) {
+                const estados = {
+                    'pendiente': 'Pendiente',
+                    'puntual': 'Puntual',
+                    'tarde': 'Tardanza',
+                    'inasistencia': 'Inasistencia',
+                    'cancelada': 'Cancelada'
+                };
+                return estados[estado] || estado;
+            }
+            
+            function esDiaSiguienteOPosterior(fechaString) {
+                const fechaAsistencia = new Date(fechaString);
+                const ahora = new Date();
+                const diferenciaMilisegundos = fechaAsistencia.getTime() - ahora.getTime();
+                const diferenciasHoras = diferenciaMilisegundos / (1000 * 60 * 60);
+                return diferenciasHoras >= 24; // Al menos 24 horas de diferencia
+            }
         </script>
 
         <script th:src="@{/superadmin/assets/js/app.js}"></script>

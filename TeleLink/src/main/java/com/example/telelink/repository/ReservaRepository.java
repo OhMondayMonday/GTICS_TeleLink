@@ -173,4 +173,18 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                         @Param("inicio") LocalDateTime inicio,
                         @Param("fin") LocalDateTime fin,
                         @Param("carril") Integer carril);
+
+        // Métodos para obtener reservas por semana (para gráfico de dashboard)
+        @Query("SELECT r FROM Reserva r WHERE r.inicioReserva >= :inicio AND r.inicioReserva < :fin " +
+                        "AND r.estado != com.example.telelink.entity.Reserva.Estado.cancelada")
+        List<Reserva> findReservasSemana(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
+
+        @Query("SELECT r FROM Reserva r " +
+                        "WHERE r.inicioReserva >= :inicio AND r.inicioReserva < :fin " +
+                        "AND r.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoId = :establecimientoId " +
+                        "AND r.estado != com.example.telelink.entity.Reserva.Estado.cancelada")
+        List<Reserva> findReservasSemanaByEstablecimiento(
+                        @Param("inicio") LocalDateTime inicio, 
+                        @Param("fin") LocalDateTime fin,
+                        @Param("establecimientoId") Integer establecimientoId);
 }
