@@ -114,8 +114,17 @@
                 const tipo = event.extendedProps.tipo;
 
                 if (tipo === 'reserva' && !event.extendedProps.tieneAsistenciaSolapada) {
-                    // Mostrar modal para crear asistencia
-                    mostrarModalCrearAsistencia(event);
+                    // Verificar si la reserva inicia en más de 24 horas desde ahora
+                    const ahora = new Date();
+                    const inicioReserva = new Date(event.start);
+                    const diferenciaMilisegundos = inicioReserva.getTime() - ahora.getTime();
+                    const diferenciaHoras = diferenciaMilisegundos / (1000 * 60 * 60); // Convertir a horas
+
+                    if (diferenciaHoras > 24) {
+                        // Solo mostrar modal si la reserva inicia en más de 24 horas
+                        mostrarModalCrearAsistencia(event);
+                    }
+                    // Si no cumple la condición de 24 horas, no hacer nada
                 } else {
                     // Mostrar información del evento
                     let content = `<div class="p-3">`;
