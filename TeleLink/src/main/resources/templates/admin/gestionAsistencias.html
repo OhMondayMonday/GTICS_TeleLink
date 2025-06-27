@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headList.html :: headList(title='Gestión de Asistencias')}">
+    <meta charset="UTF-8">
+</head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+    <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Asistencias')}"></div>
+
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <!-- Filtros -->
+                <div class="row mb-2">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title mb-4">Filtros de Búsqueda</h4>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="filtroCoordinador" class="form-label">Coordinador</label>
+                                            <select class="form-select" id="filtroCoordinador">
+                                                <option value="">Todos los coordinadores</option>
+                                                <option th:each="coordinador : ${coordinadores}" 
+                                                        th:value="${coordinador.usuarioId}"
+                                                        th:text="${coordinador.nombres + ' ' + coordinador.apellidos}">
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+                                            <input type="date" class="form-control" id="fechaInicio">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="fechaFin" class="form-label">Fecha Fin</label>
+                                            <input type="date" class="form-control" id="fechaFin">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-primary" id="btnFiltrar">
+                                            <i class="fas fa-search me-1"></i>Filtrar
+                                        </button>
+                                        <button type="button" class="btn btn-secondary ms-2" id="btnLimpiar">
+                                            <i class="fas fa-times me-1"></i>Limpiar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Asistencias -->
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <!-- Export buttons will be positioned via JavaScript after DataTable initialization -->
+                                <div id="export-buttons-container" class="d-none">
+                                    <div class="btn-group" role="group">
+                                        <a href="#" id="exportExcel" class="btn btn-success btn-sm">
+                                            <i class="fas fa-file-excel me-1"></i>
+                                            Exportar Excel
+                                        </a>
+                                        <a href="#" id="exportPdf" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-file-pdf me-1"></i>
+                                            Exportar PDF
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Tabla responsive -->
+                                <div class="table-responsive">
+                                    <table id="asistenciasTable" class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="10" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                        <thead>
+                                        <tr>
+                                            <th>Coordinador</th>
+                                            <th>Espacio Deportivo</th>
+                                            <th>Fecha/Hora Inicio</th>
+                                            <th>Fecha/Hora Fin</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <!-- Los datos se cargarán vía AJAX -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+    </div>
+</div>
+
+<!-- Modal de Reasignación -->
+<div th:replace="~{admin/fragments/modalReasignarAsistencia.html :: modalReasignar}"></div>
+
+<div class="sidebar-overlay"></div>
+
+<!-- Incluir los scripts del listado -->
+<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+<script th:src="@{/admin/assets/js/pages/gestion-asistencias.init.js}"></script>
+
+<!-- Script para posicionar botones de exportar -->
+<script>
+    $(document).ready(function() {
+        // Establecer fechas por defecto (mes actual)
+        const hoy = new Date();
+        const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+        
+        document.getElementById('fechaInicio').value = primerDiaMes.toISOString().split('T')[0];
+        document.getElementById('fechaFin').value = ultimoDiaMes.toISOString().split('T')[0];
+        
+        // Configurar limitación de fechas
+        document.getElementById('fechaInicio').addEventListener('change', function() {
+            document.getElementById('fechaFin').min = this.value;
+        });
+
+        // Esperar a que DataTables se inicialice completamente
+        setTimeout(function() {
+            // Buscar el contenedor de controles de DataTables
+            var datatableWrapper = $('.dataTables_wrapper');
+            if (datatableWrapper.length > 0) {
+                // Buscar el contenedor superior que contiene length y filter
+                var topContainer = datatableWrapper.find('.dataTables_length').parent();
+                if (topContainer.length > 0) {
+                    // Agregar los botones al lado izquierdo del contenedor
+                    var exportButtons = $('#export-buttons-container').html();
+                    topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
+                    
+                    // Ajustar el contenedor del filtro para que use las clases correctas
+                    var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
+                    if (filterContainer.length > 0) {
+                        filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                    }
+                    
+                    // Asegurar que el contenedor padre use row
+                    topContainer.addClass('row');
+                }
+            }
+        }, 100);
+    });
+</script>
+
+<!-- CSS personalizado para modal -->
+<style>
+    /* Asegurar que el modal esté por encima del navbar */
+    #modalReasignarAsistencia {
+        z-index: 99999 !important;
+    }
+    
+    /* Asegurar que el backdrop cubra todo incluyendo navbar con z-index muy alto */
+    .modal-backdrop {
+        z-index: 99998 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    /* Backup: forzar backdrop específico del modal */
+    #modalReasignarAsistencia ~ .modal-backdrop,
+    .modal-backdrop.show {
+        z-index: 99998 !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    /* Mejorar el aspecto del motivo de cancelación */
+    #motivoCancelacion {
+        font-style: italic;
+        min-height: 1.2em;
+        color: #6c757d;
+    }
+    
+    /* Asegurar que el modal content esté por encima de todo */
+    #modalReasignarAsistencia .modal-content {
+        z-index: 100000 !important;
+        position: relative;
+    }
+    
+    /* Forzar que todos los elementos del navbar tengan z-index menor */
+    .navbar, .vertical-menu, #layout-wrapper > * {
+        z-index: 1000 !important;
+    }
+</style>
+
+</body>
+</html>

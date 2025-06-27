@@ -109,4 +109,27 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
             @Param("coordinadorId") Integer coordinadorId,
             @Param("inicioRango") LocalDateTime inicioRango,
             @Param("finRango") LocalDateTime finRango);
+
+    // Métodos para la gestión de asistencias del admin
+    @Query("SELECT a FROM Asistencia a " +
+           "JOIN FETCH a.coordinador " +
+           "JOIN FETCH a.espacioDeportivo ed " +
+           "JOIN FETCH ed.servicioDeportivo " +
+           "JOIN FETCH ed.establecimientoDeportivo " +
+           "WHERE (:coordinadorId IS NULL OR a.coordinador.usuarioId = :coordinadorId) " +
+           "AND (:fechaInicio IS NULL OR a.horarioEntrada >= :fechaInicio) " +
+           "AND (:fechaFin IS NULL OR a.horarioEntrada <= :fechaFin) " +
+           "ORDER BY a.horarioEntrada DESC")
+    List<Asistencia> findAsistenciasConFiltros(
+            @Param("coordinadorId") Integer coordinadorId,
+            @Param("fechaInicio") LocalDateTime fechaInicio,
+            @Param("fechaFin") LocalDateTime fechaFin);
+
+    @Query("SELECT a FROM Asistencia a " +
+           "JOIN FETCH a.coordinador " +
+           "JOIN FETCH a.espacioDeportivo ed " +
+           "JOIN FETCH ed.servicioDeportivo " +
+           "JOIN FETCH ed.establecimientoDeportivo " +
+           "WHERE a.asistenciaId = :asistenciaId")
+    Asistencia findByIdWithRelations(@Param("asistenciaId") Integer asistenciaId);
 }

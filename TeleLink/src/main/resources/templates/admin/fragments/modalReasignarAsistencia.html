@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Modal para reasignar asistencia -->
+<div th:fragment="modalReasignar" class="modal fade" id="modalReasignarAsistencia" tabindex="-1" aria-labelledby="modalReasignarLabel" aria-hidden="true" style="z-index: 99999;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="z-index: 100000;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalReasignarLabel">
+                    <i class="ri-user-settings-line me-2"></i>Reasignar Asistencia
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formReasignarAsistencia">
+                    <input type="hidden" id="asistenciaOriginalId" name="asistenciaOriginalId">
+                    
+                    <!-- Información de la asistencia original -->
+                    <div class="card border-light mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Información de la Asistencia Cancelada
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Coordinador Original:</strong> <span id="coordinadorOriginal"></span></p>
+                                    <p class="mb-2"><strong>Espacio Deportivo:</strong> <span id="espacioDeportivo"></span></p>
+                                    <p class="mb-2"><strong>Motivo de Cancelación:</strong> <span id="motivoCancelacion" class="text-muted"></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Fecha/Hora Inicio:</strong> <span id="fechaHoraInicio"></span></p>
+                                    <p class="mb-2"><strong>Fecha/Hora Fin:</strong> <span id="fechaHoraFin"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selección de nuevo coordinador -->
+                    <div class="mb-4">
+                        <label for="nuevoCoordinador" class="form-label">
+                            <i class="ri-user-add-line me-2"></i>Seleccionar Nuevo Coordinador
+                        </label>
+                        <select class="form-select" id="nuevoCoordinador" name="nuevoCoordinadorId" required>
+                            <option value="">Seleccione un coordinador disponible...</option>
+                        </select>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Solo se muestran coordinadores disponibles para este horario.
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Mensaje de estado -->
+                <div id="mensajeEstado" class="alert d-none" role="alert"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnReasignar">
+                    <i class="fas fa-user-check me-1"></i>Reasignar Asistencia
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

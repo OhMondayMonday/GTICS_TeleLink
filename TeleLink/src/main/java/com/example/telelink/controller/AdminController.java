@@ -9,6 +9,7 @@ import com.example.telelink.service.S3Service;
 import com.example.telelink.service.CalendarioService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 // iText imports for PDF
 import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
@@ -51,6 +53,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -2506,6 +2509,360 @@ public class AdminController {
             case SATURDAY: return "Sábado";
             case SUNDAY: return "Domingo";
             default: return "Desconocido";
+        }
+    }
+
+        // ================= GESTIÓN DE ASISTENCIAS =================
+
+    @GetMapping("/gestion-asistencias")
+    public String gestionAsistencias(Model model) {
+        // Obtener todos los coordinadores activos para el filtro
+        List<Usuario> coordinadores = usuarioRepository.findByRol_RolAndEstadoCuenta("coordinador", Usuario.EstadoCuenta.activo);
+        model.addAttribute("coordinadores", coordinadores);
+        return "admin/gestionAsistencias";
+    }
+
+    @GetMapping("/gestion-asistencias/api/asistencias")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> obtenerAsistenciasConFiltros(
+            @RequestParam(required = false) Integer coordinadorId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        
+        try {
+            LocalDateTime fechaInicioDateTime = null;
+            LocalDateTime fechaFinDateTime = null;
+            
+            // Convertir fechas si están presentes
+            if (fechaInicio != null) {
+                fechaInicioDateTime = fechaInicio.atStartOfDay();
+            }
+            if (fechaFin != null) {
+                fechaFinDateTime = fechaFin.atTime(23, 59, 59);
+            }
+            
+            // Si no se especifican fechas, usar el mes actual por defecto
+            if (fechaInicioDateTime == null && fechaFinDateTime == null) {
+                LocalDate hoy = LocalDate.now();
+                fechaInicioDateTime = hoy.withDayOfMonth(1).atStartOfDay();
+                fechaFinDateTime = hoy.withDayOfMonth(hoy.lengthOfMonth()).atTime(23, 59, 59);
+            }
+            
+            List<Asistencia> asistencias = asistenciaRepository.findAsistenciasConFiltros(
+                coordinadorId, fechaInicioDateTime, fechaFinDateTime);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("data", asistencias);
+            response.put("recordsTotal", asistencias.size());
+            response.put("recordsFiltered", asistencias.size());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("data", new ArrayList<>());
+            errorResponse.put("error", "Error al obtener asistencias: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @GetMapping("/gestion-asistencias/api/asistencia/{id}")
+    @ResponseBody
+    public ResponseEntity<Asistencia> obtenerAsistenciaPorId(@PathVariable Integer id) {
+        try {
+            Asistencia asistencia = asistenciaRepository.findByIdWithRelations(id);
+            if (asistencia == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(asistencia);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/gestion-asistencias/api/reasignar")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> reasignarAsistencia(
+            @RequestParam Integer asistenciaOriginalId,
+            @RequestParam Integer nuevoCoordinadorId,
+            @RequestParam(required = false) String observaciones) {
+        
+        try {
+            // Obtener la asistencia original
+            Asistencia asistenciaOriginal = asistenciaRepository.findById(asistenciaOriginalId)
+                    .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
+            
+            // Verificar que esté cancelada
+            if (asistenciaOriginal.getEstadoEntrada() != Asistencia.EstadoEntrada.cancelada) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Solo se pueden reasignar asistencias canceladas");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            // Verificar que sea más de 12 horas en el futuro
+            LocalDateTime ahora = LocalDateTime.now();
+            if (asistenciaOriginal.getHorarioEntrada().isBefore(ahora.plusHours(12))) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Solo se pueden reasignar asistencias con más de 12 horas de anticipación");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            // Obtener el nuevo coordinador
+            Usuario nuevoCoordinador = usuarioRepository.findById(nuevoCoordinadorId)
+                    .orElseThrow(() -> new IllegalArgumentException("Coordinador no encontrado"));
+            
+            // Verificar disponibilidad del coordinador
+            LocalDateTime inicioRango = asistenciaOriginal.getHorarioEntrada().minusMinutes(15);
+            LocalDateTime finRango = asistenciaOriginal.getHorarioSalida().plusMinutes(15);
+            
+            List<Asistencia> asistenciasSuperpuestas = asistenciaRepository
+                    .findAsistenciasSuperpuestas(nuevoCoordinadorId, inicioRango, finRango);
+            
+            if (!asistenciasSuperpuestas.isEmpty()) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "El coordinador seleccionado no está disponible en ese horario");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            // Obtener administrador actual
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Usuario administrador = usuarioRepository.findByCorreoElectronico(auth.getName());
+            if (administrador == null) {
+                throw new IllegalArgumentException("Administrador no encontrado");
+            }
+            
+            // Crear nueva asistencia
+            Asistencia nuevaAsistencia = new Asistencia();
+            nuevaAsistencia.setAdministrador(administrador);
+            nuevaAsistencia.setCoordinador(nuevoCoordinador);
+            nuevaAsistencia.setEspacioDeportivo(asistenciaOriginal.getEspacioDeportivo());
+            nuevaAsistencia.setHorarioEntrada(asistenciaOriginal.getHorarioEntrada());
+            nuevaAsistencia.setHorarioSalida(asistenciaOriginal.getHorarioSalida());
+            nuevaAsistencia.setEstadoEntrada(Asistencia.EstadoEntrada.pendiente);
+            nuevaAsistencia.setEstadoSalida(Asistencia.EstadoSalida.pendiente);
+            nuevaAsistencia.setObservacionAsistencia(null); // No guardar observaciones en la nueva asistencia
+            nuevaAsistencia.setFechaCreacion(LocalDateTime.now());
+            
+            // Marcar la asistencia original como reasignada
+            asistenciaOriginal.setObservacionAsistencia("reasignada");
+            asistenciaRepository.save(asistenciaOriginal);
+            
+            // Guardar nueva asistencia
+            asistenciaRepository.save(nuevaAsistencia);
+            
+            // Enviar email al nuevo coordinador
+            try {
+                emailService.sendAssistanceNotification(nuevoCoordinador, nuevaAsistencia);
+            } catch (MessagingException e) {
+                System.err.println("Error al enviar email al coordinador: " + e.getMessage());
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Asistencia reasignada exitosamente");
+            response.put("nuevaAsistenciaId", nuevaAsistencia.getAsistenciaId());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error al reasignar asistencia: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @GetMapping("/gestion-asistencias/export/excel")
+    public void exportarAsistenciasExcel(
+            @RequestParam(required = false) Integer coordinadorId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            HttpServletResponse response) throws IOException {
+        
+        LocalDateTime fechaInicioDateTime = null;
+        LocalDateTime fechaFinDateTime = null;
+        
+        // Convertir fechas si están presentes
+        if (fechaInicio != null) {
+            fechaInicioDateTime = fechaInicio.atStartOfDay();
+        }
+        if (fechaFin != null) {
+            fechaFinDateTime = fechaFin.atTime(23, 59, 59);
+        }
+        
+        // Si no se especifican fechas, usar el mes actual por defecto
+        if (fechaInicioDateTime == null && fechaFinDateTime == null) {
+            LocalDate hoy = LocalDate.now();
+            fechaInicioDateTime = hoy.withDayOfMonth(1).atStartOfDay();
+            fechaFinDateTime = hoy.withDayOfMonth(hoy.lengthOfMonth()).atTime(23, 59, 59);
+        }
+        
+        List<Asistencia> asistencias = asistenciaRepository.findAsistenciasConFiltros(
+            coordinadorId, fechaInicioDateTime, fechaFinDateTime);
+        
+        // Configurar respuesta
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=asistencias_" + 
+            LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".xlsx");
+        
+        // Crear workbook Excel
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Asistencias");
+        
+        // Crear estilos
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+        // Crear encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"ID", "Coordinador", "Espacio Deportivo", "Establecimiento", 
+                           "Fecha/Hora Inicio", "Fecha/Hora Fin", "Estado", "Observaciones"};
+        
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+        
+        // Llenar datos
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        int rowNum = 1;
+        
+        for (Asistencia asistencia : asistencias) {
+            Row row = sheet.createRow(rowNum++);
+            
+            row.createCell(0).setCellValue(asistencia.getAsistenciaId());
+            row.createCell(1).setCellValue(asistencia.getCoordinador().getNombres() + " " + 
+                                         asistencia.getCoordinador().getApellidos());
+            row.createCell(2).setCellValue(asistencia.getEspacioDeportivo().getNombre());
+            row.createCell(3).setCellValue(asistencia.getEspacioDeportivo()
+                                         .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
+            row.createCell(4).setCellValue(asistencia.getHorarioEntrada().format(formatter));
+            row.createCell(5).setCellValue(asistencia.getHorarioSalida().format(formatter));
+            row.createCell(6).setCellValue(getEstadoTexto(asistencia.getEstadoEntrada()));
+            row.createCell(7).setCellValue(asistencia.getObservacionAsistencia() != null ? 
+                                         asistencia.getObservacionAsistencia() : "");
+        }
+        
+        // Ajustar ancho de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+        
+        // Escribir archivo
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
+    @GetMapping("/gestion-asistencias/export/pdf")
+    public void exportarAsistenciasPdf(
+            @RequestParam(required = false) Integer coordinadorId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            HttpServletResponse response) throws IOException, DocumentException {
+        
+        LocalDateTime fechaInicioDateTime = null;
+        LocalDateTime fechaFinDateTime = null;
+        
+        // Convertir fechas si están presentes
+        if (fechaInicio != null) {
+            fechaInicioDateTime = fechaInicio.atStartOfDay();
+        }
+        if (fechaFin != null) {
+            fechaFinDateTime = fechaFin.atTime(23, 59, 59);
+        }
+        
+        // Si no se especifican fechas, usar el mes actual por defecto
+        if (fechaInicioDateTime == null && fechaFinDateTime == null) {
+            LocalDate hoy = LocalDate.now();
+            fechaInicioDateTime = hoy.withDayOfMonth(1).atStartOfDay();
+            fechaFinDateTime = hoy.withDayOfMonth(hoy.lengthOfMonth()).atTime(23, 59, 59);
+        }
+        
+        List<Asistencia> asistencias = asistenciaRepository.findAsistenciasConFiltros(
+            coordinadorId, fechaInicioDateTime, fechaFinDateTime);
+        
+        // Configurar respuesta
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=asistencias_" + 
+            LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + ".pdf");
+        
+        // Crear documento PDF
+        Document document = new Document(PageSize.A4.rotate());
+        PdfWriter.getInstance(document, response.getOutputStream());
+        
+        document.open();
+        
+        // Título
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
+        Paragraph title = new Paragraph("Reporte de Asistencias", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        document.add(title);
+        
+        // Fecha del reporte
+        com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+        Paragraph dateP = new Paragraph("Generado el: " + 
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+        dateP.setAlignment(Element.ALIGN_CENTER);
+        document.add(dateP);
+        document.add(new Paragraph(" "));
+        
+        // Crear tabla
+        PdfPTable table = new PdfPTable(7);
+        table.setWidthPercentage(100);
+        table.setWidths(new float[]{1, 2.5f, 2.5f, 2f, 2f, 1.5f, 2f});
+        
+        // Encabezados
+        com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9);
+        String[] headers = {"ID", "Coordinador", "Espacio Deportivo", "Fecha/Hora Inicio", 
+                           "Fecha/Hora Fin", "Estado", "Observaciones"};
+        
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
+        }
+        
+        // Datos
+        com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        for (Asistencia asistencia : asistencias) {
+            table.addCell(new PdfPCell(new Phrase(asistencia.getAsistenciaId().toString(), dataFont)));
+            table.addCell(new PdfPCell(new Phrase(asistencia.getCoordinador().getNombres() + " " + 
+                                                asistencia.getCoordinador().getApellidos(), dataFont)));
+            table.addCell(new PdfPCell(new Phrase(asistencia.getEspacioDeportivo().getNombre(), dataFont)));
+            table.addCell(new PdfPCell(new Phrase(asistencia.getHorarioEntrada().format(formatter), dataFont)));
+            table.addCell(new PdfPCell(new Phrase(asistencia.getHorarioSalida().format(formatter), dataFont)));
+            table.addCell(new PdfPCell(new Phrase(getEstadoTexto(asistencia.getEstadoEntrada()), dataFont)));
+            table.addCell(new PdfPCell(new Phrase(asistencia.getObservacionAsistencia() != null ? 
+                                                asistencia.getObservacionAsistencia() : "", dataFont)));
+        }
+        
+        document.add(table);
+        document.close();
+    }
+
+    // Método auxiliar para obtener texto del estado
+    private String getEstadoTexto(Asistencia.EstadoEntrada estado) {
+        switch (estado) {
+            case pendiente: return "Pendiente";
+            case puntual: return "Puntual";
+            case tarde: return "Tardanza";
+            case inasistencia: return "Inasistencia";
+            case cancelada: return "Cancelada";
+            default: return estado.toString();
         }
     }
 
