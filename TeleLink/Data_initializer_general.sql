@@ -136,12 +136,13 @@ INSERT INTO metodos_pago (metodo_pago) VALUES
 ('Depósito Bancario');
 
 -- 14. Insertar Tipos de Notificaciones
-INSERT INTO tipos_notificaciones (tipo_notificacion) VALUES
-('Reserva Confirmada'),
-('Pago Aprobado'),
-('Mantenimiento Programado'),
-('Aviso General'),
-('Nueva Asistencia Asignada');
+INSERT INTO tipos_notificaciones (tipo_notificacion) VALUES 
+('creación'),
+('aviso'),
+('cancelación'),
+('actualización'),
+('aprobación'),
+('asignación');
 
 -- 15. Insertar Notificaciones
 INSERT INTO notificaciones (

@@ -296,7 +296,7 @@ public class AdminController {
         // Create notification
         try {
             Optional<TipoNotificacion> optTipo = tipoNotificacionRepository.findAll().stream()
-                    .filter(t -> t.getTipoNotificacion().equals("Nueva Asistencia Asignada"))
+                    .filter(t -> t.getTipoNotificacion().equals("creación"))
                     .findFirst();
             if (optTipo.isPresent()) {
                 Notificacion notificacion = new Notificacion();

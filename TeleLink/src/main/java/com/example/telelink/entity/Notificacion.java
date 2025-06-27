@@ -37,6 +37,11 @@ public class Notificacion {
     @JoinColumn(name = "tipo_notificacion_id", nullable = false)
     private TipoNotificacion tipoNotificacion;
 
+    @PrePersist
+    protected void onCreate() {
+        fechaCreacion = LocalDateTime.now();
+    }
+
     public enum Estado {
         no_leido, leido
     }

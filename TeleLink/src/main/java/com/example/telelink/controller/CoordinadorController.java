@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpSession;
     import org.springframework.web.multipart.MultipartFile;
     import org.springframework.web.servlet.mvc.support.RedirectAttributes;
     import com.example.telelink.service.S3Service;
+    import com.example.telelink.service.NotificacionService;
     // Imports for export functionality
     import org.apache.poi.ss.usermodel.*;
     import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -73,6 +74,9 @@ import jakarta.servlet.http.HttpSession;
 
         @Autowired
         private S3Service s3Service;
+
+        @Autowired
+        private NotificacionService notificacionService;
 
         @GetMapping("/notificaciones/list")
         public ResponseEntity<List<Notificacion>> getNotificaciones(
