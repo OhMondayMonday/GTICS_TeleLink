@@ -408,6 +408,11 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
+
+ALTER TABLE reservas 
+ADD COLUMN numero_participantes_piscina INT DEFAULT 1 NOT NULL;
+
+select * from asistencias
 -- -----------------------------------------------------
 -- Table `db_gtics`.`pagos`
 -- -----------------------------------------------------

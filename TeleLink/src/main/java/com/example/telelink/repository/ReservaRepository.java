@@ -144,7 +144,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
          * Calcula la suma total de participantes en un carril específico de piscina en
          * un rango de tiempo
          */
-        @Query("SELECT COALESCE(SUM(r.numeroParticipantesPiscina), 0) FROM Reserva r " +
+        @Query("SELECT COALESCE(SUM(r.numeroParticipantes), 0) FROM Reserva r " +
                         "WHERE r.espacioDeportivo.espacioDeportivoId = :espacioId " +
                         "AND r.inicioReserva < :fin " +
                         "AND r.finReserva > :inicio " +
@@ -173,4 +173,38 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                         @Param("inicio") LocalDateTime inicio,
                         @Param("fin") LocalDateTime fin,
                         @Param("carril") Integer carril);
+
+        @Query("SELECT COALESCE(SUM(r.numeroParticipantes), 0) FROM Reserva r " +
+                        "WHERE r.espacioDeportivo.espacioDeportivoId = :espacioId " +
+                        "AND r.inicioReserva < :fin " +
+                        "AND r.finReserva > :inicio " +
+                        "AND r.numeroCarrilPista = :carril " +
+                        "AND r.estado != 'cancelada'")
+        Integer countTotalParticipantsInLaneAtletismo(@Param("espacioId") Integer espacioId,
+                        @Param("inicio") LocalDateTime inicio,
+                        @Param("fin") LocalDateTime fin,
+                        @Param("carril") Integer carril);
+
+        /**
+         * Buscar reservas activas en un carril específico de pista de atletismo en un rango de tiempo
+         */
+        List<Reserva> findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPistaAndEstadoNot(
+                Integer espacioDeportivoId,
+                LocalDateTime finReserva,
+                LocalDateTime inicioReserva,
+                Integer numeroCarrilPista,
+                Reserva.Estado estado
+        );
+
+        /**
+         * Buscar reservas activas en un carril específico de piscina en un rango de tiempo (si no existe ya)
+         */
+        List<Reserva> findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPiscinaAndEstadoNot(
+                Integer espacioDeportivoId,
+                LocalDateTime finReserva,
+                LocalDateTime inicioReserva,
+                Integer numeroCarrilPiscina,
+                Reserva.Estado estado
+        );
+
 }

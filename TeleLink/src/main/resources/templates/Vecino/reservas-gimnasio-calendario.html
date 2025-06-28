@@ -15,13 +15,18 @@
             <div class="page-content" style="min-height: 100%;">
                 <div class="container-fluid">
 
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
                     <!-- start page title -->
                     <div class="row">
                         <div class="col-12">
                             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                                 <h4 class="mb-sm-0">Reservar espacio deportivo</h4>
                                 <div class="page-title-right">
-                                    <a th:href="@{/Vecino/espacios-deportivos}" class="btn ms-2 btn-outline-primary">
+                                    <a th:href="@{/usuarios/cancha}" class="btn ms-2 btn-outline-primary">
                                         <i class="fas fa-arrow-left me-1"></i> Regresar a espacios
                                     </a>
                                 </div>
@@ -134,7 +139,10 @@
                         <div class="col-xl-9 col-lg-8">
                             <div class="card mb-0">
                                 <div class="card-body calendar-container">
-                                    <div id="calendar" style="height: 100%;" th:attr="data-espacio-id=${espacioId}">
+                                    <div id="calendar" style="height: 100%;"
+                                        th:attr="data-espacio-id=${espacioId},
+              data-horario-apertura=${espacio.horarioApertura != null ? #temporals.format(espacio.horarioApertura, 'HH:mm:ss') : '07:00:00'},
+              data-horario-cierre=${espacio.horarioCierre != null ? #temporals.format(espacio.horarioCierre, 'HH:mm:ss') : '22:00:00'}">
                                     </div>
                                 </div>
                             </div>
@@ -160,10 +168,9 @@
                                         <input type="hidden" name="espacioId" id="input-espacio-id">
                                         <input type="hidden" name="fechaInicio" id="input-fecha-inicio">
                                         <input type="hidden" name="fechaFin" id="input-fecha-fin">
+                                        <!-- Agregar junto a los otros inputs ocultos -->
+                                        <input type="hidden" name="numeroParticipantes" id="input-numero-participantes">
                                         <div id="create-reservation-form">
-                                            <div id="gimnasio-disponibilidad" class="mb-3">
-                                                <!-- Aquí se insertará dinámicamente la información de disponibilidad -->
-                                            </div>
                                             <div class="mb-3">
                                                 <label class="form-label" for="event-start">Hora de inicio</label>
                                                 <input class="form-control" type="text" id="event-start" name="start"
@@ -171,12 +178,50 @@
                                             </div>
 
                                             <div class="mb-3">
-                                                <label class="form-label" for="event-end">Hora de fin</label>
-                                                <select class="form-select" id="event-end" name="end" required>
-                                                    <option value="" disabled selected>Seleccione hora de fin</option>
-                                                    <!-- Opciones generadas dinámicamente con JS -->
+                                                <label class="form-label" for="event-end">Hora de fin (duración: 1
+                                                    hora)</label>
+                                                <input class="form-control" type="text" id="event-end" name="end"
+                                                    readonly>
+                                                <div class="form-text">Las reservas tienen una duración fija de 1 hora.
+                                                </div>
+                                            </div>
+
+                                            <!-- Agregar después del campo de hora de fin -->
+                                            <div class="mb-3">
+                                                <label class="form-label" for="event-participants">Número de
+                                                    participantes</label>
+                                                <select class="form-control" id="event-participants"
+                                                    name="numeroParticipantes" required>
+                                                    <option value="1" selected>1 persona</option>
+                                                    <option value="2">2 personas</option>
+                                                    <option value="3">3 personas</option>
+                                                    <option value="4">4 personas</option>
+                                                    <option value="5">5 personas</option>
                                                 </select>
-                                                <div class="invalid-feedback">Seleccione una hora de fin válida</div>
+                                                <div class="form-text">El precio se calcula según el número de
+                                                    participantes.</div>
+                                            </div>
+
+                                            <!-- Agregar campo para mostrar precio total -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Precio total</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">S/.</span>
+                                                    <input type="text" class="form-control" id="event-price" readonly>
+                                                    <input type="hidden" name="precioTotal" id="input-precio-total">
+                                                </div>
+                                            </div>
+
+                                            <!-- Nuevo div para mostrar información de aforo -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Disponibilidad</label>
+                                                <div id="gimnasio-disponibilidad" class="p-3 rounded border">
+                                                    <div class="text-center">
+                                                        <div class="spinner-border spinner-border-sm text-primary"
+                                                            role="status"></div>
+                                                        <span class="ms-2">Cargando disponibilidad...</span>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div class="row mt-2">
@@ -243,30 +288,18 @@
     <script>
         // Esperar a que el DOM esté completamente cargado
         document.addEventListener('DOMContentLoaded', function () {
-            // Variables Thymeleaf
-            const espacioId = document.getElementById('calendar').dataset.espacioId;
-            // Obtener directamente el valor del aforo desde Thymeleaf
-            // Corregir la obtención del aforo
-            const aforoElement = document.querySelector('.space-details .d-flex:first-child .fw-medium span');
-            console.log('Elemento aforo encontrado:', aforoElement); // Añadir este log
+            // Verificar si hay un conflicto detectado desde el servidor
+            const conflictoDetectado = /*[[${conflictoDetectado}]]*/ false;
+            const mensajeConflicto = /*[[${mensajeConflicto}]]*/ '';
 
-            let aforoGimnasio = 0;
-            if (aforoElement) {
-                const textoAforo = aforoElement.textContent;
-                console.log('Texto aforo:', textoAforo); // Añadir este log
-
-                const match = textoAforo.match(/\d+/);
-                if (match) {
-                    aforoGimnasio = parseInt(match[0], 10);
-                }
-            }
-
-            console.log('Aforo gimnasio calculado:', aforoGimnasio); // Añadir este log
-
-            // Establecer un valor por defecto si no se pudo obtener
-            if (!aforoGimnasio || isNaN(aforoGimnasio)) {
-                aforoGimnasio = 40; // Valor por defecto
-                console.log('Usando aforo por defecto:', aforoGimnasio);
+            if (conflictoDetectado && mensajeConflicto) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Conflicto de Reserva',
+                    text: mensajeConflicto,
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#d33'
+                });
             }
 
             // Referencias a elementos DOM usando JavaScript puro
@@ -278,6 +311,11 @@
 
             let selectedEvent = null;
             let clickInfo = null;
+
+            const espacioId = calendarEl.dataset.espacioId;
+            const horarioApertura = calendarEl.dataset.horarioApertura || '07:00:00';
+            const horarioCierre = calendarEl.dataset.horarioCierre || '22:00:00';
+            console.log(`Espacio ID: ${espacioId}, Horario Apertura: ${horarioApertura}, Horario Cierre: ${horarioCierre}`);
             const now = new Date();
 
             // Usar la configuración base del archivo calendar-config.js
@@ -327,7 +365,7 @@
                                 const esPropia = evento.esPropia === true;
                                 const estado = evento.estado ? evento.estado.toLowerCase() : null;
 
-                                let title = evento.title || (esPropia ? 'Mi reserva' : 'Reservado');
+                                let title = esPropia ? 'Mi reserva' : 'Reservado';
                                 if (esPropia && estado) {
                                     switch (estado) {
                                         case 'pendiente': title += ' (Pendiente)'; break;
@@ -341,9 +379,6 @@
                                     title: title,
                                     start: evento.start,
                                     end: evento.end,
-                                    rendering: evento.rendering || null,
-                                    backgroundColor: evento.backgroundColor,
-                                    borderColor: evento.borderColor,
                                     extendedProps: {
                                         esPropia: esPropia,
                                         estado: estado
@@ -383,6 +418,26 @@
                     const reservaId = info.event.id;
                     document.getElementById("reserva-id").value = reservaId;
 
+                    // Crear div para mostrar información de ocupación si no existe
+                    if (!document.getElementById("detail-ocupacion")) {
+                        const ocupacionDiv = document.createElement("div");
+                        ocupacionDiv.id = "detail-ocupacion";
+                        ocupacionDiv.className = "mb-3 mt-3";
+                        ocupacionDiv.innerHTML = `
+                            <h6>Ocupación actual</h6>
+                            <div class="p-3 rounded border">
+                                <div class="text-center">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                    <span class="ms-2">Consultando ocupación...</span>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById("view-reservation-details").insertBefore(
+                            ocupacionDiv,
+                            document.querySelector("#view-reservation-details .row")
+                        );
+                    }
+
                     // Obtener datos detallados de la reserva mediante API
                     fetch(`/usuarios/api/reservas/${reservaId}`)
                         .then(response => response.json())
@@ -417,11 +472,105 @@
                             detailStatus.textContent = estadoTexto;
                             detailStatus.className = estadoClase;
 
-                            // Configurar enlaces a acciones
-                            document.getElementById("btn-cancel-reservation").href = `/usuarios/reserva/cancelar/${reservaId}`;
+                            // Declarar las variables de los botones antes de usarlas
+                            let btnVerReservas = document.querySelector("#view-reservation-details a.btn-primary");
+                            let btnCancelar = document.getElementById("btn-cancel-reservation");
+
+                            // Configurar cancelación mediante AJAX en lugar de href directo
+                            btnCancelar.onclick = function(e) {
+                                e.preventDefault();
+                                
+                                Swal.fire({
+                                    title: '¿Cancelar reserva?',
+                                    text: "Esta acción no se puede deshacer",
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#d33',
+                                    cancelButtonColor: '#3085d6',
+                                    confirmButtonText: 'Sí, cancelar',
+                                    cancelButtonText: 'No cancelar',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        const razon = result.value || 'Cancelación desde calendario';
+                                        
+                                        // Mostrar indicador de carga
+                                        Swal.fire({
+                                            title: 'Cancelando reserva...',
+                                            allowOutsideClick: false,
+                                            didOpen: () => {
+                                                Swal.showLoading();
+                                            }
+                                        });
+                                        
+                                        // Realizar la cancelación mediante AJAX
+                                        fetch(`/api/cancelar-reserva-pendiente/${reservaId}`)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    Swal.fire({
+                                                        icon: 'success',
+                                                        title: 'Reserva cancelada',
+                                                        text: data.mensaje,
+                                                        confirmButtonText: 'Aceptar'
+                                                    }).then(() => {
+                                                        // Cerrar modal y actualizar calendario
+                                                        modal.hide();
+                                                        calendar.refetchEvents();
+                                                    });
+                                                } else {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error al cancelar',
+                                                        text: data.error || 'No se pudo cancelar la reserva',
+                                                        confirmButtonText: 'Aceptar'
+                                                    });
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error:', error);
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error de conexión',
+                                                    text: 'No se pudo conectar con el servidor',
+                                                    confirmButtonText: 'Aceptar'
+                                                });
+                                            });
+                                    }
+                                });
+                                
+                                return false;
+                            };
+
+                            // Gestionar botón "Ver todas mis reservas" y "Completar reserva"
+                            const actionsRow = document.querySelector("#view-reservation-details .row");
+
+                            // Verificar si ya existe el botón "Completar reserva" y borrarlo si existe
+                            const existingCompletarBtn = document.getElementById("btn-completar-reserva");
+                            if (existingCompletarBtn) {
+                                existingCompletarBtn.remove();
+                            }
+
+                            // Si la reserva está en estado pendiente, mostrar botón "Completar reserva" y ocultar "Ver todas mis reservas"
+                            if (data.estado.toLowerCase() === 'pendiente') {
+                                const btnCompletar = document.createElement("a");
+                                btnCompletar.id = "btn-completar-reserva";
+                                btnCompletar.className = "btn btn-success";
+                                btnCompletar.href = `/usuarios/confirmarReserva/${reservaId}`;
+                                btnCompletar.textContent = "Completar reserva";
+                                actionsRow.querySelector(".text-end").appendChild(btnCompletar);
+
+                                // Ocultar botón "Ver todas mis reservas"
+                                if (btnVerReservas) {
+                                    btnVerReservas.style.display = 'none';
+                                }
+                            } else {
+                                // Mostrar botón "Ver todas mis reservas" para otros estados
+                                if (btnVerReservas) {
+                                    btnVerReservas.style.display = '';
+                                }
+                            }
 
                             // Deshabilitar botón de cancelar si ya está cancelada o completada
-                            const btnCancelar = document.getElementById("btn-cancel-reservation");
                             if (data.estado === 'cancelada' || data.estado === 'completada') {
                                 btnCancelar.classList.add('disabled');
                                 btnCancelar.setAttribute('aria-disabled', 'true');
@@ -429,6 +578,72 @@
                                 btnCancelar.classList.remove('disabled');
                                 btnCancelar.removeAttribute('aria-disabled');
                             }
+
+                            // Consultar y mostrar información de ocupación actual
+                            const fechaStr = startDate.toISOString().split('T')[0];
+                            const horaStr = startDate.toTimeString().substring(0, 8);
+                            console.log(`Consultando ocupación para espacioId: ${espacioId}, fecha: ${fechaStr}, hora: ${horaStr}`);
+
+                            fetch(`/api/disponibilidad/gimnasio?espacioId=${espacioId}&fecha=${fechaStr}&hora=${horaStr}`)
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Error al consultar disponibilidad');
+                                    }
+                                    return response.json();
+                                })
+                                .then(ocupacionData => {
+                                    const ocupacionDiv = document.getElementById("detail-ocupacion");
+
+                                    // Obtener datos
+                                    const aforoTotal = ocupacionData.aforoTotal || 20;
+                                    const ocupacionActual = ocupacionData.ocupacionActual || 0;
+                                    const porcentajeOcupacion = (ocupacionActual / aforoTotal) * 100;
+
+                                    // Determinar estilos y mensaje según nivel de ocupación
+                                    let colorBarra = "bg-success";
+                                    let alertClass = "alert-success";
+                                    let mensaje = "Ocupación baja. ¡Buena elección para entrenar con tranquilidad!";
+
+                                    if (porcentajeOcupacion > 75) {
+                                        colorBarra = "bg-danger";
+                                        alertClass = "alert-danger";
+                                        mensaje = "Ocupación alta. El gimnasio estará bastante concurrido.";
+                                    } else if (porcentajeOcupacion > 50) {
+                                        colorBarra = "bg-warning";
+                                        alertClass = "alert-warning";
+                                        mensaje = "Ocupación media. El gimnasio tendrá una afluencia moderada.";
+                                    }
+
+                                    // Construir HTML con la información de ocupación
+                                    ocupacionDiv.innerHTML = `
+                                        <h6>Ocupación del horario</h6>
+                                        <div class="alert ${alertClass} mb-0">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <strong>${ocupacionActual} de ${aforoTotal} personas</strong>
+                                                <span class="badge bg-secondary">${Math.round(porcentajeOcupacion)}% ocupado</span>
+                                            </div>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar ${colorBarra}" role="progressbar" 
+                                                    style="width: ${porcentajeOcupacion}%" 
+                                                    aria-valuenow="${ocupacionActual}" aria-valuemin="0" aria-valuemax="${aforoTotal}">
+                                                </div>
+                                            </div>
+                                            <small class="mt-2 d-block">${mensaje}</small>
+                                        </div>
+                                    `;
+                                })
+                                .catch(error => {
+                                    console.error('Error al obtener ocupación:', error);
+                                    const ocupacionDiv = document.getElementById("detail-ocupacion");
+                                    ocupacionDiv.innerHTML = `
+                                        <h6>Ocupación del horario</h6>
+                                        <div class="alert alert-warning mb-0">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>No se pudo obtener la información de ocupación.</strong> 
+                                            <small>Intenta nuevamente más tarde.</small>
+                                        </div>
+                                    `;
+                                });
                         })
                         .catch(error => {
                             console.error('Error:', error);
@@ -449,31 +664,21 @@
                         return;
                     }
 
-                    // Verificar si hay un evento de aforo completo en esta hora
-                    const eventosAforoCompleto = calendar.getEvents().filter(event => {
-                        return (event.start <= clickedTime && event.end > clickedTime &&
-                            event.rendering === 'background' && event.title === 'Aforo completo');
+                    // Verificar si hay un evento en esta hora (como aforo completo o reserva existente)
+                    const eventsAtTime = calendar.getEvents().filter(event => {
+                        return (event.start <= clickedTime && event.end > clickedTime);
                     });
 
-                    // Si el aforo está completo, no permitir la reserva
-                    if (eventosAforoCompleto.length > 0) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Aforo completo',
-                            text: 'El gimnasio ha alcanzado su capacidad máxima para este horario. Por favor selecciona otro horario.',
-                            confirmButtonText: 'Aceptar'
-                        });
-                        return;
-                    }
+                    // Si hay eventos en esta hora, no permitir la reserva
+                    if (eventsAtTime.length > 0) {
+                        const reservaInfo = eventsAtTime[0];
+                        const esPropiaReserva = reservaInfo.extendedProps && reservaInfo.extendedProps.esPropia;
 
-                    // Verificar si el usuario ya tiene una reserva en este horario
-                    const reservasPropias = calendar.getEvents().filter(event => {
-                        return (event.start <= clickedTime && event.end > clickedTime &&
-                            event.extendedProps && event.extendedProps.esPropia === true);
-                    });
-
-                    if (reservasPropias.length > 0) {
-                        alert(`Ya tienes una reserva activa para esta hora. Puedes ver sus detalles haciendo clic en ella.`);
+                        if (esPropiaReserva) {
+                            alert(`Ya tienes una reserva activa para esta hora. Puedes ver sus detalles haciendo clic en ella.`);
+                        } else {
+                            alert(`Este horario ya está reservado por otro usuario. Por favor selecciona otro horario.`);
+                        }
                         return;
                     }
 
@@ -486,6 +691,7 @@
                     const start = new Date(info.date);
                     clickInfo = info;
 
+                    // Configurar hora de inicio
                     document.getElementById("event-start").dataset.raw = toLocalISOString(start);
 
                     const formattedDate = start.toLocaleDateString('es-PE');
@@ -494,136 +700,78 @@
                     });
                     document.getElementById("event-start").value = `${formattedDate} ${formattedHour}`;
 
-                    // Obtener eventos del mismo día posteriores
-                    const eventosDelDia = calendar.getEvents()
-                        .filter(e => e.start > start && e.start.toDateString() === start.toDateString())
-                        .sort((a, b) => a.start - b.start);
+                    // Calcular hora de fin (exactamente 1 hora después)
+                    const end = new Date(start);
+                    end.setHours(end.getHours() + 1);
 
-                    const limiteMax = new Date(start);
-                    limiteMax.setHours(start.getHours() + 2);
+                    // Verificar si hay eventos que bloqueen esta hora completa
+                    const eventosEnRango = calendar.getEvents().filter(e =>
+                        e.start > start && e.start < end
+                    );
 
-                    if (eventosDelDia.length > 0 && eventosDelDia[0].start < limiteMax) {
-                        limiteMax.setTime(eventosDelDia[0].start.getTime());
+                    if (eventosEnRango.length > 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Horario no disponible',
+                            text: 'No hay disponibilidad para una hora completa desde este horario. Por favor selecciona otro horario de inicio.',
+                            confirmButtonText: 'Entendido'
+                        });
+                        return;
                     }
 
+                    // Mostrar un mensaje informativo sobre la duración fija
+                    const endLabel = document.querySelector('label[for="event-end"]');
+                    if (endLabel) {
+                        endLabel.textContent = "Hora de fin (duración: 1 hora)";
+                    }
+
+                    // Configurar el select de hora de fin con la única opción disponible (1 hora después)
                     const endSelect = document.getElementById("event-end");
-                    endSelect.innerHTML = '<option value="" disabled selected>Seleccione hora de fin</option>';
+                    // Ya no es necesario limpiar opciones anteriores
 
-                    const current = new Date(start);
-                    current.setMinutes(0);
-                    current.setSeconds(0);
-                    current.setMilliseconds(0);
+                    // Formatear la hora de fin
+                    const formattedEndDate = end.toLocaleDateString('es-PE');
+                    const formattedEndHour = end.toLocaleTimeString('es-PE', {
+                        hour: '2-digit', minute: '2-digit', hour12: false
+                    });
 
-                    while (current < limiteMax) {
-                        current.setMinutes(current.getMinutes() + 60);
-                        if (current > limiteMax) break;
-                        const option = document.createElement("option");
-                        option.value = toLocalISOString(current);
-                        option.textContent = current.toLocaleTimeString('es-PE', {
-                            hour: '2-digit', minute: '2-digit', hour12: false
-                        });
-                        endSelect.appendChild(option);
-                    }
+                    // Asignar valor formateado al input
+                    endSelect.value = `${formattedEndDate} ${formattedEndHour}`;
 
-                    // Calcular disponibilidad para mostrar en el modal
-                    // Obtener disponibilidad desde el servidor
-                    const fechaHora = toLocalISOString(clickedTime);
-                    const fecha = fechaHora.split('T')[0];
-                    const hora = fechaHora.split('T')[1];
+                    // Guardar el valor raw para el formulario
+                    endSelect.dataset.raw = toLocalISOString(end);
 
-                    // Mostrar indicador de carga en el contenedor de disponibilidad
-                    const disponibilidadEl = document.getElementById("gimnasio-disponibilidad");
-                    disponibilidadEl.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2">Verificando disponibilidad...</p></div>';
+                    // Ya no es necesario deshabilitar el select porque ahora es un input readonly
 
-                    // Realizar la consulta al servidor
-                    fetch(`/api/disponibilidad/gimnasio?espacioId=${espacioId}&fecha=${fecha}&hora=${hora}`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Error al consultar disponibilidad');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.error) {
-                                throw new Error(data.error);
-                            }
-                            
-                            // Limpiar el contenedor
-                            disponibilidadEl.innerHTML = '';
-                            
-                            const disponibilidadInfo = document.createElement("div");
-                            disponibilidadInfo.className = "alert alert-info mb-3";
-                            
-                            // Obtener los datos
-                            const aforoTotal = data.aforoTotal;
-                            const espaciosDisponibles = data.espaciosDisponibles;
-                            const ocupacionActual = data.ocupacionActual;
-                            const porcentajeOcupacion = data.porcentajeOcupacion;
-                            const completo = data.completo;
-                            
-                            // Si está completo, mostrar mensaje y no permitir reservar
-                            if (completo) {
-                                disponibilidadInfo.className = "alert alert-danger mb-3";
-                                disponibilidadInfo.innerHTML = `
-                                    <i class="fas fa-times-circle me-2"></i>
-                                    <strong>No hay disponibilidad:</strong> El aforo está completo para este horario.
-                                `;
-                                disponibilidadEl.appendChild(disponibilidadInfo);
-                                
-                                // Deshabilitar el botón de guardar
-                                document.getElementById("btn-save-event").disabled = true;
-                                document.getElementById("btn-save-event").classList.add("disabled");
-                                return;
-                            }
-                            
-                            // Determinar el color según la disponibilidad
-                            let colorBarra = "bg-success";
-                            let colorTexto = "text-success";
-                            let icono = "fa-check-circle";
-                            
-                            if (porcentajeOcupacion > 75) {
-                                colorBarra = "bg-danger";
-                                colorTexto = "text-danger";
-                                icono = "fa-exclamation-circle";
-                            } else if (porcentajeOcupacion > 50) {
-                                colorBarra = "bg-warning";
-                                colorTexto = "text-warning";
-                                icono = "fa-exclamation-triangle";
-                            }
-                            
-                            disponibilidadInfo.innerHTML = `
-                                <i class="fas ${icono} me-2 ${colorTexto}"></i>
-                                <strong>Disponibilidad actual:</strong> ${espaciosDisponibles} de ${aforoTotal} espacios disponibles
-                                <div class="progress mt-2" style="height: 10px;">
-                                    <div class="progress-bar ${colorBarra}" role="progressbar" 
-                                        style="width: ${porcentajeOcupacion}%" 
-                                        aria-valuenow="${ocupacionActual}" aria-valuemin="0" aria-valuemax="${aforoTotal}">
-                                    </div>
-                                </div>`;
-                            
-                            disponibilidadEl.appendChild(disponibilidadInfo);
-                            
-                            // Habilitar el botón de guardar
-                            document.getElementById("btn-save-event").disabled = false;
-                            document.getElementById("btn-save-event").classList.remove("disabled");
-                        })
-                        .catch(error => {
-                            console.error('Error al obtener disponibilidad:', error);
-                            
-                            disponibilidadEl.innerHTML = '';
-                            const errorInfo = document.createElement("div");
-                            errorInfo.className = "alert alert-warning mb-3";
-                            errorInfo.innerHTML = `
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                <strong>Error al verificar disponibilidad:</strong> ${error.message || 'Intente nuevamente'}
-                            `;
-                            disponibilidadEl.appendChild(errorInfo);
-                        });
+                    // Obtener precio por hora del espacio
+                    const precioPorHora = parseFloat('[[${espacio.precioPorHora != null ? espacio.precioPorHora : "50.00"}]]');
+
+                    // Reiniciar selector de participantes
+                    const participantsSelect = document.getElementById("event-participants");
+                    participantsSelect.value = "1";
+
+                    // Calcular precio inicial (1 participante)
+                    document.getElementById("event-price").value = precioPorHora.toFixed(2);
+                    document.getElementById("input-precio-total").value = precioPorHora;
+
+                    // Agregar event listener para actualizar precio al cambiar participantes
+                    participantsSelect.onchange = function () {
+                        const participantes = parseInt(this.value);
+                        const precioTotal = precioPorHora * participantes;
+                        document.getElementById("event-price").value = precioTotal.toFixed(2);
+                        document.getElementById("input-precio-total").value = precioTotal;
+                    };
+
+                    // Consultar disponibilidad para mostrar información de aforo
+                    const fechaHora = toLocalISOString(start);
+                    obtenerDisponibilidadGimnasio(espacioId, fechaHora);
+
+                    modal.show();
+                    modalTitle.textContent = "Crear Reserva (1 hora)";
+                    selectedEvent = null;
                 }
             };
-
-            // Inicializar el calendario con la configuración personalizada
-            const calendar = initializeCalendar(calendarEl, customConfig);
+            const calendar = initializeCalendar(calendarEl, customConfig, horarioApertura, horarioCierre);
             calendar.render();
 
             // Función para controlar la navegación
@@ -668,39 +816,68 @@
                 }
             });
 
-            // Verificar si existe la función marcarHorariosPasadosComoNoDisponibles
-            if (typeof marcarHorariosPasadosComoNoDisponibles === 'function') {
-                // Marcar horarios pasados como no disponibles
-                marcarHorariosPasadosComoNoDisponibles(calendar);
-                // Actualizar cada minuto
-                setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);
-            }
+            // Marcar horarios pasados como no disponibles
+            marcarHorariosPasadosComoNoDisponibles(calendar);
 
-            // Manejador del submit para crear reserva directamente
+            // Actualizar cada minuto
+            setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);                // Manejador del submit para crear reserva directamente
             document.getElementById("form-event").addEventListener("submit", function (e) {
                 e.preventDefault();
 
                 const rawStart = document.getElementById("event-start").dataset.raw;
-                const rawEnd = document.getElementById("event-end").value;
+                const rawEnd = document.getElementById("event-end").dataset.raw;
+                const participantes = document.getElementById("event-participants").value;
 
-                if (!rawStart || !rawEnd) {
-                    alert("Seleccione una hora de inicio y fin válidas.");
+                if (!rawStart || !rawEnd || !participantes) {
+                    alert("Por favor complete todos los campos requeridos.");
                     return;
                 }
 
-                // Actualizar los campos ocultos antes de enviar
-                document.getElementById("input-espacio-id").value = espacioId;
-                document.getElementById("input-fecha-inicio").value = rawStart;
-                document.getElementById("input-fecha-fin").value = rawEnd;
-
-                // Mostrar indicador de carga
+                // Verificar disponibilidad antes de enviar
                 const btnSave = document.getElementById("btn-save-event");
                 const originalText = btnSave.textContent;
                 btnSave.disabled = true;
-                btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creando...';
+                btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verificando...';
 
-                // Enviar el formulario directamente (sin verificación extra)
-                form.submit();
+                // Verificar disponibilidad con número de participantes
+                const verificarUrl = `/api/verificar-disponibilidad?espacioId=${espacioId}&inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}&participantes=${participantes}`;
+
+                fetch(verificarUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.disponible) {
+                            // Actualizar los campos ocultos antes de enviar
+                            document.getElementById("input-espacio-id").value = espacioId;
+                            document.getElementById("input-fecha-inicio").value = rawStart;
+                            document.getElementById("input-fecha-fin").value = rawEnd;
+                            document.getElementById("input-numero-participantes").value = participantes;
+                            form.submit();
+                        } else {
+                            // Mostrar mensaje de error
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Horario no disponible',
+                                text: data.mensaje || 'No hay suficiente disponibilidad para el número de participantes seleccionado.',
+                                confirmButtonText: 'Entendido'
+                            });
+                            // Actualizar calendario para mostrar cambios
+                            calendar.refetchEvents();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            text: 'No se pudo verificar la disponibilidad. Intente nuevamente.',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    })
+                    .finally(() => {
+                        // Restaurar botón
+                        btnSave.disabled = false;
+                        btnSave.textContent = originalText;
+                    });
             });
 
             // Inicializar tooltips de Bootstrap
@@ -713,7 +890,7 @@
                 });
             });
 
-            // Cerrar tooltip al hacer clic fuera
+            // Cerrar tooltip al hacer clic fueraF
             document.addEventListener('click', function (e) {
                 if (!e.target.closest('[data-bs-toggle="tooltip"]')) {
                     tooltipList.forEach(tooltip => tooltip.hide());
@@ -732,29 +909,131 @@
                 pad(date.getSeconds());
         }
 
-        // Corregir la función para contar reservas en un horario específico
-        function contarReservasEnHorario(time, calendar) {
-            // Buscar todos los eventos en este horario que representan reservas reales
-            // (no los eventos de fondo como "Aforo completo")
-            const eventosEnHorario = calendar.getEvents().filter(event => {
-                // Verificar que el evento está en el horario seleccionado
-                const eventoEnHorario = event.start <= time && event.end > time;
-                
-                // Excluir eventos de fondo (como "Aforo completo")
-                const noEsFondo = !event.rendering || event.rendering !== 'background';
-                
-                // Excluir eventos propios para no contarlos dos veces
-                const noEsPropio = !event.extendedProps || !event.extendedProps.esPropia;
-                
-                return eventoEnHorario && noEsFondo && noEsPropio;
-            });
-            
-            console.log('Eventos en horario:', eventosEnHorario.length, eventosEnHorario);
-            
-            // Cada evento representa una persona inscrita
-            return eventosEnHorario.length;
+        // Función para obtener disponibilidad del gimnasio
+        function obtenerDisponibilidadGimnasio(espacioId, fechaHora) {
+            const fecha = fechaHora.split('T')[0];
+            const hora = fechaHora.split('T')[1];
+
+            // Mostrar indicador de carga
+            const disponibilidadEl = document.getElementById("gimnasio-disponibilidad");
+            disponibilidadEl.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Consultando disponibilidad...</p></div>';
+
+            // Realizar petición al servidor
+            fetch(`/api/disponibilidad/gimnasio?espacioId=${espacioId}&fecha=${fecha}&hora=${hora}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al consultar disponibilidad');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Limpiar contenedor
+                    disponibilidadEl.innerHTML = '';
+
+                    // Crear elemento de información
+                    const disponibilidadInfo = document.createElement("div");
+                    disponibilidadInfo.className = "alert mb-0";
+
+                    // Obtener datos
+                    const aforoTotal = data.aforoTotal || 20;
+                    const ocupacionActual = data.ocupacionActual || 0;
+                    const espaciosDisponibles = aforoTotal - ocupacionActual;
+                    const porcentajeOcupacion = (ocupacionActual / aforoTotal) * 100;
+
+                    // Determinar estilo según ocupación
+                    let colorBarra = "bg-success";
+                    let colorTexto = "text-success";
+                    let icono = "fa-check-circle";
+
+                    if (porcentajeOcupacion > 75) {
+                        colorBarra = "bg-danger";
+                        colorTexto = "text-danger";
+                        icono = "fa-exclamation-circle";
+                        disponibilidadInfo.className = "alert alert-danger mb-0";
+                    } else if (porcentajeOcupacion > 50) {
+                        colorBarra = "bg-warning";
+                        colorTexto = "text-warning";
+                        icono = "fa-exclamation-triangle";
+                        disponibilidadInfo.className = "alert alert-warning mb-0";
+                    } else {
+                        disponibilidadInfo.className = "alert alert-success mb-0";
+                    }
+
+                    // Limitar participantes según disponibilidad
+                    const participantsSelect = document.getElementById("event-participants");
+                    participantsSelect.innerHTML = ''; // Limpiar opciones
+
+                    // Agregar opciones según espacios disponibles (máximo 5)
+                    const maxParticipantes = Math.min(espaciosDisponibles, 5);
+                    for (let i = 1; i <= maxParticipantes; i++) {
+                        const option = document.createElement("option");
+                        option.value = i;
+                        option.textContent = i === 1 ? "1 persona" : i + " personas";
+                        participantsSelect.appendChild(option);
+                    }
+
+                    // Si no hay espacio, mostrar mensaje y deshabilitar botón
+                    if (espaciosDisponibles <= 0) {
+                        disponibilidadInfo.innerHTML = `
+                                <i class="fas fa-times-circle me-2"></i>
+                                <strong>No hay disponibilidad:</strong> El aforo está completo para este horario.
+                            `;
+                        document.getElementById("btn-save-event").disabled = true;
+                        document.getElementById("btn-save-event").classList.add("disabled");
+                    } else {
+                        disponibilidadInfo.innerHTML = `
+                                <i class="fas ${icono} me-2 ${colorTexto}"></i>
+                                <strong>Disponibilidad actual:</strong> ${espaciosDisponibles} de ${aforoTotal} espacios disponibles
+                                <div class="progress mt-2" style="height: 8px;">
+                                    <div class="progress-bar ${colorBarra}" role="progressbar" 
+                                        style="width: ${porcentajeOcupacion}%" 
+                                        aria-valuenow="${ocupacionActual}" aria-valuemin="0" aria-valuemax="${aforoTotal}">
+                                    </div>
+                                </div>
+                            `;
+
+                        // Habilitar botón de guardar
+                        document.getElementById("btn-save-event").disabled = false;
+                        document.getElementById("btn-save-event").classList.remove("disabled");
+                    }
+
+                    disponibilidadEl.appendChild(disponibilidadInfo);
+                })
+                .catch(error => {
+                    console.error('Error al obtener disponibilidad:', error);
+
+                    const errorInfo = document.createElement("div");
+                    errorInfo.className = "alert alert-warning mb-0";
+                    errorInfo.innerHTML = `
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Error al verificar disponibilidad:</strong> ${error.message || 'Intenta nuevamente'}
+                        `;
+
+                    disponibilidadEl.innerHTML = '';
+                    disponibilidadEl.appendChild(errorInfo);
+                });
         }
 
+        // Agregar esta función para obtener el precio por hora de manera segura
+        function getPrecioPorHora() {
+            // Intentar obtener desde el modelo del servidor via Thymeleaf
+            const precioPorHoraElement = document.querySelector('[data-precio-por-hora]');
+            if (precioPorHoraElement && precioPorHoraElement.dataset.precioPorHora) {
+                return parseFloat(precioPorHoraElement.dataset.precioPorHora);
+            }
+
+            // Intentar obtener desde el texto mostrado en la página
+            const precioPorHoraText = document.querySelector('.text-success.fw-bold span');
+            if (precioPorHoraText) {
+                const precio = parseFloat(precioPorHoraText.textContent.trim());
+                if (!isNaN(precio)) {
+                    return precio;
+                }
+            }
+
+            // Valor por defecto si no se encuentra
+            return 50.0;
+        }
     </script>
 </body>
 

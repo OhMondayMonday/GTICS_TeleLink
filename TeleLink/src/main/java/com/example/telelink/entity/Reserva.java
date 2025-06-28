@@ -35,8 +35,8 @@ public class Reserva {
     @Column(name = "numero_carril_pista")
     private Integer numeroCarrilPista;
     
-    @Column(name = "numero_participantes_piscina")
-    private Integer numeroParticipantesPiscina = 1; // Valor por defecto es 1
+    @Column(name = "numero_participantes")
+    private Integer numeroParticipantes = 1; // Valor por defecto es 1
 
     @Enumerated(EnumType.STRING)
     private Estado estado = Estado.pendiente;
@@ -108,12 +108,12 @@ public class Reserva {
         this.numeroCarrilPista = numeroCarrilPista;
     }
     
-    public Integer getNumeroParticipantesPiscina() {
-        return numeroParticipantesPiscina;
+    public Integer numeroParticipantes() {
+        return numeroParticipantes;
     }
 
     public void setNumeroParticipantesPiscina(Integer numeroParticipantesPiscina) {
-        this.numeroParticipantesPiscina = numeroParticipantesPiscina;
+        this.numeroParticipantes = numeroParticipantesPiscina;
     }
 
     public Estado getEstado() {

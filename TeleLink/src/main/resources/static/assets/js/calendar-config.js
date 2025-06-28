@@ -13,7 +13,8 @@ const calendarDefaultConfig = {
     
     // Configuración regional
     locale: 'es',
-      // Barra de herramientas - solo vista semanal
+    
+    // Barra de herramientas - solo vista semanal
     headerToolbar: {
         left: 'prev,next today',
         center: 'title',
@@ -24,9 +25,10 @@ const calendarDefaultConfig = {
     buttonText: {
         today: 'Hoy'
     },
-      // Rangos horarios y configuración de slots
-    slotMinTime: '07:00:00',
-    slotMaxTime: '22:00:00',
+    
+    // Las horas se configurarán dinámicamente en la función initializeCalendar
+    // según el espacio deportivo seleccionado
+    
     allDaySlot: false,
     height: '100%',
     slotDuration: '01:00:00',
@@ -45,7 +47,8 @@ const calendarDefaultConfig = {
     droppable: false,
     selectable: true,
     eventStartEditable: false,
-    eventDurationEditable: false,    // Mostrar indicador de hora actual
+    eventDurationEditable: false,    
+    // Mostrar indicador de hora actual
     nowIndicator: true,
     
     // Restricción de navegación - no permitir ver semanas pasadas
@@ -65,11 +68,19 @@ const calendarDefaultConfig = {
  * Función para inicializar un calendario con configuración personalizada
  * @param {HTMLElement} calendarEl - Elemento DOM donde se renderizará el calendario
  * @param {Object} customConfig - Configuración personalizada para fusionar con la configuración predeterminada
+ * @param {string} openingTime - Hora de apertura del espacio (formato HH:MM:SS)
+ * @param {string} closingTime - Hora de cierre del espacio (formato HH:MM:SS)
  * @returns {Object} Instancia del calendario
  */
-function initializeCalendar(calendarEl, customConfig = {}) {
+function initializeCalendar(calendarEl, customConfig = {}, openingTime = '07:00:00', closingTime = '22:00:00') {
     // Combinar configuración base con la personalizada
-    const config = { ...calendarDefaultConfig, ...customConfig };
+    const config = { 
+        ...calendarDefaultConfig,
+        ...customConfig,
+        // Sobrescribir horas de inicio y fin con los valores del espacio deportivo
+        slotMinTime: openingTime,
+        slotMaxTime: closingTime
+    };
     
     // Crear y devolver la instancia del calendario
     const calendar = new FullCalendar.Calendar(calendarEl, config);
@@ -90,7 +101,7 @@ function marcarHorariosPasadosComoNoDisponibles(calendar) {
     const diasHastaLunes = diaSemana === 0 ? 6 : diaSemana - 1;
     
     inicioSemana.setDate(inicioSemana.getDate() - diasHastaLunes);
-    inicioSemana.setHours(7, 0, 0, 0); // 7:00 AM
+    inicioSemana.setHours(2, 0, 0, 0); // 7:00 AM
     
     // Si el inicio es posterior a la hora actual, no hay nada que marcar
     if (inicioSemana >= now) return;

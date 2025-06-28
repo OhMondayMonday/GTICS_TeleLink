@@ -1,843 +1,1085 @@
 <!DOCTYPE html>
 <html lapng="es" xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="~{Superadmin/fragments/head.html :: head(title='Realizar reserva')}">
-        <meta name="_csrf" th:content="${_csrf.token}"/>
-        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    </head>
 
-    <body data-sidebar="dark" class="vertical-collpsed">
-        <div id="layout-wrapper">
-            <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Calendario')}"></div>
-            <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Calendario')}"></div>
+<head th:replace="~{Superadmin/fragments/head.html :: head(title='Realizar reserva')}">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
 
-            <div class="main-content">
-                <div class="page-content" style="min-height: 100%;">
-                    <div class="container-fluid">
+<body data-sidebar="dark" class="vertical-collpsed">
+    <div id="layout-wrapper">
+        <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Calendario')}"></div>
+        <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Calendario')}"></div>
 
-                        <!-- start page title -->                        <div class="row">
-                            <div class="col-12">
-                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                    <h4 class="mb-sm-0">Reservar espacio deportivo</h4>
-                                    <div class="page-title-right">
-                                        <a th:href="@{/Vecino/espacios-deportivos}" class="btn ms-2 btn-outline-primary">
-                                            <i class="fas fa-arrow-left me-1"></i> Regresar a espacios
-                                        </a>
-                                    </div>
+        <div class="main-content">
+            <div class="page-content" style="min-height: 100%;">
+                <div class="container-fluid">
+
+                    <!-- start page title -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                <h4 class="mb-sm-0">Reservar espacio deportivo</h4>
+                                <div class="page-title-right">
+                                    <a th:href="@{/usuarios/cancha}" class="btn ms-2 btn-outline-primary">
+                                        <i class="fas fa-arrow-left me-1"></i> Regresar a espacios
+                                    </a>
                                 </div>
                             </div>
-                        </div><!-- end page title -->                       
-                        <div class="row mb-4">
-                            <!-- Detalles del espacio deportivo -->
-                            <div class="col-xl-3 col-lg-4">
-                                <div class="card">
-                                    <!-- Foto del establecimiento deportivo -->                                    <div class="position-relative">
-                                        <img th:src="${espacio.fotoEspacioDeportivoUrl != null ? espacio.fotoEspacioDeportivoUrl : '/assets/images/canchita.jpg'}" 
-                                             alt="Establecimiento Deportivo" 
-                                             class="card-img-top" 
-                                             style="height: 160px; object-fit: cover;">
-                                    </div>                                      
-                                    <div class="card-header d-flex justify-content-between align-items-center py-2">
-                                        <h4 class="card-title mb-0 fw-bold py-1" th:text="${espacio.nombre}">Espacio Deportivo</h4>
-                                        <button class="btn btn-link p-0 text-primary" data-bs-toggle="tooltip" data-bs-placement="left" 
-                                                data-bs-trigger="click" data-bs-html="true" 
-                                                th:attr="data-bs-title='<div class=&quot;text-start&quot;><strong>Información de reservas:</strong><br>• Haz clic en un horario disponible para reservar<br>• Las reservas deben ser confirmadas<br>• Cancela con 2 horas de anticipación<br>• Máximo 2 horas por reserva</div>'">
-                                            <i class="fas fa-info-circle fs-4"></i>
-                                        </button>
-                                    </div>                                   
-                                    <div class="card-body py-4">
-                                        <div class="space-details">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="text-muted">Capacidad:</span>
-                                                <span class="fw-medium">
-                                                    <i class="fas fa-users text-info me-2"></i>
-                                                    <span th:text="${espacio.aforoGimnasio != null ? espacio.aforoGimnasio : 
+                        </div>
+                    </div><!-- end page title -->
+                    <div class="row mb-4">
+                        <!-- Detalles del espacio deportivo -->
+                        <div class="col-xl-3 col-lg-4">
+                            <div class="card">
+                                <!-- Foto del establecimiento deportivo -->
+                                <div class="position-relative">
+                                    <img th:src="${espacio.fotoEspacioDeportivoUrl != null ? espacio.fotoEspacioDeportivoUrl : '/assets/images/canchita.jpg'}"
+                                        alt="Establecimiento Deportivo" class="card-img-top"
+                                        style="height: 160px; object-fit: cover;">
+                                </div>
+                                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                                    <h4 class="card-title mb-0 fw-bold py-1" th:text="${espacio.nombre}">Espacio
+                                        Deportivo</h4>
+                                    <button class="btn btn-link p-0 text-primary" data-bs-toggle="tooltip"
+                                        data-bs-placement="left" data-bs-trigger="click" data-bs-html="true"
+                                        th:attr="data-bs-title='<div class=&quot;text-start&quot;><strong>Información de reservas:</strong><br>• Haz clic en un horario disponible para reservar<br>• Las reservas deben ser confirmadas<br>• Cancela con 2 horas de anticipación<br>• Máximo 2 horas por reserva</div>'">
+                                        <i class="fas fa-info-circle fs-4"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body py-4">
+                                    <div class="space-details">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted">Capacidad:</span>
+                                            <span class="fw-medium">
+                                                <i class="fas fa-users text-info me-2"></i>
+                                                <span th:text="${espacio.aforoGimnasio != null ? espacio.aforoGimnasio : 
                                                                      (espacio.maxPersonasPorCarril != null ? espacio.maxPersonasPorCarril + ' por carril' : 
                                                                       '22')}">22</span>
-                                                </span>
-                                            </div>
-                                            
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="text-muted">Precio por hora:</span>
-                                                <span class="text-success fw-bold">
-                                                    <i class="fas fa-dollar-sign me-2"></i>
-                                                    S/. <span th:text="${espacio.precioPorHora != null ? espacio.precioPorHora : '50.00'}">50.00</span>
-                                                </span>
-                                            </div>
+                                            </span>
+                                        </div>
 
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="text-muted">Horario:</span>
-                                                <span>
-                                                    <i class="fas fa-clock text-warning me-2"></i>
-                                                    <span th:text="${espacio.horarioApertura != null && espacio.horarioCierre != null ? 
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted">Precio por hora:</span>
+                                            <span class="text-success fw-bold">
+                                                <i class="fas fa-dollar-sign me-2"></i>
+                                                S/. <span
+                                                    th:text="${espacio.precioPorHora != null ? espacio.precioPorHora : '50.00'}">50.00</span>
+                                            </span>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center mb-2" |>
+                                            <span class="text-muted">Horario:</span>
+                                            <span>
+                                                <i class="fas fa-clock text-warning me-2"></i>
+                                                <span th:text="${espacio.horarioApertura != null && espacio.horarioCierre != null ? 
                                                                      #temporals.format(espacio.horarioApertura, 'HH:mm') + ' - ' + #temporals.format(espacio.horarioCierre, 'HH:mm') : 
                                                                      '7:00 - 22:00'}">7:00 - 22:00</span>
-                                                </span>
-                                            </div>
+                                            </span>
+                                        </div>
 
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="text-muted">Estado:</span>
-                                                <span>
-                                                    <span class="badge bg-success-subtle text-success" th:if="${espacio.estadoServicio.name() == 'operativo'}">
-                                                        <i class="fas fa-check-circle me-1"></i>Disponible
-                                                    </span>
-                                                    <span class="badge bg-warning-subtle text-warning" th:if="${espacio.estadoServicio.name() == 'mantenimiento'}">
-                                                        <i class="fas fa-tools me-1"></i>Mantenimiento
-                                                    </span>
-                                                    <span class="badge bg-danger-subtle text-danger" th:if="${espacio.estadoServicio.name() == 'clausurado'}">
-                                                        <i class="fas fa-times-circle me-1"></i>Clausurado
-                                                    </span>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-muted">Estado:</span>
+                                            <span>
+                                                <span class="badge bg-success-subtle text-success"
+                                                    th:if="${espacio.estadoServicio.name() == 'operativo'}">
+                                                    <i class="fas fa-check-circle me-1"></i>Disponible
                                                 </span>
+                                                <span class="badge bg-warning-subtle text-warning"
+                                                    th:if="${espacio.estadoServicio.name() == 'mantenimiento'}">
+                                                    <i class="fas fa-tools me-1"></i>Mantenimiento
+                                                </span>
+                                                <span class="badge bg-danger-subtle text-danger"
+                                                    th:if="${espacio.estadoServicio.name() == 'clausurado'}">
+                                                    <i class="fas fa-times-circle me-1"></i>Clausurado
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div th:if="${espacio.descripcion}" class="mb-3 pb-3 border-bottom">
+                                            <div class="d-flex align-items-start mb-2">
+                                                <i class="fas fa-info-circle text-primary me-2 mt-1"></i>
+                                                <span class="text-muted fw-medium">Descripción</span>
                                             </div>
-                                              <div th:if="${espacio.descripcion}" class="mb-3 pb-3 border-bottom">
-                                                <div class="d-flex align-items-start mb-2">
-                                                    <i class="fas fa-info-circle text-primary me-2 mt-1"></i>
-                                                    <span class="text-muted fw-medium">Descripción</span>
-                                                </div>
-                                                <p th:text="${espacio.descripcion}" class="text-secondary mb-0 lh-base ps-4">Descripción del espacio...</p>
+                                            <p th:text="${espacio.descripcion}"
+                                                class="text-secondary mb-0 lh-base ps-4">Descripción del espacio...</p>
+                                        </div>
+
+                                        <div th:if="${espacio.geolocalizacion}" class="mb-0">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                                <span class="text-muted fw-medium">Ubicación</span>
                                             </div>
-                                            
-                                            <div th:if="${espacio.geolocalizacion}" class="mb-0">
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <i class="fas fa-map-marker-alt text-danger me-2"></i>
-                                                    <span class="text-muted fw-medium">Ubicación</span>
-                                                </div>
-                                                <div class="map-container" style="height: 150px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
-                                                    <!-- Alternativa 1: Si las coordenadas están en formato "lat,lng" -->
-                                                    <iframe th:if="${#strings.contains(espacio.geolocalizacion, ',')}"
-                                                            th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${espacio.geolocalizacion}"
-                                                            width="100%" 
-                                                            height="100%" 
-                                                            style="border:0;" 
-                                                            allowfullscreen="" 
-                                                            loading="lazy" 
-                                                            referrerpolicy="no-referrer-when-downgrade">
-                                                    </iframe>
-                                                    <!-- Alternativa 2: Si es una dirección de texto -->
-                                                    <iframe th:unless="${#strings.contains(espacio.geolocalizacion, ',')}"
-                                                            th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${#strings.replace(espacio.geolocalizacion, ' ', '+')}"
-                                                            width="100%" 
-                                                            height="100%" 
-                                                            style="border:0;" 
-                                                            allowfullscreen="" 
-                                                            loading="lazy" 
-                                                            referrerpolicy="no-referrer-when-downgrade">
-                                                    </iframe>
-                                                </div>
+                                            <div class="map-container"
+                                                style="height: 150px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+                                                <!-- Alternativa 1: Si las coordenadas están en formato "lat,lng" -->
+                                                <iframe th:if="${#strings.contains(espacio.geolocalizacion, ',')}"
+                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${espacio.geolocalizacion}"
+                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
+                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                                                </iframe>
+                                                <!-- Alternativa 2: Si es una dirección de texto -->
+                                                <iframe th:unless="${#strings.contains(espacio.geolocalizacion, ',')}"
+                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${#strings.replace(espacio.geolocalizacion, ' ', '+')}"
+                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
+                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                                                </iframe>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Calendario -->
-                            <div class="col-xl-9 col-lg-8">
-                                <div class="card mb-0">
-                                    <div class="card-body calendar-container">
-                                        <div id="calendar" style="height: 100%;" th:attr="data-espacio-id=${espacioId}"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> <!-- end row-->
-                        <div style='clear:both'></div>
+                        </div>
 
-                        <!-- Add New Event MODAL -->
-                        <div class="modal fade" id="event-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header py-3 px-4">
-                                        <h5 class="modal-title" id="modal-title">Crear Reserva</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>                                    <div class="modal-body p-4">
-                                        <form class="needs-validation" name="event-form" id="form-event" novalidate th:action="@{/usuarios/crear-reserva-calendario}" method="post">
-                                            <input type="hidden" name="title" id="event-title" value="Reservado">
-                                            <input type="hidden" name="reservaId" id="reserva-id">
-                                            <input type="hidden" name="espacioId" id="input-espacio-id">
-                                            <input type="hidden" name="fechaInicio" id="input-fecha-inicio">
-                                            <input type="hidden" name="fechaFin" id="input-fecha-fin">                                            <input type="hidden" name="numeroCarrilPiscina" id="input-carril-piscina">
-                                            <input type="hidden" name="numeroParticipantesPiscina" id="input-participantes-piscina">
-                                            <div id="create-reservation-form">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="event-start">Hora de inicio</label>
-                                                    <input class="form-control" type="text" id="event-start" name="start" readonly>
-                                                </div>                                                <div class="mb-3">
-                                                    <label class="form-label" for="event-end">Hora de fin</label>
-                                                    <select class="form-select" id="event-end" name="end" required>
-                                                        <option value="" disabled selected>Seleccione hora de fin</option>
-                                                        <!-- Opciones generadas dinámicamente con JS -->
-                                                    </select>
-                                                    <div class="invalid-feedback">Seleccione una hora de fin válida</div>
-                                                </div>
-                                                
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="lane-select">Carril</label>
-                                                    <select class="form-select" id="lane-select" name="lane" required>
-                                                        <option value="" disabled selected>Seleccione un carril</option>
-                                                        <!-- Opciones generadas dinámicamente con JS -->
-                                                    </select>
-                                                    <div class="invalid-feedback">Seleccione un carril disponible</div>
-                                                    <div class="form-text mt-1" id="lane-info">
-                                                        Cargando información de carriles...
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="participants-select">Número de participantes</label>
-                                                    <select class="form-select" id="participants-select" name="participants" required>
-                                                        <option value="1" selected>1 participante</option>
-                                                        <option value="2">2 participantes</option>
-                                                        <option value="3">3 participantes</option>
-                                                    </select>
-                                                    <div class="invalid-feedback">Seleccione el número de participantes</div>
-                                                    <div class="form-text mt-1" id="participants-info">
-                                                        El precio total se calcula en base al número de participantes.
-                                                    </div>
-                                                </div>
-                                                  <div class="mb-3">
-                                                    <label class="form-label">Precio estimado</label>
-                                                    <div class="input-group">
-                                                        <span class="input-group-text">S/.</span>
-                                                        <input type="text" class="form-control" id="price-display" readonly>
-                                                    </div>
-                                                    <div class="form-text mt-1">
-                                                        Precio = (Precio por hora × Horas) × Número de participantes
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="row mt-2">
-                                                    <div class="col-6">
-                                                    </div>
-                                                    <div class="col-6 text-end">
-                                                        <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">Cerrar</button>
-                                                        <button type="submit" class="btn btn-success" id="btn-save-event">Crear</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div id="view-reservation-details" style="display: none;">
-                                                <div class="mb-3">
-                                                    <h6>Detalles de tu reserva</h6>
-                                                    <table class="table table-borderless mb-0">
-                                                        <tbody>
-                                                            <tr>
-                                                                <th scope="row">Inicio:</th>
-                                                                <td id="detail-start"></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Fin:</th>
-                                                                <td id="detail-end"></td>
-                                                            </tr>                                            <tr>
-                                                                <th scope="row">Carril:</th>
-                                                                <td id="detail-lane"></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Participantes:</th>
-                                                                <td id="detail-participants"></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Estado:</th>
-                                                                <td id="detail-status"></td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <div class="row mt-2">
-                                                    <div class="col-12 text-end">
-                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                                                        <a href="#" id="btn-cancel-reservation" class="btn btn-danger">Cancelar reserva</a>
-                                                        <a href="/usuarios/mis-reservas" class="btn btn-primary">Ver todas mis reservas</a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </form>
+                        <!-- Calendario -->
+                        <div class="col-xl-9 col-lg-8">
+                            <div class="card mb-0">
+                                <div class="card-body calendar-container">
+                                    <!-- En el div del calendario -->
+                                    <div id="calendar" style="height: 100%;"
+                                        th:attr="data-espacio-id=${espacioId},
+              data-horario-apertura=${espacio.horarioApertura != null ? #temporals.format(espacio.horarioApertura, 'HH:mm:ss') : '07:00:00'},
+              data-horario-cierre=${espacio.horarioCierre != null ? #temporals.format(espacio.horarioCierre, 'HH:mm:ss') : '22:00:00'}">
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div> <!-- end row-->
+                    <div style='clear:both'></div>
 
-                        <!-- end modal-->
+                    <!-- Add New Event MODAL -->
+                    <div class="modal fade" id="event-modal" data-bs-backdrop="static" data-bs-keyboard="false"
+                        tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header py-3 px-4">
+                                    <h5 class="modal-title" id="modal-title">Crear Reserva</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <form class="needs-validation" name="event-form" id="form-event" novalidate
+                                        th:action="@{/usuarios/crear-reserva-calendario}" method="post">
+                                        <input type="hidden" name="title" id="event-title" value="Reservado">
+                                        <input type="hidden" name="reservaId" id="reserva-id">
+                                        <input type="hidden" name="espacioId" id="input-espacio-id">
+                                        <input type="hidden" name="fechaInicio" id="input-fecha-inicio">
+                                        <input type="hidden" name="fechaFin" id="input-fecha-fin"> <input type="hidden"
+                                            name="numeroCarrilPiscina" id="input-carril-piscina">
+                                        <input type="hidden" name="numeroParticipantes"
+                                            id="input-participantes-piscina">
+                                        <div id="create-reservation-form">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="event-start">Hora de inicio</label>
+                                                <input class="form-control" type="text" id="event-start" name="start"
+                                                    readonly>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label" for="event-end">Hora de fin</label>
+                                                <select class="form-select" id="event-end" name="end" required>
+                                                    <option value="" disabled selected>Seleccione hora de fin</option>
+                                                    <!-- Opciones generadas dinámicamente con JS -->
+                                                </select>
+                                                <div class="invalid-feedback">Seleccione una hora de fin válida</div>
+                                            </div>
 
+                                            <div class="mb-3">
+                                                <label class="form-label" for="lane-select">Carril</label>
+                                                <select class="form-select" id="lane-select" name="lane" required disabled>
+                                                    <option value="" disabled selected>Primero seleccione la hora de fin</option>
+                                                    <!-- Opciones generadas dinámicamente con JS -->
+                                                </select>
+                                                <div class="invalid-feedback">Seleccione un carril disponible</div>
+                                                <div class="form-text mt-1" id="lane-info">
+                                                    Primero debe seleccionar una hora de fin para ver los carriles disponibles.
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label" for="participants-select">Número de
+                                                    participantes</label>
+                                                <select class="form-select" id="participants-select" name="participants"
+                                                    required disabled>
+                                                    <option value="" disabled selected>Primero seleccione un carril</option>
+                                                    <!-- Opciones generadas dinámicamente con JS -->
+                                                </select>
+                                                <div class="invalid-feedback">Seleccione el número de participantes
+                                                </div>
+                                                <div class="form-text mt-1" id="participants-info">
+                                                    Primero debe seleccionar un carril para ver los espacios disponibles.
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Precio estimado</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">S/.</span>
+                                                    <input type="text" class="form-control" id="price-display" readonly>
+                                                </div>
+                                                <div class="form-text mt-1">
+                                                    Precio = (Precio por hora × Horas) × Número de participantes
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-2">
+                                                <div class="col-6">
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                    <button type="button" class="btn btn-light me-1"
+                                                        data-bs-dismiss="modal">Cerrar</button>
+                                                    <button type="submit" class="btn btn-success"
+                                                        id="btn-save-event">Crear</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="view-reservation-details" style="display: none;">
+                                            <div class="mb-3">
+                                                <h6>Detalles de tu reserva</h6>
+                                                <table class="table table-borderless mb-0">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th scope="row">Inicio:</th>
+                                                            <td id="detail-start"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="row">Fin:</th>
+                                                            <td id="detail-end"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="row">Carril:</th>
+                                                            <td id="detail-lane"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="row">Participantes:</th>
+                                                            <td id="detail-participants"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="row">Estado:</th>
+                                                            <td id="detail-status"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th scope="row">Ocupación:</th>
+                                                            <td id="detail-ocupacion"></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-12 text-end">
+                                                    <button type="button" class="btn btn-light"
+                                                        data-bs-dismiss="modal">Cerrar</button>
+                                                    <a href="#" id="btn-cancel-reservation"
+                                                        class="btn btn-danger">Cancelar reserva</a>
+                                                    <a href="/usuarios/mis-reservas" class="btn btn-primary">Ver todas
+                                                        mis reservas</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- end modal-->
+
                 </div>
-
-                <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
             </div>
-        </div>        <!-- Scripts -->
-        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
-        
-        <!-- SweetAlert2 para notificaciones de conflictos -->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-          <script>
-            // Esperar a que el DOM esté completamente cargado
-            document.addEventListener('DOMContentLoaded', function() {
-                // Verificar si hay un conflicto detectado desde el servidor
-                const conflictoDetectado = /*[[${conflictoDetectado}]]*/ false;
-                const mensajeConflicto = /*[[${mensajeConflicto}]]*/ '';
-                
-                if (conflictoDetectado && mensajeConflicto) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Conflicto de Reserva',
-                        text: mensajeConflicto,
-                        confirmButtonText: 'Entendido',
-                        confirmButtonColor: '#d33'
-                    });
-                }
-                
-                // Referencias a elementos DOM usando JavaScript puro
-                const modalEl = document.getElementById('event-modal');
-                const modal = new bootstrap.Modal(modalEl);
-                const modalTitle = document.getElementById('modal-title');
-                const form = document.getElementById('form-event');
-                const calendarEl = document.getElementById('calendar');
 
-                let selectedEvent = null;
-                let clickInfo = null;
+            <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
+        </div>
+    </div> <!-- Scripts -->
+    <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
 
-                const espacioId = calendarEl.dataset.espacioId;
-                const now = new Date();
-                
-                // Usar la configuración base del archivo calendar-config.js
-                const customConfig = {
-                    // Configuración de eventos específica para este calendario
-                    eventClassNames: function(arg) {
-                        try {
-                            const evento = arg.event;
-                            const esPropia = evento.extendedProps && evento.extendedProps.esPropia === true;
-                            const estado = evento.extendedProps && evento.extendedProps.estado;
-                            
-                            // Si no es propia, siempre mostrar como ajena
-                            if (!esPropia) return ['reserva-ajena'];
-                            
-                            // Si es propia, asignar clase según estado
-                            if (estado === 'confirmada') {
-                                return ['reserva-propia-confirmada'];
-                            } else if (estado === 'pendiente') {
-                                return ['reserva-propia-pendiente'];
-                            } else if (estado === 'en_proceso') {
-                                return ['reserva-propia-en-proceso'];
-                            }
-                            
-                            // Por defecto
-                            return ['reserva-propia-pendiente'];
-                        } catch (error) {
-                            console.error("Error al asignar clases a evento:", error);
-                            return [];
-                        }
-                    },
-                    
-                    events: function(info, successCallback, failureCallback) {
-                        fetch('/api/reservas/piscina/' + espacioId)
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Error al cargar reservas: ' + response.status);
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                // Filtrar reservas canceladas
-                                const reservasFiltradas = data.filter(evento => 
-                                    evento.estado !== 'cancelada' && evento.estado !== 'CANCELADA');
-                                
-                                // Procesar los eventos para FullCalendar
-                                const events = reservasFiltradas.map(evento => {
-                                    const esPropia = evento.esPropia === true;
-                                    const estado = evento.estado ? evento.estado.toLowerCase() : null;
-                                    
-                                    let title = esPropia ? 'Mi reserva' : 'Reservado';
-                                    if (esPropia && estado) {
-                                        switch(estado) {
-                                            case 'pendiente': title += ' (Pendiente)'; break;
-                                            case 'en_proceso': title += ' (En proceso)'; break;
-                                            case 'confirmada': title += ' (Confirmada)'; break;
-                                        }
-                                    }
-                                    
-                                    return {
-                                        id: evento.id,
-                                        title: title,
-                                        start: evento.start,
-                                        end: evento.end,
-                                        extendedProps: {
-                                            esPropia: esPropia,
-                                            estado: estado
-                                        }
-                                    };
-                                });
-                                
-                                successCallback(events);
-                            })
-                            .catch(error => {
-                                console.error('Error al cargar reservas:', error);
-                                alert('No se pudieron cargar las reservas. Por favor, intente nuevamente.');
-                                failureCallback(error);
-                            });
-                    },
+    <!-- SweetAlert2 para notificaciones de conflictos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function () {
+            // Verificar si hay un conflicto detectado desde el servidor
+            const conflictoDetectado = /*[[${conflictoDetectado}]]*/ false;
+            const mensajeConflicto = /*[[${mensajeConflicto}]]*/ '';
 
-                    eventClick: function(info) {
-                        // Solo permitir interacción con eventos propios
-                        if (!info.event.extendedProps.esPropia) {
-                            alert("Este horario ya está reservado por otro usuario y no se puede modificar.");
-                            return;
-                        }
-                        
-                        // Mostrar modal con detalles de la reserva
-                        modal.show();
-                        form.reset();
-                        selectedEvent = info.event;
-                        
-                        // Ocultar formulario de creación y mostrar vista de detalles
-                        document.getElementById("create-reservation-form").style.display = "none";
-                        document.getElementById("view-reservation-details").style.display = "block";
-                        
-                        // Establecer título modal
-                        modalTitle.textContent = "Tu reserva";
-                        
-                        // Obtener ID de la reserva
-                        const reservaId = info.event.id;
-                        document.getElementById("reserva-id").value = reservaId;
-                        
-                        // Obtener datos detallados de la reserva mediante API
-                        fetch(`/usuarios/api/reservas/${reservaId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                // Formatear fechas
-                                const startDate = new Date(data.inicioReserva);
-                                const endDate = new Date(data.finReserva);
-                                
-                                document.getElementById("detail-start").textContent = startDate.toLocaleString('es-PE', {
-                                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                                    hour: '2-digit', minute: '2-digit'
-                                });
-                                
-                                document.getElementById("detail-end").textContent = endDate.toLocaleString('es-PE', {
-                                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                                    hour: '2-digit', minute: '2-digit'
-                                });
-                                  // Mostrar información del carril
-                                const laneElement = document.getElementById("detail-lane");
-                                if (data.numeroCarrilPiscina) {
-                                    laneElement.textContent = `Carril ${data.numeroCarrilPiscina}`;
-                                } else {
-                                    laneElement.textContent = "No especificado";
-                                }
-                                
-                                // Mostrar información de participantes
-                                const participantsElement = document.getElementById("detail-participants");
-                                if (data.numeroParticipantesPiscina) {
-                                    participantsElement.textContent = `${data.numeroParticipantesPiscina} ${data.numeroParticipantesPiscina === 1 ? 'participante' : 'participantes'}`;
-                                } else {
-                                    participantsElement.textContent = "1 participante";
-                                }
-                                
-                                // Mostrar estado con formato más amigable
-                                let estadoTexto = "Desconocido";
-                                let estadoClase = "";
-                                
-                                switch(data.estado.toLowerCase()) {
-                                    case 'confirmada': estadoTexto = "Confirmada"; estadoClase = "text-success"; break;
-                                    case 'pendiente': estadoTexto = "Pendiente de pago"; estadoClase = "text-warning"; break;
-                                    case 'en_proceso': estadoTexto = "En proceso"; estadoClase = "text-primary"; break;
-                                    case 'cancelada': estadoTexto = "Cancelada"; estadoClase = "text-danger"; break;
-                                    case 'completada': estadoTexto = "Completada"; estadoClase = "text-info"; break;
-                                }
-                                
-                                const detailStatus = document.getElementById("detail-status");
-                                detailStatus.textContent = estadoTexto;
-                                detailStatus.className = estadoClase;
-                                
-                                // Configurar enlaces a acciones
-                                document.getElementById("btn-cancel-reservation").href = `/usuarios/reserva/cancelar/${reservaId}`;
-                                
-                                // Deshabilitar botón de cancelar si ya está cancelada o completada
-                                const btnCancelar = document.getElementById("btn-cancel-reservation");
-                                if (data.estado === 'cancelada' || data.estado === 'completada') {
-                                    btnCancelar.classList.add('disabled');
-                                    btnCancelar.setAttribute('aria-disabled', 'true');
-                                } else {
-                                    btnCancelar.classList.remove('disabled');
-                                    btnCancelar.removeAttribute('aria-disabled');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('No se pudo cargar los detalles de la reserva');
-                            });
-                    },                        dateClick: function(info) {
-                        // Verificar si la fecha es pasada
-                        const clickedTime = info.date;
-                        if (clickedTime < now) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Fecha inválida',
-                                text: 'No puedes reservar en fechas pasadas.',
-                                confirmButtonText: 'Aceptar'
-                            });
-                            return;
-                        }
-                        
-                        // Verificar si hay un evento en esta hora
-                        const eventsAtTime = calendar.getEvents().filter(event => {
-                            return (event.start <= clickedTime && event.end > clickedTime);
-                        });
-                        
-                        // Si hay eventos en esta hora, no permitir la reserva
-                        if (eventsAtTime.length > 0) {
-                            const reservaInfo = eventsAtTime[0];
-                            const esPropiaReserva = reservaInfo.extendedProps && reservaInfo.extendedProps.esPropia;
-                            
-                            if (esPropiaReserva) {
-                                alert(`Ya tienes una reserva activa para esta hora. Puedes ver sus detalles haciendo clic en ella.`);
-                            } else {
-                                alert(`Este horario ya está reservado por otro usuario. Por favor selecciona otro horario.`);
-                            }
-                            return;
-                        }
-                        
-                        form.reset();
-                        
-                        // Mostrar formulario de creación y ocultar vista de detalles
-                        document.getElementById("create-reservation-form").style.display = "block";
-                        document.getElementById("view-reservation-details").style.display = "none";
-
-                        const start = new Date(info.date);
-                        clickInfo = info;
-
-                        document.getElementById("event-start").dataset.raw = toLocalISOString(start);
-
-                        const formattedDate = start.toLocaleDateString('es-PE');
-                        const formattedHour = start.toLocaleTimeString('es-PE', {
-                            hour: '2-digit', minute: '2-digit', hour12: false
-                        });
-                        document.getElementById("event-start").value = `${formattedDate} ${formattedHour}`;
-
-                        // Obtener eventos del mismo día posteriores
-                        const eventosDelDia = calendar.getEvents()
-                            .filter(e => e.start > start && e.start.toDateString() === start.toDateString())
-                            .sort((a, b) => a.start - b.start);
-
-                        const limiteMax = new Date(start);
-                        limiteMax.setHours(start.getHours() + 2);
-
-                        if (eventosDelDia.length > 0 && eventosDelDia[0].start < limiteMax) {
-                            limiteMax.setTime(eventosDelDia[0].start.getTime());
-                        }
-
-                        const endSelect = document.getElementById("event-end");
-                        endSelect.innerHTML = '<option value="" disabled selected>Seleccione hora de fin</option>';
-
-                        const current = new Date(start);
-                        current.setMinutes(0);
-                        current.setSeconds(0);
-                        current.setMilliseconds(0);
-
-                        while (current < limiteMax) {
-                            current.setMinutes(current.getMinutes() + 60);
-                            if (current > limiteMax) break;
-                            const option = document.createElement("option");
-                            option.value = toLocalISOString(current);
-                            option.textContent = current.toLocaleTimeString('es-PE', {
-                                hour: '2-digit', minute: '2-digit', hour12: false
-                            });
-                            endSelect.appendChild(option);
-                        }
-                        
-                        // Resetear los selectores de carril y participantes
-                        const laneSelect = document.getElementById("lane-select");
-                        laneSelect.innerHTML = '<option value="" disabled selected>Seleccione un carril</option>';
-                        
-                        // Resetear los participantes
-                        document.getElementById("participants-select").value = "1";
-                        
-                        // Limpiar el precio estimado
-                        document.getElementById("price-display").value = "";
-                        
-                        // Escuchar cambios en el select de hora fin para cargar los carriles
-                        document.getElementById("event-end").addEventListener("change", cargarDisponibilidadCarriles);
-                        
-                        // Escuchar cambios en los selectores para actualizar el precio
-                        document.getElementById("participants-select").addEventListener("change", calcularPrecio);
-                        document.getElementById("lane-select").addEventListener("change", calcularPrecio);
-                        document.getElementById("event-end").addEventListener("change", calcularPrecio);
-
-                        modal.show();
-                        modalTitle.textContent = "Crear Reserva";
-                        selectedEvent = null;
-                    }
-                };
-                
-                // Inicializar el calendario con la configuración personalizada
-                const calendar = initializeCalendar(calendarEl, customConfig);
-                calendar.render();
-                
-                // Función para controlar la navegación
-                function controlNavigation() {
-                    const now = new Date();
-                    const startOfWeek = new Date(now);
-                    startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Lunes de esta semana
-                    startOfWeek.setHours(0, 0, 0, 0);
-                    
-                    const currentView = calendar.view;
-                    const viewStart = new Date(currentView.activeStart);
-                    
-                    // Controlar botón prev
-                    const prevButton = document.querySelector('.fc-prev-button');
-                    if (prevButton) {
-                        if (viewStart < startOfWeek) {
-                            prevButton.disabled = true;
-                            prevButton.style.opacity = '0.5';
-                            prevButton.style.cursor = 'not-allowed';
-                            prevButton.title = 'No se pueden ver semanas pasadas';
-                        } else {
-                            prevButton.disabled = false;
-                            prevButton.style.opacity = '1';
-                            prevButton.style.cursor = 'pointer';
-                            prevButton.title = 'Semana anterior';
-                        }
-                    }
-                }
-                
-                // Ejecutar control de navegación después del render
-                setTimeout(controlNavigation, 100);
-                
-                // Agregar event listener para controlar navegación en cada cambio de vista
-                calendar.on('datesSet', controlNavigation);
-                
-                // Interceptar clics en el botón prev para prevenir navegación a semanas pasadas
-                document.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('fc-prev-button') && e.target.disabled) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return false;
-                    }
+            if (conflictoDetectado && mensajeConflicto) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Conflicto de Reserva',
+                    text: mensajeConflicto,
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#d33'
                 });
-                
-                // Marcar horarios pasados como no disponibles
-                marcarHorariosPasadosComoNoDisponibles(calendar);
-                
-                // Actualizar cada minuto
-                setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);
-                
-                // Función para cargar la disponibilidad de carriles
-                function cargarDisponibilidadCarriles() {
-                    const start = document.getElementById("event-start").dataset.raw;
-                    const end = document.getElementById("event-end").value;
-                    const laneSelect = document.getElementById("lane-select");
-                    const laneInfo = document.getElementById("lane-info");
-                    const participantsSelect = document.getElementById("participants-select");
-                    
-                    if (!start || !end) return;
-                    
-                    laneSelect.disabled = true;
-                    laneSelect.innerHTML = '<option value="" disabled selected>Cargando carriles...</option>';
-                    laneInfo.textContent = "Consultando disponibilidad de carriles...";
-                    participantsSelect.disabled = true;
-                    
-                    // Obtener disponibilidad de carriles
-                    fetch(`/api/espacios/${espacioId}/disponibilidad-carriles?inicio=${encodeURIComponent(start)}&fin=${encodeURIComponent(end)}`)
+            }
+
+            // Referencias a elementos DOM usando JavaScript puro
+            const modalEl = document.getElementById('event-modal');
+            const modal = new bootstrap.Modal(modalEl);
+            const modalTitle = document.getElementById('modal-title');
+            const form = document.getElementById('form-event');
+            const calendarEl = document.getElementById('calendar');
+            const horarioApertura = calendarEl.dataset.horarioApertura || '07:00:00';
+            const horarioCierre = calendarEl.dataset.horarioCierre || '22:00:00';
+
+            let selectedEvent = null;
+            let clickInfo = null;
+
+            const espacioId = calendarEl.dataset.espacioId;
+            const now = new Date();
+
+            // Usar la configuración base del archivo calendar-config.js
+            const customConfig = {
+                // Configuración de eventos específica para este calendario
+                eventClassNames: function (arg) {
+                    try {
+                        const evento = arg.event;
+                        const esPropia = evento.extendedProps && evento.extendedProps.esPropia === true;
+                        const estado = evento.extendedProps && evento.extendedProps.estado;
+
+                        // Si no es propia, siempre mostrar como ajena
+                        if (!esPropia) return ['reserva-ajena'];
+
+                        // Si es propia, asignar clase según estado
+                        if (estado === 'confirmada') {
+                            return ['reserva-propia-confirmada'];
+                        } else if (estado === 'pendiente') {
+                            return ['reserva-propia-pendiente'];
+                        } else if (estado === 'en_proceso') {
+                            return ['reserva-propia-en-proceso'];
+                        }
+
+                        // Por defecto
+                        return ['reserva-propia-pendiente'];
+                    } catch (error) {
+                        console.error("Error al asignar clases a evento:", error);
+                        return [];
+                    }
+                },
+
+                events: function (info, successCallback, failureCallback) {
+                    fetch('/api/reservas/piscina/' + espacioId)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Error al cargar reservas: ' + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Filtrar reservas canceladas
+                            const reservasFiltradas = data.filter(evento =>
+                                evento.estado !== 'cancelada' && evento.estado !== 'CANCELADA');
+
+                            // Procesar los eventos para FullCalendar
+                            const events = reservasFiltradas.map(evento => {
+                                const esPropia = evento.esPropia === true;
+                                const estado = evento.estado ? evento.estado.toLowerCase() : null;
+
+                                let title = esPropia ? 'Mi reserva' : 'Reservado';
+                                if (esPropia && estado) {
+                                    switch (estado) {
+                                        case 'pendiente': title += ' (Pendiente)'; break;
+                                        case 'en_proceso': title += ' (En proceso)'; break;
+                                        case 'confirmada': title += ' (Confirmada)'; break;
+                                    }
+                                }
+
+                                return {
+                                    id: evento.id,
+                                    title: title,
+                                    start: evento.start,
+                                    end: evento.end,
+                                    extendedProps: {
+                                        esPropia: esPropia,
+                                        estado: estado
+                                    }
+                                };
+                            });
+
+                            successCallback(events);
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar reservas:', error);
+                            alert('No se pudieron cargar las reservas. Por favor, intente nuevamente.');
+                            failureCallback(error);
+                        });
+                },
+
+                eventClick: function (info) {
+                    // Solo permitir interacción con eventos propios
+                    if (!info.event.extendedProps.esPropia) {
+                        alert("Este horario ya está reservado por otro usuario y no se puede modificar.");
+                        return;
+                    }
+
+                    // Mostrar modal con detalles de la reserva
+                    modal.show();
+                    form.reset();
+                    selectedEvent = info.event;
+
+                    // Ocultar formulario de creación y mostrar vista de detalles
+                    document.getElementById("create-reservation-form").style.display = "none";
+                    document.getElementById("view-reservation-details").style.display = "block";
+
+                    // Establecer título modal
+                    modalTitle.textContent = "Tu reserva";
+
+                    // Obtener ID de la reserva
+                    const reservaId = info.event.id;
+                    document.getElementById("reserva-id").value = reservaId;
+
+                    // Obtener datos detallados de la reserva mediante API
+                    fetch(`/usuarios/api/reservas/${reservaId}`)
                         .then(response => response.json())
                         .then(data => {
-                            laneSelect.innerHTML = '<option value="" disabled selected>Seleccione un carril</option>';
-                            
-                            if (data.error) {
-                                laneInfo.textContent = "Error: " + data.error;
-                                return;
+                            // Formatear fechas
+                            const startDate = new Date(data.inicioReserva);
+                            const endDate = new Date(data.finReserva);
+
+                            document.getElementById("detail-start").textContent = startDate.toLocaleString('es-PE', {
+                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            });
+
+                            document.getElementById("detail-end").textContent = endDate.toLocaleString('es-PE', {
+                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            });
+                            // Mostrar información del carril
+                            const laneElement = document.getElementById("detail-lane");
+                            if (data.numeroCarrilPiscina) {
+                                laneElement.textContent = `Carril ${data.numeroCarrilPiscina}`;
+                            } else {
+                                laneElement.textContent = "No especificado";
                             }
-                            
-                            const carrilInfo = data.carrilInfo;
-                            const maxPersonasPorCarril = data.maxPersonasPorCarril;
-                            
-                            for (let i = 1; i <= data.totalCarriles; i++) {
-                                const info = carrilInfo[i];
-                                const option = document.createElement("option");
-                                option.value = i;
+
+                            // Mostrar información de participantes
+                            const participantsElement = document.getElementById("detail-participants");
+                            if (data.numeroParticipantes) {
+                                participantsElement.textContent = `${data.numeroParticipantes} ${data.numeroParticipantes === 1 ? 'participante' : 'participantes'}`;
+                            } else {
+                                participantsElement.textContent = "1 participante";
+                            }
+
+                            // Mostrar estado con formato más amigable
+                            let estadoTexto = "Desconocido";
+                            let estadoClase = "";
+
+                            switch (data.estado.toLowerCase()) {
+                                case 'confirmada': estadoTexto = "Confirmada"; estadoClase = "text-success"; break;
+                                case 'pendiente': estadoTexto = "Pendiente de pago"; estadoClase = "text-warning"; break;
+                                case 'en_proceso': estadoTexto = "En proceso"; estadoClase = "text-primary"; break;
+                                case 'cancelada': estadoTexto = "Cancelada"; estadoClase = "text-danger"; break;
+                                case 'completada': estadoTexto = "Completada"; estadoClase = "text-info"; break;
+                            }
+
+                            const detailStatus = document.getElementById("detail-status");
+                            detailStatus.textContent = estadoTexto;
+                            detailStatus.className = estadoClase;
+
+                            // Obtener información de ocupación
+                            fetch(`/api/reserva/${reservaId}/ocupacion`)
+                                .then(response => response.json())
+                                .then(ocupacionData => {
+                                    const ocupacionDiv = document.getElementById("detail-ocupacion");
+                                    
+                                    if (ocupacionData.error) {
+                                        ocupacionDiv.innerHTML = `
+                                            <h6>Ocupación del horario</h6>
+                                            <div class="alert alert-warning mb-0">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                <strong>No se pudo obtener la información de ocupación.</strong> 
+                                                <small>Intenta nuevamente más tarde.</small>
+                                            </div>
+                                        `;
+                                    } else if (ocupacionData.tipoOcupacion === "carril") {
+                                        // Obtener datos
+                                        const aforoTotal = ocupacionData.capacidadMaxima;
+                                        const ocupacionActual = ocupacionData.participantesTotales;
+                                        const porcentajeOcupacion = ocupacionData.porcentajeOcupacion;
+                                        const numeroCarril = ocupacionData.numeroCarril;
+
+                                        // Determinar estilos y mensaje según nivel de ocupación
+                                        let colorBarra = "bg-success";
+                                        let alertClass = "alert-success";
+                                        let mensaje = "Ocupación baja. ¡Buena elección para nadar con tranquilidad!";
+
+                                        if (porcentajeOcupacion >= 100) {
+                                            colorBarra = "bg-danger";
+                                            alertClass = "alert-danger";
+                                            mensaje = "Carril completo. El carril estará bastante concurrido.";
+                                        } else if (porcentajeOcupacion >= 75) {
+                                            colorBarra = "bg-warning";
+                                            alertClass = "alert-warning";
+                                            mensaje = "Ocupación alta. El carril tendrá una afluencia considerable.";
+                                        } else if (porcentajeOcupacion >= 50) {
+                                            colorBarra = "bg-info";
+                                            alertClass = "alert-info";
+                                            mensaje = "Ocupación media. El carril tendrá una afluencia moderada.";
+                                        }
+
+                                        // Construir HTML con la información de ocupación
+                                        ocupacionDiv.innerHTML = `
+                                            <h6>Ocupación del horario</h6>
+                                            <div class="alert ${alertClass} mb-0">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <strong>Carril ${numeroCarril}: ${ocupacionActual} de ${aforoTotal} personas</strong>
+                                                    <span class="badge bg-secondary">${Math.round(porcentajeOcupacion)}% ocupado</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar ${colorBarra}" role="progressbar" 
+                                                        style="width: ${porcentajeOcupacion}%" 
+                                                        aria-valuenow="${ocupacionActual}" aria-valuemin="0" aria-valuemax="${aforoTotal}">
+                                                    </div>
+                                                </div>
+                                                <small class="mt-2 d-block">${mensaje}</small>
+                                                ${ocupacionData.espaciosDisponibles > 0 ? 
+                                                    `<small class="text-muted d-block">Espacios libres: ${ocupacionData.espaciosDisponibles}</small>` : 
+                                                    '<small class="text-danger d-block">Sin espacios disponibles</small>'
+                                                }
+                                            </div>
+                                        `;
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error al obtener ocupación:', error);
+                                    const ocupacionDiv = document.getElementById("detail-ocupacion");
+                                    ocupacionDiv.innerHTML = `
+                                        <h6>Ocupación del horario</h6>
+                                        <div class="alert alert-warning mb-0">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>No se pudo obtener la información de ocupación.</strong> 
+                                            <small>Intenta nuevamente más tarde.</small>
+                                        </div>
+                                    `;
+                                });
+
+
+                            // Declarar las variables de los botones fuera del scope para evitar problemas
+                            let btnVerReservas = document.querySelector("#view-reservation-details a.btn-primary");
+                            let btnCancelar = document.getElementById("btn-cancel-reservation");
+
+                            // Configurar cancelación mediante AJAX en lugar de href directo
+                            btnCancelar.onclick = function(e) {
+                                e.preventDefault();
                                 
-                                const espaciosDisp = info.espaciosDisponibles;
-                                const ocupados = info.participantesActuales;
+                                Swal.fire({
+                                    title: '¿Cancelar reserva?',
+                                    text: "Esta acción no se puede deshacer",
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#d33',
+                                    cancelButtonColor: '#3085d6',
+                                    confirmButtonText: 'Sí, cancelar',
+                                    cancelButtonText: 'No cancelar',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        const razon = result.value || 'Cancelación desde calendario';
+                                        
+                                        // Mostrar indicador de carga
+                                        Swal.fire({
+                                            title: 'Cancelando reserva...',
+                                            allowOutsideClick: false,
+                                            didOpen: () => {
+                                                Swal.showLoading();
+                                            }
+                                        });
+                                        
+                                        // Realizar la cancelación mediante AJAX
+                                        fetch(`/api/cancelar-reserva-pendiente/${reservaId}`)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    Swal.fire({
+                                                        icon: 'success',
+                                                        title: 'Reserva cancelada',
+                                                        text: data.mensaje,
+                                                        confirmButtonText: 'Aceptar'
+                                                    }).then(() => {
+                                                        // Cerrar modal y actualizar calendario
+                                                        modal.hide();
+                                                        calendar.refetchEvents();
+                                                    });
+                                                } else {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Error al cancelar',
+                                                        text: data.error || 'No se pudo cancelar la reserva',
+                                                        confirmButtonText: 'Aceptar'
+                                                    });
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error:', error);
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'Error de conexión',
+                                                    text: 'No se pudo conectar con el servidor',
+                                                    confirmButtonText: 'Aceptar'
+                                                });
+                                            });
+                                    }
+                                });
                                 
-                                option.textContent = `Carril ${i} - ${espaciosDisp} espacios disponibles`;
+                                return false;
+                            };
+
+                            // Verificar si ya existe un botón confirmar y eliminarlo para evitar duplicados
+                            const btnConfirmarExistente = document.getElementById("btn-confirmar-reserva");
+                            if (btnConfirmarExistente) {
+                                btnConfirmarExistente.remove();
+                            }
+
+                            // Si la reserva está en estado pendiente
+                            if (data.estado.toLowerCase() === 'pendiente') {
+                                // Crear botón confirmar reserva
+                                const btnConfirmar = document.createElement("a");
+                                btnConfirmar.id = "btn-confirmar-reserva";
+                                btnConfirmar.href = `/usuarios/confirmarReserva/${reservaId}`;
+                                btnConfirmar.className = "btn btn-success ms-2";
+                                btnConfirmar.textContent = "Confirmar reserva";
                                 
-                                // Deshabilitar opción si no hay espacios disponibles
-                                if (espaciosDisp < 1) {
-                                    option.disabled = true;
-                                    option.textContent += " (LLENO)";
+                                // Insertar el botón antes del de "Ver todas mis reservas"
+                                btnCancelar.parentNode.insertBefore(btnConfirmar, btnVerReservas);
+                                
+                                // Ocultar el botón "Ver todas mis reservas"
+                                if (btnVerReservas) {
+                                    btnVerReservas.style.display = 'none';
                                 }
-                                
-                                laneSelect.appendChild(option);
+                            } else {
+                                // Para otros estados, asegurar que el botón "Ver todas mis reservas" esté visible
+                                if (btnVerReservas) {
+                                    btnVerReservas.style.display = 'inline-block';
+                                }
                             }
-                            
-                            laneSelect.disabled = false;
-                            participantsSelect.disabled = false;
-                            laneInfo.textContent = `Seleccione un carril con espacios disponibles (máximo ${maxPersonasPorCarril} personas por carril)`;
-                            
-                            // Guardar el precio por hora como atributo de datos para usarlo en el cálculo
-                            document.getElementById("price-display").dataset.precioPorHora = data.precioPorHora;
-                            
+
+                            // Deshabilitar botón de cancelar si ya está cancelada o completada
+                            if (data.estado === 'cancelada' || data.estado === 'completada') {
+                                btnCancelar.classList.add('disabled');
+                                btnCancelar.setAttribute('aria-disabled', 'true');
+                            } else {
+                                btnCancelar.classList.remove('disabled');
+                                btnCancelar.removeAttribute('aria-disabled');
+                            }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            laneInfo.textContent = "Error al obtener disponibilidad de carriles";
-                            laneSelect.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
-                            laneSelect.disabled = true;
+                            alert('No se pudo cargar los detalles de la reserva');
                         });
-                }
-                
-                // Función para calcular y mostrar el precio estimado
-                function calcularPrecio() {
-                    const start = document.getElementById("event-start").dataset.raw;
-                    const end = document.getElementById("event-end").value;
-                    const lane = document.getElementById("lane-select").value;
-                    const participants = document.getElementById("participants-select").value;
-                    const priceDisplay = document.getElementById("price-display");
-                    
-                    if (!start || !end || !lane || !participants || !priceDisplay.dataset.precioPorHora) {
-                        priceDisplay.value = "";
-                        return;
-                    }
-                    
-                    // Calcular duración en horas
-                    const startDate = new Date(start);
-                    const endDate = new Date(end);
-                    let hours = (endDate - startDate) / (1000 * 60 * 60);
-                    if (hours < 1) hours = 1; // Mínimo 1 hora
-                    
-                    // Calcular precio total
-                    const precioPorHora = parseFloat(priceDisplay.dataset.precioPorHora);
-                    const total = precioPorHora * hours * parseInt(participants);
-                    
-                    // Mostrar precio con dos decimales
-                    priceDisplay.value = total.toFixed(2);
-                    
-                    // Actualizar mensaje de participantes
-                    const participantsInfo = document.getElementById("participants-info");
-                    participantsInfo.textContent = `El precio total es S/. ${total.toFixed(2)} (${precioPorHora} × ${hours} horas × ${participants} participante${participants !== '1' ? 's' : ''})`;
-                }
-                
-                // Manejador del submit para crear reserva directamente
-                document.getElementById("form-event").addEventListener("submit", function(e) {
-                    e.preventDefault();
-
-                    const rawStart = document.getElementById("event-start").dataset.raw;
-                    const rawEnd = document.getElementById("event-end").value;
-                    const carril = document.getElementById("lane-select").value;
-                    const participantes = document.getElementById("participants-select").value;
-
-                    if (!rawStart || !rawEnd || !carril || !participantes) {
+                }, dateClick: function (info) {
+                    // Verificar si la fecha es pasada
+                    const clickedTime = info.date;
+                    if (clickedTime < now) {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Datos incompletos',
-                            text: 'Por favor seleccione hora de inicio, fin, carril y número de participantes.',
-                            confirmButtonText: 'Entendido'
+                            title: 'Fecha inválida',
+                            text: 'No puedes reservar en fechas pasadas.',
+                            confirmButtonText: 'Aceptar'
                         });
                         return;
                     }
 
-                    // Verificar disponibilidad antes de enviar
-                    const btnSave = document.getElementById("btn-save-event");
-                    const originalText = btnSave.textContent;
-                    btnSave.disabled = true;
-                    btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verificando...';
-
-                    // Primero verificar disponibilidad con el número de participantes
-                    const verificarUrl = `/api/verificar-disponibilidad-piscina?espacioId=${espacioId}&inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}&carril=${carril}&participantes=${participantes}`;
-                    
-                    fetch(verificarUrl)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.disponible) {
-                                // Actualizar los campos ocultos antes de enviar
-                                document.getElementById("input-espacio-id").value = espacioId;
-                                document.getElementById("input-fecha-inicio").value = rawStart;
-                                document.getElementById("input-fecha-fin").value = rawEnd;
-                                document.getElementById("input-carril-piscina").value = carril;
-                                document.getElementById("input-participantes-piscina").value = participantes;
-                                form.submit();
-                            } else {
-                                // Mostrar mensaje de error
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'No disponible',
-                                    text: data.mensaje,
-                                    confirmButtonText: 'Entendido'
-                                });
-                                // Actualizar calendario para mostrar cambios
-                                calendar.refetchEvents();
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error de conexión',
-                                text: 'No se pudo verificar la disponibilidad. Intente nuevamente.',
-                                confirmButtonText: 'Aceptar'
-                            });
-                        })
-                        .finally(() => {
-                            // Restaurar botón
-                            btnSave.disabled = false;
-                            btnSave.textContent = originalText;
-                        });
-                });
-                
-                // Actualizar listeners al cargar la vista
-                document.getElementById("participants-select").addEventListener("change", function() {
-                    const lane = document.getElementById("lane-select").value;
-                    const participants = parseInt(this.value);
-                    
-                    if (lane) {
-                        // Verificar disponibilidad para este número de participantes
-                        const start = document.getElementById("event-start").dataset.raw;
-                        const end = document.getElementById("event-end").value;
-                        
-                        fetch(`/api/verificar-disponibilidad-piscina?espacioId=${espacioId}&inicio=${encodeURIComponent(start)}&fin=${encodeURIComponent(end)}&carril=${lane}&participantes=${participants}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (!data.disponible) {
-                                    // Si no hay suficientes espacios, mostrar error y resetear a 1
-                                    Swal.fire({
-                                        icon: 'warning',
-                                        title: 'Espacios insuficientes',
-                                        text: data.mensaje,
-                                        confirmButtonText: 'Entendido'
-                                    });
-                                    this.value = Math.min(data.espaciosDisponibles, 1).toString();
-                                }
-                                calcularPrecio();
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                            });
-                    }
-                });
-                
-                // Inicializar tooltips de Bootstrap
-                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl, {
-                        trigger: 'click',
-                        placement: 'left',
-                        html: true
+                    // Verificar si hay un evento en esta hora
+                    const eventsAtTime = calendar.getEvents().filter(event => {
+                        return (event.start <= clickedTime && event.end > clickedTime);
                     });
-                });
-                
-                // Cerrar tooltip al hacer clic fuera
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('[data-bs-toggle="tooltip"]')) {
-                        tooltipList.forEach(tooltip => tooltip.hide());
+
+                    // Si hay eventos en esta hora, no permitir la reserva
+                    if (eventsAtTime.length > 0) {
+                        const reservaInfo = eventsAtTime[0];
+                        const esPropiaReserva = reservaInfo.extendedProps && reservaInfo.extendedProps.esPropia;
+
+                        if (esPropiaReserva) {
+                            alert(`Ya tienes una reserva activa para esta hora. Puedes ver sus detalles haciendo clic en ella.`);
+                        } else {
+                            alert(`Este horario ya está reservado por otro usuario. Por favor selecciona otro horario.`);
+                        }
+                        return;
                     }
+
+                    form.reset();
+
+                    // Mostrar formulario de creación y ocultar vista de detalles
+                    document.getElementById("create-reservation-form").style.display = "block";
+                    document.getElementById("view-reservation-details").style.display = "none";
+
+                    const start = new Date(info.date);
+                    clickInfo = info;
+
+                    document.getElementById("event-start").dataset.raw = toLocalISOString(start);
+
+                    const formattedDate = start.toLocaleDateString('es-PE');
+                    const formattedHour = start.toLocaleTimeString('es-PE', {
+                        hour: '2-digit', minute: '2-digit', hour12: false
+                    });
+                    document.getElementById("event-start").value = `${formattedDate} ${formattedHour}`;
+
+                    // Obtener eventos del mismo día posteriores
+                    const eventosDelDia = calendar.getEvents()
+                        .filter(e => e.start > start && e.start.toDateString() === start.toDateString())
+                        .sort((a, b) => a.start - b.start);
+
+                    const limiteMax = new Date(start);
+                    limiteMax.setHours(start.getHours() + 2);
+
+                    if (eventosDelDia.length > 0 && eventosDelDia[0].start < limiteMax) {
+                        limiteMax.setTime(eventosDelDia[0].start.getTime());
+                    }
+
+                    const endSelect = document.getElementById("event-end");
+                    endSelect.innerHTML = '<option value="" disabled selected>Seleccione hora de fin</option>';
+
+                    const current = new Date(start);
+                    current.setMinutes(0);
+                    current.setSeconds(0);
+                    current.setMilliseconds(0);
+
+                    while (current < limiteMax) {
+                        current.setMinutes(current.getMinutes() + 60);
+                        if (current > limiteMax) break;
+                        const option = document.createElement("option");
+                        option.value = toLocalISOString(current);
+                        option.textContent = current.toLocaleTimeString('es-PE', {
+                            hour: '2-digit', minute: '2-digit', hour12: false
+                        });
+                        endSelect.appendChild(option);
+                    }
+
+                    // Resetear los selectores de carril y participantes
+                    const laneSelect = document.getElementById("lane-select");
+                    const participantsSelect = document.getElementById("participants-select");
+                    
+                    // Resetear y deshabilitar carril
+                    laneSelect.innerHTML = '<option value="" disabled selected>Primero seleccione la hora de fin</option>';
+                    laneSelect.disabled = true;
+                    
+                    // Resetear y deshabilitar participantes
+                    participantsSelect.innerHTML = '<option value="" disabled selected>Primero seleccione un carril</option>';
+                    participantsSelect.disabled = true;
+
+                    // Limpiar el precio estimado
+                    document.getElementById("price-display").value = "";
+
+                    // Escuchar cambios en el select de hora fin para cargar los carriles
+                    document.getElementById("event-end").addEventListener("change", cargarDisponibilidadCarriles);
+
+                    modal.show();
+                    modalTitle.textContent = "Crear Reserva";
+                    selectedEvent = null;
+                }
+            };
+
+            // Inicializar el calendario con la configuración personalizada
+            const calendar = initializeCalendar(calendarEl, customConfig, horarioApertura, horarioCierre);
+            calendar.render();
+
+            // Inicializar tooltips de Bootstrap
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'click',
+                    placement: 'left',
+                    html: true
                 });
             });
-            
-            // Función para obtener string local en formato YYYY-MM-DDTHH:mm:ss
-            function toLocalISOString(date) {
-                const pad = n => n < 10 ? '0' + n : n;
-                return date.getFullYear() + '-' +
-                    pad(date.getMonth() + 1) + '-' +
-                    pad(date.getDate()) + 'T' +
-                    pad(date.getHours()) + ':' +
-                    pad(date.getMinutes()) + ':' +
-                    pad(date.getSeconds());
+
+            // Cerrar tooltip al hacer clic fuera
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('[data-bs-toggle="tooltip"]')) {
+                    tooltipList.forEach(tooltip => tooltip.hide());
+                }
+            });
+
+            // Función para controlar la navegación
+            function controlNavigation() {
+                const now = new Date();
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Lunes de esta semana
+                startOfWeek.setHours(0, 0, 0, 0);
+
+                const currentView = calendar.view;
+                const viewStart = new Date(currentView.activeStart);
+
+                // Controlar botón prev
+                const prevButton = document.querySelector('.fc-prev-button');
+                if (prevButton) {
+                    if (viewStart < startOfWeek) {
+                        prevButton.disabled = true;
+                        prevButton.style.opacity = '0.5';
+                        prevButton.style.cursor = 'not-allowed';
+                        prevButton.title = 'No se pueden ver semanas pasadas';
+                    } else {
+                        prevButton.disabled = false;
+                        prevButton.style.opacity = '1';
+                        prevButton.style.cursor = 'pointer';
+                        prevButton.title = 'Semana anterior';
+                    }
+                }
             }
-        </script>
-    </body>
+
+            // Ejecutar control de navegación después del render
+            setTimeout(controlNavigation, 100);
+
+            // Agregar event listener para controlar navegación en cada cambio de vista
+            calendar.on('datesSet', controlNavigation);
+
+            // Interceptar clics en el botón prev para prevenir navegación a semanas pasadas
+            document.addEventListener('click', function (e) {
+                if (e.target.classList.contains('fc-prev-button') && e.target.disabled) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+
+            // Marcar horarios pasados como no disponibles
+            marcarHorariosPasadosComoNoDisponibles(calendar);
+
+            // Actualizar cada minuto
+            setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);
+
+            // Función para actualizar las opciones de participantes según el carril seleccionado
+            function actualizarOpcionesParticipantes() {
+                const start = document.getElementById("event-start").dataset.raw;
+                const end = document.getElementById("event-end").value;
+                const lane = document.getElementById("lane-select").value;
+                const participantsSelect = document.getElementById("participants-select");
+                const participantsInfo = document.getElementById("participants-info");
+
+                if (!start || !end || !lane) {
+                    participantsSelect.disabled = true;
+                    participantsSelect.innerHTML = '<option value="" disabled selected>Primero seleccione un carril</option>';
+                    return;
+                }
+
+                // Verificar disponibilidad específica del carril seleccionado
+                fetch(`/api/verificar-disponibilidad-piscina?espacioId=${espacioId}&inicio=${encodeURIComponent(start)}&fin=${encodeURIComponent(end)}&carril=${lane}&participantes=1`)
+                    .then(response => response.json())
+                    .then(data => {
+                        participantsSelect.innerHTML = '';
+                        
+                        if (data.disponible && data.espaciosDisponibles > 0) {
+                            // Crear opciones según espacios disponibles
+                            for (let i = 1; i <= data.espaciosDisponibles; i++) {
+                                const option = document.createElement("option");
+                                option.value = i;
+                                option.textContent = `${i} participante${i > 1 ? 's' : ''}`;
+                                participantsSelect.appendChild(option);
+                            }
+                            
+                            // Seleccionar 1 participante por defecto
+                            participantsSelect.value = "1";
+                            participantsSelect.disabled = false;
+                            
+                            participantsInfo.textContent = `Espacios disponibles en el carril ${lane}: ${data.espaciosDisponibles}`;
+                            
+                            // Calcular precio después de actualizar participantes
+                            calcularPrecio();
+                        } else {
+                            participantsSelect.innerHTML = '<option value="" disabled selected>Carril no disponible</option>';
+                            participantsSelect.disabled = true;
+                            participantsInfo.textContent = data.mensaje || "Este carril no tiene espacios disponibles";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        participantsSelect.innerHTML = '<option value="" disabled selected>Error al consultar</option>';
+                        participantsSelect.disabled = true;
+                        participantsInfo.textContent = "Error al consultar disponibilidad del carril";
+                    });
+            }
+
+            // Agregar listener para cambios en participantes
+            document.getElementById("participants-select").addEventListener("change", calcularPrecio);
+
+            // Función para cargar la disponibilidad de carriles
+            function cargarDisponibilidadCarriles() {
+                const start = document.getElementById("event-start").dataset.raw;
+                const end = document.getElementById("event-end").value;
+                const laneSelect = document.getElementById("lane-select");
+                const laneInfo = document.getElementById("lane-info");
+                const participantsSelect = document.getElementById("participants-select");
+
+                if (!start || !end) return;
+
+                // Deshabilitar carril y participantes mientras se carga
+                laneSelect.disabled = true;
+                laneSelect.innerHTML = '<option value="" disabled selected>Cargando carriles...</option>';
+                laneInfo.textContent = "Consultando disponibilidad de carriles...";
+                
+                // Resetear y deshabilitar participantes hasta que se seleccione un carril
+                participantsSelect.disabled = true;
+                participantsSelect.innerHTML = '<option value="" disabled selected>Primero seleccione un carril</option>';
+
+                // Obtener disponibilidad de carriles
+                fetch(`/api/espacios/${espacioId}/disponibilidad-carriles?inicio=${encodeURIComponent(start)}&fin=${encodeURIComponent(end)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        laneSelect.innerHTML = '<option value="" disabled selected>Seleccione un carril</option>';
+
+                        if (data.error) {
+                            laneInfo.textContent = "Error: " + data.error;
+                            return;
+                        }
+
+                        const carrilInfo = data.carrilInfo;
+                        const maxPersonasPorCarril = data.maxPersonasPorCarril;
+
+                        for (let i = 1; i <= data.totalCarriles; i++) {
+                            const info = carrilInfo[i];
+                            const option = document.createElement("option");
+                            option.value = i;
+
+                            const espaciosDisp = info.espaciosDisponibles;
+                            const ocupados = info.participantesActuales;
+
+                            option.textContent = `Carril ${i} - ${espaciosDisp} espacios disponibles`;
+
+                            // Deshabilitar opción si no hay espacios disponibles
+                            if (espaciosDisp < 1) {
+                                option.disabled = true;
+                                option.textContent += " (LLENO)";
+                            }
+
+                            laneSelect.appendChild(option);
+                        }
+
+                        // Habilitar solo el selector de carril
+                        laneSelect.disabled = false;
+                        // Los participantes se habilitarán cuando se seleccione un carril
+                        laneInfo.textContent = `Seleccione un carril con espacios disponibles (máximo ${maxPersonasPorCarril} personas por carril)`;
+
+                        // Guardar información necesaria para el flujo
+                        document.getElementById("price-display").dataset.precioPorHora = data.precioPorHora;
+                        document.getElementById("price-display").dataset.maxPersonasPorCarril = maxPersonasPorCarril;
+
+                        // Agregar listener al selector de carril para actualizar participantes
+                        const laneSelectElement = document.getElementById("lane-select");
+                        laneSelectElement.removeEventListener("change", handleLaneChange); // Remover listener previo si existe
+                        laneSelectElement.addEventListener("change", handleLaneChange);
+
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        laneInfo.textContent = "Error al obtener disponibilidad de carriles";
+                        laneSelect.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+                        laneSelect.disabled = true;
+                    });
+            }
+
+            // Función para manejar cambios en el selector de carril
+            function handleLaneChange() {
+                actualizarOpcionesParticipantes();
+            }
+
+            // Función para calcular y mostrar el precio estimado
+            function calcularPrecio() {
+                const start = document.getElementById("event-start").dataset.raw;
+                const end = document.getElementById("event-end").value;
+                const lane = document.getElementById("lane-select").value;
+                const participants = document.getElementById("participants-select").value;
+                const priceDisplay = document.getElementById("price-display");
+
+                if (!start || !end || !lane || !participants || !priceDisplay.dataset.precioPorHora) {
+                    priceDisplay.value = "";
+                    return;
+                }
+
+                // Calcular duración en horas
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                let hours = (endDate - startDate) / (1000 * 60 * 60);
+                if (hours < 1) hours = 1; // Mínimo 1 hora
+
+                // Calcular precio total
+                const precioPorHora = parseFloat(priceDisplay.dataset.precioPorHora);
+                const total = precioPorHora * hours * parseInt(participants);
+
+                // Mostrar precio con dos decimales
+                priceDisplay.value = total.toFixed(2);
+
+                // Actualizar mensaje de participantes
+                const participantsInfo = document.getElementById("participants-info");
+                participantsInfo.textContent = `El precio total es S/. ${total.toFixed(2)} (${precioPorHora} × ${hours} horas × ${participants} participante${participants !== '1' ? 's' : ''})`;
+            }
+
+            // Manejador del submit para crear reserva directamente
+            document.getElementById("form-event").addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const rawStart = document.getElementById("event-start").dataset.raw;
+                const rawEnd = document.getElementById("event-end").value;
+                const carril = document.getElementById("lane-select").value;
+                const participantes = document.getElementById("participants-select").value;
+
+                if (!rawStart || !rawEnd || !carril || !participantes) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Datos incompletos',
+                        text: 'Por favor seleccione hora de inicio, fin, carril y número de participantes.',
+                        confirmButtonText: 'Entendido'
+                    });
+                    return;
+                }
+
+                // Verificar disponibilidad antes de enviar
+                const btnSave = document.getElementById("btn-save-event");
+                const originalText = btnSave.textContent;
+                btnSave.disabled = true;
+                btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verificando...';
+
+                // Primero verificar disponibilidad con el número de participantes
+                const verificarUrl = `/api/verificar-disponibilidad-piscina?espacioId=${espacioId}&inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}&carril=${carril}&participantes=${participantes}`;
+
+                fetch(verificarUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.disponible) {
+                            // Actualizar los campos ocultos antes de enviar
+                            document.getElementById("input-espacio-id").value = espacioId;
+                            document.getElementById("input-fecha-inicio").value = rawStart;
+                            document.getElementById("input-fecha-fin").value = rawEnd;
+                            document.getElementById("input-carril-piscina").value = carril;
+                            document.getElementById("input-participantes-piscina").value = participantes;
+                            form.submit();
+                        } else {
+                            // Mostrar mensaje de error
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'No disponible',
+                                text: data.mensaje,
+                                confirmButtonText: 'Entendido'
+                            });
+                            // Actualizar calendario para mostrar cambios
+                            calendar.refetchEvents();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            text: 'No se pudo verificar la disponibilidad. Intente nuevamente.',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    })
+                    .finally(() => {
+                        // Restaurar botón
+                        btnSave.disabled = false;
+                        btnSave.textContent = originalText;
+                    });
+            });
+
+            // Funciones auxiliares
+        });
+
+        // Función para obtener string local en formato YYYY-MM-DDTHH:mm:ss
+        function toLocalISOString(date) {
+            const pad = n => n < 10 ? '0' + n : n;
+            return date.getFullYear() + '-' +
+                pad(date.getMonth() + 1) + '-' +
+                pad(date.getDate()) + 'T' +
+                pad(date.getHours()) + ':' +
+                pad(date.getMinutes()) + ':' +
+                pad(date.getSeconds());
+        }
+    </script>
+</body>
+
 </html>

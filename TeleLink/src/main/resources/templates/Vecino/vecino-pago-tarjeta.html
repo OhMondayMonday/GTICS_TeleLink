@@ -35,7 +35,7 @@
                                     <h3 class="card-title text-center mb-4">Pago con Tarjeta</h3>
 
                                     <!-- Detalles de la reserva -->
-                                    <div class="mb-4 bg-light p-3 rounded-3 border">
+                                    <div class="mb-4 bg-light p-3 rounded-3">
                                         <p class="mb-1"><i
                                                 class="bi bi-geo-alt-fill text-primary me-2"></i><strong>Espacio:</strong>
                                             <span th:text="${reserva.espacioDeportivo.nombre}"></span></p>
@@ -45,16 +45,22 @@
                                                 th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}"></span>
                                             hasta <span
                                                 th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}"></span>
-                                        </p>                                        <p class="mb-0"><i class="bi bi-cash-coin text-warning me-2"></i><strong>Monto
+                                        </p>
+                                        <p class="mb-0"><i class="bi bi-cash-coin text-warning me-2"></i><strong>Monto
                                                 Total:</strong>
                                             <span th:with="duracion=${T(java.time.Duration).between(reserva.inicioReserva, reserva.finReserva).toHours()},
-                                                         precioBase=${reserva.espacioDeportivo.precioPorHora.multiply(duracion)},
-                                                         esPiscina=${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.equalsIgnoreCase('piscina')},
-                                                         participantes=${reserva.numeroParticipantesPiscina != null && reserva.numeroParticipantesPiscina > 0 ? reserva.numeroParticipantesPiscina : 1},
-                                                         precioTotal=${esPiscina ? precioBase.multiply(participantes) : precioBase}"
+                 precioBase=${reserva.espacioDeportivo.precioPorHora.multiply(duracion)},
+                 tipoServicio=${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase()},
+                 debeMultiplicar=${tipoServicio == 'piscina' || tipoServicio == 'gimnasio' || tipoServicio == 'atletismo'},
+                 participantes=${reserva.numeroParticipantes != null && reserva.numeroParticipantes > 0 ? reserva.numeroParticipantes : 1},
+                 precioTotal=${debeMultiplicar ? precioBase.multiply(participantes) : precioBase}"
                                                 th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}"></span>
-                                            <span th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.equalsIgnoreCase('piscina') && reserva.numeroParticipantesPiscina != null && reserva.numeroParticipantesPiscina > 0}"
-                                                  class="badge bg-info ms-2" th:text="${reserva.numeroParticipantesPiscina + ' participante(s)'}"></span>
+                                            <!-- Badge de participantes para piscina, gimnasio y atletismo -->
+                                            <span th:if="${(reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'piscina' || 
+                   reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'gimnasio' ||
+                   reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'atletismo') &&
+                   reserva.numeroParticipantes != null && reserva.numeroParticipantes > 0}" class="badge bg-info ms-2"
+                                                th:text="${reserva.numeroParticipantes + ' participante(s)'}"></span>
                                         </p>
                                     </div>
 

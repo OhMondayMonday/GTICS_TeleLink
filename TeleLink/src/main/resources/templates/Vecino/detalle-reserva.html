@@ -7,8 +7,8 @@
 </head>
 
 <body data-sidebar="dark" class="vertical-collpsed">
-    <div th:replace="~{Superadmin/fragments/header :: header(title='Detalle de Reserva')}"></div>
-    <div th:replace="~{Superadmin/fragments/sidebar :: sidebar}"></div>
+    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Calendario')}"></div>
+    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Calendario')}"></div>
 
     <div class="main-content" style="overflow: hidden;">
         <div class="page-content" style="min-height: 100%;">
@@ -92,22 +92,26 @@
 
                                             <!-- Mostrar número de participantes para piscina -->
                                             <li class="mb-2"
-                                                th:if="${reserva.numeroParticipantesPiscina != null && reserva.numeroParticipantesPiscina > 0}">
+                                                th:if="${reserva.numeroParticipantes != null && reserva.numeroParticipantes > 0}">
                                                 <i class="mdi mdi-account-group text-primary me-2"></i>
                                                 <strong>Participantes:</strong>
-                                                <span th:text="${reserva.numeroParticipantesPiscina}">1</span>
+                                                <span th:text="${reserva.numeroParticipantes}">1</span>
                                             </li>
 
                                             <!-- Cálculo del precio total considerando participantes para piscina -->
                                             <li class="mb-2">
                                                 <i class="mdi mdi-cash-multiple text-info me-2"></i>
                                                 <strong>Total a pagar:</strong> S/.
-                                                <span
-                                                    th:if="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'piscina' && reserva.numeroParticipantesPiscina != null && reserva.numeroParticipantesPiscina > 0}"
-                                                    th:text="${#numbers.formatDecimal((duracionHoras * reserva.espacioDeportivo.precioPorHora * reserva.numeroParticipantesPiscina), 0, 'COMMA', 2, 'POINT')}">
+                                                <span th:if="${(reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'piscina' || 
+                 reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'gimnasio' || 
+                 reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'atletismo') 
+                && reserva.numeroParticipantes != null && reserva.numeroParticipantes > 0}"
+                                                    th:text="${#numbers.formatDecimal((duracionHoras * reserva.espacioDeportivo.precioPorHora * reserva.numeroParticipantes), 0, 'COMMA', 2, 'POINT')}">
                                                 </span>
-                                                <span
-                                                    th:unless="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'piscina' && reserva.numeroParticipantesPiscina != null && reserva.numeroParticipantesPiscina > 0}"
+                                                <span th:unless="${(reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'piscina' || 
+                    reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'gimnasio' || 
+                    reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo.toLowerCase() == 'atletismo') 
+                   && reserva.numeroParticipantes != null && reserva.numeroParticipantes > 0}"
                                                     th:text="${#numbers.formatDecimal((duracionHoras * reserva.espacioDeportivo.precioPorHora), 0, 'COMMA', 2, 'POINT')}">
                                                 </span>
                                             </li>

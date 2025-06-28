@@ -829,7 +829,7 @@ public class UsuarioController {
                         r.getInicioReserva().toString(),
                         r.getFinReserva().toString(),
                         r.getNumeroCarrilPiscina(),
-                        r.getNumeroParticipantesPiscina(),
+                        r.numeroParticipantes(),
                         r.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo()))
                 .collect(Collectors.toList());
     }
@@ -839,9 +839,9 @@ public class UsuarioController {
     private String getTitleWithParticipants(Reserva reserva) {
         String baseTitle = "Reservado";
         if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                && reserva.getNumeroParticipantesPiscina() != null && reserva.getNumeroParticipantesPiscina() > 0) {
-            return baseTitle + " (" + reserva.getNumeroParticipantesPiscina() + " participante" +
-                    (reserva.getNumeroParticipantesPiscina() > 1 ? "s" : "") + ")";
+                && reserva.numeroParticipantes() != null && reserva.numeroParticipantes() > 0) {
+            return baseTitle + " (" + reserva.numeroParticipantes() + " participante" +
+                    (reserva.numeroParticipantes() > 1 ? "s" : "") + ")";
         }
         return baseTitle;
     }
@@ -868,8 +868,9 @@ public class UsuarioController {
             return "Vecino/reservas-piscina-calendario";
         } else if ("gimnasio".equals(tipoServicio)) {
             return "Vecino/reservas-gimnasio-calendario";
+        } else if ("atletismo".equals(tipoServicio)) {
+            return "Vecino/reservas-atletismo-calendario";
         } else {
-            // Para fútbol y otros tipos de canchas
             return "Vecino/reservas-futbol-calendario";
         }
     }
@@ -912,9 +913,9 @@ public class UsuarioController {
 
         // Si es piscina y tiene número de participantes, multiplicar por ese número
         if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                && reserva.getNumeroParticipantesPiscina() != null
-                && reserva.getNumeroParticipantesPiscina() > 0) {
-            precioTotal = precioBase.multiply(BigDecimal.valueOf(reserva.getNumeroParticipantesPiscina()));
+                && reserva.numeroParticipantes() != null
+                && reserva.numeroParticipantes() > 0) {
+            precioTotal = precioBase.multiply(BigDecimal.valueOf(reserva.numeroParticipantes()));
         }
 
         model.addAttribute("reserva", reserva);
@@ -1048,9 +1049,9 @@ public class UsuarioController {
 
         // Si es una reserva de piscina, multiplicar por el número de participantes
         if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                && reserva.getNumeroParticipantesPiscina() != null
-                && reserva.getNumeroParticipantesPiscina() > 0) {
-            monto = monto.multiply(BigDecimal.valueOf(reserva.getNumeroParticipantesPiscina()));
+                && reserva.numeroParticipantes() != null
+                && reserva.numeroParticipantes() > 0) {
+            monto = monto.multiply(BigDecimal.valueOf(reserva.numeroParticipantes()));
         }
 
         // Crear o actualizar pago
@@ -1144,9 +1145,9 @@ public class UsuarioController {
 
         // Si es una reserva de piscina, multiplicar por el número de participantes
         if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                && reserva.getNumeroParticipantesPiscina() != null
-                && reserva.getNumeroParticipantesPiscina() > 0) {
-            monto = monto.multiply(BigDecimal.valueOf(reserva.getNumeroParticipantesPiscina()));
+                && reserva.numeroParticipantes() != null
+                && reserva.numeroParticipantes() > 0) {
+            monto = monto.multiply(BigDecimal.valueOf(reserva.numeroParticipantes()));
         }
 
         // Subir comprobante a S3 with error handling
@@ -1253,10 +1254,10 @@ public class UsuarioController {
                     // Add participant information for pool reservations
                     if ("piscina"
                             .equalsIgnoreCase(r.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                            && r.getNumeroParticipantesPiscina() != null
-                            && r.getNumeroParticipantesPiscina() > 0) {
-                        title += " (" + r.getNumeroParticipantesPiscina() + " participante" +
-                                (r.getNumeroParticipantesPiscina() > 1 ? "s" : "") + ")";
+                            && r.numeroParticipantes() != null
+                            && r.numeroParticipantes() > 0) {
+                        title += " (" + r.numeroParticipantes() + " participante" +
+                                (r.numeroParticipantes() > 1 ? "s" : "") + ")";
                     }
                     eventoReserva.put("title", title);
                     eventoReserva.put("className", "evento-propio-pasado");
@@ -1268,10 +1269,10 @@ public class UsuarioController {
                     // Add participant information for pool reservations
                     if ("piscina"
                             .equalsIgnoreCase(r.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                            && r.getNumeroParticipantesPiscina() != null
-                            && r.getNumeroParticipantesPiscina() > 0) {
-                        title += " (" + r.getNumeroParticipantesPiscina() + " participante" +
-                                (r.getNumeroParticipantesPiscina() > 1 ? "s" : "") + ")";
+                            && r.numeroParticipantes() != null
+                            && r.numeroParticipantes() > 0) {
+                        title += " (" + r.numeroParticipantes() + " participante" +
+                                (r.numeroParticipantes() > 1 ? "s" : "") + ")";
                     }
                     eventoReserva.put("title", title);
                     eventoReserva.put("className", "evento-propio");
@@ -1285,10 +1286,10 @@ public class UsuarioController {
                     // Add participant information for pool reservations
                     if ("piscina"
                             .equalsIgnoreCase(r.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                            && r.getNumeroParticipantesPiscina() != null
-                            && r.getNumeroParticipantesPiscina() > 0) {
-                        title += " (" + r.getNumeroParticipantesPiscina() + " participante" +
-                                (r.getNumeroParticipantesPiscina() > 1 ? "s" : "") + ")";
+                            && r.numeroParticipantes() != null
+                            && r.numeroParticipantes() > 0) {
+                        title += " (" + r.numeroParticipantes() + " participante" +
+                                (r.numeroParticipantes() > 1 ? "s" : "") + ")";
                     }
                     eventoReserva.put("title", title);
                     eventoReserva.put("className", "evento-ajeno-pasado");
@@ -1300,10 +1301,10 @@ public class UsuarioController {
                     // Add participant information for pool reservations
                     if ("piscina"
                             .equalsIgnoreCase(r.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                            && r.getNumeroParticipantesPiscina() != null
-                            && r.getNumeroParticipantesPiscina() > 0) {
-                        title += " (" + r.getNumeroParticipantesPiscina() + " participante" +
-                                (r.getNumeroParticipantesPiscina() > 1 ? "s" : "") + ")";
+                            && r.numeroParticipantes() != null
+                            && r.numeroParticipantes() > 0) {
+                        title += " (" + r.numeroParticipantes() + " participante" +
+                                (r.numeroParticipantes() > 1 ? "s" : "") + ")";
                     }
                     eventoReserva.put("title", title);
                     eventoReserva.put("className", "evento-ajeno");
@@ -1321,7 +1322,7 @@ public class UsuarioController {
             if ("piscina".equalsIgnoreCase(r.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())) {
                 eventoReserva.put("tipoServicio", "piscina");
                 eventoReserva.put("numeroCarrilPiscina", r.getNumeroCarrilPiscina());
-                eventoReserva.put("numeroParticipantesPiscina", r.getNumeroParticipantesPiscina());
+                eventoReserva.put("numeroParticipantes", r.numeroParticipantes());
             }
 
             eventos.add(eventoReserva);
@@ -1446,9 +1447,10 @@ public class UsuarioController {
             detallesReserva.put("numeroCarrilPista", 0);
         }
 
-        // Agregar número de participantes para piscina (siempre, usando valor por defecto si es null)
-        detallesReserva.put("numeroParticipantesPiscina",
-                reserva.getNumeroParticipantesPiscina() != null ? reserva.getNumeroParticipantesPiscina() : 1);
+        // Agregar número de participantes para piscina (siempre, usando valor por
+        // defecto si es null)
+        detallesReserva.put("numeroParticipantes",
+                reserva.numeroParticipantes() != null ? reserva.numeroParticipantes() : 1);
 
         // Calcular duración en horas
         long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
@@ -1460,9 +1462,9 @@ public class UsuarioController {
 
         // Si es piscina y tiene número de participantes, multiplicar por ese número
         if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                && reserva.getNumeroParticipantesPiscina() != null
-                && reserva.getNumeroParticipantesPiscina() > 0) {
-            precioTotal = precioTotal.multiply(BigDecimal.valueOf(reserva.getNumeroParticipantesPiscina()));
+                && reserva.numeroParticipantes() != null
+                && reserva.numeroParticipantes() > 0) {
+            precioTotal = precioTotal.multiply(BigDecimal.valueOf(reserva.numeroParticipantes()));
         }
 
         detallesReserva.put("precioTotal", precioTotal);
@@ -1471,21 +1473,23 @@ public class UsuarioController {
         EspacioDeportivo espacioDeportivo = reserva.getEspacioDeportivo();
         detallesReserva.put("espacioDeportivo", espacioDeportivo.getNombre());
         detallesReserva.put("tipoServicio", espacioDeportivo.getServicioDeportivo().getServicioDeportivo());
+        detallesReserva.put("espacioDeportivoId", espacioDeportivo.getEspacioDeportivoId());
         detallesReserva.put("establecimiento",
                 espacioDeportivo.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
-        
+
         // Agregar aforo del gimnasio si corresponde
         if ("gimnasio".equalsIgnoreCase(espacioDeportivo.getServicioDeportivo().getServicioDeportivo())) {
-            detallesReserva.put("aforoGimnasio", 
-                espacioDeportivo.getAforoGimnasio() != null ? espacioDeportivo.getAforoGimnasio() : 0);
+            detallesReserva.put("aforoGimnasio",
+                    espacioDeportivo.getAforoGimnasio() != null ? espacioDeportivo.getAforoGimnasio() : 0);
         }
-        
+
         // Agregar capacidad de la piscina si corresponde
         if ("piscina".equalsIgnoreCase(espacioDeportivo.getServicioDeportivo().getServicioDeportivo())) {
-            detallesReserva.put("maxPersonasPorCarril", 
-                espacioDeportivo.getMaxPersonasPorCarril() != null ? espacioDeportivo.getMaxPersonasPorCarril() : 0);
-            detallesReserva.put("carrilesPiscina", 
-                espacioDeportivo.getCarrilesPiscina() != null ? espacioDeportivo.getCarrilesPiscina() : 0);
+            detallesReserva.put("maxPersonasPorCarril",
+                    espacioDeportivo.getMaxPersonasPorCarril() != null ? espacioDeportivo.getMaxPersonasPorCarril()
+                            : 0);
+            detallesReserva.put("carrilesPiscina",
+                    espacioDeportivo.getCarrilesPiscina() != null ? espacioDeportivo.getCarrilesPiscina() : 0);
         }
 
         return ResponseEntity.ok(detallesReserva);
@@ -1554,7 +1558,8 @@ public class UsuarioController {
             @RequestParam("fechaInicio") String fechaInicio,
             @RequestParam("fechaFin") String fechaFin,
             @RequestParam(value = "numeroCarrilPiscina", required = false) Integer numeroCarrilPiscina,
-            @RequestParam(value = "numeroParticipantesPiscina", required = false, defaultValue = "1") Integer numeroParticipantesPiscina,
+            @RequestParam(value = "numeroCarrilPista", required = false) Integer numeroCarrilPista,
+            @RequestParam(value = "numeroParticipantes", required = false, defaultValue = "1") Integer numeroParticipantes,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
@@ -1578,6 +1583,7 @@ public class UsuarioController {
                 redirectAttributes.addFlashAttribute("error", "Formato de fecha inválido");
                 return "redirect:/usuarios/reservasCalendario/" + espacioId;
             }
+            // Validaciones comunes de fechas
             if (!inicioReserva.isBefore(finReserva)) {
                 redirectAttributes.addFlashAttribute("error", "La hora de inicio debe ser anterior a la hora de fin");
                 return "redirect:/usuarios/reservasCalendario/" + espacioId;
@@ -1594,42 +1600,86 @@ public class UsuarioController {
 
             // Verificación de conflictos dependiendo del tipo de espacio deportivo
             if ("piscina".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
-                // Para piscinas, verificar solo conflictos en el carril específico
+                // Lógica existente para piscinas...
                 List<Reserva> reservasCarril = reservaRepository.findActiveReservationsForLane(
                         espacioId, inicioReserva, finReserva, numeroCarrilPiscina);
 
-                // Calcular el número total de participantes en este carril y horario
                 int participantesExistentes = 0;
                 for (Reserva r : reservasCarril) {
-                    participantesExistentes += (r.getNumeroParticipantesPiscina() != null)
-                            ? r.getNumeroParticipantesPiscina()
+                    participantesExistentes += (r.numeroParticipantes() != null)
+                            ? r.numeroParticipantes()
                             : 1;
                 }
 
-                // Verificar si hay espacio para los participantes solicitados
                 int espaciosDisponibles = espacio.getMaxPersonasPorCarril() - participantesExistentes;
-                if (numeroParticipantesPiscina > espaciosDisponibles) {
+                if (numeroParticipantes > espaciosDisponibles) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "No hay suficiente espacio en este carril. Espacios disponibles: " + espaciosDisponibles);
+                    return "redirect:/usuarios/reservasCalendario/" + espacioId;
+                }
+            } else if ("atletismo".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                // Lógica para pistas de atletismo (similar a piscinas)
+                if (numeroCarrilPista == null) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "Debe seleccionar un carril para la pista de atletismo");
+                    return "redirect:/usuarios/reservasCalendario/" + espacioId;
+                }
+
+                // Buscar reservas activas que usen el mismo carril en el mismo horario
+                List<Reserva> reservasCarril = reservaRepository
+                        .findActiveReservationsForLanePista(espacioId, inicioReserva, finReserva, numeroCarrilPista);
+
+                // Contar participantes existentes en ese carril
+                int participantesExistentes = 0;
+                for (Reserva r : reservasCarril) {
+                    participantesExistentes += (r.numeroParticipantes() != null)
+                            ? r.numeroParticipantes()
+                            : 1;
+                }
+
+                // Verificar si hay espacios disponibles
+                int maxPersonasPorCarril = espacio.getMaxPersonasPorCarril() != null ? espacio.getMaxPersonasPorCarril()
+                        : 1;
+                int espaciosDisponibles = maxPersonasPorCarril - participantesExistentes;
+
+                if (numeroParticipantes > espaciosDisponibles) {
                     redirectAttributes.addFlashAttribute("error",
                             "No hay suficiente espacio en este carril. Espacios disponibles: " + espaciosDisponibles);
                     return "redirect:/usuarios/reservasCalendario/" + espacioId;
                 }
             } else if ("gimnasio".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
-                // Para gimnasios, no verificamos conflictos directos sino el aforo
+                // MODIFICACIÓN: Para gimnasios, verificar si hay suficiente espacio para los
+                // participantes solicitados
                 int aforoGimnasio = espacio.getAforoGimnasio();
-                // Contar reservas en ese horario para ese gimnasio
-                long reservasEnHorario = reservaRepository.findByEspacioDeportivo_EspacioDeportivoId(espacioId)
+
+                // Filtrar solo reservas activas (no canceladas)
+                List<Reserva> reservasActivas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoId(espacioId)
                         .stream()
                         .filter(r -> r.getInicioReserva().isBefore(finReserva)
-                                && r.getFinReserva().isAfter(inicioReserva))
-                        .count();
-                if (reservasEnHorario >= aforoGimnasio) {
+                                && r.getFinReserva().isAfter(inicioReserva)
+                                && r.getEstado() != null
+                                && !r.getEstado().name().equalsIgnoreCase("CANCELADA"))
+                        .collect(Collectors.toList());
+
+                // Sumar todos los participantes de las reservas existentes
+                int participantesExistentes = 0;
+                for (Reserva r : reservasActivas) {
+                    participantesExistentes += (r.getNumeroParticipantes() != null)
+                            ? r.getNumeroParticipantes()
+                            : 1;
+                }
+
+                // Calcular espacios disponibles
+                int espaciosDisponibles = aforoGimnasio - participantesExistentes;
+
+                // Verificar si hay suficiente espacio para los nuevos participantes
+                if (numeroParticipantes > espaciosDisponibles) {
                     redirectAttributes.addFlashAttribute("error",
-                            "El aforo del gimnasio está completo para ese horario.");
+                            "No hay suficiente espacio en el gimnasio. Espacios disponibles: " + espaciosDisponibles);
                     return "redirect:/usuarios/reservasCalendario/" + espacioId;
                 }
             } else {
-                // Para otros espacios deportivos (fútbol, etc.), validación estándar de
-                // conflictos
+                // Lógica existente para otros espacios...
                 long conflictos = reservaRepository.countActiveReservationConflicts(espacioId, inicioReserva,
                         finReserva);
                 if (conflictos > 0) {
@@ -1639,6 +1689,7 @@ public class UsuarioController {
                 }
             }
 
+            // Creación de la reserva
             Reserva nuevaReserva = new Reserva();
             nuevaReserva.setUsuario(usuario);
             nuevaReserva.setEspacioDeportivo(espacio);
@@ -1652,13 +1703,26 @@ public class UsuarioController {
                 nuevaReserva.setNumeroCarrilPiscina(numeroCarrilPiscina);
             }
 
-            // Asignar número de participantes para piscina
-            if (numeroParticipantesPiscina != null && numeroParticipantesPiscina > 0) {
-                nuevaReserva.setNumeroParticipantesPiscina(numeroParticipantesPiscina);
-            } else {
-                // Valor por defecto es 1
-                nuevaReserva.setNumeroParticipantesPiscina(1);
+            // Asignar carril para atletismo si está definido
+            if (numeroCarrilPista != null) {
+                nuevaReserva.setNumeroCarrilPista(numeroCarrilPista);
             }
+
+            // Asignar número de participantes para piscina
+            if ("piscina".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                nuevaReserva.setNumeroParticipantes(numeroParticipantes != null ? numeroParticipantes : 1);
+            }
+
+            // Asignar número de participantes para gimnasio
+            if ("gimnasio".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                nuevaReserva.setNumeroParticipantes(numeroParticipantes != null ? numeroParticipantes : 1);
+            }
+
+            // Asignar número de participantes para atletismo
+            if ("atletismo".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                nuevaReserva.setNumeroParticipantes(numeroParticipantes != null ? numeroParticipantes : 1);
+            }
+
             Reserva reservaGuardada = reservaRepository.save(nuevaReserva);
             return "redirect:/usuarios/confirmarReserva/" + reservaGuardada.getReservaId();
         } catch (Exception e) {
@@ -1700,11 +1764,15 @@ public class UsuarioController {
         // Calcular precio total según tipo de servicio
         BigDecimal precioTotal = precioBase;
 
-        // Si es piscina y tiene número de participantes, multiplicar por ese número
+        // Si es piscina, gimnasio o atletismo y tiene número de participantes, multiplicar por ese número
         Integer numeroParticipantes = 1; // Valor por defecto
-        if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
-                && reserva.getNumeroParticipantesPiscina() != null && reserva.getNumeroParticipantesPiscina() > 0) {
-            numeroParticipantes = reserva.getNumeroParticipantesPiscina();
+        String tipoServicio = reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo();
+        
+        if (("piscina".equalsIgnoreCase(tipoServicio) || 
+             "gimnasio".equalsIgnoreCase(tipoServicio) || 
+             "atletismo".equalsIgnoreCase(tipoServicio)) 
+             && reserva.numeroParticipantes() != null && reserva.numeroParticipantes() > 0) {
+            numeroParticipantes = reserva.numeroParticipantes();
             precioTotal = precioBase.multiply(BigDecimal.valueOf(numeroParticipantes));
         }
 

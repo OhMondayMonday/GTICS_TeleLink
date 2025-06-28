@@ -11,7 +11,7 @@ public class ReservaCalendarioDTO {
     private String start;
     private String end;
     private Integer numeroCarrilPiscina;
-    private Integer numeroParticipantesPiscina;
+    private Integer numeroParticipantes;
     private String tipoServicio;
 
     public ReservaCalendarioDTO(String resourceId, String title, String start, String end) {
@@ -22,13 +22,13 @@ public class ReservaCalendarioDTO {
     }
     
     public ReservaCalendarioDTO(String resourceId, String title, String start, String end, 
-                               Integer numeroCarrilPiscina, Integer numeroParticipantesPiscina, String tipoServicio) {
+                               Integer numeroCarrilPiscina, Integer numeroParticipantes, String tipoServicio) {
         this.resourceId = resourceId;
         this.title = title;
         this.start = start;
         this.end = end;
         this.numeroCarrilPiscina = numeroCarrilPiscina;
-        this.numeroParticipantesPiscina = numeroParticipantesPiscina;
+        this.numeroParticipantes = numeroParticipantes;
         this.tipoServicio = tipoServicio;
     }
 }
