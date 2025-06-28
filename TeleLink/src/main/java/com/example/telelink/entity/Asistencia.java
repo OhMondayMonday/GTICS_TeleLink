@@ -57,7 +57,7 @@ public class Asistencia {
     private EspacioDeportivo espacioDeportivo;
 
     public enum EstadoEntrada {
-        puntual, tarde, pendiente, inasistencia
+        puntual, tarde, pendiente, inasistencia, cancelada
     }
 
     public enum EstadoSalida {

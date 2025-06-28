@@ -21,6 +21,19 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
             "JOIN FETCH ed.servicioDeportivo " +
             "JOIN FETCH ed.establecimientoDeportivo " +
             "WHERE a.coordinador.usuarioId = :userId " +
+            "AND a.horarioEntrada BETWEEN :start AND :end " +
+            "AND a.estadoEntrada != 'cancelada'")
+    List<Asistencia> findForCalendarRangeExcludingCanceled(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("userId") int userId);
+
+    @Query("SELECT a FROM Asistencia a " +
+            "JOIN FETCH a.coordinador " +
+            "JOIN FETCH a.espacioDeportivo ed " +
+            "JOIN FETCH ed.servicioDeportivo " +
+            "JOIN FETCH ed.establecimientoDeportivo " +
+            "WHERE a.coordinador.usuarioId = :userId " +
             "AND a.horarioEntrada BETWEEN :start AND :end")
     List<Asistencia> findForCalendarRange(
             @Param("start") LocalDateTime start,
@@ -49,6 +62,13 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
     }
 
     List<Asistencia> findByCoordinador_UsuarioId(Integer usuarioId);
+    
+    // Método adicional para compatibilidad con el controlador
+    default List<Asistencia> findByCoordinadorUsuarioId(Integer usuarioId) {
+        return findByCoordinador_UsuarioId(usuarioId);
+    }
+    
+    List<Asistencia> findByCoordinador_UsuarioIdAndEstadoEntradaNot(Integer usuarioId, Asistencia.EstadoEntrada estadoEntrada);
 
     @Query("SELECT a FROM Asistencia a " +
             "WHERE a.coordinador.usuarioId = :coordinadorId " +
@@ -58,7 +78,20 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
     List<Asistencia> findOverlappingAsistencias(
             @Param("coordinadorId") int coordinadorId,
             @Param("startCheck") LocalDateTime startCheck,
-            @Param("endCheck") LocalDateTime endCheck);    @Query("SELECT a FROM Asistencia a " +
+            @Param("endCheck") LocalDateTime endCheck);
+
+    @Query("SELECT a FROM Asistencia a " +
+           "JOIN FETCH a.coordinador " +
+           "WHERE a.espacioDeportivo.espacioDeportivoId = :espacioId " +
+           "AND a.horarioEntrada < :fin " +
+           "AND a.horarioSalida > :inicio " +
+           "AND a.estadoEntrada != 'cancelada'")
+    List<Asistencia> findAsistenciasEnRangoExcludingCanceled(
+            @Param("espacioId") Integer espacioId,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT a FROM Asistencia a " +
            "JOIN FETCH a.coordinador " +
            "WHERE a.espacioDeportivo.espacioDeportivoId = :espacioId " +
            "AND a.horarioEntrada < :fin " +
@@ -76,4 +109,27 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
             @Param("coordinadorId") Integer coordinadorId,
             @Param("inicioRango") LocalDateTime inicioRango,
             @Param("finRango") LocalDateTime finRango);
+
+    // Métodos para la gestión de asistencias del admin
+    @Query("SELECT a FROM Asistencia a " +
+           "JOIN FETCH a.coordinador " +
+           "JOIN FETCH a.espacioDeportivo ed " +
+           "JOIN FETCH ed.servicioDeportivo " +
+           "JOIN FETCH ed.establecimientoDeportivo " +
+           "WHERE (:coordinadorId IS NULL OR a.coordinador.usuarioId = :coordinadorId) " +
+           "AND (:fechaInicio IS NULL OR a.horarioEntrada >= :fechaInicio) " +
+           "AND (:fechaFin IS NULL OR a.horarioEntrada <= :fechaFin) " +
+           "ORDER BY a.horarioEntrada DESC")
+    List<Asistencia> findAsistenciasConFiltros(
+            @Param("coordinadorId") Integer coordinadorId,
+            @Param("fechaInicio") LocalDateTime fechaInicio,
+            @Param("fechaFin") LocalDateTime fechaFin);
+
+    @Query("SELECT a FROM Asistencia a " +
+           "JOIN FETCH a.coordinador " +
+           "JOIN FETCH a.espacioDeportivo ed " +
+           "JOIN FETCH ed.servicioDeportivo " +
+           "JOIN FETCH ed.establecimientoDeportivo " +
+           "WHERE a.asistenciaId = :asistenciaId")
+    Asistencia findByIdWithRelations(@Param("asistenciaId") Integer asistenciaId);
 }

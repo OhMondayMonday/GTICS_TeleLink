@@ -1,11 +1,20 @@
 package com.example.telelink.service;
 
+import com.example.telelink.entity.Asistencia;
+import com.example.telelink.entity.Reserva;
+import com.example.telelink.entity.Usuario;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class EmailService {
@@ -219,6 +228,256 @@ public class EmailService {
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         helper.setFrom(fromEmail);
         helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        mailSender.send(message);
+    }
+
+    public void sendAssistanceNotification(Usuario coordinador, Asistencia asistencia) throws MessagingException {
+        String subject = "Nueva Asistencia Asignada - Municipalidad de San Miguel";
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        String formattedFecha = asistencia.getHorarioEntrada().toLocalDate().format(dateFormatter);
+        String formattedEntrada = asistencia.getHorarioEntrada().toLocalTime().format(timeFormatter);
+        String formattedSalida = asistencia.getHorarioSalida().toLocalTime().format(timeFormatter);
+        String espacioNombre = asistencia.getEspacioDeportivo().getNombre();
+        String establecimientoNombre = asistencia.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre();
+
+        String content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Nueva Asistencia Asignada | Municipalidad de San Miguel</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+            <style>
+                body {
+                    background-color: #f4f4f4;
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .logo {
+                    max-width: 150px;
+                    margin: 0 auto;
+                    display: block;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .header h3 {
+                    color: #1a73e8;
+                    font-size: 24px;
+                    margin: 10px 0;
+                }
+                .content {
+                    text-align: center;
+                    font-size: 16px;
+                    line-height: 1.6;
+                }
+                .content p {
+                    margin: 10px 0;
+                }
+                .btn-view {
+                    display: inline-block;
+                    padding: 12px 24px;
+                    background-color: #1a73e8;
+                    color: #ffffff;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    font-size: 16px;
+                    margin: 20px 0;
+                }
+                .btn-view:hover {
+                    background-color: #1557b0;
+                }
+                .footer {
+                    text-align: center;
+                    font-size: 14px;
+                    color: #777;
+                    margin-top: 20px;
+                }
+                .footer p {
+                    margin: 5px 0;
+                }
+                .details {
+                    background-color: #f9f9f9;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 15px 0;
+                    text-align: left;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <img src="https://yt3.googleusercontent.com/IA0pZ7odBt38SOmTEZYD4K70xlsEzZz7zwAwwdm0tdcBxgCOL43tJdJtUuuXmkiOp6r0BXEW_g8=s900-c-k-c0x00ffffff-no-rj" alt="Municipalidad de San Miguel" class="logo">
+                    <h3>¡Hola, %s!</h3>
+                </div>
+                <div class="content">
+                    <p>Te hemos asignado una nueva asistencia en el Sistema de Gestión Deportiva de la Municipalidad de San Miguel.</p>
+                    <div class="details">
+                        <p><strong>Fecha:</strong> %s</p>
+                        <p><strong>Horario:</strong> %s - %s</p>
+                        <p><strong>Espacio Deportivo:</strong> %s</p>
+                        <p><strong>Establecimiento:</strong> %s</p>
+                    </div>
+                    <p>Por favor, revisa los detalles en el sistema:</p>
+                    <a href="https://deportesanmiguel.site/coordinador/asistencia" class="btn-view">Ver Asistencia</a>
+                    <p>Si tienes alguna duda, contacta con el administrador.</p>
+                </div>
+                <div class="footer">
+                    <p>© %d Municipalidad de San Miguel</p>
+                    <p>Sistema de Gestión Deportiva</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """.formatted(coordinador.getNombres(), formattedFecha, formattedEntrada, formattedSalida,
+                espacioNombre, establecimientoNombre, java.time.Year.now().getValue());
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(fromEmail);
+        helper.setTo(coordinador.getCorreoElectronico());
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        mailSender.send(message);
+    }
+
+    public void sendReservationConfirmation(Usuario usuario, Reserva reserva) throws MessagingException {
+        String subject = "Confirmación de Reserva - Municipalidad de San Miguel";
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        String formattedFecha = reserva.getInicioReserva().toLocalDate().format(dateFormatter);
+        String formattedInicio = reserva.getInicioReserva().toLocalTime().format(timeFormatter);
+        String formattedFin = reserva.getFinReserva().toLocalTime().format(timeFormatter);
+        String espacioNombre = reserva.getEspacioDeportivo().getNombre();
+        String establecimientoNombre = reserva.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre();
+        long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
+        BigDecimal monto = reserva.getEspacioDeportivo().getPrecioPorHora().multiply(BigDecimal.valueOf(duracionHoras));
+
+        String content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Confirmación de Reserva | Municipalidad de San Miguel</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+            <style>
+                body {
+                    background-color: #f4f4f4;
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .logo {
+                    max-width: 150px;
+                    margin: 0 auto;
+                    display: block;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .header h3 {
+                    color: #1a73e8;
+                    font-size: 24px;
+                    margin: 10px 0;
+                }
+                .content {
+                    text-align: center;
+                    font-size: 16px;
+                    line-height: 1.6;
+                }
+                .content p {
+                    margin: 10px 0;
+                }
+                .btn-view {
+                    display: inline-block;
+                    padding: 12px 24px;
+                    background-color: #1a73e8;
+                    color: #ffffff;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    font-size: 16px;
+                    margin: 20px 0;
+                }
+                .btn-view:hover {
+                    background-color: #1557b0;
+                }
+                .footer {
+                    text-align: center;
+                    font-size: 14px;
+                    color: #777;
+                    margin-top: 20px;
+                }
+                .footer p {
+                    margin: 5px 0;
+                }
+                .details {
+                    background-color: #f9f9f9;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 15px 0;
+                    text-align: left;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <img src="https://yt3.googleusercontent.com/IA0pZ7odBt38SOmTEZYD4K70xlsEzZz7zwAwwdm0tdcBxgCOL43tJdJtUuuXmkiOp6r0BXEW_g8=s900-c-k-c0x00ffffff-no-rj" alt="Municipalidad de San Miguel" class="logo">
+                    <h3>¡Hola, %s!</h3>
+                </div>
+                <div class="content">
+                    <p>Tu reserva ha sido confirmada exitosamente en el Sistema de Gestión Deportiva de la Municipalidad de San Miguel.</p>
+                    <div class="details">
+                        <p><strong>Fecha:</strong> %s</p>
+                        <p><strong>Horario:</strong> %s - %s</p>
+                        <p><strong>Espacio Deportivo:</strong> %s</p>
+                        <p><strong>Establecimiento:</strong> %s</p>
+                        <p><strong>Monto Pagado:</strong> S/ %s</p>
+                    </div>
+                    <p>Por favor, revisa los detalles en el sistema:</p>
+                    <a href="https://deportesanmiguel.site/usuarios/mis-reservas" class="btn-view">Ver Reserva</a>
+                    <p>Si tienes alguna duda, contacta con el administrador.</p>
+                </div>
+                <div class="footer">
+                    <p>© %d Municipalidad de San Miguel</p>
+                    <p>Sistema de Gestión Deportiva</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """.formatted(usuario.getNombres(), formattedFecha, formattedInicio, formattedFin,
+                espacioNombre, establecimientoNombre, monto.toString(),
+                java.time.Year.now().getValue());
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(fromEmail);
+        helper.setTo(usuario.getCorreoElectronico());
         helper.setSubject(subject);
         helper.setText(content, true);
 

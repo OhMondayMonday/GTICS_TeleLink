@@ -1,0 +1,378 @@
+<!-- Fragmento para el dropdown de notificaciones -->
+<div th:fragment="notificacion-dropdown" class="nav-item dropdown">
+    <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" 
+       data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-bell"></i>
+        <!-- Badge para notificaciones no leídas -->
+        <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+              style="display: none;">
+            <span id="badge-count">0</span>
+        </span>
+    </a>
+    
+    <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
+        <div class="dropdown-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Notificaciones</h6>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="mark-all-read-btn">
+                Marcar todas como leídas
+            </button>
+        </div>
+        
+        <div class="dropdown-divider"></div>
+        
+        <!-- Lista de notificaciones -->
+        <div id="notification-list" class="notification-list">
+            <!-- Las notificaciones se cargarán aquí dinámicamente -->
+            <div class="dropdown-item text-center py-3" id="loading-notifications">
+                <i class="fas fa-spinner fa-spin"></i> Cargando...
+            </div>
+        </div>
+        
+        <div class="dropdown-divider"></div>
+        
+        <div class="dropdown-footer text-center">
+            <a href="/notificaciones/lista" class="btn btn-sm btn-primary">Ver todas las notificaciones</a>
+        </div>
+    </div>
+</div>
+
+<!-- Plantilla para items de notificación -->
+<template id="notification-item-template">
+    <div class="dropdown-item notification-item" data-notification-id="">
+        <div class="d-flex align-items-start">
+            <div class="notification-icon me-3">
+                <i class="notification-type-icon"></i>
+            </div>
+            <div class="notification-content flex-grow-1">
+                <div class="notification-title fw-bold"></div>
+                <div class="notification-message text-muted small"></div>
+                <div class="notification-time text-muted small"></div>
+            </div>
+            <div class="notification-actions">
+                <button type="button" class="btn btn-sm btn-outline-secondary mark-read-btn" 
+                        data-notification-id="">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Estilos CSS para las notificaciones -->
+<style>
+    .notification-dropdown {
+        width: 350px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .notification-list {
+        max-height: 220px;
+        overflow-y: auto;
+    }
+    
+    .notification-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f8f9fa;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .notification-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .notification-item.unread {
+        background-color: #e3f2fd;
+        border-left: 3px solid #2196f3;
+    }
+    
+    .notification-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: white;
+    }
+    
+    .notification-content {
+        min-width: 0;
+    }
+    
+    .notification-title {
+        font-size: 14px;
+        margin-bottom: 4px;
+        line-height: 1.3;
+    }
+    
+    .notification-message {
+        font-size: 12px;
+        margin-bottom: 4px;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+    
+    .notification-time {
+        font-size: 11px;
+    }
+    
+    .notification-actions {
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    
+    .notification-item:hover .notification-actions {
+        opacity: 1;
+    }
+    
+    .dropdown-header {
+        padding: 8px 16px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .dropdown-footer {
+        padding: 8px 16px;
+        background-color: #f8f9fa;
+    }
+    
+    #notification-badge {
+        font-size: 10px;
+        min-width: 18px;
+        height: 18px;
+        line-height: 18px;
+    }
+    
+    .no-notifications {
+        padding: 20px;
+        text-align: center;
+        color: #6c757d;
+        font-style: italic;
+    }
+</style>
+
+<!-- JavaScript para el manejo de notificaciones -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let notificationPollingInterval;
+    
+    // Función para formatear tiempo relativo
+    function timeAgo(date) {
+        const now = new Date();
+        const diffInMinutes = Math.floor((now - date) / 60000);
+        
+        if (diffInMinutes < 1) return 'Hace un momento';
+        if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`;
+        
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `Hace ${diffInHours}h`;
+        
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 7) return `Hace ${diffInDays}d`;
+        
+        return date.toLocaleDateString();
+    }
+    
+    // Función para obtener información del tipo de notificación
+    async function getTipoInfo(tipo) {
+        try {
+            const response = await fetch(`/notificaciones/api/tipo-info/${encodeURIComponent(tipo)}`);
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.error('Error obteniendo info del tipo:', error);
+        }
+        
+        // Valores por defecto
+        return {
+            icono: 'fas fa-bell',
+            color: '#6c757d'
+        };
+    }
+    
+    // Función para crear un item de notificación
+    async function createNotificationItem(notification) {
+        const template = document.getElementById('notification-item-template');
+        const clone = template.content.cloneNode(true);
+        
+        const item = clone.querySelector('.notification-item');
+        const icon = clone.querySelector('.notification-type-icon');
+        const iconContainer = clone.querySelector('.notification-icon');
+        const title = clone.querySelector('.notification-title');
+        const message = clone.querySelector('.notification-message');
+        const time = clone.querySelector('.notification-time');
+        const markReadBtn = clone.querySelector('.mark-read-btn');
+        
+        // Obtener información del tipo
+        const tipoInfo = await getTipoInfo(notification.tipoNotificacion.tipoNotificacion);
+        
+        // Configurar el item
+        item.setAttribute('data-notification-id', notification.notificacionId);
+        
+        // Configurar icono
+        icon.className = tipoInfo.icono;
+        iconContainer.style.backgroundColor = tipoInfo.color;
+        
+        // Configurar contenido
+        title.textContent = notification.tituloNotificacion || 'Notificación';
+        message.textContent = notification.mensaje || '';
+        time.textContent = timeAgo(new Date(notification.fechaCreacion));
+        
+        // Configurar estado de lectura
+        if (notification.estado === 'no_leido') {
+            item.classList.add('unread');
+        }
+        
+        // Configurar botón de marcar como leído
+        markReadBtn.setAttribute('data-notification-id', notification.notificacionId);
+        
+        // Evento click en el item para marcar como leído y redirigir
+        item.addEventListener('click', function(e) {
+            if (!e.target.closest('.mark-read-btn')) {
+                markAsReadAndRedirect(notification.notificacionId);
+            }
+        });
+        
+        // Evento click en el botón de marcar como leído
+        markReadBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            markAsRead(notification.notificacionId);
+        });
+        
+        return clone;
+    }
+    
+    // Función para cargar notificaciones
+    async function loadNotifications() {
+        try {
+            const response = await fetch('/notificaciones/api/latest');
+            if (!response.ok) {
+                throw new Error('Error al cargar notificaciones');
+            }
+            
+            const data = await response.json();
+            const notifications = data.notificaciones || [];
+            const unreadCount = data.conteoNoLeidas || 0;
+            
+            // Actualizar badge
+            updateNotificationBadge(unreadCount);
+            
+            // Actualizar lista de notificaciones
+            const notificationList = document.getElementById('notification-list');
+            notificationList.innerHTML = '';
+            
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<div class="no-notifications">No hay notificaciones</div>';
+                return;
+            }
+            
+            // Crear items de notificación
+            for (const notification of notifications) {
+                const item = await createNotificationItem(notification);
+                notificationList.appendChild(item);
+            }
+            
+        } catch (error) {
+            console.error('Error cargando notificaciones:', error);
+            document.getElementById('notification-list').innerHTML = 
+                '<div class="dropdown-item text-danger text-center">Error al cargar notificaciones</div>';
+        }
+    }
+    
+    // Función para actualizar el badge
+    function updateNotificationBadge(count) {
+        const badge = document.getElementById('notification-badge');
+        const badgeCount = document.getElementById('badge-count');
+        
+        if (count > 0) {
+            badgeCount.textContent = count;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+    
+    // Función para marcar como leída y redirigir
+    function markAsReadAndRedirect(notificationId) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/notificaciones/marcar-leida/${notificationId}`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    // Función para marcar como leída sin redirigir
+    async function markAsRead(notificationId) {
+        try {
+            // Aquí podríamos implementar una llamada AJAX para marcar como leída
+            // Por ahora, simplemente recargamos las notificaciones
+            await loadNotifications();
+        } catch (error) {
+            console.error('Error marcando como leída:', error);
+        }
+    }
+    
+    // Función para marcar todas como leídas
+    async function markAllAsRead() {
+        try {
+            const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                await loadNotifications();
+            } else {
+                throw new Error('Error al marcar todas como leídas');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al marcar todas las notificaciones como leídas');
+        }
+    }
+    
+    // Event listeners
+    document.getElementById('mark-all-read-btn').addEventListener('click', markAllAsRead);
+    
+    // Cargar notificaciones al abrir el dropdown
+    document.getElementById('notificationDropdown').addEventListener('click', function(e) {
+        if (!this.classList.contains('show')) {
+            loadNotifications();
+        }
+    });
+    
+    // Configurar polling cada 20 segundos
+    function startNotificationPolling() {
+        notificationPollingInterval = setInterval(async function() {
+            try {
+                const response = await fetch('/notificaciones/api/unread-count');
+                if (response.ok) {
+                    const data = await response.json();
+                    updateNotificationBadge(data.conteoNoLeidas || 0);
+                }
+            } catch (error) {
+                console.error('Error en polling de notificaciones:', error);
+            }
+        }, 20000); // 20 segundos
+    }
+    
+    function stopNotificationPolling() {
+        if (notificationPollingInterval) {
+            clearInterval(notificationPollingInterval);
+        }
+    }
+    
+    // Inicializar
+    loadNotifications();
+    startNotificationPolling();
+    
+    // Limpiar interval al cerrar la página
+    window.addEventListener('beforeunload', stopNotificationPolling);
+});
+</script>

@@ -136,12 +136,13 @@ INSERT INTO metodos_pago (metodo_pago) VALUES
 ('Depósito Bancario');
 
 -- 14. Insertar Tipos de Notificaciones
-INSERT INTO tipos_notificaciones (tipo_notificacion) VALUES
-('Reserva Confirmada'),
-('Pago Aprobado'),
-('Mantenimiento Programado'),
-('Aviso General'),
-('Nueva Asistencia Asignada');
+INSERT INTO tipos_notificaciones (tipo_notificacion) VALUES 
+('creación'),
+('aviso'),
+('cancelación'),
+('actualización'),
+('aprobación'),
+('asignación');
 
 -- 15. Insertar Notificaciones
 INSERT INTO notificaciones (
@@ -206,11 +207,11 @@ INSERT INTO observaciones (
 INSERT INTO `db_gtics`.`establecimientos_deportivos` 
 (`establecimiento_deportivo`, `descripcion`, `direccion`, `espacios_estacionamiento`, `telefono_contacto`, `correo_contacto`, `geolocalizacion`, `foto_establecimiento_url`, `horario_apertura`, `horario_cierre`, `estado`) 
 VALUES 
-    ('Polideportivo Central', 'Polideportivo con múltiples canchas y áreas de gimnasio', 'Av. Los Olivos 123', 50, '987654321', 'contacto@polideportivo.com', '(-12.04318, -77.03061)', 'url_imagen_1.jpg', '06:00', '22:00', 'activo'),
-    ('Polideportivo Sur', 'Complejo con pistas de atletismo y gimnasio', 'Av. El Sol 456', 30, '976543210', 'sur@polideportivo.com', '(-12.04622, -77.02837)', 'url_imagen_2.jpg', '06:30', '23:00', 'activo'),
-    ('Polideportivo Norte', 'Zona deportiva con cancha de fútbol y piscina', 'Calle 10 N° 789', 40, '954321678', 'contacto@polideportivo-norte.com', '(-12.04011, -77.01648)', 'url_imagen_3.jpg', '07:00', '22:00', 'activo'),
-    ('Estadio Atlético', 'Estadio para competencias de atletismo', 'Av. Los Deportes 101', 60, '961234567', 'estadio@atletismo.com', '(-12.04229, -77.01856)', 'url_imagen_4.jpg', '06:00', '20:00', 'activo'),
-    ('Centro Deportivo del Lago', 'Centro con piscina olímpica y gimnasio', 'Calle del Lago 202', 35, '945678123', 'contacto@centrodeportivo.com', '(-12.04452, -77.02437)', 'url_imagen_5.jpg', '08:00', '20:00', 'activo');
+    ('Polideportivo Central', 'Polideportivo con múltiples canchas y áreas de gimnasio', 'Av. Los Olivos 123', 50, '987654321', 'contacto@polideportivo.com', '(-12.04318, -77.03061)', 'https://cdn.www.gob.pe/uploads/document/file/6436226/966036-screenshot_26.jpg', '06:00', '22:00', 'activo'),
+    ('Polideportivo Sur', 'Complejo con pistas de atletismo y gimnasio', 'Av. El Sol 456', 30, '976543210', 'sur@polideportivo.com', '(-12.04622, -77.02837)', 'https://cdn.www.gob.pe/uploads/document/file/6436226/966036-screenshot_26.jpg', '06:30', '23:00', 'activo'),
+    ('Polideportivo Norte', 'Zona deportiva con cancha de fútbol y piscina', 'Calle 10 N° 789', 40, '954321678', 'contacto@polideportivo-norte.com', '(-12.04011, -77.01648)', 'https://cdn.www.gob.pe/uploads/document/file/6436226/966036-screenshot_26.jpg', '07:00', '22:00', 'activo'),
+    ('Estadio Atlético', 'Estadio para competencias de atletismo', 'Av. Los Deportes 101', 60, '961234567', 'estadio@atletismo.com', '(-12.04229, -77.01856)', 'https://cdn.www.gob.pe/uploads/document/file/6436226/966036-screenshot_26.jpg', '06:00', '20:00', 'activo'),
+    ('Centro Deportivo del Lago', 'Centro con piscina olímpica y gimnasio', 'Calle del Lago 202', 35, '945678123', 'contacto@centrodeportivo.com', '(-12.04452, -77.02437)', 'https://cdn.www.gob.pe/uploads/document/file/6436226/966036-screenshot_26.jpg', '08:00', '20:00', 'activo');
 
 -- Insertar espacios deportivos para Polideportivo Central
 INSERT INTO `db_gtics`.`espacios_deportivos` 
@@ -326,3 +327,13 @@ INSERT INTO `db_gtics`.`reservas` (
     (7, 4, '2025-06-15 10:00:00', '2025-06-15 12:00:00', 'confirmada', '2025-06-13 11:00:00', '2025-06-13 11:00:00'),
     (9, 4, '2025-06-15 14:00:00', '2025-06-15 16:00:00', 'confirmada', '2025-06-13 13:00:00', '2025-06-13 13:00:00'),
     (10, 4, '2025-06-15 16:00:00', '2025-06-15 18:00:00', 'confirmada', '2025-06-13 14:00:00', '2025-06-13 14:00:00');
+    
+INSERT INTO asistencias (coordinador_id, administrador_id, espacio_deportivo_id, horario_entrada, horario_salida, fecha_creacion)
+VALUES (4, 1, 1, '2025-06-26 19:00:00', '2025-06-26 21:00:00', '2025-05-09 07:00:00');
+
+INSERT INTO `db_gtics`.`reservas` (
+    `usuario_id`, `espacio_deportivo_id`, `inicio_reserva`, `fin_reserva`, `estado`, `fecha_creacion`, `fecha_actualizacion`
+) VALUES
+    (6, 7, '2025-06-26 21:00:00', '2025-06-26 23:00:00', 'confirmada', '2025-06-13 10:00:00', '2025-06-13 10:00:00'),
+    (6, 7, '2025-06-26 15:00:00', '2025-06-26 17:00:00', 'confirmada', '2025-06-13 10:00:00', '2025-06-13 10:00:00'),
+    (7, 7, '2025-06-28 21:30:00', '2025-06-28 23:00:00', 'confirmada', '2025-06-13 11:00:00', '2025-06-13 11:00:00');

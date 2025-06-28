@@ -32,16 +32,27 @@
                                                 </select>
                                             </div>
                                             <div class="col-md-3">
+                                                <label for="tipoId" class="form-label">Tipo</label>
+                                                <select class="form-select" id="tipoId" name="tipoId">
+                                                    <option value="">Todos los tipos</option>
+                                                    <option th:each="tipo : ${tiposNotificacion}" 
+                                                            th:value="${tipo.tipoNotificacionId}" 
+                                                            th:text="${tipo.tipoNotificacion}"
+                                                            th:selected="${tipoSeleccionado == tipo.tipoNotificacionId}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <label for="fechaInicio" class="form-label">Desde</label>
                                                 <input type="date" class="form-control" id="fechaInicio" name="fechaInicio" 
                                                        th:value="${fechaInicio != null ? #temporals.format(fechaInicio, 'yyyy-MM-dd') : ''}">
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label for="fechaFin" class="form-label">Hasta</label>
                                                 <input type="date" class="form-control" id="fechaFin" name="fechaFin" 
                                                        th:value="${fechaFin != null ? #temporals.format(fechaFin, 'yyyy-MM-dd') : ''}">
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label class="form-label">&nbsp;</label>
                                                 <div class="d-grid">
                                                     <button type="submit" class="btn btn-primary">
@@ -73,7 +84,15 @@
 
                     <!-- Lista de notificaciones -->
                     <div th:if="${notificaciones.hasContent()}">
-                        <div th:each="notification : ${notificaciones.content}">
+                        <!-- Agrupar por fecha -->
+                        <div th:each="notification, notificationStat : ${notificaciones.content}">
+                            <!-- Header de fecha (mostrar solo cuando cambia la fecha) -->
+                            <div th:if="${notificationStat.first}" 
+                                 class="bg-primary-subtle text-primary p-2 rounded mb-3">
+                                <i class="ri-calendar-line me-2"></i>
+                                <span th:text="${#temporals.format(notification.fechaCreacion, 'EEEE, dd \'de\' MMMM \'de\' yyyy', new java.util.Locale('es'))}"></span>
+                            </div>
+
                             <!-- Card de notificación -->
                             <div class="card notification-card mb-3" 
                                  th:classappend="${notification.estado.name() == 'no_leido'} ? 'border-primary bg-primary-subtle' : 'border-light'"
@@ -108,7 +127,7 @@
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <small class="text-muted">
                                                     <i class="ri-time-line me-1"></i>
-                                                    <span th:text="${#temporals.format(notification.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span>
+                                                    <span th:text="${#temporals.format(notification.fechaCreacion, 'HH:mm')}"></span>
                                                 </small>
                                                 
                                                 <!-- Acciones -->
@@ -152,7 +171,7 @@
                     <nav th:if="${totalPages > 1}" aria-label="Navegación de notificaciones">
                         <ul class="pagination justify-content-center">
                             <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                <a class="page-link" th:href="@{/notificaciones/lista(page=${currentPage - 1}, size=10, estado=${estadoSeleccionado}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}">
+                                <a class="page-link" th:href="@{/notificaciones/lista(page=${currentPage - 1}, size=10, estado=${estadoSeleccionado}, tipoId=${tipoSeleccionado}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}">
                                     Anterior
                                 </a>
                             </li>
@@ -161,13 +180,13 @@
                                 class="page-item" 
                                 th:classappend="${i == currentPage} ? 'active'">
                                 <a class="page-link" 
-                                   th:href="@{/notificaciones/lista(page=${i}, size=10, estado=${estadoSeleccionado}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}"
+                                   th:href="@{/notificaciones/lista(page=${i}, size=10, estado=${estadoSeleccionado}, tipoId=${tipoSeleccionado}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}"
                                    th:text="${i + 1}">
                                 </a>
                             </li>
                             
                             <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                                <a class="page-link" th:href="@{/notificaciones/lista(page=${currentPage + 1}, size=10, estado=${estadoSeleccionado}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}">
+                                <a class="page-link" th:href="@{/notificaciones/lista(page=${currentPage + 1}, size=10, estado=${estadoSeleccionado}, tipoId=${tipoSeleccionado}, fechaInicio=${fechaInicio}, fechaFin=${fechaFin})}">
                                     Siguiente
                                 </a>
                             </li>

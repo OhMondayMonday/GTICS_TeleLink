@@ -1,4 +1,4 @@
-    package com.example.telelink.controller;
+package com.example.telelink.controller;
 
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpSession;
     import org.springframework.web.multipart.MultipartFile;
     import org.springframework.web.servlet.mvc.support.RedirectAttributes;
     import com.example.telelink.service.S3Service;
+    import com.example.telelink.service.NotificacionService;
     // Imports for export functionality
     import org.apache.poi.ss.usermodel.*;
     import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -33,6 +34,7 @@ import jakarta.servlet.http.HttpSession;
     import java.util.HashMap;
     import java.util.List;
     import java.util.Map;
+    import java.util.Optional;
     import java.io.IOException;
     import java.io.ByteArrayOutputStream;
 
@@ -66,9 +68,15 @@ import jakarta.servlet.http.HttpSession;
 
         @Autowired
         private NotificacionRepository notificacionRepository;
+        
+        @Autowired
+        private TipoNotificacionRepository tipoNotificacionRepository;
 
         @Autowired
         private S3Service s3Service;
+
+        @Autowired
+        private NotificacionService notificacionService;
 
         @GetMapping("/notificaciones/list")
         public ResponseEntity<List<Notificacion>> getNotificaciones(
@@ -108,7 +116,7 @@ import jakarta.servlet.http.HttpSession;
             }
             model.addAttribute("usuario", usuario);
 
-            List<Asistencia> asistencias = asistenciaRepository.findByCoordinador_UsuarioId(usuario.getUsuarioId());
+            List<Asistencia> asistencias = asistenciaRepository.findByCoordinador_UsuarioIdAndEstadoEntradaNot(usuario.getUsuarioId(), Asistencia.EstadoEntrada.cancelada);
             model.addAttribute("asistencias", asistencias);
 
             LocalDateTime ahora = LocalDateTime.now();
@@ -621,7 +629,8 @@ import jakarta.servlet.http.HttpSession;
             model.addAttribute("espacio", espacio);
 
             List<Resenia> resenias = reseniaRepository.findByEspacioDeportivo_EspacioDeportivoId(espacioId);
-            double promedioCalificacion = resenias.isEmpty() ? 0.0 : resenias.stream()
+            double promedioCalificacion = resenias.isEmpty() ? 0.0 : reseniaRepository.findByEspacioDeportivo_EspacioDeportivoId(espacioId)
+                    .stream()
                     .mapToInt(Resenia::getCalificacion)
                     .average()
                     .orElse(0.0);
@@ -1102,7 +1111,7 @@ import jakarta.servlet.http.HttpSession;
                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
                 @RequestParam int userId) {
 
-            List<Asistencia> asistencias = asistenciaRepository.findForCalendarRange(start, end, userId);
+            List<Asistencia> asistencias = asistenciaRepository.findForCalendarRangeExcludingCanceled(start, end, userId);
             return ResponseEntity.ok(asistencias);
         }
 
@@ -1133,6 +1142,7 @@ import jakarta.servlet.http.HttpSession;
             List<ServicioDeportivo> servicios = servicioDeportivoRepository.findByEstablecimientoDeportivoId(establecimientoId);
             return ResponseEntity.ok(servicios);
         }
+        */
 
         // Obtener espacios deportivos por establecimiento y servicio
         @GetMapping("/espacios-por-servicio")
@@ -1223,5 +1233,104 @@ import jakarta.servlet.http.HttpSession;
             public String getObservacionAsistencia() { return observacionAsistencia; }
             public void setObservacionAsistencia(String observacionAsistencia) { this.observacionAsistencia = observacionAsistencia; }
         }
-        */
+
+        @GetMapping("/asistencia/{asistenciaId}")
+        @ResponseBody
+        public ResponseEntity<Asistencia> obtenerDetalleAsistencia(@PathVariable Integer asistenciaId, HttpSession session) {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            
+            Optional<Asistencia> asistenciaOpt = asistenciaRepository.findById(asistenciaId);
+            if (asistenciaOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Asistencia asistencia = asistenciaOpt.get();
+            
+            // Verificar que la asistencia pertenece al coordinador logueado
+            if (!asistencia.getCoordinador().getUsuarioId().equals(usuario.getUsuarioId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
+            return ResponseEntity.ok(asistencia);
+        }
+        
+        @PostMapping("/asistencia/{asistenciaId}/cancelar")
+        @ResponseBody
+        public ResponseEntity<String> cancelarAsistencia(@PathVariable Integer asistenciaId, 
+                                                        @RequestBody Map<String, String> request,
+                                                        HttpSession session) {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+            }
+            
+            Optional<Asistencia> asistenciaOpt = asistenciaRepository.findById(asistenciaId);
+            if (asistenciaOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Asistencia no encontrada");
+            }
+            
+            Asistencia asistencia = asistenciaOpt.get();
+            
+            // Verificar que la asistencia pertenece al coordinador logueado
+            if (!asistencia.getCoordinador().getUsuarioId().equals(usuario.getUsuarioId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tiene permisos para cancelar esta asistencia");
+            }
+            
+            // Verificar que la asistencia esté en estado pendiente
+            if (asistencia.getEstadoEntrada() != Asistencia.EstadoEntrada.pendiente) {
+                return ResponseEntity.badRequest().body("Solo se pueden cancelar asistencias en estado pendiente");
+            }
+            
+            // Verificar que sea por lo menos para el día siguiente (24 horas)
+            LocalDateTime ahora = LocalDateTime.now();
+            LocalDateTime horarioAsistencia = asistencia.getHorarioEntrada();
+            if (horarioAsistencia.isBefore(ahora.plusHours(24))) {
+                return ResponseEntity.badRequest().body("Solo se pueden cancelar asistencias programadas para dentro de 24 horas o más");
+            }
+            
+            String motivo = request.get("motivo");
+            if (motivo == null || motivo.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Debe proporcionar un motivo para la cancelación");
+            }
+            
+            // Actualizar la asistencia
+            asistencia.setEstadoEntrada(Asistencia.EstadoEntrada.cancelada);
+            asistencia.setObservacionAsistencia(motivo);
+            asistenciaRepository.save(asistencia);
+            
+            // Crear notificación para el administrador
+            crearNotificacionCancelacion(asistencia, motivo);
+            
+            return ResponseEntity.ok("Asistencia cancelada exitosamente");
+        }
+        
+        private void crearNotificacionCancelacion(Asistencia asistencia, String motivo) {
+            try {
+                Notificacion notificacion = new Notificacion();
+                notificacion.setUsuario(asistencia.getAdministrador());
+                notificacion.setTituloNotificacion("Asistencia Cancelada");
+                notificacion.setMensaje(String.format("El coordinador %s %s ha cancelado su asistencia programada para el %s. Motivo: %s",
+                        asistencia.getCoordinador().getNombres(),
+                        asistencia.getCoordinador().getApellidos(),
+                        asistencia.getHorarioEntrada().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                        motivo));
+                notificacion.setUrlRedireccion(""); // URL vacía como solicitaste
+                notificacion.setEstado(Notificacion.Estado.no_leido);
+                notificacion.setFechaCreacion(LocalDateTime.now());
+                
+                // Buscar el tipo de notificación para cancelación de asistencia (id 5 según los datos de inicialización)
+                TipoNotificacion tipoNotificacion = tipoNotificacionRepository.findById(5)
+                        .orElse(null);
+                if (tipoNotificacion != null) {
+                    notificacion.setTipoNotificacion(tipoNotificacion);
+                    notificacionRepository.save(notificacion);
+                }
+            } catch (Exception e) {
+                // Solo log del error, no fallar la cancelación por esto
+                System.err.println("Error al crear notificación de cancelación: " + e.getMessage());
+            }
+        }
     }

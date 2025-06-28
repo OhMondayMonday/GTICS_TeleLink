@@ -41,13 +41,14 @@ radialoptions = {
 };
 radialchart=new ApexCharts(document.querySelector("#radialchart-1"),radialoptions),radialoptions=(radialchart.render(),{series:[65],chart:{type:"radialBar",wight:60,height:60,sparkline:{enabled:!0}},dataLabels:{enabled:!1},colors:["#1cbb8c"],stroke:{lineCap:"round"},plotOptions:{radialBar:{hollow:{margin:0,size:"70%"},track:{margin:0},dataLabels:{show:!1}}}}),options=((radialchart=new ApexCharts(document.querySelector("#radialchart-2"),radialoptions)).render(),{series:[{data:[23,32,27,38,27,32,27,34,26,31,28]}],chart:{type:"line",width:80,height:35,sparkline:{enabled:!0}},stroke:{width:[3],curve:"smooth"},colors:["#5664d2"],tooltip:{fixed:{enabled:!1},x:{show:!1},y:{title:{formatter:function(e){return""}}},marker:{show:!1}}}),options=((chart=new ApexCharts(document.querySelector("#spak-chart1"),options)).render(),{series:[{data:[24,62,42,84,63,25,44,46,54,28,54]}],chart:{type:"line",width:80,height:35,sparkline:{enabled:!0}},stroke:{width:[3],curve:"smooth"},colors:["#5664d2"],tooltip:{fixed:{enabled:!1},x:{show:!1},y:{title:{formatter:function(e){return""}}},marker:{show:!1}}}),options=((chart=new ApexCharts(document.querySelector("#spak-chart2"),options)).render(),{series:[{data:[42,31,42,34,46,38,44,36,42,32,54]}],chart:{type:"line",width:80,height:35,sparkline:{enabled:!0}},stroke:{width:[3],curve:"smooth"},colors:["#5664d2"],tooltip:{fixed:{enabled:!1},x:{show:!1},y:{title:{formatter:function(e){return""}}},marker:{show:!1}}});(chart=new ApexCharts(document.querySelector("#spak-chart3"),options)).render(),$("#usa-vectormap").vectorMap({map:"us_merc_en",backgroundColor:"transparent",regionStyle:{initial:{fill:"#e8ecf4",stroke:"#74788d","stroke-width":1,"stroke-opacity":.4}}}),$(document).ready(function() {
     $(".datatable").DataTable({
-        lengthMenu: [5, 10, 25, 50],
+        lengthMenu: [4, 10, 25, 50],
         pageLength: 4,
         columns: [
-            {orderable: !0},
-            {orderable: !0},
-            {orderable: !0},
-            {orderable: !0}
+            {orderable: true},  // Fecha
+            {orderable: true},  // Establecimiento
+            {orderable: true},  // Hora de entrada
+            {orderable: true},  // Hora de salida
+            {orderable: false}  // Botón de acciones - no orderable
         ],
         order: [[0, "desc"]],
         language: {

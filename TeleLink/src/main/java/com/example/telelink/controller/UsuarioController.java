@@ -3,7 +3,9 @@ package com.example.telelink.controller;
 import com.example.telelink.dto.vecino.PagoRequest;
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
+import com.example.telelink.service.EmailService;
 import com.example.telelink.service.S3Service;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +72,9 @@ public class UsuarioController {
 
     @Autowired
     private ReembolsoRepository reembolsoRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     public class EspacioDeportivoConRatingDTO {
         private EspacioDeportivo espacioDeportivo;
@@ -1069,6 +1074,13 @@ public class UsuarioController {
             reserva.setEstado(Reserva.Estado.confirmada);
             reserva.setFechaActualizacion(LocalDateTime.now());
             redirectAttributes.addFlashAttribute("mensaje", "Pago realizado con éxito");
+            // Send email to user
+            try {
+                emailService.sendReservationConfirmation(usuario, reserva);
+            } catch (MessagingException e) {
+                // Log the error but don't interrupt the flow
+                System.err.println("Failed to send reservation confirmation email: " + e.getMessage());
+            }
         } else {
             pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
             pago.setMotivoRechazo(errorMessage);

@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`asistencias` (
   `horario_salida` TIMESTAMP NULL DEFAULT NULL,
   `registro_entrada` TIMESTAMP NULL DEFAULT NULL,
   `registro_salida` TIMESTAMP NULL DEFAULT NULL,
-  `estado_entrada` ENUM('puntual', 'tarde', 'pendiente', 'inasistencia') NULL DEFAULT 'pendiente',
+  `estado_entrada` ENUM('puntual', 'tarde', 'pendiente', 'inasistencia', 'cancelada') NULL DEFAULT 'pendiente',
   `estado_salida` ENUM('realizado', 'pendiente', 'inasistencia') NULL DEFAULT NULL,
   `geolocalizacion` VARCHAR(100) NULL DEFAULT NULL,
   `observacion_asistencia` TEXT NULL DEFAULT NULL,
@@ -617,7 +617,7 @@ BEGIN
         estado_entrada = 'inasistencia',
         estado_salida = 'inasistencia'
     WHERE 
-        horario_salida < CURRENT_TIMESTAMP
+        TIMESTAMPADD(MINUTE, 30, horario_entrada) < CURRENT_TIMESTAMP
         AND estado_entrada = 'pendiente';
 END$$
 
