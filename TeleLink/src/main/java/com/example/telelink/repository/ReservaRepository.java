@@ -207,4 +207,17 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 Reserva.Estado estado
         );
 
+        @Query("SELECT r FROM Reserva r WHERE r.inicioReserva >= :inicio AND r.inicioReserva < :fin " +
+                "AND r.estado != com.example.telelink.entity.Reserva.Estado.cancelada")
+        List<Reserva> findReservasSemana(@Param("inicio") LocalDateTime inicio, @Param("fin") LocalDateTime fin);
+
+        @Query("SELECT r FROM Reserva r " +
+                "WHERE r.inicioReserva >= :inicio AND r.inicioReserva < :fin " +
+                "AND r.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoId = :establecimientoId " +
+                "AND r.estado != com.example.telelink.entity.Reserva.Estado.cancelada")
+        List<Reserva> findReservasSemanaByEstablecimiento(
+                @Param("inicio") LocalDateTime inicio,
+                @Param("fin") LocalDateTime fin,
+                @Param("establecimientoId") Integer establecimientoId);
+
 }
