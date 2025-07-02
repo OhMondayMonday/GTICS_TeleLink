@@ -38,18 +38,22 @@ public class LangChain4jTools {
         this.reservaRepository = reservaRepository;
     }
 
-    @Tool("Lista todos los tipos de canchas disponibles.")
+    @Tool("Lista todos los tipos de canchas disponibles, mostrando su ID.")
     public String listAllServicios() {
         try {
             List<ServicioDeportivo> servicios = servicioDeportivoRepository.findAll();
             if (servicios.isEmpty()) {
                 return "No hay tipos de canchas disponibles.";
             }
-            return "Tipos de canchas disponibles: " +
-                    servicios.stream()
-                            .map(ServicioDeportivo::getServicioDeportivo)
-                            .filter(s -> s.startsWith("Cancha")) // Only include supported services
-                            .collect(Collectors.joining(", "));
+            StringBuilder response = new StringBuilder("Tipos de canchas disponibles:\n");
+            for (ServicioDeportivo servicio : servicios) {
+                if (servicio.getServicioDeportivo().startsWith("Cancha")) {
+                    response.append("- ID: ").append(servicio.getServicioDeportivoId())
+                            .append(", Nombre: ").append(servicio.getServicioDeportivo())
+                            .append("\n");
+                }
+            }
+            return response.length() > 0 ? response.toString() : "No hay tipos de canchas disponibles.";
         } catch (Exception e) {
             return "Error al listar tipos de canchas: " + e.getMessage();
         }
@@ -57,18 +61,17 @@ public class LangChain4jTools {
 
     @Tool("Lista todos los espacios deportivos disponibles para un tipo de cancha, mostrando su ID.")
     public String listEspaciosForServicio(
-            @P("Nombre del tipo de cancha (e.g., Cancha de Futbol Grass)") String servicioDeportivo) {
+            @P("ID del tipo de cancha (servicio deportivo)") Integer servicioDeportivoId) {
         try {
-            String normalizedServicio = normalizeServicioDeportivo(servicioDeportivo);
-            ServicioDeportivo servicio = servicioDeportivoRepository.findByServicioDeportivoIgnoreCase(normalizedServicio);
+            ServicioDeportivo servicio = servicioDeportivoRepository.findById(servicioDeportivoId).orElse(null);
             if (servicio == null) {
-                return "Tipo de cancha no encontrado: " + servicioDeportivo + ". Opciones: " + listAllServicios();
+                return "Tipo de cancha no encontrado con ID: " + servicioDeportivoId + ".";
             }
             List<EspacioDeportivo> espacios = espacioDeportivoRepository.findByServicioDeportivo(servicio);
             if (espacios.isEmpty()) {
-                return "No hay canchas disponibles para " + normalizedServicio + ".";
+                return "No hay canchas disponibles para " + servicio.getServicioDeportivo() + ".";
             }
-            StringBuilder response = new StringBuilder("Canchas disponibles para " + normalizedServicio + ":\n");
+            StringBuilder response = new StringBuilder("Canchas disponibles para " + servicio.getServicioDeportivo() + ":\n");
             for (EspacioDeportivo espacio : espacios) {
                 if (espacio.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo) {
                     response.append("- ID: ").append(espacio.getEspacioDeportivoId())
@@ -81,7 +84,7 @@ public class LangChain4jTools {
                             .append(")\n");
                 }
             }
-            return response.length() > 0 ? response.toString() : "No hay canchas operativas para " + normalizedServicio + ".";
+            return response.length() > 0 ? response.toString() : "No hay canchas operativas para " + servicio.getServicioDeportivo() + ".";
         } catch (Exception e) {
             return "Error al listar canchas: " + e.getMessage();
         }
