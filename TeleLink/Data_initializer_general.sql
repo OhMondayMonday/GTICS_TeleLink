@@ -188,8 +188,8 @@ INSERT INTO reembolsos (
 INSERT INTO resenias (
     usuario_id, calificacion, comentario, foto_resenia_url, fecha_creacion, espacio_deportivo_id
 ) VALUES
-(6, 4, 'La piscina está limpia, pero el vestuario necesita mejoras.', 'https://images.unsplash.com/photo-1519337265831-4f1b8e788e97?auto=format&fit=crop&w=800&q=80', NOW(), 1),
-(7, 5, 'Excelente cancha de fútbol, muy bien mantenida.', 'https://images.unsplash.com/photo-1517649763962-97ca4d37b74a?auto=format&fit=crop&w=800&q=80', NOW(), 4),
+(6, 4, 'La piscina está limpia, pero el vestuario necesita mejoras.', 'https://morrazonoticias.com/wp-content/uploads/2024/03/techo-vestuarios-piscina-moana.jpg', NOW(), 1),
+(7, 5, 'Excelente cancha de fútbol, muy bien mantenida.', 'https://e6m5u5nku95.exactdn.com/mx/wp/wp-content/uploads/2020/05/tipos-Pasto-sintetico-futbol.jpg?strip=all&lossy=1&sharp=1&ssl=1', NOW(), 4),
 (8, 3, 'La pista necesita reparaciones en algunas zonas.', NULL, NOW(), 2),
 (9, 5, 'El gimnasio tiene todo lo necesario para entrenar.', 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', NOW(), 3);
 

@@ -1,5 +1,6 @@
 package com.example.telelink.repository;
 
+import com.example.telelink.entity.EspacioDeportivo;
 import com.example.telelink.entity.Resenia;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
