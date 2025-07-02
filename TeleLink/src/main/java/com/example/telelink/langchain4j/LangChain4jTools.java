@@ -265,14 +265,14 @@ public class LangChain4jTools {
                   .append(", Horario: ").append(r.getInicioReserva().toLocalTime()).append(" a ").append(r.getFinReserva().toLocalTime())
                   .append("\n");
             }
-            sb.append("Para cancelar una reserva, el usuario debe indicar el nombre del espacio deportivo, el establecimiento, la fecha y el horario de la reserva que desea cancelar para que lo asocies con una ID y puedas usar el Tool cancelReserva. Asegúrate de listar todos las reservas procimas confirmadas para el usuario.");
+            sb.append("Para cancelar una reserva, el usuario debe indicar el nombre del espacio deportivo, el establecimiento, la fecha y el horario de la reserva que desea cancelar para que lo asocies con una ID y puedas usar el Tool cancelReserva. Asegúrate de listar las reservas del usuario.");
             return sb.toString();
         } catch (Exception e) {
             return "Error al listar reservas confirmadas: " + e.getMessage();
         }
     }
 
-    @Tool("Cancela una reserva existente.")
+    @Tool("Cancela una reserva existente especificando la ID de la reserva.")
     public String cancelReserva(
             @P("ID de la reserva") Integer reservaId,
             @P("Razón de cancelación (opcional)") String razonCancelacion) {
