@@ -55,7 +55,7 @@ public class LangChain4jTools {
         }
     }
 
-    @Tool("Lista todos los espacios deportivos disponibles para un tipo de cancha.")
+    @Tool("Lista todos los espacios deportivos disponibles para un tipo de cancha, mostrando su ID.")
     public String listEspaciosForServicio(
             @P("Nombre del tipo de cancha (e.g., Cancha de Futbol Grass)") String servicioDeportivo) {
         try {
@@ -64,20 +64,20 @@ public class LangChain4jTools {
             if (servicio == null) {
                 return "Tipo de cancha no encontrado: " + servicioDeportivo + ". Opciones: " + listAllServicios();
             }
-
             List<EspacioDeportivo> espacios = espacioDeportivoRepository.findByServicioDeportivo(servicio);
             if (espacios.isEmpty()) {
                 return "No hay canchas disponibles para " + normalizedServicio + ".";
             }
-
             StringBuilder response = new StringBuilder("Canchas disponibles para " + normalizedServicio + ":\n");
             for (EspacioDeportivo espacio : espacios) {
                 if (espacio.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo) {
-                    response.append("- ").append(espacio.getNombre())
-                            .append(" (").append(espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre())
+                    response.append("- ID: ").append(espacio.getEspacioDeportivoId())
+                            .append(", Nombre: ").append(espacio.getNombre())
+                            .append(" (Establecimiento: ").append(espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre())
                             .append(", Ubicación: ").append(espacio.getGeolocalizacion())
                             .append(", Precio por hora: S/").append(espacio.getPrecioPorHora())
-                            .append(", Horario: ").append(espacio.getHorarioApertura()).append(" a ").append(espacio.getHorarioCierre())
+                            .append(", Horario: ")
+                            .append(espacio.getHorarioApertura()).append(" a ").append(espacio.getHorarioCierre())
                             .append(")\n");
                 }
             }
@@ -105,35 +105,19 @@ public class LangChain4jTools {
         }
     }
 
-    @Tool("Verifica si una cancha específica está disponible para un rango de tiempo.")
-    public String checkAvailability(
-            @P("Nombre de la cancha específica (e.g., Cancha Principal)") String espacioNombre,
+    @Tool("Verifica si un espacio deportivo específico está disponible para un rango de tiempo usando su ID.")
+    public String checkAvailabilityById(
+            @P("ID del espacio deportivo") Integer espacioId,
             @P("Fecha y hora de inicio (YYYY-MM-DD HH:mm)") String start,
             @P("Fecha y hora de fin (YYYY-MM-DD HH:mm)") String end) {
         try {
-            if (espacioNombre == null || start == null || end == null) {
-                return "Por favor, proporciona el nombre de la cancha, fecha de inicio y fin.";
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId).orElse(null);
+            if (espacio == null) {
+                return "Espacio deportivo no encontrado con ID: " + espacioId;
             }
-
-            List<EspacioDeportivo> espacios = espacioDeportivoRepository.findByNombreContainingIgnoreCase(espacioNombre);
-            if (espacios.isEmpty()) {
-                return "Cancha no encontrada: " + espacioNombre + ". Usa el nombre exacto o revisa las opciones disponibles.";
-            }
-            if (espacios.size() > 1) {
-                return "Hay varias canchas con ese nombre. Por favor, elige:\n" +
-                        espacios.stream()
-                                .map(e -> "- " + e.getNombre() + " (" + e.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre() + ")")
-                                .collect(Collectors.joining("\n"));
-            }
-            EspacioDeportivo espacio = espacios.get(0);
-            if (espacio.getEstadoServicio() != EspacioDeportivo.EstadoServicio.operativo) {
-                return espacio.getNombre() + " no está operativa.";
-            }
-
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime inicio = LocalDateTime.parse(start, formatter);
             LocalDateTime fin = LocalDateTime.parse(end, formatter);
-
             if (inicio.isBefore(LocalDateTime.now()) || fin.isBefore(LocalDateTime.now())) {
                 return "Las fechas deben ser en el futuro.";
             }
@@ -143,15 +127,18 @@ public class LangChain4jTools {
             if (inicio.toLocalTime().isBefore(espacio.getHorarioApertura()) || fin.toLocalTime().isAfter(espacio.getHorarioCierre())) {
                 return "El horario solicitado está fuera del horario de operación (" + espacio.getHorarioApertura() + " a " + espacio.getHorarioCierre() + ").";
             }
-
-            List<Reserva> reservas = reservaRepository.findActiveReservationsForEspacio(espacio.getEspacioDeportivoId(), inicio, fin);
+            List<Reserva> reservas = reservaRepository.findReservasEnRango(espacioId, inicio, fin);
             if (!reservas.isEmpty()) {
-                return espacio.getNombre() + " no está disponible en el horario solicitado. Prueba con otro horario o cancha.";
+                StringBuilder conflicts = new StringBuilder("No disponible. Reservas en conflicto:\n");
+                for (Reserva r : reservas) {
+                    conflicts.append("- Reserva ID ").append(r.getReservaId())
+                            .append(" de ").append(r.getInicioReserva()).append(" a ").append(r.getFinReserva()).append("\n");
+                }
+                return conflicts.toString();
             }
-
             long hours = Duration.between(inicio, fin).toHours();
-            return espacio.getNombre() + " está disponible el " + start + " hasta " + end + ". Costo: S/" +
-                    espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)) + " (" + hours + " horas).";
+            return "Espacio disponible. ID: " + espacioId + ", Nombre: " + espacio.getNombre() + ", Costo: S/" +
+                    espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)) + " por " + hours + " horas.";
         } catch (DateTimeParseException e) {
             return "Formato de fecha inválido. Usa YYYY-MM-DD HH:mm.";
         } catch (Exception e) {
@@ -159,9 +146,9 @@ public class LangChain4jTools {
         }
     }
 
-    @Tool("Crea una reserva para una cancha específica.")
-    public String createReserva(
-            @P("Nombre de la cancha específica (e.g., Cancha Principal)") String espacioNombre,
+    @Tool("Crea una reserva para un espacio deportivo específico usando su ID.")
+    public String createReservaById(
+            @P("ID del espacio deportivo") Integer espacioId,
             @P("Fecha y hora de inicio (YYYY-MM-DD HH:mm)") String start,
             @P("Fecha y hora de fin (YYYY-MM-DD HH:mm)") String end) {
         try {
@@ -169,24 +156,26 @@ public class LangChain4jTools {
             if (usuario == null) {
                 return "Por favor, inicia sesión para crear una reserva.";
             }
-
-            String availability = checkAvailability(espacioNombre, start, end);
-            if (!availability.contains("está disponible")) {
-                return availability;
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId).orElse(null);
+            if (espacio == null) {
+                return "Espacio deportivo no encontrado con ID: " + espacioId;
             }
-
-            List<EspacioDeportivo> espacios = espacioDeportivoRepository.findByNombreContainingIgnoreCase(espacioNombre);
-            EspacioDeportivo espacio = espacios.get(0);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime inicio = LocalDateTime.parse(start, formatter);
             LocalDateTime fin = LocalDateTime.parse(end, formatter);
-
-            List<Reserva> userReservas = reservaRepository.findByUsuarioAndEspacioDeportivoAndTimeRange(
-                    usuario, espacio.getEspacioDeportivoId(), inicio, fin);
-            if (!userReservas.isEmpty()) {
-                return "Ya tienes una reserva para " + espacio.getNombre() + " en este horario. Por favor, elige otro horario o cancha.";
+            if (inicio.isBefore(LocalDateTime.now()) || fin.isBefore(LocalDateTime.now())) {
+                return "Las fechas deben ser en el futuro.";
             }
-
+            if (fin.isBefore(inicio) || fin.isEqual(inicio)) {
+                return "La hora de fin debe ser después de la hora de inicio.";
+            }
+            if (inicio.toLocalTime().isBefore(espacio.getHorarioApertura()) || fin.toLocalTime().isAfter(espacio.getHorarioCierre())) {
+                return "El horario solicitado está fuera del horario de operación (" + espacio.getHorarioApertura() + " a " + espacio.getHorarioCierre() + ").";
+            }
+            List<Reserva> reservas = reservaRepository.findReservasEnRango(espacioId, inicio, fin);
+            if (!reservas.isEmpty()) {
+                return "No se puede crear la reserva. Hay reservas en conflicto.";
+            }
             Reserva reserva = new Reserva();
             reserva.setUsuario(usuario);
             reserva.setEspacioDeportivo(espacio);
@@ -195,12 +184,8 @@ public class LangChain4jTools {
             reserva.setEstado(Reserva.Estado.pendiente);
             reserva.setFechaCreacion(LocalDateTime.now());
             reservaRepository.save(reserva);
-
             long hours = Duration.between(inicio, fin).toHours();
-            return "Reserva creada (ID: " + reserva.getReservaId() + ") para " + espacio.getNombre() +
-                    " el " + start + " hasta " + end +
-                    ". Costo: S/" + espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)) +
-                    ". Por favor, completa el pago en la pestaña de pagos dentro de 48 horas para confirmarla.";
+            return "Reserva creada (ID: " + reserva.getReservaId() + ") para el espacio ID " + espacioId + " (" + espacio.getNombre() + ") de " + start + " a " + end + ". Costo: S/" + espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)) + ".";
         } catch (DateTimeParseException e) {
             return "Formato de fecha inválido. Usa YYYY-MM-DD HH:mm.";
         } catch (Exception e) {

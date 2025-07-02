@@ -31,15 +31,15 @@ public class ReservaService {
     }
 
     @Transactional(readOnly = true)
-    public List<EspacioDeportivo> checkAvailability(String servicioDeportivo, LocalDateTime start, LocalDateTime end) {
-        if (servicioDeportivo == null || start == null || end == null || start.isAfter(end) || start.isBefore(LocalDateTime.now())) {
+    public List<EspacioDeportivo> checkAvailabilityByServicioId(Integer servicioDeportivoId, LocalDateTime start, LocalDateTime end) {
+        if (servicioDeportivoId == null || start == null || end == null || start.isAfter(end) || start.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Servicio deportivo, fecha de inicio y fin son obligatorios, y la fecha no puede estar en el pasado.");
         }
-        ServicioDeportivo servicio = servicioDeportivoRepository.findByServicioDeportivo(servicioDeportivo);
+        ServicioDeportivo servicio = servicioDeportivoRepository.findById(servicioDeportivoId).orElse(null);
         if (servicio == null) {
-            throw new IllegalArgumentException("Servicio deportivo no encontrado: " + servicioDeportivo);
+            throw new IllegalArgumentException("Servicio deportivo no encontrado: " + servicioDeportivoId);
         }
-        List<EspacioDeportivo> espacios = espacioDeportivoRepository.findByEstablecimientoAndServicio(null, servicio.getServicioDeportivoId());
+        List<EspacioDeportivo> espacios = espacioDeportivoRepository.findByServicioDeportivo(servicio);
         return espacios.stream()
                 .filter(e -> e.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo)
                 .filter(e -> start.toLocalTime().isAfter(e.getHorarioApertura()) && end.toLocalTime().isBefore(e.getHorarioCierre()))
@@ -48,22 +48,24 @@ public class ReservaService {
     }
 
     @Transactional
-    public Reserva createReserva(Usuario usuario, String servicioDeportivo, LocalDateTime start, LocalDateTime end) {
+    public Reserva createReservaByEspacioId(Usuario usuario, Integer espacioDeportivoId, LocalDateTime start, LocalDateTime end) {
         if (usuario == null) {
             throw new IllegalArgumentException("Usuario no autenticado.");
         }
-        if (servicioDeportivo == null || start == null || end == null || start.isAfter(end) || start.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Servicio deportivo, fecha de inicio y fin son obligatorios, y la fecha no puede estar en el pasado.");
+        if (espacioDeportivoId == null || start == null || end == null || start.isAfter(end) || start.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Espacio deportivo, fecha de inicio y fin son obligatorios, y la fecha no puede estar en el pasado.");
         }
-        ServicioDeportivo servicio = servicioDeportivoRepository.findByServicioDeportivo(servicioDeportivo);
-        if (servicio == null) {
-            throw new IllegalArgumentException("Servicio deportivo no encontrado: " + servicioDeportivo);
+        EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioDeportivoId).orElse(null);
+        if (espacio == null) {
+            throw new IllegalArgumentException("Espacio deportivo no encontrado: " + espacioDeportivoId);
         }
-        List<EspacioDeportivo> espacios = checkAvailability(servicioDeportivo, start, end);
-        if (espacios.isEmpty()) {
-            throw new IllegalArgumentException("No hay espacios disponibles para " + servicioDeportivo + " en el horario solicitado.");
+        // Verificar disponibilidad para ese espacio
+        if (start.toLocalTime().isBefore(espacio.getHorarioApertura()) || end.toLocalTime().isAfter(espacio.getHorarioCierre())) {
+            throw new IllegalArgumentException("El horario solicitado está fuera del horario de operación.");
         }
-        EspacioDeportivo espacio = espacios.get(0); // Select first available space
+        if (reservaRepository.countActiveReservationConflicts(espacioDeportivoId, start, end) > 0) {
+            throw new IllegalArgumentException("El espacio no está disponible en el horario solicitado.");
+        }
         Reserva reserva = new Reserva();
         reserva.setUsuario(usuario);
         reserva.setEspacioDeportivo(espacio);
