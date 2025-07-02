@@ -74,6 +74,9 @@ public class UsuarioController {
     private ReembolsoRepository reembolsoRepository;
 
     @Autowired
+    private ReseniaRepository reseniaRepository;
+
+    @Autowired
     private EmailService emailService;
 
     public class EspacioDeportivoConRatingDTO {
@@ -132,7 +135,16 @@ public class UsuarioController {
         EspacioDeportivo espacio = espacioDeportivoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró el espacio deportivo"));
 
+        // Obtener las reseñas y calcular el promedio
+        List<Resenia> resenias = reseniaRepository.findByEspacioDeportivo_EspacioDeportivoId(id);
+        double promedio = resenias.stream()
+                .mapToInt(Resenia::getCalificacion)
+                .average()
+                .orElse(0.0);
+
         model.addAttribute("espacio", espacio);
+        model.addAttribute("resenias", resenias);
+        model.addAttribute("promedioCalificacion", promedio);
 
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
@@ -142,6 +154,8 @@ public class UsuarioController {
 
         return "Vecino/vecino-servicioDeportivo";
     }
+
+
 
     @GetMapping("/reembolsos")
     public String mostrarMisReembolsos(Model model, HttpSession session) {
