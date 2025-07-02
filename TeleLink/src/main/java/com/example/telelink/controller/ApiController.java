@@ -5,6 +5,14 @@ import com.example.telelink.entity.Reserva;
 import com.example.telelink.entity.Usuario;
 import com.example.telelink.repository.EspacioDeportivoRepository;
 import com.example.telelink.repository.ReservaRepository;
+import com.example.telelink.repository.ReembolsoRepository;
+import com.example.telelink.entity.Reembolso;
+import com.example.telelink.repository.PagoRepository;
+import com.example.telelink.entity.Pago;
+import com.example.telelink.service.EmailService;
+import com.example.telelink.entity.Mantenimiento;
+import com.example.telelink.repository.MantenimientoRepository;
+
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +43,40 @@ public class ApiController {
 
     @Autowired
     private EspacioDeportivoRepository espacioDeportivoRepository;
+
+    @Autowired
+    private ReembolsoRepository reembolsoRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private PagoRepository pagoRepository;
+
+    @Autowired
+    private MantenimientoRepository mantenimientoRepository;
+
+    // Método auxiliar para verificar si hay mantenimientos activos
+    private boolean hayMantenimientoActivo(Integer espacioId, LocalDateTime inicio, LocalDateTime fin) {
+        List<Mantenimiento> mantenimientosActivos = mantenimientoRepository
+                .findByEspacioDeportivo_EspacioDeportivoIdAndEstadoInAndFechaInicioBeforeAndFechaEstimadaFinAfter(
+                        espacioId,
+                        List.of(Mantenimiento.Estado.pendiente, Mantenimiento.Estado.en_curso),
+                        fin,
+                        inicio);
+        return !mantenimientosActivos.isEmpty();
+    }
+
+    // Método auxiliar para obtener mantenimientos que afectan un horario
+    private List<Mantenimiento> obtenerMantenimientosEnHorario(Integer espacioId, LocalDateTime inicio,
+            LocalDateTime fin) {
+        return mantenimientoRepository
+                .findByEspacioDeportivo_EspacioDeportivoIdAndEstadoInAndFechaInicioBeforeAndFechaEstimadaFinAfter(
+                        espacioId,
+                        List.of(Mantenimiento.Estado.pendiente, Mantenimiento.Estado.en_curso),
+                        fin,
+                        inicio);
+    }
 
     @GetMapping("reservas/gimnasio/{id}")
     public List<Map<String, Object>> obtenerReservasGimnasio(
@@ -125,6 +167,30 @@ public class ApiController {
                 eventos.add(evento);
             }
         }
+
+        // NUEVO: Agregar eventos de mantenimiento
+        List<Mantenimiento> mantenimientos = mantenimientoRepository
+                .findByEspacioDeportivo_EspacioDeportivoIdAndEstadoInAndFechaEstimadaFinAfter(
+                        id,
+                        List.of(Mantenimiento.Estado.pendiente, Mantenimiento.Estado.en_curso),
+                        ahora);
+
+        for (Mantenimiento mantenimiento : mantenimientos) {
+            Map<String, Object> eventoMantenimiento = new HashMap<>();
+            eventoMantenimiento.put("id", "mantenimiento-" + mantenimiento.getMantenimientoId());
+            eventoMantenimiento.put("start", mantenimiento.getFechaInicio().toString());
+            eventoMantenimiento.put("end", mantenimiento.getFechaEstimadaFin().toString());
+            eventoMantenimiento.put("title", "Mantenimiento - " + mantenimiento.getMotivo());
+            eventoMantenimiento.put("backgroundColor", "#ff6b6b"); // Rojo para mantenimientos
+            eventoMantenimiento.put("borderColor", "#ff4757");
+            eventoMantenimiento.put("textColor", "#ffffff");
+            eventoMantenimiento.put("esMantenimiento", true);
+            eventoMantenimiento.put("estado", mantenimiento.getEstado().name());
+            eventoMantenimiento.put("display", "background"); // Evento de fondo para que cubra todo el día/horario
+            eventoMantenimiento.put("rendering", "background");
+            eventos.add(eventoMantenimiento);
+        }
+
         return eventos;
     }
 
@@ -244,6 +310,29 @@ public class ApiController {
             }
         }
 
+        // NUEVO: Agregar eventos de mantenimiento
+        List<Mantenimiento> mantenimientos = mantenimientoRepository
+                .findByEspacioDeportivo_EspacioDeportivoIdAndEstadoInAndFechaEstimadaFinAfter(
+                        id,
+                        List.of(Mantenimiento.Estado.pendiente, Mantenimiento.Estado.en_curso),
+                        ahora);
+
+        for (Mantenimiento mantenimiento : mantenimientos) {
+            Map<String, Object> eventoMantenimiento = new HashMap<>();
+            eventoMantenimiento.put("id", "mantenimiento-" + mantenimiento.getMantenimientoId());
+            eventoMantenimiento.put("start", mantenimiento.getFechaInicio().toString());
+            eventoMantenimiento.put("end", mantenimiento.getFechaEstimadaFin().toString());
+            eventoMantenimiento.put("title", "Mantenimiento - " + mantenimiento.getMotivo());
+            eventoMantenimiento.put("backgroundColor", "#ff6b6b"); // Rojo para mantenimientos
+            eventoMantenimiento.put("borderColor", "#ff4757");
+            eventoMantenimiento.put("textColor", "#ffffff");
+            eventoMantenimiento.put("esMantenimiento", true);
+            eventoMantenimiento.put("estado", mantenimiento.getEstado().name());
+            eventoMantenimiento.put("display", "background");
+            eventoMantenimiento.put("rendering", "background");
+            eventos.add(eventoMantenimiento);
+        }
+
         return eventos;
     }
 
@@ -278,7 +367,7 @@ public class ApiController {
                 })
                 .collect(Collectors.toList());
 
-        return reservas.stream().map(reserva -> {
+        List<Map<String, Object>> eventos = reservas.stream().map(reserva -> {
             Map<String, Object> evento = new HashMap<>();
             evento.put("id", reserva.getReservaId().toString());
             evento.put("start", reserva.getInicioReserva().toString());
@@ -318,6 +407,176 @@ public class ApiController {
 
             return evento;
         }).collect(Collectors.toList());
+
+        // NUEVO: Agregar eventos de mantenimiento
+        List<Mantenimiento> mantenimientos = mantenimientoRepository
+                .findByEspacioDeportivo_EspacioDeportivoIdAndEstadoInAndFechaEstimadaFinAfter(
+                        id,
+                        List.of(Mantenimiento.Estado.pendiente, Mantenimiento.Estado.en_curso),
+                        ahora);
+
+        for (Mantenimiento mantenimiento : mantenimientos) {
+            Map<String, Object> eventoMantenimiento = new HashMap<>();
+            eventoMantenimiento.put("id", "mantenimiento-" + mantenimiento.getMantenimientoId());
+            eventoMantenimiento.put("start", mantenimiento.getFechaInicio().toString());
+            eventoMantenimiento.put("end", mantenimiento.getFechaEstimadaFin().toString());
+            eventoMantenimiento.put("title", "Mantenimiento - " + mantenimiento.getMotivo());
+            eventoMantenimiento.put("backgroundColor", "#ff6b6b"); // Rojo para mantenimientos
+            eventoMantenimiento.put("borderColor", "#ff4757");
+            eventoMantenimiento.put("textColor", "#ffffff");
+            eventoMantenimiento.put("esMantenimiento", true);
+            eventoMantenimiento.put("estado", mantenimiento.getEstado().name());
+            eventoMantenimiento.put("display", "background");
+            eventoMantenimiento.put("rendering", "background");
+            eventos.add(eventoMantenimiento);
+        }
+
+        return eventos;
+    }
+
+    @GetMapping("reservas/atletismo/{id}")
+    public List<Map<String, Object>> obtenerReservasAtletismo(
+            @PathVariable Integer id,
+            HttpSession session) {
+        // Obtener el usuario actual de la sesión
+        Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
+        Integer usuarioId = usuarioActual != null ? usuarioActual.getUsuarioId() : null;
+
+        // Obtener la fecha y hora actual
+        LocalDateTime ahora = LocalDateTime.now();
+
+        // Obtener el espacio deportivo para verificar que sea una pista de atletismo
+        Optional<EspacioDeportivo> espacioOpt = espacioDeportivoRepository.findById(id);
+        if (!espacioOpt.isPresent()) {
+            return List.of(); // Retornar lista vacía si no existe el espacio
+        }
+
+        EspacioDeportivo espacio = espacioOpt.get();
+        boolean esAtletismo = espacio.getServicioDeportivo() != null &&
+                "atletismo".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo());
+
+        if (!esAtletismo) {
+            // Si no es pista de atletismo, devolver lista vacía o error
+            return List.of();
+        }
+
+        List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoId(id)
+                .stream()
+                .filter(r -> r.getFinReserva().isAfter(ahora)) // FILTRAR RESERVAS PASADAS
+                .collect(Collectors.toList());
+
+        // Calcular capacidad total de la pista de atletismo
+        int carrilesPista = espacio.getCarrilesPista() != null ? espacio.getCarrilesPista() : 8; // Valor predeterminado
+        int maxPersonasPorCarril = espacio.getMaxPersonasPorCarril() != null ? espacio.getMaxPersonasPorCarril() : 1; // Valor
+                                                                                                                      // predeterminado
+        int capacidadTotal = carrilesPista * maxPersonasPorCarril;
+
+        // Agrupar reservas por intervalo de tiempo
+        Map<String, List<Reserva>> reservasPorIntervalo = new HashMap<>();
+
+        for (Reserva reserva : reservas) {
+            // Generar clave para el intervalo (inicio-fin)
+            String intervaloKey = reserva.getInicioReserva().toString() + "-" + reserva.getFinReserva().toString();
+
+            if (!reservasPorIntervalo.containsKey(intervaloKey)) {
+                reservasPorIntervalo.put(intervaloKey, new ArrayList<>());
+            }
+            reservasPorIntervalo.get(intervaloKey).add(reserva);
+        }
+
+        List<Map<String, Object>> eventos = new ArrayList<>();
+
+        // Crear eventos para las reservas propias
+        for (Reserva reserva : reservas) {
+            if (usuarioId != null && reserva.getUsuario() != null &&
+                    reserva.getUsuario().getUsuarioId().equals(usuarioId)) {
+
+                Map<String, Object> evento = new HashMap<>();
+                evento.put("id", reserva.getReservaId().toString());
+                evento.put("start", reserva.getInicioReserva().toString());
+                evento.put("end", reserva.getFinReserva().toString());
+                evento.put("esPropia", true);
+                evento.put("estado", reserva.getEstado().name().toLowerCase());
+
+                // Agregar información de carril y participantes
+                if (reserva.getNumeroCarrilPista() != null) {
+                    evento.put("numeroCarrilPista", reserva.getNumeroCarrilPista());
+                    evento.put("title", "Mi reserva (Carril " + reserva.getNumeroCarrilPista() + ")");
+                } else {
+                    evento.put("title", "Mi reserva");
+                }
+
+                if (reserva.numeroParticipantes() != null && reserva.numeroParticipantes() > 1) {
+                    evento.put("numeroParticipantes", reserva.numeroParticipantes());
+                    evento.put("title",
+                            evento.get("title") + " - " + reserva.numeroParticipantes() + " part.");
+                }
+
+                evento.put("backgroundColor", "#4b8af3"); // Azul para reservas propias
+                evento.put("borderColor", "#2a6edf");
+
+                eventos.add(evento);
+            }
+        }
+
+        // Crear eventos "fantasma" para horarios completamente ocupados
+        for (Map.Entry<String, List<Reserva>> entry : reservasPorIntervalo.entrySet()) {
+            List<Reserva> reservasEnIntervalo = entry.getValue();
+
+            // Calcular el número total de participantes en este intervalo
+            int totalParticipantes = 0;
+
+            for (Reserva r : reservasEnIntervalo) {
+                if (r.numeroParticipantes() != null) {
+                    totalParticipantes += r.numeroParticipantes();
+                } else {
+                    totalParticipantes += 1; // Valor por defecto si no tiene participantes definidos
+                }
+            }
+
+            // Si está completamente ocupado, crear evento fantasma
+            if (totalParticipantes >= capacidadTotal) {
+                // Obtener primera reserva del intervalo para referencia
+                Reserva primeraReserva = reservasEnIntervalo.get(0);
+
+                Map<String, Object> eventoCompletado = new HashMap<>();
+                eventoCompletado.put("id", "filled-" + primeraReserva.getInicioReserva().toString());
+                eventoCompletado.put("start", primeraReserva.getInicioReserva().toString());
+                eventoCompletado.put("end", primeraReserva.getFinReserva().toString());
+                eventoCompletado.put("title", "Completado");
+                eventoCompletado.put("backgroundColor", "#a0a0a0"); // Gris para horarios completos
+                eventoCompletado.put("borderColor", "#808080");
+                eventoCompletado.put("esPropia", false);
+                eventoCompletado.put("rendering", "background");
+
+                eventos.add(eventoCompletado);
+            }
+        }
+
+        // NUEVO: Agregar eventos de mantenimiento
+        List<Mantenimiento> mantenimientos = mantenimientoRepository
+                .findByEspacioDeportivo_EspacioDeportivoIdAndEstadoInAndFechaEstimadaFinAfter(
+                        id,
+                        List.of(Mantenimiento.Estado.pendiente, Mantenimiento.Estado.en_curso),
+                        ahora);
+
+        for (Mantenimiento mantenimiento : mantenimientos) {
+            Map<String, Object> eventoMantenimiento = new HashMap<>();
+            eventoMantenimiento.put("id", "mantenimiento-" + mantenimiento.getMantenimientoId());
+            eventoMantenimiento.put("start", mantenimiento.getFechaInicio().toString());
+            eventoMantenimiento.put("end", mantenimiento.getFechaEstimadaFin().toString());
+            eventoMantenimiento.put("title", "Mantenimiento - " + mantenimiento.getMotivo());
+            eventoMantenimiento.put("backgroundColor", "#ff6b6b"); // Rojo para mantenimientos
+            eventoMantenimiento.put("borderColor", "#ff4757");
+            eventoMantenimiento.put("textColor", "#ffffff");
+            eventoMantenimiento.put("esMantenimiento", true);
+            eventoMantenimiento.put("estado", mantenimiento.getEstado().name());
+            eventoMantenimiento.put("display", "background");
+            eventoMantenimiento.put("rendering", "background");
+            eventos.add(eventoMantenimiento);
+        }
+
+        return eventos;
     }
 
     @GetMapping("/verificar-disponibilidad-atletismo")
@@ -427,6 +686,33 @@ public class ApiController {
         Map<String, Object> respuesta = new HashMap<>();
 
         try {
+            // Parsear fechas
+            LocalDateTime inicioReserva = LocalDateTime.parse(inicio);
+            LocalDateTime finReserva = LocalDateTime.parse(fin);
+
+            // NUEVO: Verificar si hay mantenimientos activos en el horario solicitado
+            if (hayMantenimientoActivo(espacioId, inicioReserva, finReserva)) {
+                List<Mantenimiento> mantenimientos = obtenerMantenimientosEnHorario(espacioId, inicioReserva,
+                        finReserva);
+                String motivosMantenimiento = mantenimientos.stream()
+                        .map(m -> m.getMotivo())
+                        .collect(Collectors.joining(", "));
+
+                respuesta.put("disponible", false);
+                respuesta.put("mensaje",
+                        "No se puede reservar durante el mantenimiento programado: " + motivosMantenimiento);
+                respuesta.put("razon", "mantenimiento");
+                respuesta.put("mantenimientos", mantenimientos.stream().map(m -> {
+                    Map<String, Object> info = new HashMap<>();
+                    info.put("motivo", m.getMotivo());
+                    info.put("estado", m.getEstado().name());
+                    info.put("fechaInicio", m.getFechaInicio().toString());
+                    info.put("fechaFin", m.getFechaEstimadaFin().toString());
+                    return info;
+                }).collect(Collectors.toList()));
+                return respuesta;
+            }
+
             // Obtener el espacio deportivo
             Optional<EspacioDeportivo> optEspacio = espacioDeportivoRepository.findById(espacioId);
             if (optEspacio.isEmpty()) {
@@ -436,10 +722,6 @@ public class ApiController {
             }
 
             EspacioDeportivo espacio = optEspacio.get();
-
-            // Parsear fechas
-            LocalDateTime inicioReserva = LocalDateTime.parse(inicio);
-            LocalDateTime finReserva = LocalDateTime.parse(fin);
 
             // Verificar si el tipo de espacio es gimnasio
             if ("gimnasio".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
@@ -735,258 +1017,6 @@ public class ApiController {
         }
     }
 
-    @GetMapping("reservas/atletismo/{id}")
-    public List<Map<String, Object>> obtenerReservasAtletismo(
-            @PathVariable Integer id,
-            HttpSession session) {
-        // Obtener el usuario actual de la sesión
-        Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
-        Integer usuarioId = usuarioActual != null ? usuarioActual.getUsuarioId() : null;
-
-        // Obtener la fecha y hora actual
-        LocalDateTime ahora = LocalDateTime.now();
-
-        // Obtener el espacio deportivo para verificar que sea una pista de atletismo
-        Optional<EspacioDeportivo> espacioOpt = espacioDeportivoRepository.findById(id);
-        if (!espacioOpt.isPresent()) {
-            return List.of(); // Retornar lista vacía si no existe el espacio
-        }
-
-        EspacioDeportivo espacio = espacioOpt.get();
-        boolean esAtletismo = espacio.getServicioDeportivo() != null &&
-                "atletismo".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo());
-
-        if (!esAtletismo) {
-            // Si no es pista de atletismo, devolver lista vacía o error
-            return List.of();
-        }
-
-        List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoId(id)
-                .stream()
-                .filter(r -> r.getFinReserva().isAfter(ahora)) // FILTRAR RESERVAS PASADAS
-                .collect(Collectors.toList());
-
-        // Calcular capacidad total de la pista de atletismo
-        int carrilesPista = espacio.getCarrilesPista() != null ? espacio.getCarrilesPista() : 8; // Valor predeterminado
-        int maxPersonasPorCarril = espacio.getMaxPersonasPorCarril() != null ? espacio.getMaxPersonasPorCarril() : 1; // Valor
-                                                                                                                      // predeterminado
-        int capacidadTotal = carrilesPista * maxPersonasPorCarril;
-
-        // Agrupar reservas por intervalo de tiempo
-        Map<String, List<Reserva>> reservasPorIntervalo = new HashMap<>();
-
-        for (Reserva reserva : reservas) {
-            // Generar clave para el intervalo (inicio-fin)
-            String intervaloKey = reserva.getInicioReserva().toString() + "-" + reserva.getFinReserva().toString();
-
-            if (!reservasPorIntervalo.containsKey(intervaloKey)) {
-                reservasPorIntervalo.put(intervaloKey, new ArrayList<>());
-            }
-            reservasPorIntervalo.get(intervaloKey).add(reserva);
-        }
-
-        List<Map<String, Object>> eventos = new ArrayList<>();
-
-        // Crear eventos para las reservas propias
-        for (Reserva reserva : reservas) {
-            if (usuarioId != null && reserva.getUsuario() != null &&
-                    reserva.getUsuario().getUsuarioId().equals(usuarioId)) {
-
-                Map<String, Object> evento = new HashMap<>();
-                evento.put("id", reserva.getReservaId().toString());
-                evento.put("start", reserva.getInicioReserva().toString());
-                evento.put("end", reserva.getFinReserva().toString());
-                evento.put("esPropia", true);
-                evento.put("estado", reserva.getEstado().name().toLowerCase());
-
-                // Agregar información de carril y participantes
-                if (reserva.getNumeroCarrilPista() != null) {
-                    evento.put("numeroCarrilPista", reserva.getNumeroCarrilPista());
-                    evento.put("title", "Mi reserva (Carril " + reserva.getNumeroCarrilPista() + ")");
-                } else {
-                    evento.put("title", "Mi reserva");
-                }
-
-                if (reserva.numeroParticipantes() != null && reserva.numeroParticipantes() > 1) {
-                    evento.put("numeroParticipantes", reserva.numeroParticipantes());
-                    evento.put("title",
-                            evento.get("title") + " - " + reserva.numeroParticipantes() + " part.");
-                }
-
-                evento.put("backgroundColor", "#4b8af3"); // Azul para reservas propias
-                evento.put("borderColor", "#2a6edf");
-
-                eventos.add(evento);
-            }
-        }
-
-        // Crear eventos "fantasma" para horarios completamente ocupados
-        for (Map.Entry<String, List<Reserva>> entry : reservasPorIntervalo.entrySet()) {
-            List<Reserva> reservasEnIntervalo = entry.getValue();
-
-            // Calcular el número total de participantes en este intervalo
-            int totalParticipantes = 0;
-
-            for (Reserva r : reservasEnIntervalo) {
-                if (r.numeroParticipantes() != null) {
-                    totalParticipantes += r.numeroParticipantes();
-                } else {
-                    totalParticipantes += 1; // Valor por defecto si no tiene participantes definidos
-                }
-            }
-
-            // Si está completamente ocupado, crear evento fantasma
-            if (totalParticipantes >= capacidadTotal) {
-                // Obtener primera reserva del intervalo para referencia
-                Reserva primeraReserva = reservasEnIntervalo.get(0);
-
-                Map<String, Object> eventoCompletado = new HashMap<>();
-                eventoCompletado.put("id", "filled-" + primeraReserva.getInicioReserva().toString());
-                eventoCompletado.put("start", primeraReserva.getInicioReserva().toString());
-                eventoCompletado.put("end", primeraReserva.getFinReserva().toString());
-                eventoCompletado.put("title", "Completado");
-                eventoCompletado.put("backgroundColor", "#a0a0a0"); // Gris para horarios completos
-                eventoCompletado.put("borderColor", "#808080");
-                eventoCompletado.put("esPropia", false);
-                eventoCompletado.put("rendering", "background");
-
-                eventos.add(eventoCompletado);
-            }
-        }
-
-        return eventos;
-    }
-
-    @GetMapping("reservas/pista/{id}")
-    public List<Map<String, Object>> obtenerReservasPista(
-            @PathVariable Integer id,
-            HttpSession session) {
-        // Obtener el usuario actual de la sesión
-        Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
-        Integer usuarioId = usuarioActual != null ? usuarioActual.getUsuarioId() : null;
-
-        // Obtener la fecha y hora actual
-        LocalDateTime ahora = LocalDateTime.now();
-
-        // Obtener el espacio deportivo para verificar que sea una pista
-        Optional<EspacioDeportivo> espacioOpt = espacioDeportivoRepository.findById(id);
-        if (!espacioOpt.isPresent()) {
-            return List.of(); // Retornar lista vacía si no existe el espacio
-        }
-
-        EspacioDeportivo espacio = espacioOpt.get();
-        boolean esPista = espacio.getServicioDeportivo() != null &&
-                "pista".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo());
-
-        if (!esPista) {
-            // Si no es pista, devolver lista vacía o error
-            return List.of();
-        }
-
-        // Obtener todas las reservas del espacio
-        List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoId(id);
-
-        // Calcular capacidad total de la pista
-        int carrilesPista = espacio.getCarrilesPista() != null ? espacio.getCarrilesPista() : 6; // Valor predeterminado
-        int maxPersonasPorCarril = espacio.getMaxPersonasPorCarril() != null ? espacio.getMaxPersonasPorCarril() : 1; // Valor
-                                                                                                                      // predeterminado
-        int capacidadTotal = carrilesPista * maxPersonasPorCarril;
-
-        // Agrupar reservas por intervalo de tiempo y carril
-        Map<String, Map<Integer, List<Reserva>>> reservasPorIntervaloYCarril = new HashMap<>();
-
-        for (Reserva reserva : reservas) {
-            // Generar clave para el intervalo (inicio-fin)
-            String intervaloKey = reserva.getInicioReserva().toString() + "-" + reserva.getFinReserva().toString();
-
-            if (!reservasPorIntervaloYCarril.containsKey(intervaloKey)) {
-                reservasPorIntervaloYCarril.put(intervaloKey, new HashMap<>());
-            }
-
-            // Obtener el carril (si es null, usar 1 como predeterminado)
-            Integer carril = reserva.getNumeroCarrilPista() != null ? reserva.getNumeroCarrilPista() : 1;
-
-            if (!reservasPorIntervaloYCarril.get(intervaloKey).containsKey(carril)) {
-                reservasPorIntervaloYCarril.get(intervaloKey).put(carril, new ArrayList<>());
-            }
-
-            reservasPorIntervaloYCarril.get(intervaloKey).get(carril).add(reserva);
-        }
-
-        List<Map<String, Object>> eventos = new ArrayList<>();
-
-        // Crear eventos para las reservas propias
-        for (Reserva reserva : reservas) {
-            if (usuarioId != null && reserva.getUsuario() != null &&
-                    reserva.getUsuario().getUsuarioId().equals(usuarioId)) {
-
-                Map<String, Object> evento = new HashMap<>();
-                evento.put("id", reserva.getReservaId().toString());
-                evento.put("start", reserva.getInicioReserva().toString());
-                evento.put("end", reserva.getFinReserva().toString());
-                evento.put("esPropia", true);
-                evento.put("estado", reserva.getEstado().name().toLowerCase());
-
-                // Agregar información de carril
-                if (reserva.getNumeroCarrilPista() != null) {
-                    evento.put("numeroCarrilPista", reserva.getNumeroCarrilPista());
-                    evento.put("title", "Mi reserva (Carril " + reserva.getNumeroCarrilPista() + ")");
-                } else {
-                    evento.put("title", "Mi reserva");
-                }
-
-                // Agregar información de participantes si aplica
-                if (reserva.numeroParticipantes() != null && reserva.numeroParticipantes() > 1) {
-                    evento.put("numeroParticipantes", reserva.numeroParticipantes());
-                    evento.put("title", evento.get("title") + " - " + reserva.numeroParticipantes() + " part.");
-                }
-
-                evento.put("backgroundColor", "#4b8af3"); // Azul para reservas propias
-                evento.put("borderColor", "#2a6edf");
-
-                eventos.add(evento);
-            }
-        }
-
-        // Crear eventos para carriles ocupados (para otros usuarios)
-        for (Map.Entry<String, Map<Integer, List<Reserva>>> entryIntervalo : reservasPorIntervaloYCarril.entrySet()) {
-            String intervaloKey = entryIntervalo.getKey();
-            Map<Integer, List<Reserva>> reservasPorCarril = entryIntervalo.getValue();
-
-            // Obtener primera reserva del intervalo para referencia de tiempo
-            String[] partes = intervaloKey.split("-");
-            LocalDateTime inicioIntervalo = LocalDateTime.parse(partes[0]);
-            LocalDateTime finIntervalo = LocalDateTime.parse(partes[1]);
-
-            // Para cada carril ocupado, crear un evento
-            for (Map.Entry<Integer, List<Reserva>> entryCarril : reservasPorCarril.entrySet()) {
-                Integer carril = entryCarril.getKey();
-                List<Reserva> reservasCarril = entryCarril.getValue();
-
-                // Si hay reservas que no son del usuario actual, mostrar el carril como ocupado
-                boolean hayReservasAjenas = reservasCarril.stream()
-                        .anyMatch(r -> usuarioId == null || r.getUsuario() == null ||
-                                !r.getUsuario().getUsuarioId().equals(usuarioId));
-
-                if (hayReservasAjenas) {
-                    Map<String, Object> eventoCarrilOcupado = new HashMap<>();
-                    eventoCarrilOcupado.put("id", "carril-" + carril + "-" + inicioIntervalo.toString());
-                    eventoCarrilOcupado.put("start", inicioIntervalo.toString());
-                    eventoCarrilOcupado.put("end", finIntervalo.toString());
-                    eventoCarrilOcupado.put("title", "Carril " + carril + " ocupado");
-                    eventoCarrilOcupado.put("backgroundColor", "#a0a0a0"); // Gris para carriles ocupados
-                    eventoCarrilOcupado.put("borderColor", "#808080");
-                    eventoCarrilOcupado.put("esPropia", false);
-                    eventoCarrilOcupado.put("numeroCarrilPista", carril);
-
-                    eventos.add(eventoCarrilOcupado);
-                }
-            }
-        }
-
-        return eventos;
-    }
-
     @GetMapping("/verificar-disponibilidad-pista")
     public Map<String, Object> verificarDisponibilidadPista(
             @RequestParam("espacioId") Integer espacioId,
@@ -998,6 +1028,24 @@ public class ApiController {
         Map<String, Object> respuesta = new HashMap<>();
 
         try {
+            LocalDateTime inicioReserva = LocalDateTime.parse(inicio);
+            LocalDateTime finReserva = LocalDateTime.parse(fin);
+
+            // NUEVO: Verificar si hay mantenimientos activos en el horario solicitado
+            if (hayMantenimientoActivo(espacioId, inicioReserva, finReserva)) {
+                List<Mantenimiento> mantenimientos = obtenerMantenimientosEnHorario(espacioId, inicioReserva,
+                        finReserva);
+                String motivosMantenimiento = mantenimientos.stream()
+                        .map(m -> m.getMotivo())
+                        .collect(Collectors.joining(", "));
+
+                respuesta.put("disponible", false);
+                respuesta.put("mensaje",
+                        "No se puede reservar durante el mantenimiento programado: " + motivosMantenimiento);
+                respuesta.put("razon", "mantenimiento");
+                return respuesta;
+            }
+
             Optional<EspacioDeportivo> espacioOpt = espacioDeportivoRepository.findById(espacioId);
             if (!espacioOpt.isPresent()) {
                 respuesta.put("disponible", false);
@@ -1006,8 +1054,6 @@ public class ApiController {
             }
 
             EspacioDeportivo espacio = espacioOpt.get();
-            LocalDateTime inicioReserva = LocalDateTime.parse(inicio);
-            LocalDateTime finReserva = LocalDateTime.parse(fin);
 
             // Verificar que sea una pista
             if (!"pista".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
@@ -1097,25 +1143,16 @@ public class ApiController {
             LocalDateTime inicioReserva = LocalDateTime.parse(inicio);
             LocalDateTime finReserva = LocalDateTime.parse(fin);
 
-            // Obtener total de carriles y máximo de personas por carril
-            Integer totalCarriles = espacio.getCarrilesPista();
-            if (totalCarriles == null)
-                totalCarriles = 6; // Valor predeterminado
-
-            Integer maxPersonasPorCarril = espacio.getMaxPersonasPorCarril();
-            if (maxPersonasPorCarril == null)
-                maxPersonasPorCarril = 1; // Valor predeterminado
-
             // Obtener reservas para cada carril en ese horario
             Map<Integer, List<Reserva>> reservasPorCarril = new HashMap<>();
-            for (int i = 1; i <= totalCarriles; i++) {
+            for (int i = 1; i <= espacio.getCarrilesPista(); i++) {
                 reservasPorCarril.put(i, reservaRepository.findActiveReservationsForLanePista(
                         espacioId, inicioReserva, finReserva, i));
             }
 
             // Calcular información de cada carril
             Map<Integer, Map<String, Object>> carrilInfo = new HashMap<>();
-            for (int i = 1; i <= totalCarriles; i++) {
+            for (int i = 1; i <= espacio.getCarrilesPista(); i++) {
                 List<Reserva> reservasCarril = reservasPorCarril.get(i);
 
                 // Calcular participantes actuales
@@ -1125,7 +1162,7 @@ public class ApiController {
                 }
 
                 // Calcular espacios disponibles
-                int espaciosDisponibles = maxPersonasPorCarril - participantesActuales;
+                int espaciosDisponibles = espacio.getMaxPersonasPorCarril() - participantesActuales;
 
                 Map<String, Object> info = new HashMap<>();
                 info.put("participantesActuales", participantesActuales);
@@ -1137,8 +1174,8 @@ public class ApiController {
             }
 
             // Preparar respuesta
-            respuesta.put("totalCarriles", totalCarriles);
-            respuesta.put("maxPersonasPorCarril", maxPersonasPorCarril);
+            respuesta.put("totalCarriles", espacio.getCarrilesPista());
+            respuesta.put("maxPersonasPorCarril", espacio.getMaxPersonasPorCarril());
             respuesta.put("carrilInfo", carrilInfo);
             respuesta.put("precioPorHora", espacio.getPrecioPorHora().toString());
 
@@ -1173,12 +1210,6 @@ public class ApiController {
                 return respuesta;
             }
 
-            // Obtener el aforo total del gimnasio
-            Integer aforoTotal = espacio.getAforoGimnasio();
-            if (aforoTotal == null || aforoTotal <= 0) {
-                aforoTotal = 40; // Valor por defecto si no está definido
-            }
-
             // Parsear la fecha y hora
             LocalDateTime fechaHora;
             try {
@@ -1191,6 +1222,25 @@ public class ApiController {
 
             // Calcular la hora de fin (una hora después)
             LocalDateTime fechaHoraFin = fechaHora.plusHours(1);
+
+            // NUEVO: Verificar si hay mantenimientos activos en el horario
+            if (hayMantenimientoActivo(espacioId, fechaHora, fechaHoraFin)) {
+                List<Mantenimiento> mantenimientos = obtenerMantenimientosEnHorario(espacioId, fechaHora, fechaHoraFin);
+                String motivosMantenimiento = mantenimientos.stream()
+                        .map(m -> m.getMotivo())
+                        .collect(Collectors.joining(", "));
+
+                respuesta.put("error", "Mantenimiento en progreso: " + motivosMantenimiento);
+                respuesta.put("hayMantenimiento", true);
+                respuesta.put("motivosMantenimiento", motivosMantenimiento);
+                return respuesta;
+            }
+
+            // Obtener el aforo total del gimnasio
+            Integer aforoTotal = espacio.getAforoGimnasio();
+            if (aforoTotal == null || aforoTotal <= 0) {
+                aforoTotal = 40; // Valor por defecto si no está definido
+            }
 
             // Obtener todas las reservas activas para ese espacio en ese horario
             List<Reserva> reservasEnHorario = reservaRepository.findActiveReservationsInTimeRange(
@@ -1217,6 +1267,7 @@ public class ApiController {
             respuesta.put("espaciosDisponibles", espaciosDisponibles);
             respuesta.put("porcentajeOcupacion", porcentajeOcupacion);
             respuesta.put("completo", espaciosDisponibles <= 0);
+            respuesta.put("hayMantenimiento", false); // Añadir este campo para consistencia
 
         } catch (Exception e) {
             respuesta.put("error", "Error al obtener disponibilidad: " + e.getMessage());
@@ -1227,16 +1278,17 @@ public class ApiController {
 
     /**
      * Endpoint GET para cancelar una reserva desde el modal del calendario
-     * Este endpoint funciona como alternativa al POST endpoint del UsuarioController
+     * Este endpoint funciona como alternativa al POST endpoint del
+     * UsuarioController
      */
     @GetMapping("/cancelar-reserva-pendiente/{reservaId}")
-    public ResponseEntity<?> cancelarReservaDesdeModal(
+    public ResponseEntity<?> cancelarReservaPendienteDesdeModal(
             @PathVariable("reservaId") Integer reservaId,
             @RequestParam(value = "razon", required = false, defaultValue = "Cancelación desde calendario") String razon,
             HttpSession session) {
-        
+
         Map<String, Object> respuesta = new HashMap<>();
-        
+
         try {
             // Obtener el usuario actual de la sesión
             Usuario usuario = (Usuario) session.getAttribute("usuario");
@@ -1260,26 +1312,159 @@ public class ApiController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(respuesta);
             }
 
-            // Verificar que la reserva no esté ya cancelada
-            if (reserva.getEstado() == Reserva.Estado.cancelada) {
-                respuesta.put("error", "La reserva ya está cancelada");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
+            // Verificar el estado de la reserva y aplicar lógica correspondiente
+            Reserva.Estado estadoActual = reserva.getEstado();
+
+            // Limpiar y validar la razón
+            String razonLimpia = razon != null ? razon.trim() : "";
+            if (razonLimpia.isEmpty()) {
+                razonLimpia = "Cancelación solicitada por el usuario";
+            }
+            if (razonLimpia.length() > 500) {
+                razonLimpia = razonLimpia.substring(0, 500);
             }
 
-            // Cambiar el estado de la reserva a cancelada
-            reserva.setEstado(Reserva.Estado.cancelada);
-            reserva.setRazonCancelacion(razon);
-            reserva.setFechaActualizacion(LocalDateTime.now());
-            reservaRepository.save(reserva);
+            switch (estadoActual) {
+                case pendiente:
+                    // Para reservas pendientes: cancelación directa sin verificaciones adicionales
+                    reserva.setEstado(Reserva.Estado.cancelada);
+                    reserva.setRazonCancelacion(razonLimpia);
+                    reserva.setFechaActualizacion(LocalDateTime.now());
+                    reservaRepository.save(reserva);
 
-            // Respuesta simple para cancelación exitosa (sin penalidades para reservas pendientes)
-            respuesta.put("success", true);
-            respuesta.put("mensaje", "Reserva cancelada exitosamente.");
-            
+                    // 🚀 ENVIAR CORREO DE CANCELACIÓN
+                    try {
+                        emailService.sendReservationCancelled(usuario, reserva, razonLimpia);
+                        System.out.println(
+                                "✅ Correo de cancelación enviado exitosamente a: " + usuario.getCorreoElectronico());
+                    } catch (Exception emailException) {
+                        System.err.println("❌ Error al enviar correo de cancelación: " + emailException.getMessage());
+                    }
+
+                    respuesta.put("success", true);
+                    respuesta.put("mensaje", "Reserva pendiente cancelada exitosamente.");
+                    respuesta.put("tipo", "cancelacion_directa");
+                    respuesta.put("razonCancelacion", razonLimpia);
+                    break;
+
+                case confirmada:
+                    // Para reservas confirmadas: verificar que sea 48 horas antes del inicio
+                    LocalDateTime ahora = LocalDateTime.now();
+                    LocalDateTime inicioReserva = reserva.getInicioReserva();
+                    LocalDateTime limite48Horas = inicioReserva.minusHours(48);
+
+                    if (ahora.isAfter(limite48Horas)) {
+                        // No se puede cancelar: menos de 48 horas antes del inicio
+                        respuesta.put("error", "No se puede cancelar la reserva confirmada. " +
+                                "Las cancelaciones deben realizarse con al menos 48 horas de anticipación.");
+                        respuesta.put("tipo", "tiempo_insuficiente");
+                        respuesta.put("horasRestantes", java.time.Duration.between(ahora, inicioReserva).toHours());
+                        respuesta.put("razonSolicitada", razonLimpia);
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
+                    }
+
+                    // Se puede cancelar: más de 48 horas antes del inicio
+                    reserva.setEstado(Reserva.Estado.cancelada);
+                    reserva.setRazonCancelacion(razonLimpia);
+                    reserva.setFechaActualizacion(LocalDateTime.now());
+                    reservaRepository.save(reserva);
+
+                    // 🚀 ENVIAR CORREO DE CANCELACIÓN
+                    try {
+                        emailService.sendReservationCancelled(usuario, reserva, razonLimpia);
+                        System.out.println("✅ Correo de cancelación (confirmada) enviado exitosamente a: "
+                                + usuario.getCorreoElectronico());
+                    } catch (Exception emailException) {
+                        System.err.println("❌ Error al enviar correo de cancelación: " + emailException.getMessage());
+                    }
+
+                    // Buscar el pago asociado a la reserva para reembolso
+                    Optional<Pago> pagoOpt = pagoRepository.findByReservaReservaId(reservaId);
+
+                    if (pagoOpt.isPresent()) {
+                        Pago pago = pagoOpt.get();
+
+                        if (pago.getEstadoTransaccion() == Pago.EstadoTransaccion.completado &&
+                                !reembolsoRepository.existsByPagoPagoId(pago.getPagoId())) {
+
+                            // Crear el reembolso
+                            Reembolso reembolso = new Reembolso();
+                            reembolso.setPago(pago);
+                            reembolso.setMonto(pago.getMonto());
+                            reembolso.setEstado(Reembolso.Estado.pendiente);
+                            reembolso.setMotivo("Cancelación de reserva confirmada - " + razonLimpia);
+                            reembolso.setFechaReembolso(LocalDateTime.now());
+                            reembolso.setDetallesTransaccion(
+                                    "Reembolso automático por cancelación dentro del plazo permitido (48h). Razón: "
+                                            + razonLimpia);
+
+                            reembolsoRepository.save(reembolso);
+
+                            respuesta.put("success", true);
+                            respuesta.put("mensaje",
+                                    "Reserva confirmada cancelada exitosamente. Se ha generado un reembolso por S/ " +
+                                            pago.getMonto() + " que será procesado en los próximos días laborables.");
+                            respuesta.put("tipo", "cancelacion_con_reembolso");
+                            respuesta.put("montoReembolso", pago.getMonto());
+                            respuesta.put("reembolsoId", reembolso.getReembolsoId());
+                            respuesta.put("razonCancelacion", razonLimpia);
+                        } else {
+                            // Manejar casos donde no se puede generar reembolso automático
+                            String mensajeAdicional = "";
+                            if (pago.getEstadoTransaccion() != Pago.EstadoTransaccion.completado) {
+                                mensajeAdicional = " El pago asociado no está completado.";
+                            } else if (reembolsoRepository.existsByPagoPagoId(pago.getPagoId())) {
+                                mensajeAdicional = " Ya existe un reembolso para este pago.";
+                            }
+
+                            respuesta.put("success", true);
+                            respuesta.put("mensaje", "Reserva confirmada cancelada exitosamente." + mensajeAdicional +
+                                    " Contacta con soporte si necesitas asistencia con el reembolso.");
+                            respuesta.put("tipo", "cancelacion_sin_reembolso_automatico");
+                            respuesta.put("razonCancelacion", razonLimpia);
+                        }
+                    } else {
+                        respuesta.put("success", true);
+                        respuesta.put("mensaje", "Reserva confirmada cancelada exitosamente. " +
+                                "No se encontró un pago asociado. Contacta con soporte si realizaste un pago.");
+                        respuesta.put("tipo", "cancelacion_sin_pago");
+                        respuesta.put("razonCancelacion", razonLimpia);
+                    }
+                    break;
+
+                case cancelada:
+                    respuesta.put("error", "La reserva ya está cancelada");
+                    respuesta.put("tipo", "ya_cancelada");
+                    respuesta.put("razonSolicitada", razonLimpia);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
+
+                case completada:
+                    respuesta.put("error", "No se puede cancelar una reserva que ya ha sido completada");
+                    respuesta.put("tipo", "completada");
+                    respuesta.put("razonSolicitada", razonLimpia);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
+
+                case en_proceso:
+                    respuesta.put("error", "No se puede cancelar una reserva que está en proceso");
+                    respuesta.put("tipo", "en_proceso");
+                    respuesta.put("razonSolicitada", razonLimpia);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
+
+                default:
+                    respuesta.put("error", "Estado de reserva no válido para cancelación");
+                    respuesta.put("tipo", "estado_invalido");
+                    respuesta.put("razonSolicitada", razonLimpia);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
+            }
+
             return ResponseEntity.ok(respuesta);
 
         } catch (Exception e) {
+            System.err.println("Error al cancelar reserva - ID: " + reservaId + ", Error: " + e.getMessage());
+            e.printStackTrace();
+
             respuesta.put("error", "Error interno del servidor: " + e.getMessage());
+            respuesta.put("tipo", "error_servidor");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respuesta);
         }
     }
@@ -1288,9 +1473,9 @@ public class ApiController {
     public ResponseEntity<?> obtenerOcupacionReserva(
             @PathVariable Integer reservaId,
             HttpSession session) {
-        
+
         Map<String, Object> respuesta = new HashMap<>();
-        
+
         try {
             Usuario usuario = (Usuario) session.getAttribute("usuario");
             if (usuario == null) {
@@ -1305,7 +1490,7 @@ public class ApiController {
             }
 
             Reserva reserva = reservaOpt.get();
-            
+
             // Verificar que la reserva pertenezca al usuario
             if (!reserva.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
                 respuesta.put("error", "No tienes permiso para ver esta reserva");
@@ -1314,81 +1499,86 @@ public class ApiController {
 
             EspacioDeportivo espacio = reserva.getEspacioDeportivo();
             String tipoServicio = espacio.getServicioDeportivo().getServicioDeportivo().toLowerCase();
-            
+
             LocalDateTime inicio = reserva.getInicioReserva();
             LocalDateTime fin = reserva.getFinReserva();
-            
+
             if ("piscina".equals(tipoServicio) || "atletismo".equals(tipoServicio)) {
                 // Para piscina y atletismo (por carriles)
-                Integer numeroCarril = "piscina".equals(tipoServicio) ? 
-                    reserva.getNumeroCarrilPiscina() : reserva.getNumeroCarrilPista();
-                
+                Integer numeroCarril = "piscina".equals(tipoServicio) ? reserva.getNumeroCarrilPiscina()
+                        : reserva.getNumeroCarrilPista();
+
                 if (numeroCarril != null) {
                     // Buscar todas las reservas activas en el mismo carril y horario
                     List<Reserva> reservasCarril;
                     if ("piscina".equals(tipoServicio)) {
-                        reservasCarril = reservaRepository.findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPiscinaAndEstadoNot(
-                            espacio.getEspacioDeportivoId(), fin, inicio, numeroCarril, Reserva.Estado.cancelada);
+                        reservasCarril = reservaRepository
+                                .findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPiscinaAndEstadoNot(
+                                        espacio.getEspacioDeportivoId(), fin, inicio, numeroCarril,
+                                        Reserva.Estado.cancelada);
                     } else {
-                        reservasCarril = reservaRepository.findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPistaAndEstadoNot(
-                            espacio.getEspacioDeportivoId(), fin, inicio, numeroCarril, Reserva.Estado.cancelada);
+                        reservasCarril = reservaRepository
+                                .findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPistaAndEstadoNot(
+                                        espacio.getEspacioDeportivoId(), fin, inicio, numeroCarril,
+                                        Reserva.Estado.cancelada);
                     }
-                    
+
                     // Contar participantes totales en el carril
                     int participantesTotales = 0;
                     for (Reserva r : reservasCarril) {
-                        participantesTotales += (r.getNumeroParticipantes() != null) ? 
-                            r.getNumeroParticipantes() : 1;
+                        participantesTotales += (r.getNumeroParticipantes() != null) ? r.getNumeroParticipantes() : 1;
                     }
-                    
-                    int maxPersonasPorCarril = espacio.getMaxPersonasPorCarril() != null ? 
-                        espacio.getMaxPersonasPorCarril() : 1;
+
+                    int maxPersonasPorCarril = espacio.getMaxPersonasPorCarril() != null
+                            ? espacio.getMaxPersonasPorCarril()
+                            : 1;
                     int espaciosDisponibles = maxPersonasPorCarril - participantesTotales;
-                    
+
                     respuesta.put("tipoOcupacion", "carril");
                     respuesta.put("numeroCarril", numeroCarril);
                     respuesta.put("participantesTotales", participantesTotales);
                     respuesta.put("capacidadMaxima", maxPersonasPorCarril);
                     respuesta.put("espaciosDisponibles", espaciosDisponibles);
-                    respuesta.put("porcentajeOcupacion", Math.round((double) participantesTotales / maxPersonasPorCarril * 100));
+                    respuesta.put("porcentajeOcupacion",
+                            Math.round((double) participantesTotales / maxPersonasPorCarril * 100));
                 }
-                
+
             } else if ("gimnasio".equals(tipoServicio)) {
                 // Para gimnasio (aforo total)
-                List<Reserva> reservasActivas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoId(espacio.getEspacioDeportivoId())
-                    .stream()
-                    .filter(r -> r.getInicioReserva().isBefore(fin) && 
-                                r.getFinReserva().isAfter(inicio) && 
+                List<Reserva> reservasActivas = reservaRepository
+                        .findByEspacioDeportivo_EspacioDeportivoId(espacio.getEspacioDeportivoId())
+                        .stream()
+                        .filter(r -> r.getInicioReserva().isBefore(fin) &&
+                                r.getFinReserva().isAfter(inicio) &&
                                 r.getEstado() != Reserva.Estado.cancelada)
-                    .collect(Collectors.toList());
-                
+                        .collect(Collectors.toList());
+
                 int participantesTotales = 0;
                 for (Reserva r : reservasActivas) {
-                    participantesTotales += (r.getNumeroParticipantes() != null) ? 
-                        r.getNumeroParticipantes() : 1;
+                    participantesTotales += (r.getNumeroParticipantes() != null) ? r.getNumeroParticipantes() : 1;
                 }
-                
+
                 int aforoGimnasio = espacio.getAforoGimnasio();
                 int espaciosDisponibles = aforoGimnasio - participantesTotales;
-                
+
                 respuesta.put("tipoOcupacion", "gimnasio");
                 respuesta.put("participantesTotales", participantesTotales);
                 respuesta.put("capacidadMaxima", aforoGimnasio);
                 respuesta.put("espaciosDisponibles", espaciosDisponibles);
                 respuesta.put("porcentajeOcupacion", Math.round((double) participantesTotales / aforoGimnasio * 100));
-                
+
             } else {
                 // Para otros tipos (fútbol, etc.) - ocupación completa
                 long reservasActivas = reservaRepository.countActiveReservationConflicts(
-                    espacio.getEspacioDeportivoId(), inicio, fin);
-                
+                        espacio.getEspacioDeportivoId(), inicio, fin);
+
                 respuesta.put("tipoOcupacion", "completo");
                 respuesta.put("estaOcupado", reservasActivas > 0);
                 respuesta.put("numeroReservas", reservasActivas);
             }
-            
+
             return ResponseEntity.ok(respuesta);
-            
+
         } catch (Exception e) {
             respuesta.put("error", "Error interno del servidor: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respuesta);

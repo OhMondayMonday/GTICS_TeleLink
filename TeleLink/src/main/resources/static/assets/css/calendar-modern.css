@@ -484,3 +484,47 @@
 .fc-event-time {
     font-weight: 500;
 }
+
+/* Estilos específicos para eventos de mantenimiento */
+.fc-event.evento-mantenimiento {
+    opacity: 0.8;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.fc-event.evento-mantenimiento .fc-event-title {
+    font-size: 0.9em;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Patrón de rayas para mantenimientos */
+.fc-event.evento-mantenimiento::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(255,255,255,0.1) 4px,
+        rgba(255,255,255,0.1) 8px
+    );
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+/* Cursor específico para mantenimientos */
+.fc-event.evento-mantenimiento {
+    cursor: help !important;
+}
+
+/* Hover effect para mantenimientos */
+.fc-event.evento-mantenimiento:hover {
+    opacity: 1;
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
