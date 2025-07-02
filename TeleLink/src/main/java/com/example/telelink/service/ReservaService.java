@@ -7,6 +7,8 @@ import com.example.telelink.entity.Usuario;
 import com.example.telelink.repository.EspacioDeportivoRepository;
 import com.example.telelink.repository.ReservaRepository;
 import com.example.telelink.repository.ServicioDeportivoRepository;
+import com.example.telelink.repository.PagoRepository;
+import com.example.telelink.repository.ReembolsoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +22,20 @@ public class ReservaService {
     private final ReservaRepository reservaRepository;
     private final EspacioDeportivoRepository espacioDeportivoRepository;
     private final ServicioDeportivoRepository servicioDeportivoRepository;
+    private final PagoRepository pagoRepository;
+    private final ReembolsoRepository reembolsoRepository;
 
     public ReservaService(
             ReservaRepository reservaRepository,
             EspacioDeportivoRepository espacioDeportivoRepository,
-            ServicioDeportivoRepository servicioDeportivoRepository) {
+            ServicioDeportivoRepository servicioDeportivoRepository,
+            PagoRepository pagoRepository,
+            ReembolsoRepository reembolsoRepository) {
         this.reservaRepository = reservaRepository;
         this.espacioDeportivoRepository = espacioDeportivoRepository;
         this.servicioDeportivoRepository = servicioDeportivoRepository;
+        this.pagoRepository = pagoRepository;
+        this.reembolsoRepository = reembolsoRepository;
     }
 
     @Transactional(readOnly = true)
@@ -91,17 +99,46 @@ public class ReservaService {
         if (reserva.getEstado() == Reserva.Estado.cancelada) {
             throw new IllegalArgumentException("La reserva ya está cancelada.");
         }
-        if (reserva.getInicioReserva().isBefore(LocalDateTime.now().plusHours(48))) {
-            throw new IllegalArgumentException("No se puede cancelar la reserva dentro de las 48 horas previas al inicio.");
-        }
-        String servicio = reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo();
-        String feeMessage = servicio.equals("Cancha de Fútbol Grass") ? "Tarifa de cancelación: S/30" :
-                servicio.equals("Cancha de Fútbol Loza") ? "Tarifa de cancelación: S/15" : "";
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime limite = reserva.getInicioReserva().minusHours(48);
+        boolean dentroDe48Horas = ahora.isAfter(limite);
         reserva.setEstado(Reserva.Estado.cancelada);
-        reserva.setRazonCancelacion(razonCancelacion);
+        reserva.setRazonCancelacion(razonCancelacion != null ? razonCancelacion : "Cancelación por el usuario");
         reserva.setFechaActualizacion(LocalDateTime.now());
         reservaRepository.save(reserva);
-        return "Reserva cancelada exitosamente. " + feeMessage + " Complete el pago de la tarifa en la pestaña correspondiente.";
+        // Buscar el pago asociado a la reserva
+        String mensaje;
+        try {
+            java.util.Optional<com.example.telelink.entity.Pago> pagoOptional = pagoRepository.findByReserva(reserva);
+            if (pagoOptional.isPresent()) {
+                com.example.telelink.entity.Pago pago = pagoOptional.get();
+                if (!dentroDe48Horas) {
+                    // Elegible para reembolso (cancelación con 48+ horas de anticipación)
+                    com.example.telelink.entity.Reembolso reembolso = new com.example.telelink.entity.Reembolso();
+                    reembolso.setMonto(pago.getMonto());
+                    reembolso.setMotivo(razonCancelacion != null ? razonCancelacion : "Cancelación de reserva");
+                    reembolso.setFechaReembolso(LocalDateTime.now());
+                    reembolso.setPago(pago);
+                    if (pago.getMetodoPago().getMetodoPago().equals("Pago Online")) {
+                        reembolso.setEstado(com.example.telelink.entity.Reembolso.Estado.completado);
+                        reembolso.setDetallesTransaccion("Reembolso procesado automáticamente para Pago Online");
+                        mensaje = "Reserva cancelada y reembolso procesado automáticamente.";
+                    } else {
+                        reembolso.setEstado(com.example.telelink.entity.Reembolso.Estado.pendiente);
+                        reembolso.setDetallesTransaccion("Esperando aprobación del administrador");
+                        mensaje = "Reserva cancelada. El reembolso está pendiente de aprobación.";
+                    }
+                    reembolsoRepository.save(reembolso);
+                } else {
+                    mensaje = "Reserva cancelada, pero no se procesó reembolso debido a cancelación con menos de 48 horas.";
+                }
+            } else {
+                mensaje = "Reserva cancelada correctamente. No se encontró un pago asociado.";
+            }
+        } catch (Exception e) {
+            mensaje = "Reserva cancelada, pero ocurrió un error al procesar el reembolso: " + e.getMessage();
+        }
+        return mensaje;
     }
 
     @Transactional(readOnly = true)

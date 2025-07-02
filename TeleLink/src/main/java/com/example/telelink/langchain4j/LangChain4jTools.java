@@ -7,6 +7,8 @@ import com.example.telelink.entity.Usuario;
 import com.example.telelink.repository.EspacioDeportivoRepository;
 import com.example.telelink.repository.ReservaRepository;
 import com.example.telelink.repository.ServicioDeportivoRepository;
+import com.example.telelink.repository.PagoRepository;
+import com.example.telelink.repository.ReembolsoRepository;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 import jakarta.servlet.http.HttpSession;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
@@ -26,16 +29,22 @@ public class LangChain4jTools {
     private final ServicioDeportivoRepository servicioDeportivoRepository;
     private final EspacioDeportivoRepository espacioDeportivoRepository;
     private final ReservaRepository reservaRepository;
+    private final PagoRepository pagoRepository;
+    private final ReembolsoRepository reembolsoRepository;
 
     public LangChain4jTools(
             HttpSession session,
             ServicioDeportivoRepository servicioDeportivoRepository,
             EspacioDeportivoRepository espacioDeportivoRepository,
-            ReservaRepository reservaRepository) {
+            ReservaRepository reservaRepository,
+            PagoRepository pagoRepository,
+            ReembolsoRepository reembolsoRepository) {
         this.session = session;
         this.servicioDeportivoRepository = servicioDeportivoRepository;
         this.espacioDeportivoRepository = espacioDeportivoRepository;
         this.reservaRepository = reservaRepository;
+        this.pagoRepository = pagoRepository;
+        this.reembolsoRepository = reembolsoRepository;
     }
 
     @Tool("Lista todos los tipos de canchas disponibles, mostrando su ID.")
@@ -230,6 +239,39 @@ public class LangChain4jTools {
         }
     }
 
+    @Tool("Lista las reservas confirmadas del usuario desde el momento actual hasta 1 mes en el futuro, mostrando espacio, establecimiento, fecha y horario. Útil para cancelar reservas.")
+    public String listUserConfirmedFutureReservas() {
+        try {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) {
+                return "Por favor, inicia sesión para ver tus reservas.";
+            }
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime oneMonthLater = now.plusMonths(1);
+            List<Reserva> reservas = reservaRepository.findByUsuarioAndEstado(usuario, Reserva.Estado.confirmada);
+            List<Reserva> futuras = reservas.stream()
+                .filter(r -> !r.getInicioReserva().isBefore(now) && !r.getInicioReserva().isAfter(oneMonthLater))
+                .sorted((a, b) -> a.getInicioReserva().compareTo(b.getInicioReserva()))
+                .toList();
+            if (futuras.isEmpty()) {
+                return "No tienes reservas confirmadas próximas. Si tienes reservas pendientes de pago, primero realiza el pago para que sean confirmadas.";
+            }
+            StringBuilder sb = new StringBuilder("Tus reservas confirmadas próximas:\n");
+            for (Reserva r : futuras) {
+                sb.append("- ID: ").append(r.getReservaId())
+                  .append(", Espacio: ").append(r.getEspacioDeportivo().getNombre())
+                  .append(", Establecimiento: ").append(r.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre())
+                  .append(", Fecha: ").append(r.getInicioReserva().toLocalDate())
+                  .append(", Horario: ").append(r.getInicioReserva().toLocalTime()).append(" a ").append(r.getFinReserva().toLocalTime())
+                  .append("\n");
+            }
+            sb.append("Para cancelar una reserva, el usuario debe indicar el nombre del espacio deportivo, el establecimiento, la fecha y el horario de la reserva que desea cancelar para que lo asocies con una ID y puedas usar el Tool cancelReserva. Asegúrate de listar todos las reservas procimas confirmadas para el usuario.");
+            return sb.toString();
+        } catch (Exception e) {
+            return "Error al listar reservas confirmadas: " + e.getMessage();
+        }
+    }
+
     @Tool("Cancela una reserva existente.")
     public String cancelReserva(
             @P("ID de la reserva") Integer reservaId,
@@ -239,25 +281,49 @@ public class LangChain4jTools {
             if (usuario == null) {
                 return "Por favor, inicia sesión para cancelar una reserva.";
             }
-
             Reserva reserva = reservaRepository.findByReservaId(reservaId);
             if (reserva == null || !reserva.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
                 return "Reserva no encontrada o no pertenece al usuario.";
             }
-
-            if (reserva.getInicioReserva().isBefore(LocalDateTime.now().plusHours(48))) {
-                return "No se puede cancelar: la reserva comienza en menos de 48 horas. No es reembolsable.";
+            if (reserva.getEstado() == Reserva.Estado.cancelada) {
+                return "La reserva ya está cancelada.";
             }
-
-            String servicio = reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo();
-            String fee = servicio.equals("Cancha de Futbol Loza") ? "S/15" : "S/30";
+            LocalDateTime ahora = LocalDateTime.now();
+            LocalDateTime limite = reserva.getInicioReserva().minusHours(48);
+            boolean dentroDe48Horas = ahora.isAfter(limite);
             reserva.setEstado(Reserva.Estado.cancelada);
-            reserva.setRazonCancelacion(razonCancelacion != null ? razonCancelacion : "Cancelada por el usuario");
+            reserva.setRazonCancelacion(razonCancelacion != null ? razonCancelacion : "Cancelación por el usuario");
             reserva.setFechaActualizacion(LocalDateTime.now());
             reservaRepository.save(reserva);
-
-            return "Reserva " + reservaId + " cancelada. Se aplicó una tarifa de " + fee +
-                    ". El reembolso (si aplica) se procesará en 7 días hábiles.";
+            // Buscar el pago asociado a la reserva
+            Optional<com.example.telelink.entity.Pago> pagoOptional = pagoRepository.findByReserva(reserva);
+            String mensaje;
+            if (pagoOptional.isPresent()) {
+                com.example.telelink.entity.Pago pago = pagoOptional.get();
+                if (!dentroDe48Horas) {
+                    // Elegible para reembolso (cancelación con 48+ horas de anticipación)
+                    com.example.telelink.entity.Reembolso reembolso = new com.example.telelink.entity.Reembolso();
+                    reembolso.setMonto(pago.getMonto());
+                    reembolso.setMotivo(razonCancelacion != null ? razonCancelacion : "Cancelación de reserva");
+                    reembolso.setFechaReembolso(LocalDateTime.now());
+                    reembolso.setPago(pago);
+                    if (pago.getMetodoPago() != null && "Pago Online".equals(pago.getMetodoPago().getMetodoPago())) {
+                        reembolso.setEstado(com.example.telelink.entity.Reembolso.Estado.completado);
+                        reembolso.setDetallesTransaccion("Reembolso procesado automáticamente para Pago Online");
+                        mensaje = "Reserva cancelada y reembolso procesado automáticamente.";
+                    } else {
+                        reembolso.setEstado(com.example.telelink.entity.Reembolso.Estado.pendiente);
+                        reembolso.setDetallesTransaccion("Esperando aprobación del administrador");
+                        mensaje = "Reserva cancelada. El reembolso está pendiente de aprobación.";
+                    }
+                    reembolsoRepository.save(reembolso);
+                } else {
+                    mensaje = "Reserva cancelada, pero no se procesó reembolso debido a cancelación con menos de 48 horas.";
+                }
+            } else {
+                mensaje = "Reserva cancelada correctamente. No se encontró un pago asociado.";
+            }
+            return mensaje;
         } catch (Exception e) {
             return "Error al cancelar la reserva: " + e.getMessage();
         }
