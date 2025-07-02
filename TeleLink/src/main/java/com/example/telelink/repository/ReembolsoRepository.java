@@ -2,6 +2,7 @@ package com.example.telelink.repository;
 
 import com.example.telelink.entity.Reembolso;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,5 +13,13 @@ public interface ReembolsoRepository extends JpaRepository<Reembolso, Integer> {
 
     List<Reembolso> findByEstadoInOrderByFechaReembolsoDesc(List<Reembolso.Estado> estados);
     List<Reembolso> findByEstadoOrderByFechaReembolsoDesc(Reembolso.Estado estado);
+    
+    @Query("SELECT r FROM Reembolso r " +
+           "JOIN FETCH r.pago p " +
+           "JOIN FETCH p.reserva res " +
+           "JOIN FETCH res.usuario u " +
+           "JOIN FETCH res.espacioDeportivo ed " +
+           "JOIN FETCH ed.establecimientoDeportivo est")
+    List<Reembolso> findAllWithRelations();
 
 }

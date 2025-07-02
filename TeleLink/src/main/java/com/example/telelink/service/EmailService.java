@@ -482,6 +482,132 @@ public class EmailService {
         helper.setText(content, true);
 
         mailSender.send(message);
+    }    /**
+     * Envía un correo de notificación de cancelación de asistencia
+     */
+    public void sendAssistanceCancellation(Usuario coordinador, Asistencia asistencia, String motivo) throws MessagingException {
+        String subject = "Asistencia Reasignada - Municipalidad de San Miguel";
+        
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        
+        String formattedFecha = asistencia.getHorarioEntrada().toLocalDate().format(dateFormatter);
+        String formattedInicio = asistencia.getHorarioEntrada().toLocalTime().format(timeFormatter);
+        String formattedFin = asistencia.getHorarioSalida().toLocalTime().format(timeFormatter);
+        String espacioNombre = asistencia.getEspacioDeportivo().getNombre();
+        String establecimientoNombre = asistencia.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre();
+
+        String content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Asistencia Reasignada | Municipalidad de San Miguel</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+            <style>
+                body {
+                    background-color: #f4f4f4;
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    background-color: #fff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    overflow: hidden;
+                }
+                .header {
+                    background: linear-gradient(135deg, #ffc107, #ff8c00);
+                    color: #fff;
+                    padding: 20px;
+                    text-align: center;
+                }
+                .logo {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%%;
+                    margin-bottom: 10px;
+                }
+                .content {
+                    padding: 20px;
+                }
+                .details {
+                    background-color: #f8f9fa;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 15px 0;
+                    border-left: 4px solid #ffc107;
+                }
+                .btn-view {
+                    display: inline-block;
+                    background-color: #007bff;
+                    color: #fff;
+                    padding: 10px 20px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    margin: 10px 0;
+                }
+                .footer {
+                    background-color: #f8f9fa;
+                    padding: 15px;
+                    text-align: center;
+                    color: #6c757d;
+                    font-size: 14px;
+                }
+                .alert {
+                    background-color: #fff3cd;
+                    color: #856404;
+                    padding: 10px;
+                    border-radius: 5px;
+                    border: 1px solid #ffeaa7;
+                    margin: 15px 0;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <img src="https://yt3.googleusercontent.com/IA0pZ7odBt38SOmTEZYD4K70xlsEzZz7zwAwwdm0tdcBxgCOL43tJdJtUuuXmkiOp6r0BXEW_g8=s900-c-k-c0x00ffffff-no-rj" alt="Municipalidad de San Miguel" class="logo">
+                    <h3>¡Hola, %s!</h3>
+                </div>
+                <div class="content">
+                    <div class="alert">
+                        <strong>Tu asistencia ha sido reasignada</strong>
+                    </div>
+                    <p>Te informamos que tu asistencia programada ha sido reasignada por la administración a otro coordinador.</p>
+                    <div class="details">
+                        <p><strong>Fecha:</strong> %s</p>
+                        <p><strong>Horario:</strong> %s - %s</p>
+                        <p><strong>Espacio Deportivo:</strong> %s</p>
+                        <p><strong>Establecimiento:</strong> %s</p>
+                        <p><strong>Motivo:</strong> %s</p>
+                    </div>
+                    <p>Puedes revisar el estado de tus asistencias en el sistema:</p>
+                    <a href="https://deportesanmiguel.site/coordinador/asistencias" class="btn-view">Ver Mis Asistencias</a>
+                    <p>Si tienes alguna duda, contacta con el administrador.</p>
+                </div>
+                <div class="footer">
+                    <p>© %d Municipalidad de San Miguel</p>
+                    <p>Sistema de Gestión Deportiva</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """.formatted(coordinador.getNombres(), formattedFecha, formattedInicio, formattedFin,
+                espacioNombre, establecimientoNombre, motivo,
+                java.time.Year.now().getValue());
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(fromEmail);
+        helper.setTo(coordinador.getCorreoElectronico());
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        mailSender.send(message);
     }
 
 }
