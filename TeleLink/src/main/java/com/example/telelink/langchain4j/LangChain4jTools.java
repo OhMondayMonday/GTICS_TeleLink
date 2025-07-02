@@ -43,9 +43,9 @@ public class LangChain4jTools {
         try {
             List<ServicioDeportivo> servicios = servicioDeportivoRepository.findAll();
             if (servicios.isEmpty()) {
-                return "No hay tipos de canchas disponibles.";
+                return "No hay servicios deportivos disponibles. Asegúrate de listar todos estos servicios deportivos para el usuario.";
             }
-            StringBuilder response = new StringBuilder("Tipos de canchas disponibles:\n");
+            StringBuilder response = new StringBuilder("Servicios deportivos disponibles:\n");
             for (ServicioDeportivo servicio : servicios) {
                 if (servicio.getServicioDeportivo().startsWith("Cancha")) {
                     response.append("- ID: ").append(servicio.getServicioDeportivoId())
@@ -53,9 +53,10 @@ public class LangChain4jTools {
                             .append("\n");
                 }
             }
-            return response.length() > 0 ? response.toString() : "No hay tipos de canchas disponibles.";
+            response.append("Asegúrate de listar todos estos servicios deportivos para el usuario.");
+            return response.toString();
         } catch (Exception e) {
-            return "Error al listar tipos de canchas: " + e.getMessage();
+            return "Error al listar servicios deportivos: " + e.getMessage();
         }
     }
 
@@ -65,13 +66,13 @@ public class LangChain4jTools {
         try {
             ServicioDeportivo servicio = servicioDeportivoRepository.findById(servicioDeportivoId).orElse(null);
             if (servicio == null) {
-                return "Tipo de cancha no encontrado con ID: " + servicioDeportivoId + ".";
+                return "Servicio deportivo no encontrado con ID: " + servicioDeportivoId + ". Asegúrate de listar todos estos espacios deportivos para el usuario.";
             }
             List<EspacioDeportivo> espacios = espacioDeportivoRepository.findByServicioDeportivo(servicio);
             if (espacios.isEmpty()) {
-                return "No hay canchas disponibles para " + servicio.getServicioDeportivo() + ".";
+                return "No hay espacios deportivos disponibles para " + servicio.getServicioDeportivo() + ". Asegúrate de listar todos estos espacios deportivos para el usuario.";
             }
-            StringBuilder response = new StringBuilder("Canchas disponibles para " + servicio.getServicioDeportivo() + ":\n");
+            StringBuilder response = new StringBuilder("Espacios deportivos disponibles para " + servicio.getServicioDeportivo() + ":\n");
             for (EspacioDeportivo espacio : espacios) {
                 if (espacio.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo) {
                     response.append("- ID: ").append(espacio.getEspacioDeportivoId())
@@ -79,14 +80,14 @@ public class LangChain4jTools {
                             .append(" (Establecimiento: ").append(espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre())
                             .append(", Ubicación: ").append(espacio.getGeolocalizacion())
                             .append(", Precio por hora: S/").append(espacio.getPrecioPorHora())
-                            .append(", Horario: ")
-                            .append(espacio.getHorarioApertura()).append(" a ").append(espacio.getHorarioCierre())
+                            .append(", Horario: ").append(espacio.getHorarioApertura()).append(" a ").append(espacio.getHorarioCierre())
                             .append(")\n");
                 }
             }
-            return response.length() > 0 ? response.toString() : "No hay canchas operativas para " + servicio.getServicioDeportivo() + ".";
+            response.append("Asegúrate de listar todos estos espacios deportivos para el usuario.");
+            return response.toString();
         } catch (Exception e) {
-            return "Error al listar canchas: " + e.getMessage();
+            return "Error al listar espacios deportivos: " + e.getMessage();
         }
     }
 
@@ -116,36 +117,69 @@ public class LangChain4jTools {
         try {
             EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId).orElse(null);
             if (espacio == null) {
-                return "Espacio deportivo no encontrado con ID: " + espacioId;
+                return "Espacio deportivo no encontrado con ID: " + espacioId + ". Asegúrate de listar todos estos espacios deportivos para el usuario.";
             }
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime inicio = LocalDateTime.parse(start, formatter);
             LocalDateTime fin = LocalDateTime.parse(end, formatter);
             if (inicio.isBefore(LocalDateTime.now()) || fin.isBefore(LocalDateTime.now())) {
-                return "Las fechas deben ser en el futuro.";
+                return "Las fechas deben ser en el futuro. Asegúrate de listar todos estos espacios deportivos para el usuario.";
             }
             if (fin.isBefore(inicio) || fin.isEqual(inicio)) {
-                return "La hora de fin debe ser después de la hora de inicio.";
+                return "La hora de fin debe ser después de la hora de inicio. Asegúrate de listar todos estos espacios deportivos para el usuario.";
             }
             if (inicio.toLocalTime().isBefore(espacio.getHorarioApertura()) || fin.toLocalTime().isAfter(espacio.getHorarioCierre())) {
-                return "El horario solicitado está fuera del horario de operación (" + espacio.getHorarioApertura() + " a " + espacio.getHorarioCierre() + ").";
+                return "El horario solicitado está fuera del horario de operación (" + espacio.getHorarioApertura() + " a " + espacio.getHorarioCierre() + "). Asegúrate de listar todos estos espacios deportivos para el usuario.";
             }
             List<Reserva> reservas = reservaRepository.findReservasEnRango(espacioId, inicio, fin);
             if (!reservas.isEmpty()) {
                 StringBuilder conflicts = new StringBuilder("No disponible. Reservas en conflicto:\n");
                 for (Reserva r : reservas) {
-                    conflicts.append("- Reserva ID ").append(r.getReservaId())
-                            .append(" de ").append(r.getInicioReserva()).append(" a ").append(r.getFinReserva()).append("\n");
+                    String apellidos = r.getUsuario() != null && r.getUsuario().getApellidos() != null ? r.getUsuario().getApellidos() : "(usuario desconocido)";
+                    conflicts.append("- El usuario ").append(apellidos)
+                            .append(" ha reservado de ").append(r.getInicioReserva()).append(" a ").append(r.getFinReserva()).append("\n");
                 }
+                // Buscar alternativas en otros espacios del mismo servicio deportivo
+                ServicioDeportivo servicio = espacio.getServicioDeportivo();
+                List<EspacioDeportivo> otrosEspacios = espacioDeportivoRepository.findByServicioDeportivo(servicio)
+                        .stream()
+                        .filter(e -> !e.getEspacioDeportivoId().equals(espacioId))
+                        .filter(e -> e.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo)
+                        .collect(Collectors.toList());
+                List<EspacioDeportivo> disponibles = new java.util.ArrayList<>();
+                for (EspacioDeportivo otro : otrosEspacios) {
+                    List<Reserva> reservasOtro = reservaRepository.findReservasEnRango(otro.getEspacioDeportivoId(), inicio, fin);
+                    if (reservasOtro.isEmpty()
+                        && !inicio.toLocalTime().isBefore(otro.getHorarioApertura())
+                        && !fin.toLocalTime().isAfter(otro.getHorarioCierre())) {
+                        disponibles.add(otro);
+                    }
+                }
+                if (!disponibles.isEmpty()) {
+                    conflicts.append("\nOtros espacios deportivos disponibles para el mismo servicio en ese horario:\n");
+                    for (EspacioDeportivo disp : disponibles) {
+                        conflicts.append("- ")
+                                .append(disp.getNombre())
+                                .append(" (Establecimiento: ").append(disp.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre())
+                                .append(", Ubicación: ").append(disp.getGeolocalizacion())
+                                .append(", Precio por hora: S/").append(disp.getPrecioPorHora())
+                                .append(", Horario: ").append(disp.getHorarioApertura()).append(" a ").append(disp.getHorarioCierre())
+                                .append(", ID: ").append(disp.getEspacioDeportivoId())
+                                .append(")\n");
+                    }
+                } else {
+                    conflicts.append("\nNo hay otros espacios deportivos disponibles para el mismo servicio en ese horario.");
+                }
+                conflicts.append("\nAsegúrate de listar todos estos espacios deportivos para el usuario.");
                 return conflicts.toString();
             }
             long hours = Duration.between(inicio, fin).toHours();
             return "Espacio disponible. ID: " + espacioId + ", Nombre: " + espacio.getNombre() + ", Costo: S/" +
-                    espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)) + " por " + hours + " horas.";
+                    espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)) + " por " + hours + " horas. Asegúrate de listar todos estos espacios deportivos para el usuario.";
         } catch (DateTimeParseException e) {
-            return "Formato de fecha inválido. Usa YYYY-MM-DD HH:mm.";
+            return "Formato de fecha inválido. Usa YYYY-MM-DD HH:mm. Asegúrate de listar todos estos espacios deportivos para el usuario.";
         } catch (Exception e) {
-            return "Error al verificar disponibilidad: " + e.getMessage();
+            return "Error al verificar disponibilidad: " + e.getMessage() + " Asegúrate de listar todos estos espacios deportivos para el usuario.";
         }
     }
 
