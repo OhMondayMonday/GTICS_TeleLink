@@ -155,15 +155,7 @@ public class UsuarioController {
         return "Vecino/vecino-servicioDeportivo";
     }
 
-    @PostMapping("/agregar-resenia/{espacioId}")
-    public String agregarResenia(@PathVariable Integer espacioId,
-                                 @RequestParam Integer calificacion,
-                                 @RequestParam String comentario,
-                                 @RequestParam(required = false) MultipartFile fotoResenia,
-                                 HttpSession session) {
-        // Tu lógica para guardar la reseña
-        return "redirect:/usuarios/reservas/" + espacioId;
-    }
+
 
     @GetMapping("/reembolsos")
     public String mostrarMisReembolsos(Model model, HttpSession session) {
