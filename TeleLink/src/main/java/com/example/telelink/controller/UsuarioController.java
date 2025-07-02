@@ -1088,12 +1088,13 @@ public class UsuarioController {
             reserva.setEstado(Reserva.Estado.confirmada);
             reserva.setFechaActualizacion(LocalDateTime.now());
             redirectAttributes.addFlashAttribute("mensaje", "Pago realizado con éxito");
-            // Send email to user
+            // Send email to use
             try {
-                emailService.sendReservationConfirmation(usuario, reserva);
-            } catch (MessagingException e) {
-                // Log the error but don't interrupt the flow
-                System.err.println("Failed to send reservation confirmation email: " + e.getMessage());
+                emailService.sendReservationPaymentCompleted(usuario, reserva, monto);
+                System.out.println(
+                        "✅ Correo de pago confirmado enviado exitosamente a: " + usuario.getCorreoElectronico());
+            } catch (Exception emailException) {
+                System.err.println("❌ Error al enviar correo de pago confirmado: " + emailException.getMessage());
             }
         } else {
             pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
@@ -1790,14 +1791,15 @@ public class UsuarioController {
         // Calcular precio total según tipo de servicio
         BigDecimal precioTotal = precioBase;
 
-        // Si es piscina, gimnasio o atletismo y tiene número de participantes, multiplicar por ese número
+        // Si es piscina, gimnasio o atletismo y tiene número de participantes,
+        // multiplicar por ese número
         Integer numeroParticipantes = 1; // Valor por defecto
         String tipoServicio = reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo();
-        
-        if (("piscina".equalsIgnoreCase(tipoServicio) || 
-             "gimnasio".equalsIgnoreCase(tipoServicio) || 
-             "atletismo".equalsIgnoreCase(tipoServicio)) 
-             && reserva.numeroParticipantes() != null && reserva.numeroParticipantes() > 0) {
+
+        if (("piscina".equalsIgnoreCase(tipoServicio) ||
+                "gimnasio".equalsIgnoreCase(tipoServicio) ||
+                "atletismo".equalsIgnoreCase(tipoServicio))
+                && reserva.numeroParticipantes() != null && reserva.numeroParticipantes() > 0) {
             numeroParticipantes = reserva.numeroParticipantes();
             precioTotal = precioBase.multiply(BigDecimal.valueOf(numeroParticipantes));
         }
