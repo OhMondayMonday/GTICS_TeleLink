@@ -1,6 +1,41 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Servicio Deportivo')}"></head>
+<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Servicio Deportivo')}">
+    <style>
+        .rating-stars {
+            display: inline-flex;
+            flex-direction: row;
+        }
+
+        .rating-stars input {
+            display: none;
+        }
+
+        .rating-stars label {
+            font-size: 32px;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0 2px;
+        }
+
+        /* Hover */
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label {
+            color: #ffc107;
+        }
+
+        /* Checked */
+        .rating-stars input:checked ~ label {
+            color: #ccc;
+        }
+
+        .rating-stars input:checked + label,
+        .rating-stars input:checked + label ~ label {
+            color: #ffc107;
+        }
+    </style>
+</head>
 <!-- ====================================================================================================================================== -->
 <body data-sidebar="dark" class="vertical-collpsed">
 <!-- Begin page -->
@@ -137,6 +172,9 @@
                                                 <li class="nav-item">
                                                     <a class="nav-link" id="specifi-tab" data-bs-toggle="tab" href="#specifi" role="tab">Especificaciones</a>
                                                 </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" id="reviews-tab" data-bs-toggle="tab" href="#reviews" role="tab">Reseñas</a>
+                                                </li>
                                             </ul>
 
                                             <div class="tab-content border border-top-0 p-4">
@@ -191,6 +229,108 @@
                                                         </table>
                                                     </div>
                                                 </div>
+
+                                                <!-- Contenido de Reseñas -->
+                                                <div class="tab-pane fade" id="reviews" role="tabpanel">
+                                                    <div class="mb-4">
+                                                        <h5 class="mb-3">Opiniones de usuarios</h5>
+
+                                                        <!-- Si hay reseñas -->
+                                                        <div th:if="${not #lists.isEmpty(resenias)}">
+                                                            <!-- Promedio de calificaciones -->
+                                                            <div class="d-flex align-items-center mb-4">
+                                                                <div class="me-3">
+                                                                    <span class="display-4 fw-bold" th:text="${#numbers.formatDecimal(promedioCalificacion, 1, 1)}">0.0</span>
+                                                                    <span class="text-muted">/5</span>
+                                                                </div>
+                                                                <div>
+                                                                    <div class="mb-1">
+                                                                        <span class="text-warning">
+                                                                            <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                                               th:classappend="${i <= promedioCalificacion ? 'mdi mdi-star' :
+                                                                               (i - 0.5 <= promedioCalificacion ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline')}"></i>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="text-muted small" th:text="'Basado en ' + ${resenias.size()} + ' reseña(s)'">Basado en 0 reseñas</div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Lista de reseñas -->
+                                                            <div class="review-list">
+                                                                <div th:each="resenia : ${resenias}" class="review-item mb-4 pb-4 border-bottom">
+                                                                    <div class="d-flex justify-content-between mb-2">
+                                                                        <div>
+                                                                            <span class="fw-bold" th:text="${resenia.usuario.nombres} + ' ' + ${resenia.usuario.apellidos}">Usuario</span>
+                                                                            <span class="text-muted small ms-2" th:text="${#temporals.format(resenia.fechaCreacion, 'dd/MM/yyyy')}">Fecha</span>
+                                                                        </div>
+                                                                        <div class="text-warning">
+                                                                            <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                                               th:classappend="${i <= resenia.calificacion ? 'mdi mdi-star' : 'mdi mdi-star-outline'}"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mb-2" th:text="${resenia.comentario}">Comentario del usuario</div>
+                                                                    <div th:if="${resenia.fotoReseniaUrl != null}">
+                                                                        <img th:src="${resenia.fotoReseniaUrl}" alt="Foto de reseña" class="img-thumbnail" style="max-height: 150px;">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Si no hay reseñas -->
+                                                        <div th:if="${#lists.isEmpty(resenias)}" class="text-center py-4">
+                                                            <i class="mdi mdi-comment-remove-outline display-4 text-muted mb-3"></i>
+                                                            <h5 class="text-muted">No hay reseñas todavía</h5>
+                                                            <p class="text-muted">Sé el primero en dejar tu opinión</p>
+                                                        </div>
+
+                                                        <!-- Formulario para nueva reseña (solo para usuarios logueados) -->
+                                                        <div class="mt-5" th:if="${usuario != null}">
+                                                            <h5 class="mb-3">Deja tu reseña</h5>
+                                                            <form th:action="@{'/usuarios/agregar-resenia/' + ${espacio.espacioDeportivoId}}" method="post" enctype="multipart/form-data">
+
+                                                                <!-- Selector de estrellas -->
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Calificación</label>
+                                                                    <div class="rating-stars">
+                                                                        <input type="radio" id="star1" name="calificacion" value="1">
+                                                                        <label for="star1" title="1 estrella" class="mdi mdi-star"></label>
+
+                                                                        <input type="radio" id="star2" name="calificacion" value="2">
+                                                                        <label for="star2" title="2 estrellas" class="mdi mdi-star"></label>
+
+                                                                        <input type="radio" id="star3" name="calificacion" value="3">
+                                                                        <label for="star3" title="3 estrellas" class="mdi mdi-star"></label>
+
+                                                                        <input type="radio" id="star4" name="calificacion" value="4">
+                                                                        <label for="star4" title="4 estrellas" class="mdi mdi-star"></label>
+
+                                                                        <input type="radio" id="star5" name="calificacion" value="5" required>
+                                                                        <label for="star5" title="5 estrellas" class="mdi mdi-star"></label>
+                                                                    </div>
+                                                                    <div class="rating-text text-muted small mt-1">
+                                                                        <span id="rating-value">0</span>/5 estrellas
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div class="mb-3">
+                                                                    <label for="comentario" class="form-label">Comentario</label>
+                                                                    <textarea class="form-control" id="comentario" name="comentario" rows="3" maxlength="255" required></textarea>
+                                                                </div>
+
+                                                                <div class="mb-3">
+                                                                    <label for="fotoResenia" class="form-label">Subir foto (opcional)</label>
+                                                                    <input type="file" class="form-control" id="fotoResenia" name="fotoResenia" accept="image/*">
+                                                                </div>
+
+                                                                <button type="submit" class="btn btn-primary">Enviar reseña</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+
                                             </div>
                                         </div>
                                     </div>
@@ -244,6 +384,46 @@
 <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
 <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
 <script th:src="@{/assets/js/app.js}"></script>
+
+<script>
+    // Validación de estrellas
+    document.querySelectorAll('input[name="calificacion"]').forEach((radio) => {
+        radio.addEventListener('change', function() {
+            document.getElementById('rating-value').innerText = this.value;
+        });
+    });
+
+    // Validación del formulario antes de enviar
+    document.getElementById('reseniaForm').addEventListener('submit', function(e) {
+        const calificacionSeleccionada = document.querySelector('input[name="calificacion"]:checked');
+        const comentario = document.getElementById('comentario').value.trim();
+        const archivo = document.getElementById('fotoResenia').files[0];
+
+        // Validar archivo si se subió
+        if (archivo) {
+            const tiposPermitidos = ['image/jpeg', 'image/png'];
+            const tamanoMaximo = 5 * 1024 * 1024; // 5MB
+
+            if (!tiposPermitidos.includes(archivo.type)) {
+                alert('Por favor, sube una imagen en formato JPG o PNG.');
+                e.preventDefault();
+                return;
+            }
+
+            if (archivo.size > tamanoMaximo) {
+                alert('La imagen es demasiado grande. El tamaño máximo permitido es 5MB.');
+                e.preventDefault();
+                return;
+            }
+        }
+
+        // Validación básica (el required de HTML ya cubre esto)
+        if (!calificacionSeleccionada || !comentario) {
+            // HTML5 validation mostrará los mensajes
+            return;
+        }
+    });
+</script>
 
 </body>
 </html>
