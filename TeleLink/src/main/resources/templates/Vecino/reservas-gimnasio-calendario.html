@@ -356,12 +356,80 @@
                             return response.json();
                         })
                         .then(data => {
-                            // Filtrar reservas canceladas
-                            const reservasFiltradas = data.filter(evento =>
-                                evento.estado !== 'cancelada' && evento.estado !== 'CANCELADA');
+                            // Procesar todos los eventos (reservas y mantenimientos)
+                            const events = data.map(evento => {
+                                // Verificar si es un evento de mantenimiento
+                                if (evento.esMantenimiento === true) {
+                                    // Formatear las fechas para mostrar en el título
+                                    const fechaInicio = new Date(evento.start);
+                                    const fechaFin = new Date(evento.end);
+                                    
+                                    // Formatear solo la hora si es el mismo día, o fecha completa si es diferente día
+                                    let horarioTexto = '';
+                                    if (fechaInicio.toDateString() === fechaFin.toDateString()) {
+                                        // Mismo día - mostrar solo las horas
+                                        const horaInicio = fechaInicio.toLocaleTimeString('es-PE', { 
+                                            hour: '2-digit', 
+                                            minute: '2-digit', 
+                                            hour12: false 
+                                        });
+                                        const horaFin = fechaFin.toLocaleTimeString('es-PE', { 
+                                            hour: '2-digit', 
+                                            minute: '2-digit', 
+                                            hour12: false 
+                                        });
+                                        horarioTexto = `${horaInicio} - ${horaFin}`;
+                                    } else {
+                                        // Diferentes días - mostrar fecha y hora
+                                        const inicioCompleto = fechaInicio.toLocaleDateString('es-PE', { 
+                                            day: '2-digit', 
+                                            month: '2-digit' 
+                                        }) + ' ' + fechaInicio.toLocaleTimeString('es-PE', { 
+                                            hour: '2-digit', 
+                                            minute: '2-digit', 
+                                            hour12: false 
+                                        });
+                                        const finCompleto = fechaFin.toLocaleDateString('es-PE', { 
+                                            day: '2-digit', 
+                                            month: '2-digit' 
+                                        }) + ' ' + fechaFin.toLocaleTimeString('es-PE', { 
+                                            hour: '2-digit', 
+                                            minute: '2-digit', 
+                                            hour12: false 
+                                        });
+                                        horarioTexto = `${inicioCompleto} - ${finCompleto}`;
+                                    }
 
-                            // Procesar los eventos para FullCalendar
-                            const events = reservasFiltradas.map(evento => {
+                                    // Extraer solo el motivo del título (sin "Mantenimiento - ")
+                                    const motivo = evento.title.replace('Mantenimiento - ', '');
+                                    
+                                    return {
+                                        id: evento.id,
+                                        title: `🔧 ${motivo} (${horarioTexto})`,
+                                        start: evento.start,
+                                        end: evento.end,
+                                        backgroundColor: evento.backgroundColor || '#ff6b6b',
+                                        borderColor: evento.borderColor || '#ff4757',
+                                        textColor: evento.textColor || '#ffffff',
+                                        display: evento.display || 'background',
+                                        rendering: evento.rendering || 'background',
+                                        extendedProps: {
+                                            esMantenimiento: true,
+                                            estado: evento.estado,
+                                            motivo: motivo,
+                                            horarioInicio: fechaInicio.toLocaleString('es-PE'),
+                                            horarioFin: fechaFin.toLocaleString('es-PE')
+                                        },
+                                        classNames: ['evento-mantenimiento']
+                                    };
+                                }
+                                
+                                // Si no es mantenimiento, procesar como reserva normal
+                                // Filtrar reservas canceladas
+                                if (evento.estado === 'cancelada' || evento.estado === 'CANCELADA') {
+                                    return null;
+                                }
+
                                 const esPropia = evento.esPropia === true;
                                 const estado = evento.estado ? evento.estado.toLowerCase() : null;
 
@@ -379,12 +447,16 @@
                                     title: title,
                                     start: evento.start,
                                     end: evento.end,
+                                    backgroundColor: evento.backgroundColor,
+                                    borderColor: evento.borderColor,
+                                    textColor: evento.textColor,
                                     extendedProps: {
                                         esPropia: esPropia,
-                                        estado: estado
+                                        estado: estado,
+                                        esMantenimiento: false
                                     }
                                 };
-                            });
+                            }).filter(evento => evento !== null);
 
                             successCallback(events);
                         })
@@ -396,6 +468,57 @@
                 },
 
                 eventClick: function (info) {
+                    // Verificar si es un evento de mantenimiento
+                    if (info.event.extendedProps.esMantenimiento === true) {
+                        const motivo = info.event.extendedProps.motivo || 'No especificado';
+                        const estado = info.event.extendedProps.estado || 'desconocido';
+                        const fechaInicio = info.event.extendedProps.horarioInicio;
+                        const fechaFin = info.event.extendedProps.horarioFin;
+
+                        let estadoTexto = '';
+                        let iconoEstado = '';
+                        switch (estado.toLowerCase()) {
+                            case 'pendiente':
+                                estadoTexto = 'Programado';
+                                iconoEstado = '🕐';
+                                break;
+                            case 'en_curso':
+                                estadoTexto = 'En progreso';
+                                iconoEstado = '🔧';
+                                break;
+                            case 'finalizado':
+                                estadoTexto = 'Finalizado';
+                                iconoEstado = '✅';
+                                break;
+                            default:
+                                estadoTexto = 'Estado desconocido';
+                                iconoEstado = '❓';
+                        }
+
+                        Swal.fire({
+                            icon: 'info',
+                            title: '🔧 Mantenimiento de Gimnasio',
+                            html: `
+                                <div class="text-start">
+                                    <p><strong>Instalación:</strong> Gimnasio</p>
+                                    <p><strong>Motivo:</strong> ${motivo}</p>
+                                    <p><strong>Inicio:</strong> ${fechaInicio}</p>
+                                    <p><strong>Fin estimado:</strong> ${fechaFin}</p>
+                                    <p><strong>${iconoEstado} Estado:</strong> ${estadoTexto}</p>
+                                    <hr>
+                                    <p class="text-muted small">
+                                        <i class="fas fa-info-circle"></i> 
+                                        El gimnasio no estará disponible para reservas durante este período.
+                                    </p>
+                                </div>
+                            `,
+                            confirmButtonText: 'Entendido',
+                            confirmButtonColor: '#6c757d',
+                            width: '500px'
+                        });
+                        return;
+                    }
+
                     // Solo permitir interacción con eventos propios
                     if (!info.event.extendedProps.esPropia) {
                         alert("Este horario ya está reservado por otro usuario y no se puede modificar.");
@@ -477,52 +600,192 @@
                             let btnCancelar = document.getElementById("btn-cancel-reservation");
 
                             // Configurar cancelación mediante AJAX en lugar de href directo
-                            btnCancelar.onclick = function(e) {
+                            btnCancelar.onclick = function (e) {
                                 e.preventDefault();
-                                
+
+                                // Obtener el estado de la reserva para mostrar mensaje apropiado
+                                const estadoReserva = data.estado.toLowerCase();
+                                let tituloConfirmacion = '¿Cancelar reserva?';
+                                let textoConfirmacion = "Esta acción no se puede deshacer";
+
+                                // Personalizar mensaje según el estado
+                                if (estadoReserva === 'pendiente') {
+                                    tituloConfirmacion = '¿Cancelar reserva pendiente?';
+                                    textoConfirmacion = "La reserva pendiente será cancelada inmediatamente sin penalización.";
+                                } else if (estadoReserva === 'confirmada') {
+                                    tituloConfirmacion = '¿Cancelar reserva confirmada?';
+                                    textoConfirmacion = "Solo se puede cancelar si faltan más de 48 horas para el inicio de la reserva.";
+                                }
+
+                                // Mostrar modal con input para la razón de cancelación
                                 Swal.fire({
-                                    title: '¿Cancelar reserva?',
-                                    text: "Esta acción no se puede deshacer",
+                                    title: tituloConfirmacion,
+                                    html: `
+            <div class="text-start mb-3">
+                <p class="mb-3">${textoConfirmacion}</p>
+            </div>
+        `,
                                     icon: 'warning',
                                     showCancelButton: true,
                                     confirmButtonColor: '#d33',
                                     cancelButtonColor: '#3085d6',
-                                    confirmButtonText: 'Sí, cancelar',
+                                    confirmButtonText: 'Sí, cancelar reserva',
                                     cancelButtonText: 'No cancelar',
+                                    width: '600px',
+                                    focusConfirm: false,
+                                    preConfirm: () => {
+                                        const razonInput = document.getElementById('razon-cancelacion');
+                                        return {
+                                            razon: razonInput.value.trim() || 'Cancelación solicitada por el usuario'
+                                        };
+                                    }
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        const razon = result.value || 'Cancelación desde calendario';
-                                        
+                                        const razonCancelacion = result.value.razon;
+
                                         // Mostrar indicador de carga
                                         Swal.fire({
-                                            title: 'Cancelando reserva...',
+                                            title: 'Procesando cancelación...',
+                                            text: 'Por favor espera mientras procesamos tu solicitud',
                                             allowOutsideClick: false,
                                             didOpen: () => {
                                                 Swal.showLoading();
                                             }
                                         });
-                                        
-                                        // Realizar la cancelación mediante AJAX
-                                        fetch(`/api/cancelar-reserva-pendiente/${reservaId}`)
+
+                                        // Realizar la cancelación mediante AJAX con la razón personalizada
+                                        const cancelarUrl = `/api/cancelar-reserva-pendiente/${reservaId}?razon=${encodeURIComponent(razonCancelacion)}`;
+
+                                        fetch(cancelarUrl)
                                             .then(response => response.json())
                                             .then(data => {
                                                 if (data.success) {
+                                                    let mensajeExito = data.mensaje;
+                                                    let iconoExito = 'success';
+
+                                                    // Personalizar mensaje según el tipo de cancelación
+                                                    if (data.tipo === 'cancelacion_directa') {
+                                                        mensajeExito = `
+                                <div class="text-start">
+                                    <h5 class="text-success mb-3"><i class="fas fa-check-circle"></i> Reserva cancelada exitosamente</h5>
+                                    <p><strong>Tipo:</strong> Reserva pendiente</p>
+                                    <p><strong>Razón:</strong> ${razonCancelacion}</p>
+                                    <p class="text-muted mb-0">No se aplicaron penalizaciones.</p>
+                                </div>
+                            `;
+                                                    } else if (data.tipo === 'cancelacion_con_reembolso') {
+                                                        iconoExito = 'success';
+                                                        mensajeExito = `
+                                <div class="text-start">
+                                    <h5 class="text-success mb-3"><i class="fas fa-check-circle"></i> Reserva cancelada exitosamente</h5>
+                                    <p><strong>Tipo:</strong> Reserva confirmada</p>
+                                    <p><strong>Razón:</strong> ${razonCancelacion}</p>
+                                    <div class="alert alert-info mt-3 mb-3">
+                                        <h6><strong><i class="fas fa-money-bill-wave text-success"></i> Reembolso generado:</strong></h6>
+                                        <p class="mb-1"><strong>Monto:</strong> S/ ${data.montoReembolso}</p>
+                                        <p class="mb-0"><strong>ID de reembolso:</strong> #${data.reembolsoId}</p>
+                                    </div>
+                                    <p class="text-muted mb-0">El reembolso será procesado en los próximos días laborables y te notificaremos por email.</p>
+                                </div>
+                            `;
+                                                    } else if (data.tipo === 'cancelacion_sin_reembolso_automatico') {
+                                                        iconoExito = 'warning';
+                                                        mensajeExito = `
+                                <div class="text-start">
+                                    <h5 class="text-warning mb-3"><i class="fas fa-exclamation-triangle"></i> Reserva cancelada</h5>
+                                    <p><strong>Razón:</strong> ${razonCancelacion}</p>
+                                    <p>${data.mensaje}</p>
+                                    <p class="text-muted mb-0">Si necesitas asistencia con el reembolso, contacta con nuestro equipo de soporte.</p>
+                                </div>
+                            `;
+                                                    } else if (data.tipo === 'cancelacion_sin_pago') {
+                                                        iconoExito = 'info';
+                                                        mensajeExito = `
+                                <div class="text-start">
+                                    <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Reserva cancelada</h5>
+                                    <p><strong>Razón:</strong> ${razonCancelacion}</p>
+                                    <p>${data.mensaje}</p>
+                                    <p class="text-muted mb-0">Si realizaste un pago, por favor contacta con soporte.</p>
+                                </div>
+                            `;
+                                                    }
+
                                                     Swal.fire({
-                                                        icon: 'success',
-                                                        title: 'Reserva cancelada',
-                                                        text: data.mensaje,
-                                                        confirmButtonText: 'Aceptar'
+                                                        icon: iconoExito,
+                                                        title: 'Cancelación procesada',
+                                                        html: mensajeExito,
+                                                        confirmButtonText: 'Aceptar',
+                                                        width: '600px',
+                                                        customClass: {
+                                                            htmlContainer: 'text-start'
+                                                        }
                                                     }).then(() => {
                                                         // Cerrar modal y actualizar calendario
                                                         modal.hide();
                                                         calendar.refetchEvents();
                                                     });
                                                 } else {
+                                                    let iconoError = 'error';
+                                                    let tituloError = 'Error al cancelar';
+                                                    let textoError = data.error || 'No se pudo cancelar la reserva';
+
+                                                    // Personalizar mensaje según el tipo de error
+                                                    if (data.tipo === 'tiempo_insuficiente') {
+                                                        iconoError = 'warning';
+                                                        tituloError = 'Cancelación no permitida';
+                                                        textoError = `
+                                <div class="text-start">
+                                    <h5 class="text-warning mb-3"><i class="fas fa-exclamation-triangle"></i> No se puede cancelar</h5>
+                                    <p><strong>Razón solicitada:</strong> ${razonCancelacion}</p>
+                                    <div class="alert alert-warning mt-3 mb-3">
+                                        <p class="mb-1">No se puede cancelar la reserva confirmada.</p>
+                                        <p class="mb-1"><strong>Horas restantes:</strong> ${data.horasRestantes || 'N/A'}</p>
+                                        <p class="mb-0">Se requieren al menos 48 horas de anticipación.</p>
+                                    </div>
+                                    <p class="text-muted mb-0">Las reservas confirmadas solo pueden cancelarse con al menos 48 horas de anticipación para generar reembolso.</p>
+                                </div>
+                            `;
+                                                    } else if (data.tipo === 'ya_cancelada') {
+                                                        iconoError = 'info';
+                                                        tituloError = 'Reserva ya cancelada';
+                                                        textoError = `
+                                <div class="text-start">
+                                    <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Estado actual</h5>
+                                    <p>Esta reserva ya fue cancelada anteriormente.</p>
+                                    <p class="text-muted mb-0">No es necesario realizar ninguna acción adicional.</p>
+                                </div>
+                            `;
+                                                    } else if (data.tipo === 'completada') {
+                                                        iconoError = 'info';
+                                                        tituloError = 'Cancelación no permitida';
+                                                        textoError = `
+                                <div class="text-start">
+                                    <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Reserva completada</h5>
+                                    <p>No se puede cancelar una reserva que ya ha sido completada.</p>
+                                    <p class="text-muted mb-0">La reserva fue utilizada exitosamente.</p>
+                                </div>
+                            `;
+                                                    } else if (data.tipo === 'en_proceso') {
+                                                        iconoError = 'info';
+                                                        tituloError = 'Cancelación no permitida';
+                                                        textoError = `
+                                <div class="text-start">
+                                    <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Reserva en proceso</h5>
+                                    <p>No se puede cancelar una reserva que está en proceso.</p>
+                                    <p class="text-muted mb-0">La reserva está siendo utilizada actualmente.</p>
+                                </div>
+                            `;
+                                                    }
+
                                                     Swal.fire({
-                                                        icon: 'error',
-                                                        title: 'Error al cancelar',
-                                                        text: data.error || 'No se pudo cancelar la reserva',
-                                                        confirmButtonText: 'Aceptar'
+                                                        icon: iconoError,
+                                                        title: tituloError,
+                                                        html: textoError,
+                                                        confirmButtonText: 'Entendido',
+                                                        width: '600px',
+                                                        customClass: {
+                                                            htmlContainer: 'text-start'
+                                                        }
                                                     });
                                                 }
                                             })
@@ -531,13 +794,20 @@
                                                 Swal.fire({
                                                     icon: 'error',
                                                     title: 'Error de conexión',
-                                                    text: 'No se pudo conectar con el servidor',
-                                                    confirmButtonText: 'Aceptar'
+                                                    html: `
+                            <div class="text-start">
+                                <h5 class="text-danger mb-3"><i class="fas fa-times-circle"></i> Error de conexión</h5>
+                                <p><strong>Razón solicitada:</strong> ${razonCancelacion}</p>
+                                <p class="text-muted mb-0">No se pudo conectar con el servidor. Por favor, intenta nuevamente.</p>
+                            </div>
+                        `,
+                                                    confirmButtonText: 'Aceptar',
+                                                    width: '600px'
                                                 });
                                             });
                                     }
                                 });
-                                
+
                                 return false;
                             };
 
@@ -652,7 +922,6 @@
                 },
 
                 dateClick: function (info) {
-                    // Verificar si la fecha es pasada
                     const clickedTime = info.date;
                     if (clickedTime < now) {
                         Swal.fire({
@@ -664,16 +933,37 @@
                         return;
                     }
 
-                    // Verificar si hay un evento en esta hora (como aforo completo o reserva existente)
                     const eventsAtTime = calendar.getEvents().filter(event => {
                         return (event.start <= clickedTime && event.end > clickedTime);
                     });
 
-                    // Si hay eventos en esta hora, no permitir la reserva
                     if (eventsAtTime.length > 0) {
-                        const reservaInfo = eventsAtTime[0];
-                        const esPropiaReserva = reservaInfo.extendedProps && reservaInfo.extendedProps.esPropia;
+                        const eventoConflicto = eventsAtTime[0];
+                        
+                        // Si es un mantenimiento, mostrar mensaje específico
+                        if (eventoConflicto.extendedProps && eventoConflicto.extendedProps.esMantenimiento) {
+                            const motivo = eventoConflicto.extendedProps.motivo || 'mantenimiento programado';
+                            Swal.fire({
+                                icon: 'warning',
+                                title: '🔧 Gimnasio en Mantenimiento',
+                                html: `
+                                    <div class="text-center">
+                                        <p>El gimnasio no está disponible para reservas.</p>
+                                        <p><strong>Motivo:</strong> ${motivo}</p>
+                                        <hr>
+                                        <p class="text-muted small">
+                                            <i class="fas fa-clock"></i> 
+                                            Selecciona otro horario en el cual realizar tu reserva.
+                                        </p>
+                                    </div>
+                                `,
+                                confirmButtonText: 'Entendido',
+                                confirmButtonColor: '#6c757d'
+                            });
+                            return;
+                        }
 
+                        const esPropiaReserva = eventoConflicto.extendedProps && eventoConflicto.extendedProps.esPropia;
                         if (esPropiaReserva) {
                             alert(`Ya tienes una reserva activa para esta hora. Puedes ver sus detalles haciendo clic en ella.`);
                         } else {
@@ -846,20 +1136,48 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.disponible) {
-                            // Actualizar los campos ocultos antes de enviar
+                            // Proceder con la reserva
                             document.getElementById("input-espacio-id").value = espacioId;
                             document.getElementById("input-fecha-inicio").value = rawStart;
                             document.getElementById("input-fecha-fin").value = rawEnd;
-                            document.getElementById("input-numero-participantes").value = participantes;
                             form.submit();
                         } else {
-                            // Mostrar mensaje de error
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Horario no disponible',
-                                text: data.mensaje || 'No hay suficiente disponibilidad para el número de participantes seleccionado.',
-                                confirmButtonText: 'Entendido'
-                            });
+                            // Mostrar mensaje de error específico según el tipo
+                            let icono = 'error';
+                            let titulo = 'Horario no disponible';
+
+                            if (data.razon === 'mantenimiento') {
+                                icono = 'warning';
+                                titulo = '🔧 Mantenimiento Programado';
+
+                                // Mostrar información detallada del mantenimiento
+                                let detalleMantenimiento = '';
+                                if (data.mantenimientos && data.mantenimientos.length > 0) {
+                                    detalleMantenimiento = '<br><br><strong>Detalles:</strong><ul>';
+                                    data.mantenimientos.forEach(m => {
+                                        const inicio = new Date(m.fechaInicio).toLocaleString('es-PE');
+                                        const fin = new Date(m.fechaFin).toLocaleString('es-PE');
+                                        detalleMantenimiento += `<li><strong>${m.motivo}</strong><br>📅 ${inicio} - ${fin}<br>🔧 Estado: ${m.estado}</li>`;
+                                    });
+                                    detalleMantenimiento += '</ul>';
+                                }
+
+                                Swal.fire({
+                                    icon: icono,
+                                    title: titulo,
+                                    html: data.mensaje + detalleMantenimiento,
+                                    confirmButtonText: 'Entendido',
+                                    confirmButtonColor: '#6c757d'
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: icono,
+                                    title: titulo,
+                                    text: data.mensaje,
+                                    confirmButtonText: 'Entendido'
+                                });
+                            }
+
                             // Actualizar calendario para mostrar cambios
                             calendar.refetchEvents();
                         }

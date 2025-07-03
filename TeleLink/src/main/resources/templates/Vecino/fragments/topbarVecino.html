@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head th:fragment="head(title)">
     <meta charset="utf-8" />
     <title th:text="${title}"></title>
@@ -18,13 +19,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- jquery.vectormap css -->
-    <link th:href="@{/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css}" rel="stylesheet"
+        type="text/css" />
 
     <!-- DataTables -->
-    <link th:href="@{/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css}" rel="stylesheet"
+        type="text/css" />
 
     <!-- Responsive datatable examples -->
-    <link th:href="@{/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css}" rel="stylesheet"
+        type="text/css" />
 
     <!-- Bootstrap Css -->
     <link th:href="@{/assets/css/bootstrap.min.css}" id="bootstrap-style" rel="stylesheet" type="text/css" />
@@ -32,6 +36,123 @@
     <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
     <!-- App Css-->
     <link th:href="@{/assets/css/app.min.css}" id="app-style" rel="stylesheet" type="text/css" />
+    <!-- Agregar este CSS antes del cierre del </head> o al final del archivo -->
+    <style>
+        /* ===== SOLUCIÓN PARA TEXTAREA EN SWEETALERT2 ===== */
+        .swal2-container .swal2-popup .swal2-html-container {
+            overflow: visible !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .form-control {
+            pointer-events: auto !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+
+            /* Asegurar que el campo sea editable */
+            background-color: #fff !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            color: #495057 !important;
+
+            /* Remover cualquier estilo que pueda interferir */
+            opacity: 1 !important;
+            cursor: text !important;
+
+            /* Asegurar que se pueda escribir */
+            readonly: false !important;
+            disabled: false !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .form-control:focus {
+            border-color: #80bdff !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+            outline: 0 !important;
+            background-color: #fff !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .form-control:hover {
+            border-color: #80bdff !important;
+        }
+
+        /* Estilos para labels y texto */
+        .swal2-container .swal2-popup .swal2-html-container .form-label {
+            margin-bottom: 6px !important;
+            font-weight: 500 !important;
+            color: #333 !important;
+            display: block !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .text-muted {
+            color: #6c757d !important;
+            font-size: 12px !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .text-start {
+            text-align: left !important;
+        }
+
+        /* Asegurar que el contenedor del modal permita interacción */
+        .swal2-container {
+            pointer-events: auto !important;
+        }
+
+        .swal2-popup {
+            pointer-events: auto !important;
+        }
+
+        /* Estilos para las alertas dentro del modal */
+        .swal2-html-container .alert {
+            border-radius: 8px !important;
+            border: 1px solid !important;
+            padding: 12px !important;
+            margin: 15px 0 !important;
+        }
+
+        .swal2-html-container .alert-info {
+            background-color: #e7f3ff !important;
+            border-color: #b3d9ff !important;
+            color: #004085 !important;
+        }
+
+        .swal2-html-container .alert-warning {
+            background-color: #fff3cd !important;
+            border-color: #ffeaa7 !important;
+            color: #856404 !important;
+        }
+
+        /* Mejoras para los mensajes de respuesta */
+        .swal2-html-container h5 {
+            margin-bottom: 15px !important;
+            font-weight: 600 !important;
+        }
+
+        .swal2-html-container p {
+            margin-bottom: 8px !important;
+            line-height: 1.5 !important;
+        }
+
+        .swal2-html-container .alert h6 {
+            margin-bottom: 8px !important;
+            font-weight: 600 !important;
+        }
+
+        /* Asegurar que el textarea sea completamente funcional */
+        .swal2-html-container textarea {
+            resize: vertical !important;
+            min-height: 80px !important;
+            max-height: 200px !important;
+        }
+
+        /* Solución específica para conflictos con app.min.css */
+        .swal2-container * {
+            box-sizing: border-box !important;
+        }
+    </style>
 </head>
 
 <header id="page-topbar" th:fragment="topbar(pagina)">
@@ -40,13 +161,13 @@
             <!-- LOGO -->
             <div class="navbar-brand-box">
                 <a href="" class="logo logo-light">
-                                <span class="logo-sm">
-                                    <img th:src="@{/assets/images/logoCortado.png}" alt="logo-sanmiguel" height="22">
-                                </span>
+                    <span class="logo-sm">
+                        <img th:src="@{/assets/images/logoCortado.png}" alt="logo-sanmiguel" height="22">
+                    </span>
                     <span class="logo-lg">
-                                    <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-sanmiguel" height="40" class="me-2">
-                                    <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
-                                </span>
+                        <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-sanmiguel" height="40" class="me-2">
+                        <span class="app-brand-text demo menu-text fw-bold ms-4" style="color: white;"></span>
+                    </span>
                 </a>
             </div>
 
@@ -54,9 +175,7 @@
                 <i class="ri-menu-2-line align-middle"></i>
             </button>
             <div class="dropdown dropdown-mega d-none d-lg-block ms-2">
-                <button type="button"
-                        class="btn header-item waves-effect"
-                        style="cursor: default !important;
+                <button type="button" class="btn header-item waves-effect" style="cursor: default !important;
                              pointer-events: none;
                              box-shadow: none !important;
                              transform: none !important;" th:text="${pagina}">
@@ -67,15 +186,14 @@
 
         <div class="d-flex">
             <div class="dropdown d-inline-block">
-                <button type="button" class="btn header-item noti-icon waves-effect position-relative" 
-                        id="page-header-notifications-dropdown"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                <button type="button" class="btn header-item noti-icon waves-effect position-relative"
+                    id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="ri-notification-3-line"></i>
                     <!-- Badge para notificaciones no leídas -->
                     <span id="notification-badge" class="noti-dot" style="display: none;"></span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0 notification-dropdown"
-                     aria-labelledby="page-header-notifications-dropdown" style="width: 350px; max-height: 400px;">
+                    aria-labelledby="page-header-notifications-dropdown" style="width: 350px; max-height: 400px;">
                     <div class="p-3 bg-light">
                         <div class="row align-items-center">
                             <div class="col">
@@ -95,20 +213,25 @@
                         </div>
                     </div>
                     <div class="p-2 border-top text-center">
-                        <a href="/notificaciones/vecino/lista" class="btn btn-sm btn-primary">Ver todas las notificaciones</a>
+                        <a href="/notificaciones/vecino/lista" class="btn btn-sm btn-primary">Ver todas las
+                            notificaciones</a>
                     </div>
                 </div>
             </div>
 
             <div class="dropdown d-inline-block user-dropdown">
                 <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <img class="rounded-circle header-profile-user" th:src="${session.usuario.fotoPerfilUrl ?: '/assets/images/users/avatar-2.jpg'}" alt="Header Avatar">
-                    <span class="d-none d-xl-inline-block ms-1" th:text="${session.usuario.nombres.split(' ')[0]} ?: 'Usuario'"></span>
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img class="rounded-circle header-profile-user"
+                        th:src="${session.usuario.fotoPerfilUrl ?: '/assets/images/users/avatar-2.jpg'}"
+                        alt="Header Avatar">
+                    <span class="d-none d-xl-inline-block ms-1"
+                        th:text="${session.usuario.nombres.split(' ')[0]} ?: 'Usuario'"></span>
                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" th:href="@{perfil}"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                    <a class="dropdown-item" th:href="@{perfil}"><i class="ri-user-line align-middle me-1"></i>
+                        Perfil</a>
                     <div class="dropdown-divider"></div>
                     <form th:action="@{/logout}" method="post" style="display:inline;">
                         <button type="submit" class="dropdown-item text-danger" style="background:none;border:none;">
@@ -123,26 +246,26 @@
 
     <!-- JavaScript para notificaciones -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             let notificationPollingInterval;
-            
+
             // Función para formatear tiempo relativo
             function timeAgo(date) {
                 const now = new Date();
                 const diffInMinutes = Math.floor((now - date) / 60000);
-                
+
                 if (diffInMinutes < 1) return 'Hace un momento';
                 if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`;
-                
+
                 const diffInHours = Math.floor(diffInMinutes / 60);
                 if (diffInHours < 24) return `Hace ${diffInHours}h`;
-                
+
                 const diffInDays = Math.floor(diffInHours / 24);
                 if (diffInDays < 7) return `Hace ${diffInDays}d`;
-                
+
                 return date.toLocaleDateString();
             }
-            
+
             // Función para obtener información del tipo de notificación
             function getTipoInfo(tipo) {
                 // Mapeo exacto del backend - FontAwesome icons
@@ -154,15 +277,15 @@
                     'aprobación': { icono: 'fas fa-check-circle', color: '#007bff' },
                     'asignación': { icono: 'fas fa-user-plus', color: '#6610f2' }
                 };
-                
+
                 return tipoMap[tipo] || { icono: 'fas fa-bell', color: '#6c757d' };
             }
-            
+
             // Función para crear un item de notificación
             function createNotificationItem(notification) {
                 const tipoInfo = getTipoInfo(notification.tipoNotificacion.tipoNotificacion);
                 const isUnread = notification.estado === 'no_leido';
-                
+
                 return `
                     <a href="#" class="text-reset notification-item d-block p-3 border-bottom ${isUnread ? 'bg-light' : ''}" 
                        onclick="markAsReadAndRedirect(${notification.notificacionId}); return false;">
@@ -185,46 +308,46 @@
                         </div>
                     </a>`;
             }
-            
+
             // Función para cargar notificaciones
             let isLoadingNotifications = false;
             async function loadNotifications() {
                 if (isLoadingNotifications) return; // Evitar múltiples cargas concurrentes
-                
+
                 isLoadingNotifications = true;
                 const notificationList = document.getElementById('notification-list');
-                
+
                 try {
                     // Mostrar indicador de carga solo si la lista está vacía
                     if (!notificationList.innerHTML.trim() || notificationList.querySelector('#loading-notifications')) {
                         notificationList.innerHTML = '<div class="text-center p-3" id="loading-notifications"><i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i> Cargando...</div>';
                     }
-                    
+
                     const response = await fetch('/notificaciones/api/latest');
                     if (!response.ok) {
                         throw new Error('Error al cargar notificaciones');
                     }
-                    
+
                     const data = await response.json();
                     const notifications = data.notificaciones || [];
                     const unreadCount = data.conteoNoLeidas || 0;
-                    
+
                     // Actualizar badge
                     updateNotificationBadge(unreadCount);
-                    
+
                     // Limpiar lista
                     notificationList.innerHTML = '';
-                    
+
                     if (notifications.length === 0) {
                         notificationList.innerHTML = '<div class="text-center p-3"><p class="text-muted">No hay notificaciones</p></div>';
                         return;
                     }
-                    
+
                     // Crear items de notificación
                     const notificationItems = notifications.map(notification => createNotificationItem(notification));
-                    
+
                     notificationList.innerHTML = notificationItems.join('');
-                    
+
                 } catch (error) {
                     console.error('Error cargando notificaciones:', error);
                     notificationList.innerHTML = '<div class="text-center p-3"><p class="text-danger">Error al cargar notificaciones</p></div>';
@@ -232,18 +355,18 @@
                     isLoadingNotifications = false;
                 }
             }
-            
+
             // Función para actualizar el badge
             function updateNotificationBadge(count) {
                 const badge = document.getElementById('notification-badge');
-                
+
                 if (count > 0) {
                     badge.style.display = 'inline-block';
                 } else {
                     badge.style.display = 'none';
                 }
             }
-            
+
             // Función para marcar como leída y redirigir
             function markAsReadAndRedirect(notificationId) {
                 const form = document.createElement('form');
@@ -252,7 +375,7 @@
                 document.body.appendChild(form);
                 form.submit();
             }
-            
+
             // Función para marcar todas como leídas
             async function markAllAsRead() {
                 try {
@@ -262,7 +385,7 @@
                             'Content-Type': 'application/json'
                         }
                     });
-                    
+
                     if (response.ok) {
                         await loadNotifications();
                     } else {
@@ -273,18 +396,18 @@
                     alert('Error al marcar todas las notificaciones como leídas');
                 }
             }
-            
+
             // Event listeners
             if (document.getElementById('mark-all-read-btn')) {
                 document.getElementById('mark-all-read-btn').addEventListener('click', markAllAsRead);
             }
-            
+
             // Cargar notificaciones al mostrar el dropdown (no en click)
             const dropdownElement = document.getElementById('page-header-notifications-dropdown');
             if (dropdownElement) {
                 // Usar el evento de Bootstrap para cuando se muestra el dropdown
                 const dropdown = new bootstrap.Dropdown(dropdownElement);
-                dropdownElement.addEventListener('shown.bs.dropdown', function(e) {
+                dropdownElement.addEventListener('shown.bs.dropdown', function (e) {
                     // Solo cargar si no hay contenido aún o solo hay loading
                     const notificationList = document.getElementById('notification-list');
                     if (notificationList && (notificationList.children.length === 0 || notificationList.querySelector('#loading-notifications'))) {
@@ -292,10 +415,10 @@
                     }
                 });
             }
-            
+
             // Configurar polling cada 20 segundos
             function startNotificationPolling() {
-                notificationPollingInterval = setInterval(async function() {
+                notificationPollingInterval = setInterval(async function () {
                     try {
                         const response = await fetch('/notificaciones/api/unread-count');
                         if (response.ok) {
@@ -307,13 +430,13 @@
                     }
                 }, 20000); // 20 segundos
             }
-            
+
             function stopNotificationPolling() {
                 if (notificationPollingInterval) {
                     clearInterval(notificationPollingInterval);
                 }
             }
-            
+
             // Inicializar - solo cargar conteo de badge inicialmente
             async function initializeNotifications() {
                 try {
@@ -326,13 +449,13 @@
                     console.error('Error inicializando notificaciones:', error);
                 }
             }
-            
+
             initializeNotifications();
             startNotificationPolling();
-            
+
             // Limpiar interval al cerrar la página
             window.addEventListener('beforeunload', stopNotificationPolling);
-            
+
             // Hacer la función global para poder usarla en los onclick
             window.markAsReadAndRedirect = markAsReadAndRedirect;
         });

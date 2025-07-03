@@ -47,5 +47,19 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
     List<Pago> findByReserva_Usuario_UsuarioId(Integer usuarioId);
 
     Optional<Pago> findByReserva_ReservaId(Integer reservaId);
-
+    
+    /**
+     * Buscar un pago por el ID de la reserva asociada
+     */
+    Optional<Pago> findByReservaReservaId(Integer reservaId);
+    
+    /**
+     * Verificar si existe un pago para una reserva específica
+     */
+    boolean existsByReservaReservaId(Integer reservaId);
+    
+    /**
+     * Buscar pagos por estado de transacción
+     */
+    java.util.List<Pago> findByEstadoTransaccion(Pago.EstadoTransaccion estadoTransaccion);
 }

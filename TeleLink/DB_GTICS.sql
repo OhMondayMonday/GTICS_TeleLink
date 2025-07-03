@@ -284,6 +284,9 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`mantenimientos` (
   `fecha_inicio` TIMESTAMP NULL DEFAULT NULL,
   `fecha_estimada_fin` TIMESTAMP NULL DEFAULT NULL,
   `estado` ENUM('pendiente', 'en_curso', 'finalizado') NULL DEFAULT NULL,
+  `descripcion` TEXT,
+  `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`mantenimiento_id`),
   INDEX `espacio_deportivo_id` (`espacio_deportivo_id` ASC) VISIBLE,
   CONSTRAINT `mantenimientos_ibfk_1`
@@ -292,7 +295,6 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`mantenimientos` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
-
 
 -- -----------------------------------------------------
 -- Table `db_gtics`.`mensajes`
