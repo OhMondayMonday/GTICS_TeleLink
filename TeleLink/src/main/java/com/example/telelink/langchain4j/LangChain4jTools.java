@@ -272,7 +272,7 @@ public class LangChain4jTools {
         }
     }
 
-    @Tool("Cancela una reserva existente especificando la ID de la reserva.")
+    @Tool("Cancela una reserva existente especificando la ID de la reserva. Si no se proporciona una razón de cancelación, se usará 'Cancelado por Chatbot' por defecto.")
     public String cancelReserva(
             @P("ID de la reserva") Integer reservaId,
             @P("Razón de cancelación (opcional)") String razonCancelacion) {
@@ -291,8 +291,10 @@ public class LangChain4jTools {
             LocalDateTime ahora = LocalDateTime.now();
             LocalDateTime limite = reserva.getInicioReserva().minusHours(48);
             boolean dentroDe48Horas = ahora.isAfter(limite);
+            // Motivo por defecto si no se proporciona
+            String motivoCancelacion = (razonCancelacion == null || razonCancelacion.trim().isEmpty()) ? "Cancelado por Chatbot" : razonCancelacion;
             reserva.setEstado(Reserva.Estado.cancelada);
-            reserva.setRazonCancelacion(razonCancelacion != null ? razonCancelacion : "Cancelación por el usuario");
+            reserva.setRazonCancelacion(motivoCancelacion);
             reserva.setFechaActualizacion(LocalDateTime.now());
             reservaRepository.save(reserva);
             // Buscar el pago asociado a la reserva
@@ -304,7 +306,7 @@ public class LangChain4jTools {
                     // Elegible para reembolso (cancelación con 48+ horas de anticipación)
                     com.example.telelink.entity.Reembolso reembolso = new com.example.telelink.entity.Reembolso();
                     reembolso.setMonto(pago.getMonto());
-                    reembolso.setMotivo(razonCancelacion != null ? razonCancelacion : "Cancelación de reserva");
+                    reembolso.setMotivo(motivoCancelacion);
                     reembolso.setFechaReembolso(LocalDateTime.now());
                     reembolso.setPago(pago);
                     if (pago.getMetodoPago() != null && "Pago Online".equals(pago.getMetodoPago().getMetodoPago())) {
