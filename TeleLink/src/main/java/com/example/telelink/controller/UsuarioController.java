@@ -173,6 +173,56 @@ public class UsuarioController {
         return "Vecino/vecino-mis-reembolsos";
     }
 
+    @GetMapping("/resenia")
+    public String mostrarMisResenias(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) return "redirect:/usuarios/inicio";
+
+        List<Resenia> resenias = reseniaRepository.findByUsuario_UsuarioId(usuario.getUsuarioId());
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("resenias", resenias);
+        model.addAttribute("totalResenias", resenias.size());
+        model.addAttribute("activeItem", "resenia");
+
+        return "Vecino/vecino-mis-resenias";
+    }
+
+    @PostMapping("/agregar-resenia/{espacioId}")
+    public String agregarResenia(
+            @PathVariable("espacioId") Integer espacioId,
+            @RequestParam("calificacion") Integer calificacion,
+            @RequestParam("comentario") String comentario,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión para agregar una reseña.");
+            return "redirect:/usuarios/inicio";
+        }
+
+        // Verificar si el espacio deportivo existe
+        Optional<EspacioDeportivo> optEspacio = espacioDeportivoRepository.findById(espacioId);
+        if (optEspacio.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Espacio deportivo no encontrado.");
+            return "redirect:/usuarios/cancha";
+        }
+
+        // Crear y guardar la reseña
+        Resenia resenia = new Resenia();
+        resenia.setUsuario(usuario);
+        resenia.setEspacioDeportivo(optEspacio.get());
+        resenia.setCalificacion(calificacion);
+        resenia.setComentario(comentario);
+        resenia.setFechaCreacion(LocalDateTime.now());
+
+        reseniaRepository.save(resenia);
+
+        redirectAttributes.addFlashAttribute("success", "Reseña agregada exitosamente.");
+        return "redirect:/usuarios/reservas/" + espacioId;
+    }
+
     @GetMapping("/perfil")
     public String mostrarPerfil(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");

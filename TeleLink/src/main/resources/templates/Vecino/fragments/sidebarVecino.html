@@ -67,6 +67,13 @@
                     </a>
                 </li>
 
+                <li th:class="${activeItem == 'resenia' ? 'mm-active' : ''}">
+                    <a th:href="@{/usuarios/resenia}" class="waves-effect">
+                        <i class="ri-star-line"></i>
+                        <span>Mis reseñas</span>
+                    </a>
+                </li>
+
                 <li class="menu-title">Ayuda</li>
                 <li th:class="${activeItem == 'ayuda' ? 'mm-active' : ''}">
                     <a th:href="@{/usuarios/ayuda}" class="waves-effect">

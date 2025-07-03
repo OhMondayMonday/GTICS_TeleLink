@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Mis Reseñas')}"></head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Mis Reseñas')}"></div>
+    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('resenia')}"></div>
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                            <h4 class="mb-sm-0">Mis Reseñas</h4>
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item"><a th:href="@{/usuarios/resenias}">Reseñas</a></li>
+                                    <li class="breadcrumb-item active">Mis Reseñas</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta principal -->
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Encabezado con foto de perfil y total de reseñas -->
+                        <div class="d-flex align-items-center mb-4">
+                            <img th:src="${usuario.fotoPerfilUrl}"
+                                 class="rounded-circle me-3"
+                                 width="60"
+                                 height="60"
+                                 alt="Foto de perfil">
+                            <div>
+                                <h5 th:text="${usuario.nombres + ' ' + usuario.apellidos}"></h5>
+                                <span class="text-muted" th:text="${totalResenias} + ' reseñas'"></span>
+                            </div>
+                        </div>
+
+                        <!-- Lista de reseñas -->
+                        <div th:each="resenia : ${resenias}" class="mb-4 border-bottom pb-3">
+                            <!-- Fecha y espacio deportivo -->
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted" th:text="'Reseñado el ' + ${resenia.getFechaFormateada()}"></span>
+                                <span class="badge bg-light text-dark" th:text="${resenia.espacioDeportivo.nombre}"></span>
+                            </div>
+
+                            <!-- "Título" y calificación -->
+                            <h5 class="mb-1" th:text="${resenia.getTituloResenia()}"></h5>
+                            <div class="mb-2">
+                                <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <span th:if="${i <= resenia.calificacion}" class="text-warning">★</span>
+                                    <span th:if="${i > resenia.calificacion}" class="text-secondary">☆</span>
+                                </span>
+                            </div>
+
+                            <!-- Comentario completo -->
+                            <p class="mb-2" th:text="${resenia.comentario}"></p>
+
+                            <!-- Foto opcional -->
+                            <div th:if="${resenia.fotoReseniaUrl}">
+                                <img th:src="${resenia.fotoReseniaUrl}"
+                                     class="img-fluid rounded mt-2"
+                                     style="max-height: 200px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="sidebar-overlay"></div>
+<!-- JAVASCRIPT -->
+<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+<script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+<script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+<script th:src="@{/assets/libs/apexcharts/apexcharts.min.js}"></script>
+<script th:src="@{/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js}"></script>
+<script th:src="@{/assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js}"></script>
+<script th:src="@{/assets/libs/moment/min/moment.min.js}"></script>
+<script th:src="@{/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/core/main.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
+<script th:src="@{/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
+<script th:src="@{/assets/libs/datatables.net/js/jquery.dataTables.min.js}"></script>
+<script th:src="@{/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js}"></script>
+<script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
+<script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
+<script th:src="@{/assets/js/app.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Script para cargar imagen en modal comprobante
+        const modalComprobante = document.getElementById('modalComprobante');
+        modalComprobante.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const imgSrc = button.getAttribute('data-img');
+            const img = modalComprobante.querySelector('#imgComprobante');
+            img.src = imgSrc;
+        });
+
+        // Script para cargar detalles en modal
+        const modalDetalles = document.getElementById('modalDetalles');
+        modalDetalles.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const estado = button.getAttribute('data-estado');
+            const motivo = button.getAttribute('data-motivo');
+            const detalles = button.getAttribute('data-detalles');
+            const textoEstado = modalDetalles.querySelector('#textoEstado');
+            const textoDetalles = modalDetalles.querySelector('#textoDetalles');
+            const instruccionesEstado = modalDetalles.querySelector('#instruccionesEstado');
+
+            textoEstado.textContent = estado || 'Sin estado';
+            textoDetalles.textContent = (estado === 'fallido' && motivo) ? motivo : (detalles || 'Sin detalles disponibles.');
+
+            // Ajustar clase del estado
+            textoEstado.className = 'alert fw-semibold';
+            if (estado === 'completado') {
+                textoEstado.classList.add('alert-success');
+            } else if (estado === 'pendiente') {
+                textoEstado.classList.add('alert-warning');
+            } else if (estado === 'fallido') {
+                textoEstado.classList.add('alert-danger');
+            }
+
+            // Instrucciones dinámicas según el estado
+            let instrucciones = '';
+            if (estado === 'completado') {
+                instrucciones = `
+                    <li>Tu pago ha sido procesado exitosamente.</li>
+                    <li>El monto ha sido registrado para tu reserva.</li>
+                    <li>Si tienes dudas, contáctanos a través del área de soporte.</li>
+                `;
+            } else if (estado === 'pendiente') {
+                instrucciones = `
+                    <li>Tu pago está en espera de verificación por el administrador.</li>
+                    <li>Por favor, espera la confirmación. Esto puede tomar hasta 48 horas.</li>
+                    <li>Si tienes dudas, contáctanos a través del área de soporte.</li>
+                `;
+            } else if (estado === 'fallido') {
+                instrucciones = `
+                    <li>Tu pago no pudo ser procesado.</li>
+                    <li>Revisa los detalles para conocer el motivo del fallo.</li>
+                    <li>Intenta realizar el pago nuevamente o contáctanos a través del área de soporte.</li>
+                `;
+            }
+            instruccionesEstado.innerHTML = instrucciones;
+        });
+
+        // Inicializar DataTable
+        $('#tablaPagos').DataTable({
+            responsive: true,
+            columnDefs: [{ orderable: false, targets: [0, 7, 8] }]
+        });
+    });
+</script>
+</body>
+</html>

@@ -102,16 +102,23 @@
 
                                                 <h5 class="fw-bold mb-1" th:text="${espacio.nombre}"></h5>
 
-                                                <!-- Estrellas -->
-                                                <div class="mb-2">
-                                                      <span class="text-warning small">
-                                                        <i class="mdi mdi-star"></i>
-                                                        <i class="mdi mdi-star"></i>
-                                                        <i class="mdi mdi-star"></i>
-                                                        <i class="mdi mdi-star-half-full"></i>
-                                                        <i class="mdi mdi-star-outline"></i>
-                                                      </span>
-                                                    <small class="text-muted ms-1">4.0 / 5.0</small>
+                                                <div class="mb-2" th:if="${promedioCalificacion != null}">
+                                                    <span class="text-warning small">
+                                                        <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                           th:classappend="${i <= promedioCalificacion ? 'mdi mdi-star' :
+                                                           (i - 0.5 <= promedioCalificacion ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline')}"></i>
+                                                    </span>
+                                                    <small class="text-muted ms-1" th:text="${#numbers.formatDecimal(promedioCalificacion, 1, 1)} + ' / 5.0'">0.0 / 5.0</small>
+                                                </div>
+                                                <div class="mb-2" th:if="${promedioCalificacion == null}">
+                                                        <span class="text-warning small">
+                                                            <i class="mdi mdi-star-outline"></i>
+                                                            <i class="mdi mdi-star-outline"></i>
+                                                            <i class="mdi mdi-star-outline"></i>
+                                                            <i class="mdi mdi-star-outline"></i>
+                                                            <i class="mdi mdi-star-outline"></i>
+                                                        </span>
+                                                    <small class="text-muted ms-1">Sin calificaciones</small>
                                                 </div>
 
                                                 <!-- Info tipo lista con íconos -->

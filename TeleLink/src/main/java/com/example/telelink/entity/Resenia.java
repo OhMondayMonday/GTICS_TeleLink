@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Entity
 @Table(name = "resenias")
@@ -37,6 +39,24 @@ public class Resenia {
     @ManyToOne
     @JoinColumn(name = "espacio_deportivo_id", nullable = false)
     private EspacioDeportivo espacioDeportivo;
+
+    // Método para extraer un "título" del comentario
+    public String getTituloResenia() {
+        if (comentario == null || comentario.isEmpty()) {
+            return "Reseña sin título";
+        }
+        // Tomar las primeras palabras del comentario como título
+        return comentario.length() > 30 ?
+                comentario.substring(0, 30) + "..." :
+                comentario;
+    }
+
+    // Método para formatear la fecha (ej: "28 may 2025")
+    public String getFechaFormateada() {
+        if (this.fechaCreacion == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", new Locale("es"));
+        return this.fechaCreacion.format(formatter);
+    }
 
     public Integer getReseniaId() {
         return reseniaId;
