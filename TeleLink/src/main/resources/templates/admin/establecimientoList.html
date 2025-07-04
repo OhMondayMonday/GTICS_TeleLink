@@ -56,6 +56,15 @@
                                                 </a>
                                             </div>
 
+                                            <!-- Loader -->
+                                            <div id="table-loader" class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Cargando...</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Tabla envuelta en contenedor oculto -->
+                                            <div id="table-content" style="display: none;">
                                             <!-- Tabla responsive -->
                                             <div class="table-responsive">
                                                 <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="6" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
@@ -92,6 +101,7 @@
                                                     </tbody>
                                                 </table>
                                             </div>
+                                            </div> <!-- End table-content -->
 
                         </div>
                     </div>
@@ -120,34 +130,99 @@
 
 <!-- Incluir los scripts del listado -->
 <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
-    <script th:src="@{/assets/js/pages/establecimientosAdmin.init.js}"></script>
 
-    <!-- Script para posicionar botones de exportar -->
+    <!-- Script para inicializar DataTable con loader -->
     <script>
         $(document).ready(function() {
-            // Esperar a que DataTables se inicialice completamente
-            setTimeout(function() {
-                // Buscar el contenedor de controles de DataTables
-                var datatableWrapper = $('.dataTables_wrapper');
-                if (datatableWrapper.length > 0) {
-                    // Buscar el contenedor superior que contiene length y filter
-                    var topContainer = datatableWrapper.find('.dataTables_length').parent();
-                    if (topContainer.length > 0) {
-                        // Agregar los botones al lado izquierdo del contenedor
-                        var exportButtons = $('#export-buttons-container').html();
-                        topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
-                        
-                        // Ajustar el contenedor del filtro para que use las clases correctas
-                        var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
-                        if (filterContainer.length > 0) {
-                            filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+            console.log('✅ Script cargado - establecimientoList');
+            
+            try {
+                // Inicializar DataTable
+                var table = $(".datatable").DataTable({
+                    lengthMenu: [5, 10, 25, 50],
+                    pageLength: 10,
+                    columns: [
+                        {orderable: true}, // Nombre
+                        {orderable: true}, // Dirección
+                        {orderable: true}, // Teléfono
+                        {orderable: true}, // Correo
+                        {orderable: true}, // Horario
+                        {orderable: false} // Acciones
+                    ],
+                    language: {
+                        "decimal": "",
+                        "emptyTable": "No hay datos disponibles",
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                        "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                        "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "Mostrar _MENU_ registros",
+                        "loadingRecords": "Cargando...",
+                        "processing": "Procesando...",
+                        "search": "Buscar:",
+                        "zeroRecords": "No se encontraron coincidencias",
+                        "paginate": {
+                            "first": "Primero",
+                            "last": "Último",
+                            "next": "<i class='mdi mdi-chevron-right'></i>",
+                            "previous": "<i class='mdi mdi-chevron-left'></i>"
+                        },
+                        "aria": {
+                            "sortAscending": ": activar para ordenar ascendente",
+                            "sortDescending": ": activar para ordenar descendente"
                         }
+                    },
+                    drawCallback: function() {
+                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                    },
+                    initComplete: function() {
+                        console.log('✅ DataTable establecimientos listo');
                         
-                        // Asegurar que el contenedor padre use row
-                        topContainer.addClass('row');
+                        // Remover loader y mostrar tabla
+                        $('#table-loader').remove();
+                        $('#table-content').css('display', 'block !important').show();
+                        
+                        // Ocultar selector de longitud
+                        $(".dataTables_length").hide();
+                        
+                        // Posicionar botones de exportar
+                        setTimeout(function() {
+                            var datatableWrapper = $('.dataTables_wrapper');
+                            if (datatableWrapper.length > 0) {
+                                var topContainer = datatableWrapper.find('.dataTables_length').parent();
+                                if (topContainer.length > 0) {
+                                    var exportButtons = $('#export-buttons-container').html();
+                                    if (exportButtons && topContainer.find('.btn-group').length === 0) {
+                                        topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
+                                        
+                                        var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
+                                        if (filterContainer.length > 0) {
+                                            filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                                        }
+                                        
+                                        topContainer.addClass('row');
+                                    }
+                                }
+                            }
+                        }, 100);
                     }
+                });
+                
+            } catch (error) {
+                console.error('❌ Error en establecimientos DataTable:', error);
+                $('#table-loader').remove();
+                $('#table-content').show();
+            }
+            
+            // Fallback de seguridad
+            setTimeout(function() {
+                if ($('#table-loader').length > 0) {
+                    console.log('⚠️ Fallback establecimientos ejecutado');
+                    $('#table-loader').remove();
+                    $('#table-content').css('display', 'block !important').show();
                 }
-            }, 100);
+            }, 3000);
         });
     </script>
 

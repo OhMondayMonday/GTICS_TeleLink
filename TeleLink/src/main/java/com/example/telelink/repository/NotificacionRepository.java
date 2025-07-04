@@ -25,7 +25,8 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Inte
            "AND (:estado IS NULL OR n.estado = :estado) " +
            "AND (:tipoId IS NULL OR n.tipoNotificacion.tipoNotificacionId = :tipoId) " +
            "AND (:fechaInicio IS NULL OR n.fechaCreacion >= :fechaInicio) " +
-           "AND (:fechaFin IS NULL OR n.fechaCreacion <= :fechaFin)")
+           "AND (:fechaFin IS NULL OR n.fechaCreacion <= :fechaFin) " +
+           "ORDER BY CASE WHEN n.estado = 'no_leido' THEN 0 ELSE 1 END, n.fechaCreacion DESC")
     Page<Notificacion> findNotificacionesConFiltros(
         @Param("usuarioId") Integer usuarioId,
         @Param("estado") Notificacion.Estado estado,
