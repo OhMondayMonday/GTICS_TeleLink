@@ -153,6 +153,10 @@
             box-sizing: border-box !important;
         }
     </style>
+    
+    <!-- Meta tags CSRF necesarios para JavaScript -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <header id="page-topbar" th:fragment="topbar(pagina)">
@@ -369,31 +373,117 @@
 
             // Función para marcar como leída y redirigir
             function markAsReadAndRedirect(notificationId) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/notificaciones/vecino/marcar-leida/${notificationId}`;
-                document.body.appendChild(form);
-                form.submit();
+                console.log('🔄 Iniciando markAsReadAndRedirect para:', notificationId);
+                
+                try {
+                    // Obtener el token CSRF
+                    const tokenMeta = document.querySelector('meta[name="_csrf"]');
+                    const headerMeta = document.querySelector('meta[name="_csrf_header"]');
+                    
+                    console.log('🔍 Buscando meta tags CSRF:');
+                    console.log('- Meta _csrf encontrado:', !!tokenMeta);
+                    console.log('- Meta _csrf_header encontrado:', !!headerMeta);
+                    
+                    if (tokenMeta) {
+                        console.log('- Contenido token meta:', tokenMeta.getAttribute('content')?.substring(0, 10) + '...');
+                    }
+                    if (headerMeta) {
+                        console.log('- Contenido header meta:', headerMeta.getAttribute('content'));
+                    }
+                    
+                    const token = tokenMeta?.getAttribute('content');
+                    const headerName = headerMeta?.getAttribute('content');
+                    
+                    if (!token || !headerName) {
+                        console.error('❌ Token CSRF no encontrado');
+                        console.error('- Token:', !!token);
+                        console.error('- Header Name:', !!headerName);
+                        alert('Error: Token de seguridad no encontrado. Revisa la consola para más detalles.');
+                        return;
+                    }
+                    
+                    console.log('🔑 Token CSRF obtenido correctamente:');
+                    console.log('- Header Name:', headerName);
+                    console.log('- Token:', token.substring(0, 10) + '...');
+                    
+                    // Crear formulario dinámico
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/notificaciones/vecino/marcar-leida/${notificationId}`;
+                    form.style.display = 'none';
+                    
+                    // Agregar token CSRF
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = headerName === 'X-CSRF-TOKEN' ? '_csrf' : headerName.replace('X-', '').toLowerCase().replace('-', '_');
+                    csrfInput.value = token;
+                    form.appendChild(csrfInput);
+                    
+                    console.log('📤 Enviando formulario:');
+                    console.log('- Action:', form.action);
+                    console.log('- CSRF Input Name:', csrfInput.name);
+                    console.log('- CSRF Token:', csrfInput.value.substring(0, 10) + '...');
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                    
+                    console.log('✅ Formulario enviado');
+                } catch (error) {
+                    console.error('❌ Error al procesar notificación:', error);
+                    alert('Error al procesar la notificación: ' + error.message);
+                }
             }
 
             // Función para marcar todas como leídas
             async function markAllAsRead() {
+                console.log('🔄 Iniciando markAllAsRead');
+                
                 try {
+                    // Obtener el token CSRF
+                    const tokenMeta = document.querySelector('meta[name="_csrf"]');
+                    const headerMeta = document.querySelector('meta[name="_csrf_header"]');
+                    
+                    console.log('🔍 Buscando meta tags CSRF para markAllAsRead:');
+                    console.log('- Meta _csrf encontrado:', !!tokenMeta);
+                    console.log('- Meta _csrf_header encontrado:', !!headerMeta);
+                    
+                    const token = tokenMeta?.getAttribute('content');
+                    const headerName = headerMeta?.getAttribute('content');
+                    
+                    if (!token || !headerName) {
+                        console.error('❌ Token CSRF no encontrado en markAllAsRead');
+                        console.error('- Token:', !!token);
+                        console.error('- Header Name:', !!headerName);
+                        alert('Error: Token de seguridad no encontrado');
+                        return;
+                    }
+                    
+                    console.log('🔑 Token CSRF obtenido para markAllAsRead:');
+                    console.log('- Header Name:', headerName);
+                    console.log('- Token:', token.substring(0, 10) + '...');
+                    
+                    // Preparar headers
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    headers[headerName] = token;
+                    
+                    console.log('📤 Headers preparados:', Object.keys(headers));
+                    
                     const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
+                        headers: headers
                     });
 
                     if (response.ok) {
+                        console.log('✅ Todas marcadas como leídas');
                         await loadNotifications();
                     } else {
                         throw new Error('Error al marcar todas como leídas');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error al marcar todas las notificaciones como leídas');
+                    console.error('❌ Error:', error);
+                    alert('Error al marcar todas las notificaciones como leídas: ' + error.message);
                 }
             }
 
