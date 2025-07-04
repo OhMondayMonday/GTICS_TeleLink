@@ -79,7 +79,6 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher(request -> true)  // Esto aplica la regla a todas las rutas
-                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Permitir acceso público a recursos estáticos
                         .requestMatchers("/api/chatbot").permitAll()
