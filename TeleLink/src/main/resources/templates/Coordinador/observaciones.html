@@ -38,6 +38,15 @@
                                             </div>
                                         </div>
 
+                                        <!-- Loader -->
+                                        <div id="table-loader" class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Cargando...</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tabla envuelta en contenedor oculto -->
+                                        <div id="table-content" style="display: none;">
                                         <div class="table-responsive">
 
                                             <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
@@ -75,6 +84,7 @@
                                                 </tbody>
                                             </table>
                                         </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -98,35 +108,110 @@
         <!-- END layout-wrapper -->
 
         <div class="sidebar-overlay"></div>        <div th:replace="fragments/topbarCoordinador :: scripts"></div>
-        <script th:src="@{/assets/js/pages/observaciones.init.js}"></script>
-        <!-- google maps api -->
-
-        <!-- Script para posicionar botones de exportar -->
+        
+        <!-- Script para DataTable con loader -->
         <script>
             $(document).ready(function() {
-                // Esperar a que DataTables se inicialice completamente
-                setTimeout(function() {
-                    // Buscar el contenedor de controles de DataTables
-                    var datatableWrapper = $('.dataTables_wrapper');
-                    if (datatableWrapper.length > 0) {
-                        // Buscar el contenedor superior que contiene length y filter
-                        var topContainer = datatableWrapper.find('.dataTables_length').parent();
-                        if (topContainer.length > 0) {
-                            // Agregar los botones al lado izquierdo del contenedor
-                            var exportButtons = $('#export-buttons-container').html();
-                            topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
-                            
-                            // Ajustar el contenedor del filtro para que use las clases correctas
-                            var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
-                            if (filterContainer.length > 0) {
-                                filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                console.log('✅ Script cargado - DOM ready (Observaciones)');
+                console.log('Loader element:', $('#table-loader'));
+                console.log('Table content element:', $('#table-content'));
+                
+                try {
+                    // Inicializar DataTable con la misma configuración del JS original
+                    console.log('🔄 Iniciando DataTable...');
+                    var table = $(".datatable").DataTable({
+                        lengthMenu: [5, 10, 25, 50],
+                        pageLength: 5,
+                        columns: [
+                            {orderable: true},
+                            {orderable: true},
+                            {orderable: true},
+                            {orderable: true},
+                            {orderable: true},
+                            {orderable: false}
+                        ],
+                        language: {
+                            "decimal": "",
+                            "emptyTable": "No hay datos disponibles",
+                            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                            "infoPostFix": "",
+                            "thousands": ",",
+                            "lengthMenu": "Mostrar _MENU_ registros",
+                            "loadingRecords": "Cargando...",
+                            "processing": "Procesando...",
+                            "search": "Buscar:",
+                            "zeroRecords": "No se encontraron coincidencias",
+                            "paginate": {
+                                "first": "Primero",
+                                "last": "Último",
+                                "next": "<i class='mdi mdi-chevron-right'></i>",
+                                "previous": "<i class='mdi mdi-chevron-left'></i>"
+                            },
+                            "aria": {
+                                "sortAscending": ": activar para ordenar ascendente",
+                                "sortDescending": ": activar para ordenar descendente"
                             }
+                        },
+                        drawCallback: function() {
+                            console.log('📊 DrawCallback ejecutado');
+                            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                        },
+                        initComplete: function() {
+                            console.log('✅ InitComplete ejecutado - DataTable listo (Observaciones)');
                             
-                            // Asegurar que el contenedor padre use row
-                            topContainer.addClass('row');
+                            // Remover el loader del DOM completamente
+                            console.log('🔄 Removiendo loader del DOM...');
+                            $('#table-loader').remove();
+                            console.log('🔄 Mostrando tabla...');
+                            $('#table-content').css('display', 'block !important').show();
+                            
+                            // Verificar si realmente se removió/mostró
+                            console.log('Loader exists después:', $('#table-loader').length);
+                            console.log('Table visible después:', $('#table-content').is(':visible'));
+                            
+                            // Ocultar el selector de longitud por defecto
+                            $(".dataTables_length").hide();
+                            
+                            // Posicionar botones de exportar
+                            setTimeout(function() {
+                                var datatableWrapper = $('.dataTables_wrapper');
+                                if (datatableWrapper.length > 0) {
+                                    var topContainer = datatableWrapper.find('.dataTables_length').parent();
+                                    if (topContainer.length > 0) {
+                                        var exportButtons = $('#export-buttons-container').html();
+                                        if (exportButtons && topContainer.find('.btn-group').length === 0) {
+                                            topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
+                                            
+                                            var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
+                                            if (filterContainer.length > 0) {
+                                                filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                                            }
+                                            
+                                            topContainer.addClass('row');
+                                        }
+                                    }
+                                }
+                            }, 100);
                         }
+                    });
+                    
+                    console.log('✅ DataTable inicializado correctamente');
+                    
+                } catch (error) {
+                    console.error('❌ Error inicializando DataTable:', error);
+                    
+                    // En caso de error, remover loader y mostrar tabla anyway
+                    $('#table-loader').remove();
+                    $('#table-content').show();
+                    
+                    // Verificar elementos después del error
+                    if ($('#table-loader').length > 0) {
+                        console.log('⚠️ Loader aún existe después del error');
+                        $('#table-loader').remove();
                     }
-                }, 100);
+                }
             });
         </script>
 
