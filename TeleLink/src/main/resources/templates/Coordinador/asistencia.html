@@ -706,24 +706,51 @@
                 }
                 
                 if (confirm('¿Está seguro que desea cancelar esta asistencia?')) {
+                    // Obtener el token CSRF
+                    const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+                    const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+                    
+                    // Deshabilitar el botón durante la petición
+                    const btnCancelar = document.getElementById('btnCancelarAsistencia');
+                    const btnCerrar = document.querySelector('[data-dismiss="modal"]');
+                    btnCancelar.disabled = true;
+                    btnCancelar.textContent = 'Cancelando...';
+                    
+                    console.log('Enviando petición de cancelación para asistencia ID:', asistenciaId);
+                    console.log('Motivo:', motivo);
+                    
                     fetch(`/coordinador/asistencia/${asistenciaId}/cancelar`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            [header]: token  // Incluir el token CSRF
                         },
                         body: JSON.stringify({ motivo: motivo })
                     })
                     .then(response => {
+                        console.log('Response status:', response.status);
+                        console.log('Response ok:', response.ok);
+                        
                         if (response.ok) {
-                            alert('Asistencia cancelada exitosamente');
-                            location.reload(); // Recargar la página para actualizar la tabla
+                            return response.text().then(text => {
+                                console.log('Success response:', text);
+                                alert('Asistencia cancelada exitosamente');
+                                location.reload(); // Recargar la página para actualizar la tabla
+                            });
                         } else {
-                            throw new Error('Error al cancelar la asistencia');
+                            return response.text().then(errorText => {
+                                console.error('Error response:', errorText);
+                                throw new Error(errorText || 'Error al cancelar la asistencia');
+                            });
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error al cancelar la asistencia');
+                        console.error('Error en cancelación:', error);
+                        alert('Error al cancelar la asistencia: ' + error.message);
+                        
+                        // Restaurar el botón en caso de error
+                        btnCancelar.disabled = false;
+                        btnCancelar.textContent = 'Cancelar Asistencia';
                     });
                 }
             }

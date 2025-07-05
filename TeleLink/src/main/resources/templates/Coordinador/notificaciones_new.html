@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/topbarCoordinador :: head('Notificaciones')}"></head>
+<head th:replace="~{fragments/topbarCoordinador :: head('Notificaciones')}">
+    <!-- Meta tags CSRF necesarios para JavaScript -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
 <body data-sidebar="dark" class="vertical-collpsed">
     <div id="layout-wrapper">
         <div th:replace="~{fragments/topbarCoordinador :: topbar('Notificaciones')}"></div>
@@ -97,10 +101,8 @@
                             <div class="card notification-card mb-3" 
                                  th:classappend="${notification.estado.name() == 'no_leido'} ? 'border-primary bg-primary-subtle' : 'border-light'"
                                  th:data-notification-id="${notification.notificacionId}"
-                                 style="cursor: pointer; transition: all 0.2s ease;" 
-                                 onclick="markAsReadAndRedirect(this.getAttribute('data-notification-id'))"
-                                 onmouseover="this.style.boxShadow='0 0.125rem 0.25rem rgba(0, 0, 0, 0.075)'; this.style.transform='translateY(-2px)'"
-                                 onmouseout="this.style.boxShadow=''; this.style.transform=''">
+                                 style="cursor: pointer;" 
+                                 onclick="markAsReadAndRedirect(this.getAttribute('data-notification-id'))">
                                 <div class="card-body">
                                     <div class="d-flex align-items-start">
                                         <!-- Icono de tipo -->
@@ -212,6 +214,23 @@
     <!-- Scripts del template principal -->
     <div th:replace="~{fragments/topbarCoordinador :: scripts}"></div>
     
+    <style>
+        /* Asegurar que los dropdowns tengan z-index alto por defecto */
+        .notification-card .dropdown {
+            position: relative;
+            z-index: 1050;
+        }
+        
+        .notification-card .dropdown-menu {
+            z-index: 1060 !important;
+            position: absolute !important;
+        }
+        
+        .notification-card .dropdown-toggle {
+            z-index: 1055;
+        }
+    </style>
+    
     <script>
         // Función para obtener información del tipo de notificación
         async function getTipoInfo(tipo) {
@@ -264,41 +283,111 @@
         // Función para marcar como leída y redirigir
         function markAsReadAndRedirect(notificationId) {
             if (!notificationId) {
-                console.error('ID de notificación no válido');
+                console.error('ID de notificación no válido:', notificationId);
                 return;
             }
             
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/notificaciones/marcar-leida/${notificationId}`;
-            document.body.appendChild(form);
-            form.submit();
+            console.log('=== INICIANDO markAsReadAndRedirect ===');
+            console.log('NotificationId:', notificationId);
+            
+            try {
+                // Obtener el token CSRF
+                const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                
+                console.log('Token CSRF encontrado:', token ? token.substring(0, 10) + '...' : 'NO ENCONTRADO');
+                console.log('Header CSRF:', headerName);
+                
+                if (!token || !headerName) {
+                    console.error('❌ Tokens CSRF no encontrados');
+                    alert('Error: Tokens de seguridad no encontrados');
+                    return;
+                }
+                
+                // Crear formulario para envío POST con CSRF
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/notificaciones/marcar-leida/${notificationId}`;
+                form.style.display = 'none';
+                
+                // Agregar token CSRF usando el nombre correcto
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                
+                // Spring Security usa _csrf como nombre del parámetro por defecto
+                if (headerName === 'X-CSRF-TOKEN') {
+                    csrfInput.name = '_csrf';
+                } else {
+                    csrfInput.name = headerName.replace('X-', '').toLowerCase().replace('-', '_');
+                }
+                
+                csrfInput.value = token;
+                form.appendChild(csrfInput);
+                
+                console.log('📤 Enviando formulario:');
+                console.log('- Action:', form.action);
+                console.log('- CSRF Input Name:', csrfInput.name);
+                console.log('- CSRF Token:', csrfInput.value.substring(0, 10) + '...');
+                
+                document.body.appendChild(form);
+                form.submit();
+                
+                console.log('✅ Formulario enviado');
+                
+            } catch (error) {
+                console.error('❌ Error al procesar notificación:', error);
+                alert('Error al procesar la notificación: ' + error.message);
+            }
         }
 
         // Función para marcar como leída sin redirigir
         async function markAsRead(notificationId) {
             if (!notificationId) {
-                console.error('ID de notificación no válido');
+                console.error('ID de notificación no válido:', notificationId);
                 return;
             }
             
+            console.log('=== INICIANDO markAsRead (sin redirigir) ===');
+            console.log('NotificationId:', notificationId);
+            
             try {
+                // Obtener el token CSRF
+                const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                
+                if (!token || !headerName) {
+                    console.error('❌ Tokens CSRF no encontrados para markAsRead');
+                    alert('Error: Tokens de seguridad no encontrados');
+                    return;
+                }
+                
+                console.log('📤 Enviando petición fetch:');
+                console.log('- URL:', `/notificaciones/marcar-leida/${notificationId}`);
+                console.log('- Header:', headerName);
+                console.log('- Token:', token.substring(0, 10) + '...');
+                
                 const response = await fetch(`/notificaciones/marcar-leida/${notificationId}`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        [headerName]: token
+                    },
+                    body: ''
                 });
                 
+                console.log('📨 Respuesta recibida:', response.status, response.statusText);
+                
                 if (response.ok) {
-                    // Recargar la página para mostrar el cambio
+                    console.log('✅ Marcado como leída exitosamente');
                     window.location.reload();
                 } else {
-                    throw new Error('Error al marcar como leída');
+                    const errorText = await response.text();
+                    console.error('❌ Error del servidor:', errorText);
+                    throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
                 }
             } catch (error) {
-                console.error('Error marcando como leída:', error);
-                alert('Error al marcar la notificación como leída');
+                console.error('❌ Error marcando como leída:', error);
+                alert('Error al marcar la notificación como leída: ' + error.message);
             }
         }
 
@@ -309,10 +398,15 @@
             }
             
             try {
+                // Obtener el token CSRF
+                const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+                const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+                
                 const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        [header]: token  // Incluir el token CSRF
                     }
                 });
                 

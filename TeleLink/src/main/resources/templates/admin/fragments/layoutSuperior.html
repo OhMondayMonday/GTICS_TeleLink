@@ -279,21 +279,60 @@
 
             // Función para marcar como leída y redirigir
             function markAsReadAndRedirect(notificationId) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/notificaciones/admin/marcar-leida/${notificationId}`;
-                document.body.appendChild(form);
-                form.submit();
+                try {
+                    // Obtener el token CSRF
+                    const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                    const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                    
+                    if (!token || !headerName) {
+                        console.error('Token CSRF no encontrado');
+                        alert('Error: Token de seguridad no encontrado');
+                        return;
+                    }
+                    
+                    // Crear formulario dinámico
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/notificaciones/admin/marcar-leida/${notificationId}`;
+                    form.style.display = 'none';
+                    
+                    // Agregar token CSRF
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = headerName === 'X-CSRF-TOKEN' ? '_csrf' : headerName.replace('X-', '').toLowerCase().replace('-', '_');
+                    csrfInput.value = token;
+                    form.appendChild(csrfInput);
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                } catch (error) {
+                    console.error('Error al procesar notificación:', error);
+                    alert('Error al procesar la notificación: ' + error.message);
+                }
             }
 
             // Función para marcar todas como leídas
             async function markAllAsRead() {
                 try {
+                    // Obtener el token CSRF
+                    const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                    const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                    
+                    if (!token || !headerName) {
+                        console.error('Token CSRF no encontrado');
+                        alert('Error: Token de seguridad no encontrado');
+                        return;
+                    }
+                    
+                    // Preparar headers
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    headers[headerName] = token;
+                    
                     const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
+                        headers: headers
                     });
 
                     if (response.ok) {
@@ -303,7 +342,7 @@
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error al marcar todas las notificaciones como leídas');
+                    alert('Error al marcar todas las notificaciones como leídas: ' + error.message);
                 }
             }
 

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesdesign" name="author" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <!-- App favicon -->
     <link rel="shortcut icon" th:href="@{/assets/images/logoCortado.png}">
 
@@ -269,31 +271,100 @@
           
           // Función para marcar como leída y redirigir
           function markAsReadAndRedirect(notificationId) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/notificaciones/marcar-leida/${notificationId}`;
-            document.body.appendChild(form);
-            form.submit();
+            if (!notificationId) {
+                console.error('ID de notificación no válido desde topbar:', notificationId);
+                return;
+            }
+            
+            console.log('=== TOPBAR: markAsReadAndRedirect ===');
+            console.log('NotificationId:', notificationId);
+            
+            try {
+                // Obtener el token CSRF
+                const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                
+                console.log('Token CSRF (topbar):', token ? token.substring(0, 10) + '...' : 'NO ENCONTRADO');
+                console.log('Header CSRF (topbar):', headerName);
+                
+                if (!token || !headerName) {
+                    console.error('❌ Tokens CSRF no encontrados en topbar');
+                    alert('Error: Tokens de seguridad no encontrados');
+                    return;
+                }
+                
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/notificaciones/marcar-leida/${notificationId}`;
+                form.style.display = 'none';
+                
+                // Crear input hidden para el token CSRF
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                
+                // Spring Security usa _csrf como nombre del parámetro por defecto
+                if (headerName === 'X-CSRF-TOKEN') {
+                    csrfInput.name = '_csrf';
+                } else {
+                    csrfInput.name = headerName.replace('X-', '').toLowerCase().replace('-', '_');
+                }
+                
+                csrfInput.value = token;
+                form.appendChild(csrfInput);
+                
+                console.log('📤 TOPBAR: Enviando formulario:');
+                console.log('- Action:', form.action);
+                console.log('- CSRF Input Name:', csrfInput.name);
+                console.log('- CSRF Token:', csrfInput.value.substring(0, 10) + '...');
+                
+                document.body.appendChild(form);
+                form.submit();
+                
+                console.log('✅ TOPBAR: Formulario enviado');
+                
+            } catch (error) {
+                console.error('❌ Error en topbar al procesar notificación:', error);
+                alert('Error al procesar la notificación: ' + error.message);
+            }
           }
           
           // Función para marcar todas como leídas
           async function markAllAsRead() {
+            console.log('Marcando todas como leídas desde topbar...');
+            
             try {
+              // Obtener el token CSRF
+              const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+              const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+              
+              if (!token || !header) {
+                console.error('Tokens CSRF no encontrados en topbar para markAllAsRead');
+                alert('Error: Tokens de seguridad no encontrados');
+                return;
+              }
+              
+              console.log('Enviando petición desde topbar para marcar todas como leídas');
+              
               const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
                 method: 'POST',
                 headers: {
-                  'Content-Type': 'application/json'
-                }
+                  'Content-Type': 'application/json',
+                  [header]: token  // Incluir el token CSRF
+                },
+                body: JSON.stringify({})
               });
+              
+              console.log('Respuesta desde topbar:', response.status, response.statusText);
               
               if (response.ok) {
                 await loadNotifications();
               } else {
-                throw new Error('Error al marcar todas como leídas');
+                const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
+                throw new Error(errorData.message || `Error del servidor: ${response.status}`);
               }
             } catch (error) {
-              console.error('Error:', error);
-              alert('Error al marcar todas las notificaciones como leídas');
+              console.error('Error desde topbar:', error);
+              alert('Error al marcar todas las notificaciones como leídas: ' + error.message);
             }
           }
           
