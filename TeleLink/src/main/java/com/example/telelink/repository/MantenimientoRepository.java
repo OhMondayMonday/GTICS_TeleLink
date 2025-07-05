@@ -71,4 +71,10 @@ public interface MantenimientoRepository extends JpaRepository<Mantenimiento, In
                      @Param("espacioId") Integer espacioId,
                      @Param("inicio") LocalDateTime inicio,
                      @Param("fin") LocalDateTime fin);
+
+       @Query("SELECT m FROM Mantenimiento m WHERE m.espacioDeportivo.espacioDeportivoId = :espacioId " +
+                     "AND ((m.fechaInicio <= :end AND m.fechaEstimadaFin >= :start))")
+       List<Mantenimiento> findOverlappingMantenimientos(@Param("espacioId") Integer espacioId,
+                     @Param("start") LocalDateTime start,
+                     @Param("end") LocalDateTime end);
 }

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headPage.html :: headPage(title='Formulario de mantenimiento')}">
+    <meta charset="UTF-8">
+    <title>Formulario de Mantenimiento</title>
+</head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+
+    <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Mantenimientos')}"></div>
+
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <h4 class="card-title mb-4 fw-semibold mt-3">
+                                    <i class="fas fa-tools me-2"></i>
+                                    <span th:text="${mantenimiento.mantenimientoId != null ? 'Editar Mantenimiento' : 'Nuevo Mantenimiento'}"></span>
+                                </h4>
+
+                                <form th:action="@{/admin/mantenimientos/guardar}" th:object="${mantenimiento}" method="post">
+
+                                    <input type="hidden" th:field="*{mantenimientoId}" />
+
+                                    <!-- Espacio Deportivo -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Espacio Deportivo <span class="text-danger">*</span></label>
+                                        <select class="form-select" th:field="*{espacioDeportivo}" 
+                                                th:classappend="${#fields.hasErrors('espacioDeportivo')} ? 'is-invalid' : ''" required>
+                                            <option value="">Seleccione un espacio deportivo</option>
+                                            <optgroup th:each="establecimiento : ${espaciosDeportivos.groupBy(espacioDeportivo -> espacioDeportivo.establecimientoDeportivo)}" 
+                                                      th:label="${establecimiento.key.establecimientoDeportivoNombre}">
+                                                <option th:each="espacio : ${establecimiento.value}" 
+                                                        th:value="${espacio.espacioDeportivoId}" 
+                                                        th:text="${espacio.nombre + ' - ' + espacio.servicioDeportivo.servicioDeportivo}"
+                                                        th:selected="${mantenimiento.espacioDeportivo != null && mantenimiento.espacioDeportivo.espacioDeportivoId == espacio.espacioDeportivoId}">
+                                                </option>
+                                            </optgroup>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('espacioDeportivo')}" 
+                                             th:errors="*{espacioDeportivo}"></div>
+                                    </div>
+
+                                    <!-- Motivo -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Motivo del Mantenimiento <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" th:field="*{motivo}" rows="3"
+                                                  placeholder="Describa detalladamente el motivo del mantenimiento..."
+                                                  th:classappend="${#fields.hasErrors('motivo')} ? 'is-invalid' : ''" 
+                                                  required minlength="10" maxlength="500"></textarea>
+                                        <div class="form-text">Entre 10 y 500 caracteres</div>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('motivo')}" 
+                                             th:errors="*{motivo}"></div>
+                                    </div>
+
+                                    <!-- Fechas -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Fecha y Hora de Inicio <span class="text-danger">*</span></label>
+                                            <input type="datetime-local" class="form-control" th:field="*{fechaInicio}"
+                                                   th:classappend="${#fields.hasErrors('fechaInicio')} ? 'is-invalid' : ''" 
+                                                   required />
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaInicio')}" 
+                                                 th:errors="*{fechaInicio}"></div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Fecha y Hora de Fin Estimada <span class="text-danger">*</span></label>
+                                            <input type="datetime-local" class="form-control" th:field="*{fechaEstimadaFin}"
+                                                   th:classappend="${#fields.hasErrors('fechaEstimadaFin')} ? 'is-invalid' : ''" 
+                                                   required />
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaEstimadaFin')}" 
+                                                 th:errors="*{fechaEstimadaFin}"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estado (solo visible en edición) -->
+                                    <div class="mb-4" th:if="${mantenimiento.mantenimientoId != null}">
+                                        <label class="form-label">Estado</label>
+                                        <select class="form-select" th:field="*{estado}">
+                                            <option value="pendiente">Pendiente</option>
+                                            <option value="en_curso">En Curso</option>
+                                            <option value="finalizado">Finalizado</option>
+                                            <option value="cancelado">Cancelado</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Información adicional -->
+                                    <div class="alert alert-info" role="alert">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Información importante:</strong>
+                                        <ul class="mb-0 mt-2">
+                                            <li>El mantenimiento impedirá que se realicen nuevas reservas en el espacio seleccionado</li>
+                                            <li>Se verificará que no haya solapamiento con otros mantenimientos</li>
+                                            <li>Las fechas deben ser futuras y la fecha de fin debe ser posterior al inicio</li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Botones -->
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i>
+                                            <span th:text="${mantenimiento.mantenimientoId != null ? 'Actualizar' : 'Crear'} + ' Mantenimiento'"></span>
+                                        </button>
+                                        <a th:href="@{/admin/mantenimientos}" class="btn btn-secondary">
+                                            <i class="fas fa-times me-1"></i>
+                                            Cancelar
+                                        </a>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+    </div>
+</div>
+
+<div class="sidebar-overlay"></div>
+<div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
+
+<!-- Script para validaciones adicionales -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validar que la fecha de fin sea posterior a la de inicio
+        const fechaInicio = document.querySelector('input[name="fechaInicio"]');
+        const fechaFin = document.querySelector('input[name="fechaEstimadaFin"]');
+
+        function validarFechas() {
+            if (fechaInicio.value && fechaFin.value) {
+                const inicio = new Date(fechaInicio.value);
+                const fin = new Date(fechaFin.value);
+                
+                if (fin <= inicio) {
+                    fechaFin.setCustomValidity('La fecha de fin debe ser posterior a la fecha de inicio');
+                } else {
+                    fechaFin.setCustomValidity('');
+                }
+            }
+        }
+
+        fechaInicio.addEventListener('change', validarFechas);
+        fechaFin.addEventListener('change', validarFechas);
+
+        // Establecer fecha mínima como ahora
+        const now = new Date();
+        const minDateTime = now.toISOString().slice(0, 16);
+        fechaInicio.min = minDateTime;
+        fechaFin.min = minDateTime;
+    });
+</script>
+
+</body>
+</html>

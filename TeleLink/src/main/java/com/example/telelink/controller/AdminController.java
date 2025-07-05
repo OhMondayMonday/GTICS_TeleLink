@@ -126,7 +126,8 @@ public class AdminController {
     }
 
     @GetMapping("/espacios-por-establecimiento")
-    public ResponseEntity<List<EspacioDeportivo>> getEspaciosPorEstablecimiento(@RequestParam("establecimientoId") Integer establecimientoId) {
+    public ResponseEntity<List<EspacioDeportivo>> getEspaciosPorEstablecimiento(
+            @RequestParam("establecimientoId") Integer establecimientoId) {
         List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAll().stream()
                 .filter(e -> e.getEstablecimientoDeportivo().getEstablecimientoDeportivoId().equals(establecimientoId))
                 .collect(Collectors.toList());
@@ -138,7 +139,8 @@ public class AdminController {
         Optional<EspacioDeportivo> optEspacio = espacioDeportivoRepository.findById(espacioId);
         if (optEspacio.isPresent()) {
             EspacioDeportivo espacio = optEspacio.get();
-            return ResponseEntity.ok(new HorarioResponse(espacio.getHorarioApertura().toString(), espacio.getHorarioCierre().toString()));
+            return ResponseEntity.ok(new HorarioResponse(espacio.getHorarioApertura().toString(),
+                    espacio.getHorarioCierre().toString()));
         }
         return ResponseEntity.badRequest().body("Espacio no encontrado");
     }
@@ -246,11 +248,15 @@ public class AdminController {
         // Validate space hours
         if (optEspacio.isPresent()) {
             EspacioDeportivo espacio = optEspacio.get();
-            if (horarioEntradaTime.isBefore(espacio.getHorarioApertura()) || horarioEntradaTime.isAfter(espacio.getHorarioCierre())) {
-                errors.put("horarioEntrada", "El horario de entrada debe estar dentro del horario del espacio (" + espacio.getHorarioApertura() + " - " + espacio.getHorarioCierre() + ")");
+            if (horarioEntradaTime.isBefore(espacio.getHorarioApertura())
+                    || horarioEntradaTime.isAfter(espacio.getHorarioCierre())) {
+                errors.put("horarioEntrada", "El horario de entrada debe estar dentro del horario del espacio ("
+                        + espacio.getHorarioApertura() + " - " + espacio.getHorarioCierre() + ")");
             }
-            if (horarioSalidaTime.isBefore(espacio.getHorarioApertura()) || horarioSalidaTime.isAfter(espacio.getHorarioCierre())) {
-                errors.put("horarioSalida", "El horario de salida debe estar dentro del horario del espacio (" + espacio.getHorarioApertura() + " - " + espacio.getHorarioCierre() + ")");
+            if (horarioSalidaTime.isBefore(espacio.getHorarioApertura())
+                    || horarioSalidaTime.isAfter(espacio.getHorarioCierre())) {
+                errors.put("horarioSalida", "El horario de salida debe estar dentro del horario del espacio ("
+                        + espacio.getHorarioApertura() + " - " + espacio.getHorarioCierre() + ")");
             }
         }
 
@@ -265,8 +271,10 @@ public class AdminController {
         // Validate overlapping assistances and maintenances
         LocalDateTime startCheck = horarioEntrada.minusMinutes(14).minusSeconds(59);
         LocalDateTime endCheck = horarioSalida.plusMinutes(14).plusSeconds(59);
-        List<Asistencia> overlappingAsistencias = asistenciaRepository.findOverlappingAsistencias(coordinadorId, startCheck, endCheck);
-        List<Mantenimiento> overlappingMantenimientos = mantenimientoRepository.findOverlappingMantenimientos(espacioDeportivoId, startCheck, endCheck);
+        List<Asistencia> overlappingAsistencias = asistenciaRepository.findOverlappingAsistencias(coordinadorId,
+                startCheck, endCheck);
+        List<Mantenimiento> overlappingMantenimientos = mantenimientoRepository
+                .findOverlappingMantenimientos(espacioDeportivoId, startCheck, endCheck);
 
         if (!overlappingAsistencias.isEmpty()) {
             attr.addFlashAttribute("msg", "El coordinador ya tiene una asistencia programada en ese horario");
@@ -303,7 +311,8 @@ public class AdminController {
                 notificacion.setUsuario(optCoordinador.get());
                 notificacion.setTipoNotificacion(optTipo.get());
                 notificacion.setTituloNotificacion("Nueva Asistencia Asignada");
-                notificacion.setMensaje("Se te ha asignado una nueva asistencia para el " + fecha + " de " + horarioEntradaTime + " a " + horarioSalidaTime);
+                notificacion.setMensaje("Se te ha asignado una nueva asistencia para el " + fecha + " de "
+                        + horarioEntradaTime + " a " + horarioSalidaTime);
                 notificacion.setUrlRedireccion("/coordinador/asistencia");
                 notificacion.setFechaCreacion(LocalDateTime.now());
                 notificacion.setEstado(Notificacion.Estado.no_leido);
@@ -343,6 +352,158 @@ public class AdminController {
             return horarioCierre;
         }
     }
+    // ================= MANTENIMIENTOS CRUD =================
+
+    @GetMapping("mantenimientos")
+    public String listarMantenimientos(Model model) {
+        List<Mantenimiento> mantenimientosList = mantenimientoRepository.findAll();
+        model.addAttribute("mantenimientos", mantenimientosList);
+        return "admin/mantenimientoList";
+    }
+
+    @GetMapping("mantenimientos/nuevo")
+    public String crearMantenimiento(@ModelAttribute("mantenimiento") Mantenimiento mantenimiento, Model model) {
+        model.addAttribute("espaciosDeportivos", espacioDeportivoRepository.findAll());
+        return "admin/mantenimientoForm";
+    }
+
+    @GetMapping("mantenimientos/editar")
+    public String editarMantenimiento(@ModelAttribute("mantenimiento") Mantenimiento mantenimiento,
+            @RequestParam("id") Integer id,
+            Model model) {
+        Optional<Mantenimiento> optMantenimiento = mantenimientoRepository.findById(id);
+        if (optMantenimiento.isPresent()) {
+            model.addAttribute("mantenimiento", optMantenimiento.get()); // ✅ Corregido
+            model.addAttribute("espaciosDeportivos", espacioDeportivoRepository.findAll());
+            return "admin/mantenimientoForm";
+        } else {
+            return "redirect:/admin/mantenimientos";
+        }
+    }
+
+    @PostMapping("mantenimientos/guardar")
+    public String guardarMantenimiento(@ModelAttribute("mantenimiento") @Valid Mantenimiento mantenimiento,
+                                  BindingResult bindingResult,
+                                  Model model,
+                                  RedirectAttributes attr) {
+    
+    // ✅ Validación condicional de fechas futuras solo en creación
+    boolean isCreation = mantenimiento.getMantenimientoId() == null;
+    LocalDateTime now = LocalDateTime.now();
+    
+    if (isCreation) {
+        // Solo validar fechas futuras en creación
+        if (mantenimiento.getFechaInicio() != null && mantenimiento.getFechaInicio().isBefore(now)) {
+            bindingResult.rejectValue("fechaInicio", "PastDate", 
+                "La fecha de inicio debe ser futura");
+        }
+        if (mantenimiento.getFechaEstimadaFin() != null && mantenimiento.getFechaEstimadaFin().isBefore(now)) {
+            bindingResult.rejectValue("fechaEstimadaFin", "PastDate", 
+                "La fecha estimada de fin debe ser futura");
+        }
+    }
+    
+    // Validar que la fecha de fin sea posterior a la de inicio
+    if (mantenimiento.getFechaInicio() != null && mantenimiento.getFechaEstimadaFin() != null) {
+        if (!mantenimiento.getFechaEstimadaFin().isAfter(mantenimiento.getFechaInicio())) {
+            bindingResult.rejectValue("fechaEstimadaFin", "DateRange", 
+                "La fecha de fin debe ser posterior a la fecha de inicio");
+        }
+    }
+
+    // Validar solapamiento solo si las fechas están presentes
+    if (mantenimiento.getEspacioDeportivo() != null && 
+        mantenimiento.getFechaInicio() != null && 
+        mantenimiento.getFechaEstimadaFin() != null) {
+        
+        List<Mantenimiento> overlapping = mantenimientoRepository.findOverlappingMantenimientos(
+            mantenimiento.getEspacioDeportivo().getEspacioDeportivoId(),
+            mantenimiento.getFechaInicio().minusMinutes(1),
+            mantenimiento.getFechaEstimadaFin().plusMinutes(1)
+        );
+        
+        // Excluir el mantenimiento actual si estamos editando
+        if (mantenimiento.getMantenimientoId() != null) {
+            overlapping = overlapping.stream()
+                .filter(m -> !m.getMantenimientoId().equals(mantenimiento.getMantenimientoId()))
+                .collect(Collectors.toList());
+        }
+        
+        if (!overlapping.isEmpty()) {
+            bindingResult.rejectValue("fechaInicio", "Overlap", 
+                "Ya existe un mantenimiento programado para este espacio en el horario seleccionado");
+        }
+    }
+
+    if (bindingResult.hasErrors()) {
+        model.addAttribute("espaciosDeportivos", espacioDeportivoRepository.findAll());
+        return "admin/mantenimientoForm";
+    }
+
+    // Establecer timestamps
+    if (isCreation) {
+        mantenimiento.setFechaCreacion(LocalDateTime.now());
+        attr.addFlashAttribute("msg", "Mantenimiento creado satisfactoriamente");
+    } else {
+        attr.addFlashAttribute("msg", "Mantenimiento editado satisfactoriamente");
+    }
+    mantenimiento.setFechaActualizacion(LocalDateTime.now());
+
+    mantenimientoRepository.save(mantenimiento);
+    return "redirect:/admin/mantenimientos";
+}
+
+    @GetMapping("mantenimientos/info")
+    public String infoMantenimiento(@RequestParam("id") Integer id, Model model, RedirectAttributes attr) {
+        Optional<Mantenimiento> optMantenimiento = mantenimientoRepository.findById(id);
+        if (optMantenimiento.isEmpty()) {
+            attr.addFlashAttribute("message", "Mantenimiento no encontrado.");
+            attr.addFlashAttribute("messageType", "error");
+            return "redirect:/admin/mantenimientos";
+        }
+        model.addAttribute("mantenimiento", optMantenimiento.get());
+        return "admin/mantenimientoInfo";
+    }
+
+    @PostMapping("mantenimientos/cambiar-estado")
+    public String cambiarEstadoMantenimiento(@RequestParam("id") Integer id,
+            @RequestParam("nuevoEstado") String nuevoEstado,
+            RedirectAttributes attr) {
+        Optional<Mantenimiento> optMantenimiento = mantenimientoRepository.findById(id);
+        if (optMantenimiento.isPresent()) {
+            Mantenimiento mantenimiento = optMantenimiento.get();
+            try {
+                Mantenimiento.Estado estado = Mantenimiento.Estado.valueOf(nuevoEstado);
+                mantenimiento.setEstado(estado);
+                mantenimiento.setFechaActualizacion(LocalDateTime.now());
+                mantenimientoRepository.save(mantenimiento);
+                attr.addFlashAttribute("msg", "Estado del mantenimiento actualizado satisfactoriamente");
+            } catch (IllegalArgumentException e) {
+                attr.addFlashAttribute("error", "Estado inválido");
+            }
+        } else {
+            attr.addFlashAttribute("error", "Mantenimiento no encontrado");
+        }
+        return "redirect:/admin/mantenimientos/info?id=" + id;
+    }
+
+    @GetMapping("mantenimientos/eliminar")
+    public String eliminarMantenimiento(@RequestParam("id") Integer id, RedirectAttributes attr) {
+        Optional<Mantenimiento> optMantenimiento = mantenimientoRepository.findById(id);
+        if (optMantenimiento.isPresent()) {
+            Mantenimiento mantenimiento = optMantenimiento.get();
+            // Solo permitir eliminación si está pendiente
+            if (mantenimiento.getEstado() == Mantenimiento.Estado.pendiente) {
+                mantenimientoRepository.delete(mantenimiento);
+                attr.addFlashAttribute("msg", "Mantenimiento eliminado satisfactoriamente");
+            } else {
+                attr.addFlashAttribute("error", "Solo se pueden eliminar mantenimientos pendientes");
+            }
+        } else {
+            attr.addFlashAttribute("error", "Mantenimiento no encontrado");
+        }
+        return "redirect:/admin/mantenimientos";
+    }
 
     // Existing methods (unchanged, included for completeness)
     @GetMapping("establecimientos")
@@ -353,14 +514,15 @@ public class AdminController {
     }
 
     @GetMapping("establecimientos/nuevo")
-    public String crearEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento, Model model) {
+    public String crearEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento,
+            Model model) {
         return "admin/establecimientoForm";
     }
 
-
     @GetMapping("establecimientos/info")
     public String infoEstablecimiento(@RequestParam("id") Integer id, Model model, RedirectAttributes attr) {
-        EstablecimientoDeportivo establecimiento = establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id);
+        EstablecimientoDeportivo establecimiento = establecimientoDeportivoRepository
+                .findByEstablecimientoDeportivoId(id);
         if (establecimiento == null) {
             attr.addFlashAttribute("message", "Establecimiento no encontrado.");
             attr.addFlashAttribute("messageType", "error");
@@ -372,18 +534,19 @@ public class AdminController {
         return "admin/establecimientoInfo";
     }
 
-
     // Show form to edit an existing establishment
     @GetMapping("establecimientos/editar")
     public String editarEstablecimiento(@ModelAttribute("establecimiento") EstablecimientoDeportivo establecimiento,
-                                        @RequestParam("id") Integer id,
-                                        Model model) {
-        Optional<EstablecimientoDeportivo> optEstablecimiento = Optional.ofNullable(establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id));
+            @RequestParam("id") Integer id,
+            Model model) {
+        Optional<EstablecimientoDeportivo> optEstablecimiento = Optional
+                .ofNullable(establecimientoDeportivoRepository.findByEstablecimientoDeportivoId(id));
         if (optEstablecimiento.isPresent()) {
             establecimiento = optEstablecimiento.get();
             model.addAttribute("establecimiento", establecimiento);
             // Pass parsed coordinates for map initialization
-            if (establecimiento.getGeolocalizacion() != null && establecimiento.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
+            if (establecimiento.getGeolocalizacion() != null
+                    && establecimiento.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
                 String[] coords = establecimiento.getGeolocalizacion().split(",");
                 model.addAttribute("latitude", Double.parseDouble(coords[0].trim()));
                 model.addAttribute("longitude", Double.parseDouble(coords[1].trim()));
@@ -397,15 +560,15 @@ public class AdminController {
         }
     }
 
-
     // Save establishment
     @PostMapping("establecimientos/guardar")
-    public String guardarEstablecimiento(@ModelAttribute("establecimiento") @Valid EstablecimientoDeportivo establecimiento,
-                                         BindingResult bindingResult,
-                                         @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
-                                         @RequestParam(value = "geolocalizacion", required = true) String geolocalizacion,
-                                         Model model,
-                                         RedirectAttributes attr) {
+    public String guardarEstablecimiento(
+            @ModelAttribute("establecimiento") @Valid EstablecimientoDeportivo establecimiento,
+            BindingResult bindingResult,
+            @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            @RequestParam(value = "geolocalizacion", required = true) String geolocalizacion,
+            Model model,
+            RedirectAttributes attr) {
         // Validate geolocalizacion format
         if (geolocalizacion == null || !geolocalizacion.matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
             bindingResult.rejectValue("geolocalizacion", "Pattern", "Formato inválido (ej: -12.04318,-77.02824)");
@@ -428,32 +591,43 @@ public class AdminController {
 
         // Validate image format if provided
         String defaultFotoUrl = "https://media-cdn.tripadvisor.com/media/photo-s/12/34/6a/8f/cancha-de-futbol-redes.jpg";
-        String existingFotoUrl = establecimiento.getEstablecimientoDeportivoId() != null ? establecimiento.getFotoEstablecimientoUrl() : null;
-        boolean isCreation = establecimiento.getEstablecimientoDeportivoId() == null || establecimiento.getEstablecimientoDeportivoId() == 0;
+        String existingFotoUrl = establecimiento.getEstablecimientoDeportivoId() != null
+                ? establecimiento.getFotoEstablecimientoUrl()
+                : null;
+        boolean isCreation = establecimiento.getEstablecimientoDeportivoId() == null
+                || establecimiento.getEstablecimientoDeportivoId() == 0;
 
         if (fotoFile != null && !fotoFile.isEmpty()) {
             String contentType = fotoFile.getContentType();
             if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
-                bindingResult.rejectValue("fotoEstablecimientoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
+                bindingResult.rejectValue("fotoEstablecimientoUrl", "typeMismatch",
+                        "El archivo debe ser una imagen (JPEG, PNG o JPG)");
             } else {
                 String uploadResult = s3Service.uploadFile(fotoFile);
                 if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
                     String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
                     if (fotoUrl.length() > 255) {
-                        bindingResult.rejectValue("fotoEstablecimientoUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
+                        bindingResult.rejectValue("fotoEstablecimientoUrl", "Size",
+                                "La URL de la foto no puede superar los 255 caracteres");
                     } else if (fotoUrl.isEmpty()) {
                         bindingResult.rejectValue("fotoEstablecimientoUrl", "Invalid", "La URL generada está vacía");
                     } else {
                         establecimiento.setFotoEstablecimientoUrl(fotoUrl);
                     }
                 } else {
-                    establecimiento.setFotoEstablecimientoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
-                    attr.addFlashAttribute("message", "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
+                    establecimiento.setFotoEstablecimientoUrl(
+                            isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl
+                                    : existingFotoUrl);
+                    attr.addFlashAttribute("message",
+                            "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido")
+                                    + ". Se usó una imagen por defecto.");
                     attr.addFlashAttribute("messageType", "error");
                 }
             }
         } else {
-            establecimiento.setFotoEstablecimientoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
+            establecimiento.setFotoEstablecimientoUrl(
+                    isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl
+                            : existingFotoUrl);
         }
 
         if (bindingResult.hasErrors()) {
@@ -464,7 +638,8 @@ public class AdminController {
         establecimiento.setGeolocalizacion(geolocalizacion);
 
         // Ensure no empty string is saved
-        if (establecimiento.getFotoEstablecimientoUrl() == null || establecimiento.getFotoEstablecimientoUrl().isEmpty()) {
+        if (establecimiento.getFotoEstablecimientoUrl() == null
+                || establecimiento.getFotoEstablecimientoUrl().isEmpty()) {
             establecimiento.setFotoEstablecimientoUrl(defaultFotoUrl);
         }
 
@@ -480,7 +655,6 @@ public class AdminController {
         establecimientoDeportivoRepository.save(establecimiento);
         return "redirect:/admin/establecimientos";
     }
-
 
     // List all sports spaces
     @GetMapping("espacios")
@@ -498,20 +672,21 @@ public class AdminController {
         return "admin/espacioForm";
     }
 
-
     // Show form to edit an existing sports space
     @GetMapping("espacios/editar")
     public String editarEspacioDeportivo(@ModelAttribute("espacio") EspacioDeportivo espacio,
-                                         @RequestParam("id") Integer id,
-                                         Model model) {
-        Optional<EspacioDeportivo> optEspacio = Optional.ofNullable(espacioDeportivoRepository.findById(id).orElse(null));
+            @RequestParam("id") Integer id,
+            Model model) {
+        Optional<EspacioDeportivo> optEspacio = Optional
+                .ofNullable(espacioDeportivoRepository.findById(id).orElse(null));
         if (optEspacio.isPresent()) {
             espacio = optEspacio.get();
             model.addAttribute("espacio", espacio);
             model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
             model.addAttribute("servicios", servicioDeportivoRepository.findAll());
             // Pass parsed coordinates for map initialization
-            if (espacio.getGeolocalizacion() != null && espacio.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
+            if (espacio.getGeolocalizacion() != null
+                    && espacio.getGeolocalizacion().matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
                 String[] coords = espacio.getGeolocalizacion().split(",");
                 model.addAttribute("latitude", Double.parseDouble(coords[0].trim()));
                 model.addAttribute("longitude", Double.parseDouble(coords[1].trim()));
@@ -525,15 +700,14 @@ public class AdminController {
         }
     }
 
-
     // Save sports space
     @PostMapping("espacios/guardar")
     public String guardarEspacioDeportivo(@ModelAttribute("espacio") @Valid EspacioDeportivo espacio,
-                                          BindingResult bindingResult,
-                                          @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
-                                          @RequestParam(value = "geolocalizacion", required = true) String geolocalizacion,
-                                          Model model,
-                                          RedirectAttributes attr) {
+            BindingResult bindingResult,
+            @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            @RequestParam(value = "geolocalizacion", required = true) String geolocalizacion,
+            Model model,
+            RedirectAttributes attr) {
         // Validate geolocalizacion format
         if (geolocalizacion == null || !geolocalizacion.matches("^-?\\d+\\.\\d+,-?\\d+\\.\\d+$")) {
             bindingResult.rejectValue("geolocalizacion", "Pattern", "Formato inválido (ej: -12.04318,-77.02824)");
@@ -562,26 +736,34 @@ public class AdminController {
         if (fotoFile != null && !fotoFile.isEmpty()) {
             String contentType = fotoFile.getContentType();
             if (contentType == null || !contentType.matches("^(image/(jpeg|png|jpg))$")) {
-                bindingResult.rejectValue("fotoEspacioDeportivoUrl", "typeMismatch", "El archivo debe ser una imagen (JPEG, PNG o JPG)");
+                bindingResult.rejectValue("fotoEspacioDeportivoUrl", "typeMismatch",
+                        "El archivo debe ser una imagen (JPEG, PNG o JPG)");
             } else {
                 String uploadResult = s3Service.uploadFile(fotoFile);
                 if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
                     String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
                     if (fotoUrl.length() > 255) {
-                        bindingResult.rejectValue("fotoEspacioDeportivoUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
+                        bindingResult.rejectValue("fotoEspacioDeportivoUrl", "Size",
+                                "La URL de la foto no puede superar los 255 caracteres");
                     } else if (fotoUrl.isEmpty()) {
                         bindingResult.rejectValue("fotoEspacioDeportivoUrl", "Invalid", "La URL generada está vacía");
                     } else {
                         espacio.setFotoEspacioDeportivoUrl(fotoUrl);
                     }
                 } else {
-                    espacio.setFotoEspacioDeportivoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
-                    attr.addFlashAttribute("message", "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
+                    espacio.setFotoEspacioDeportivoUrl(
+                            isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl
+                                    : existingFotoUrl);
+                    attr.addFlashAttribute("message",
+                            "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido")
+                                    + ". Se usó una imagen por defecto.");
                     attr.addFlashAttribute("messageType", "error");
                 }
             }
         } else {
-            espacio.setFotoEspacioDeportivoUrl(isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl : existingFotoUrl);
+            espacio.setFotoEspacioDeportivoUrl(
+                    isCreation || existingFotoUrl == null || existingFotoUrl.isEmpty() ? defaultFotoUrl
+                            : existingFotoUrl);
         }
 
         if (bindingResult.hasErrors()) {
@@ -608,9 +790,9 @@ public class AdminController {
         espacio.setFechaActualizacion(LocalDateTime.now());
 
         espacioDeportivoRepository.save(espacio);
-        return "redirect:/admin/establecimientos/info?id=" + espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoId();
+        return "redirect:/admin/establecimientos/info?id="
+                + espacio.getEstablecimientoDeportivo().getEstablecimientoDeportivoId();
     }
-
 
     @GetMapping("espacios/detalle")
     public String detalleEspacioDeportivo(@RequestParam Integer id, Model model, RedirectAttributes attr) {
@@ -648,7 +830,6 @@ public class AdminController {
         return "redirect:/admin/dashboard";
     }
 
-
     @GetMapping("/perfil/editar")
     public String editarPerfilAdministrador(@SessionAttribute("usuario") Usuario usuario, Model model) {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuario.getUsuarioId());
@@ -682,21 +863,28 @@ public class AdminController {
                 if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
                     String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
                     if (fotoUrl.length() > 255) {
-                        result.rejectValue("fotoPerfilUrl", "Size", "La URL de la foto no puede superar los 255 caracteres");
+                        result.rejectValue("fotoPerfilUrl", "Size",
+                                "La URL de la foto no puede superar los 255 caracteres");
                     } else if (fotoUrl.isEmpty()) {
                         result.rejectValue("fotoPerfilUrl", "Invalid", "La URL generada está vacía");
                     } else {
                         usuario.setFotoPerfilUrl(fotoUrl);
                     }
                 } else {
-                    usuario.setFotoPerfilUrl(isCreation || existingFotoPerfilUrl == null || existingFotoPerfilUrl.isEmpty() ? defaultFotoPerfilUrl : existingFotoPerfilUrl);
+                    usuario.setFotoPerfilUrl(
+                            isCreation || existingFotoPerfilUrl == null || existingFotoPerfilUrl.isEmpty()
+                                    ? defaultFotoPerfilUrl
+                                    : existingFotoPerfilUrl);
                     redirectAttributes.addFlashAttribute("message", "Error al subir la foto: " +
-                            (uploadResult != null ? uploadResult : "Resultado inválido") + ". Se usó una imagen por defecto.");
+                            (uploadResult != null ? uploadResult : "Resultado inválido")
+                            + ". Se usó una imagen por defecto.");
                     redirectAttributes.addFlashAttribute("messageType", "error");
                 }
             }
         } else {
-            usuario.setFotoPerfilUrl(isCreation || existingFotoPerfilUrl == null || existingFotoPerfilUrl.isEmpty() ? defaultFotoPerfilUrl : existingFotoPerfilUrl);
+            usuario.setFotoPerfilUrl(isCreation || existingFotoPerfilUrl == null || existingFotoPerfilUrl.isEmpty()
+                    ? defaultFotoPerfilUrl
+                    : existingFotoPerfilUrl);
         }
 
         // If there are validation errors, return the form
@@ -730,7 +918,6 @@ public class AdminController {
         return "redirect:/admin/perfil";
     }
 
-
     @GetMapping("pagos")
     public String listarPagos(Model model) {
         List<Pago> pagosPendientes = pagoRepository.findByEstadoTransaccionAndMetodoPago_MetodoPagoId(
@@ -739,62 +926,64 @@ public class AdminController {
         return "admin/pagosList";
     }
 
-    /*@GetMapping("/pagos/aceptar")
-    public String aceptarPago(@RequestParam("id") Integer id) {
-        Optional<Pago> optPago = pagoRepository.findById(id);
-        if (optPago.isPresent()) {
-            Pago pago = optPago.get();
-            pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
-            pago.setDetallesTransaccion("Pago aceptado por el administrador");
-            pagoRepository.save(pago);
-        }
-        return "redirect:/admin/pagos";
-    }
-
-    @GetMapping("/pagos/rechazar")
-    public String rechazarPago(@RequestParam("id") Integer id) {
-        Optional<Pago> optPago = pagoRepository.findById(id);
-        if (optPago.isPresent()) {
-            Pago pago = optPago.get();
-            pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
-            pagoRepository.save(pago);
-        }
-        return "redirect:/admin/pagos";
-    }
-
-    @GetMapping("/pagos/ver")
-    public String verDetallePago(@RequestParam("id") Integer id, Model model) {
-        Optional<Pago> optPago = pagoRepository.findById(id);
-        if (optPago.isPresent()) {
-            model.addAttribute("pago", optPago.get());
-            return "admin/pagosInfo";
-        }
-        return "redirect:/admin/pagos/pendientes/transaccion";
-    }
-
+    /*
+     * @GetMapping("/pagos/aceptar")
+     * public String aceptarPago(@RequestParam("id") Integer id) {
+     * Optional<Pago> optPago = pagoRepository.findById(id);
+     * if (optPago.isPresent()) {
+     * Pago pago = optPago.get();
+     * pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
+     * pago.setDetallesTransaccion("Pago aceptado por el administrador");
+     * pagoRepository.save(pago);
+     * }
+     * return "redirect:/admin/pagos";
+     * }
+     * 
+     * @GetMapping("/pagos/rechazar")
+     * public String rechazarPago(@RequestParam("id") Integer id) {
+     * Optional<Pago> optPago = pagoRepository.findById(id);
+     * if (optPago.isPresent()) {
+     * Pago pago = optPago.get();
+     * pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
+     * pagoRepository.save(pago);
+     * }
+     * return "redirect:/admin/pagos";
+     * }
+     * 
+     * @GetMapping("/pagos/ver")
+     * public String verDetallePago(@RequestParam("id") Integer id, Model model) {
+     * Optional<Pago> optPago = pagoRepository.findById(id);
+     * if (optPago.isPresent()) {
+     * model.addAttribute("pago", optPago.get());
+     * return "admin/pagosInfo";
+     * }
+     * return "redirect:/admin/pagos/pendientes/transaccion";
+     * }
+     * 
      */
 
     /*
-    @GetMapping("/pagos/aceptar")
-    public String aceptarPago(@RequestParam("id") Integer id) {
-        Optional<Pago> optPago = pagoRepository.findById(id);
-        if (optPago.isPresent()) {
-            Pago pago = optPago.get();
-            pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
-            pago.setDetallesTransaccion("Pago aceptado por el administrador");
-
-            // Update the associated Reserva to 'completada'
-            Reserva reserva = pago.getReserva();
-            if (reserva != null) {
-                reserva.setEstado(Reserva.Estado.completada);
-                reserva.setFechaActualizacion(LocalDateTime.now()); // Update timestamp
-                reservaRepository.save(reserva);
-            }
-
-            pagoRepository.save(pago);
-        }
-        return "redirect:/admin/pagos";
-    }*/
+     * @GetMapping("/pagos/aceptar")
+     * public String aceptarPago(@RequestParam("id") Integer id) {
+     * Optional<Pago> optPago = pagoRepository.findById(id);
+     * if (optPago.isPresent()) {
+     * Pago pago = optPago.get();
+     * pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
+     * pago.setDetallesTransaccion("Pago aceptado por el administrador");
+     * 
+     * // Update the associated Reserva to 'completada'
+     * Reserva reserva = pago.getReserva();
+     * if (reserva != null) {
+     * reserva.setEstado(Reserva.Estado.completada);
+     * reserva.setFechaActualizacion(LocalDateTime.now()); // Update timestamp
+     * reservaRepository.save(reserva);
+     * }
+     * 
+     * pagoRepository.save(pago);
+     * }
+     * return "redirect:/admin/pagos";
+     * }
+     */
     @GetMapping("/pagos/aceptar")
     public String aceptarPago(@RequestParam("id") Integer id, RedirectAttributes redirectAttributes) {
         Optional<Pago> optPago = pagoRepository.findById(id);
@@ -877,7 +1066,8 @@ public class AdminController {
         } else {
             try {
                 Observacion.NivelUrgencia urgencia = Observacion.NivelUrgencia.valueOf(nivel);
-                observaciones = observacionRepository.findByEstadoInAndNivelUrgenciaOrderByEstadoAsc(estadosVisibles, urgencia);
+                observaciones = observacionRepository.findByEstadoInAndNivelUrgenciaOrderByEstadoAsc(estadosVisibles,
+                        urgencia);
             } catch (IllegalArgumentException e) {
                 observaciones = observacionRepository.findByEstadoInOrderByEstadoAsc(estadosVisibles);
             }
@@ -902,8 +1092,9 @@ public class AdminController {
 
     @PostMapping("/observaciones/resolver")
     public String resolverObservacion(@RequestParam("id") Integer id,
-                                      @RequestParam("comentarioAdministrador") String comentario) {
-        Observacion observacion = observacionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("ID inválido"));
+            @RequestParam("comentarioAdministrador") String comentario) {
+        Observacion observacion = observacionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID inválido"));
         observacion.setEstado(Observacion.Estado.resuelto);
         observacion.setComentarioAdministrador(comentario);
         observacion.setFechaActualizacion(LocalDateTime.now());
@@ -953,13 +1144,12 @@ public class AdminController {
             chartData.add(reserva.getCantidadReservas());
             chartLabels.add(reserva.getDia());
             double porcentaje = (reserva.getCantidadReservas() * 100.0) / totalReservas;
-            topDias.add(new Object[]{reserva.getDia(), String.format("%.1f%%", porcentaje)});
+            topDias.add(new Object[] { reserva.getDia(), String.format("%.1f%%", porcentaje) });
         }
 
         topDias.sort((a, b) -> Double.compare(
                 Double.parseDouble(((String) b[1]).replace("%", "")),
-                Double.parseDouble(((String) a[1]).replace("%", ""))
-        ));
+                Double.parseDouble(((String) a[1]).replace("%", ""))));
         List<Object[]> top3Dias = topDias.size() > 3 ? topDias.subList(0, 3) : topDias;
 
         model.addAttribute("reservasPorDia", reservasPorDia);
@@ -1045,7 +1235,8 @@ public class AdminController {
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Fecha", "Espacio Deportivo", "Establecimiento", "Nivel de Urgencia", "Coordinador", "Estado"};
+            String[] headers = { "Fecha", "Espacio Deportivo", "Establecimiento", "Nivel de Urgencia", "Coordinador",
+                    "Estado" };
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -1067,16 +1258,18 @@ public class AdminController {
                 espacioCell.setCellStyle(dataStyle);
 
                 Cell establecimientoCell = row.createCell(2);
-                establecimientoCell.setCellValue(observacion.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
+                establecimientoCell.setCellValue(observacion.getEspacioDeportivo().getEstablecimientoDeportivo()
+                        .getEstablecimientoDeportivoNombre());
                 establecimientoCell.setCellStyle(dataStyle);
 
                 Cell urgenciaCell = row.createCell(3);
                 urgenciaCell.setCellValue(observacion.getNivelUrgencia().name().substring(0, 1).toUpperCase() +
-                                         observacion.getNivelUrgencia().name().substring(1).toLowerCase());
+                        observacion.getNivelUrgencia().name().substring(1).toLowerCase());
                 urgenciaCell.setCellStyle(dataStyle);
 
                 Cell coordinadorCell = row.createCell(4);
-                coordinadorCell.setCellValue(observacion.getCoordinador().getNombres() + " " + observacion.getCoordinador().getApellidos());
+                coordinadorCell.setCellValue(
+                        observacion.getCoordinador().getNombres() + " " + observacion.getCoordinador().getApellidos());
                 coordinadorCell.setCellStyle(dataStyle);
 
                 Cell estadoCell = row.createCell(5);
@@ -1131,7 +1324,9 @@ public class AdminController {
             // Fecha de generación
             com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
             Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+                    java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    dateFont);
             dateGenerated.setAlignment(Element.ALIGN_CENTER);
             dateGenerated.setSpacingAfter(20);
             document.add(dateGenerated);
@@ -1143,7 +1338,7 @@ public class AdminController {
             table.setSpacingAfter(10f);
 
             // Configurar anchos de columnas
-            float[] columnWidths = {2f, 3f, 3f, 2f, 3f, 2f};
+            float[] columnWidths = { 2f, 3f, 3f, 2f, 3f, 2f };
             table.setWidths(columnWidths);
 
             // Estilo para encabezados
@@ -1151,7 +1346,8 @@ public class AdminController {
             BaseColor headerColor = new BaseColor(52, 58, 64);
 
             // Agregar encabezados
-            String[] headers = {"Fecha", "Espacio Deportivo", "Establecimiento", "Nivel Urgencia", "Coordinador", "Estado"};
+            String[] headers = { "Fecha", "Espacio Deportivo", "Establecimiento", "Nivel Urgencia", "Coordinador",
+                    "Estado" };
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBackgroundColor(headerColor);
@@ -1167,33 +1363,41 @@ public class AdminController {
             // Agregar datos
             for (Observacion observacion : observaciones) {
                 PdfPCell dateCell = new PdfPCell(new Phrase(
-                    observacion.getFechaCreacion().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")), dataFont));
+                        observacion.getFechaCreacion()
+                                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                        dataFont));
                 dateCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 dateCell.setPadding(5);
                 table.addCell(dateCell);
 
-                PdfPCell espacioCell = new PdfPCell(new Phrase(observacion.getEspacioDeportivo().getNombre(), dataFont));
+                PdfPCell espacioCell = new PdfPCell(
+                        new Phrase(observacion.getEspacioDeportivo().getNombre(), dataFont));
                 espacioCell.setPadding(5);
                 table.addCell(espacioCell);
 
                 PdfPCell establecimientoCell = new PdfPCell(new Phrase(
-                    observacion.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre(), dataFont));
+                        observacion.getEspacioDeportivo().getEstablecimientoDeportivo()
+                                .getEstablecimientoDeportivoNombre(),
+                        dataFont));
                 establecimientoCell.setPadding(5);
                 table.addCell(establecimientoCell);
 
                 PdfPCell urgenciaCell = new PdfPCell(new Phrase(
-                    observacion.getNivelUrgencia().name().substring(0, 1).toUpperCase() +
-                    observacion.getNivelUrgencia().name().substring(1).toLowerCase(), dataFont));
+                        observacion.getNivelUrgencia().name().substring(0, 1).toUpperCase() +
+                                observacion.getNivelUrgencia().name().substring(1).toLowerCase(),
+                        dataFont));
                 urgenciaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 urgenciaCell.setPadding(5);
                 table.addCell(urgenciaCell);
 
                 PdfPCell coordinadorCell = new PdfPCell(new Phrase(
-                    observacion.getCoordinador().getNombres() + " " + observacion.getCoordinador().getApellidos(), dataFont));
+                        observacion.getCoordinador().getNombres() + " " + observacion.getCoordinador().getApellidos(),
+                        dataFont));
                 coordinadorCell.setPadding(5);
                 table.addCell(coordinadorCell);
 
-                PdfPCell estadoCell = new PdfPCell(new Phrase(getEstadoObservacionTexto(observacion.getEstado()), dataFont));
+                PdfPCell estadoCell = new PdfPCell(
+                        new Phrase(getEstadoObservacionTexto(observacion.getEstado()), dataFont));
                 estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 estadoCell.setPadding(5);
                 table.addCell(estadoCell);
@@ -1254,7 +1458,7 @@ public class AdminController {
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Usuario", "Establecimiento Deportivo", "Monto", "Estado", "Fecha y Hora"};
+            String[] headers = { "Usuario", "Establecimiento Deportivo", "Monto", "Estado", "Fecha y Hora" };
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -1268,11 +1472,13 @@ public class AdminController {
                 Row row = sheet.createRow(rowNum++);
 
                 Cell usuarioCell = row.createCell(0);
-                usuarioCell.setCellValue(pago.getReserva().getUsuario().getNombres() + " " + pago.getReserva().getUsuario().getApellidos());
+                usuarioCell.setCellValue(pago.getReserva().getUsuario().getNombres() + " "
+                        + pago.getReserva().getUsuario().getApellidos());
                 usuarioCell.setCellStyle(dataStyle);
 
                 Cell establecimientoCell = row.createCell(1);
-                establecimientoCell.setCellValue(pago.getReserva().getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
+                establecimientoCell.setCellValue(pago.getReserva().getEspacioDeportivo().getEstablecimientoDeportivo()
+                        .getEstablecimientoDeportivoNombre());
                 establecimientoCell.setCellStyle(dataStyle);
 
                 Cell montoCell = row.createCell(2);
@@ -1335,7 +1541,9 @@ public class AdminController {
             // Fecha de generación
             com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
             Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+                    java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    dateFont);
             dateGenerated.setAlignment(Element.ALIGN_CENTER);
             dateGenerated.setSpacingAfter(20);
             document.add(dateGenerated);
@@ -1347,7 +1555,7 @@ public class AdminController {
             table.setSpacingAfter(10f);
 
             // Configurar anchos de columnas
-            float[] columnWidths = {3f, 4f, 2f, 2f, 3f};
+            float[] columnWidths = { 3f, 4f, 2f, 2f, 3f };
             table.setWidths(columnWidths);
 
             // Estilo para encabezados
@@ -1355,7 +1563,7 @@ public class AdminController {
             BaseColor headerColor = new BaseColor(52, 58, 64);
 
             // Agregar encabezados
-            String[] headers = {"Usuario", "Establecimiento Deportivo", "Monto", "Estado", "Fecha y Hora"};
+            String[] headers = { "Usuario", "Establecimiento Deportivo", "Monto", "Estado", "Fecha y Hora" };
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBackgroundColor(headerColor);
@@ -1370,11 +1578,13 @@ public class AdminController {
 
             // Agregar datos
             for (Pago pago : pagos) {
-                PdfPCell usuarioCell = new PdfPCell(new Phrase(pago.getReserva().getUsuario().getNombres() + " " + pago.getReserva().getUsuario().getApellidos(), dataFont));
+                PdfPCell usuarioCell = new PdfPCell(new Phrase(pago.getReserva().getUsuario().getNombres() + " "
+                        + pago.getReserva().getUsuario().getApellidos(), dataFont));
                 usuarioCell.setPadding(5);
                 table.addCell(usuarioCell);
 
-                PdfPCell establecimientoCell = new PdfPCell(new Phrase(pago.getReserva().getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre(), dataFont));
+                PdfPCell establecimientoCell = new PdfPCell(new Phrase(pago.getReserva().getEspacioDeportivo()
+                        .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre(), dataFont));
                 establecimientoCell.setPadding(5);
                 table.addCell(establecimientoCell);
 
@@ -1383,13 +1593,15 @@ public class AdminController {
                 montoCell.setPadding(5);
                 table.addCell(montoCell);
 
-                PdfPCell estadoCell = new PdfPCell(new Phrase(getEstadoPagoTexto(pago.getEstadoTransaccion()), dataFont));
+                PdfPCell estadoCell = new PdfPCell(
+                        new Phrase(getEstadoPagoTexto(pago.getEstadoTransaccion()), dataFont));
                 estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 estadoCell.setPadding(5);
                 table.addCell(estadoCell);
 
                 PdfPCell fechaCell = new PdfPCell(new Phrase(
-                    pago.getFechaPago().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dataFont));
+                        pago.getFechaPago().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                        dataFont));
                 fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 fechaCell.setPadding(5);
                 table.addCell(fechaCell);
@@ -1410,7 +1622,9 @@ public class AdminController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }    // Export methods for Coordinadores
+    }
+
+    // Export methods for Coordinadores
     @GetMapping("/coordinadores/export/excel")
     public ResponseEntity<byte[]> exportarCoordinadoresExcel() {
         try {
@@ -1443,7 +1657,7 @@ public class AdminController {
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Nombre Completo", "Correo Electrónico", "Teléfono"};
+            String[] headers = { "Nombre Completo", "Correo Electrónico", "Teléfono" };
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -1491,7 +1705,8 @@ public class AdminController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();        }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/coordinadores/export/pdf")
@@ -1515,7 +1730,9 @@ public class AdminController {
             // Fecha de generación
             com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
             Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+                    java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    dateFont);
             dateGenerated.setAlignment(Element.ALIGN_CENTER);
             dateGenerated.setSpacingAfter(20);
             document.add(dateGenerated);
@@ -1527,7 +1744,7 @@ public class AdminController {
             table.setSpacingAfter(10f);
 
             // Configurar anchos de columnas
-            float[] columnWidths = {4f, 4f, 2f};
+            float[] columnWidths = { 4f, 4f, 2f };
             table.setWidths(columnWidths);
 
             // Estilo para encabezados
@@ -1535,7 +1752,7 @@ public class AdminController {
             BaseColor headerColor = new BaseColor(52, 58, 64);
 
             // Agregar encabezados
-            String[] headers = {"Nombre Completo", "Correo Electrónico", "Teléfono"};
+            String[] headers = { "Nombre Completo", "Correo Electrónico", "Teléfono" };
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBackgroundColor(headerColor);
@@ -1551,7 +1768,7 @@ public class AdminController {
             // Agregar datos
             for (Usuario coordinador : coordinadores) {
                 PdfPCell nombreCell = new PdfPCell(new Phrase(
-                    coordinador.getNombres() + " " + coordinador.getApellidos(), dataFont));
+                        coordinador.getNombres() + " " + coordinador.getApellidos(), dataFont));
                 nombreCell.setPadding(5);
                 table.addCell(nombreCell);
 
@@ -1560,7 +1777,7 @@ public class AdminController {
                 table.addCell(correoCell);
 
                 PdfPCell telefonoCell = new PdfPCell(new Phrase(
-                    coordinador.getTelefono() != null ? coordinador.getTelefono() : "", dataFont));
+                        coordinador.getTelefono() != null ? coordinador.getTelefono() : "", dataFont));
                 telefonoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 telefonoCell.setPadding(5);
                 table.addCell(telefonoCell);
@@ -1572,6 +1789,255 @@ public class AdminController {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.setContentType(MediaType.APPLICATION_PDF);
             responseHeaders.setContentDispositionFormData("attachment", "coordinadores_admin.pdf");
+
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .body(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Export methods for Mantenimientos
+    @GetMapping("/mantenimientos/export/excel")
+    public ResponseEntity<byte[]> exportarMantenimientosExcel() {
+        try {
+            List<Mantenimiento> mantenimientos = mantenimientoRepository.findAll();
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Mantenimientos");
+
+            // Estilo para el encabezado
+            CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+            headerStyle.setBorderTop(BorderStyle.THIN);
+            headerStyle.setBorderRight(BorderStyle.THIN);
+            headerStyle.setBorderLeft(BorderStyle.THIN);
+
+            // Estilo para las celdas de datos
+            CellStyle dataStyle = workbook.createCellStyle();
+            dataStyle.setBorderBottom(BorderStyle.THIN);
+            dataStyle.setBorderTop(BorderStyle.THIN);
+            dataStyle.setBorderRight(BorderStyle.THIN);
+            dataStyle.setBorderLeft(BorderStyle.THIN);
+            dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+            // Estilo para fechas
+            CellStyle dateStyle = workbook.createCellStyle();
+            dateStyle.cloneStyleFrom(dataStyle);
+            dateStyle.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("dd/mm/yyyy hh:mm"));
+
+            // Crear encabezados
+            Row headerRow = sheet.createRow(0);
+            String[] headers = { "Nombre", "Dirección", "Teléfono", "Correo", "Horario" };
+
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // Llenar datos
+            int rowNum = 1;
+            for (Mantenimiento mantenimiento : mantenimientos) {
+                Row row = sheet.createRow(rowNum++);
+
+                Cell espacioCell = row.createCell(0);
+                espacioCell.setCellValue(mantenimiento.getEspacioDeportivo().getNombre());
+                espacioCell.setCellStyle(dataStyle);
+
+                Cell establecimientoCell = row.createCell(1);
+                establecimientoCell.setCellValue(mantenimiento.getEspacioDeportivo()
+                        .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
+                establecimientoCell.setCellStyle(dataStyle);
+
+                Cell motivoCell = row.createCell(2);
+                motivoCell.setCellValue(mantenimiento.getMotivo() != null ? mantenimiento.getMotivo() : "");
+                motivoCell.setCellStyle(dataStyle);
+
+                Cell fechaInicioCell = row.createCell(3);
+                if (mantenimiento.getFechaInicio() != null) {
+                    fechaInicioCell.setCellValue(mantenimiento.getFechaInicio());
+                    fechaInicioCell.setCellStyle(dateStyle);
+                } else {
+                    fechaInicioCell.setCellValue("No definido");
+                    fechaInicioCell.setCellStyle(dataStyle);
+                }
+
+                Cell fechaFinCell = row.createCell(4);
+                if (mantenimiento.getFechaEstimadaFin() != null) {
+                    fechaFinCell.setCellValue(mantenimiento.getFechaEstimadaFin());
+                    fechaFinCell.setCellStyle(dateStyle);
+                } else {
+                    fechaFinCell.setCellValue("No definido");
+                    fechaFinCell.setCellStyle(dataStyle);
+                }
+
+                Cell estadoCell = row.createCell(5);
+                estadoCell.setCellValue((mantenimiento.getEstado().name()));
+                estadoCell.setCellStyle(dataStyle);
+
+                Cell fechaCreacionCell = row.createCell(6);
+                if (mantenimiento.getFechaCreacion() != null) {
+                    fechaCreacionCell.setCellValue(mantenimiento.getFechaCreacion());
+                    fechaCreacionCell.setCellStyle(dateStyle);
+                } else {
+                    fechaCreacionCell.setCellValue("No definido");
+                    fechaCreacionCell.setCellStyle(dataStyle);
+                }
+            }
+
+            // Ajustar ancho de columnas
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+                if (sheet.getColumnWidth(i) < 3000) {
+                    sheet.setColumnWidth(i, 3000);
+                }
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            responseHeaders.setContentDispositionFormData("attachment", "mantenimientos_admin.xlsx");
+
+            return ResponseEntity.ok()
+                    .headers(responseHeaders)
+                    .body(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/mantenimientos/export/pdf")
+    public ResponseEntity<byte[]> exportarMantenimientosPdf() {
+        try {
+            List<Mantenimiento> mantenimientos = mantenimientoRepository.findAll();
+
+            Document document = new Document(PageSize.A4.rotate());
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            PdfWriter.getInstance(document, outputStream);
+
+            document.open();
+
+            // Título
+            com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+            Paragraph title = new Paragraph("Reporte de Mantenimientos - Admin", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            title.setSpacingAfter(20);
+            document.add(title);
+
+            // Fecha de generación
+            com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+            Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                    java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    dateFont);
+            dateGenerated.setAlignment(Element.ALIGN_CENTER);
+            dateGenerated.setSpacingAfter(20);
+            document.add(dateGenerated);
+
+            // Crear tabla
+            PdfPTable table = new PdfPTable(7);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+
+            // Configurar anchos de columnas
+            float[] columnWidths = { 2.5f, 3f, 3.5f, 2f, 2f, 1.5f, 2f };
+            table.setWidths(columnWidths);
+
+            // Estilo para encabezados
+            com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
+            BaseColor headerColor = new BaseColor(52, 58, 64);
+
+            // Agregar encabezados
+            String[] headers = { "Espacio Deportivo", "Establecimiento", "Motivo", "Fecha Inicio",
+                    "Fecha Fin Estimada", "Estado", "Fecha Creación" };
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+                cell.setBackgroundColor(headerColor);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                cell.setPadding(6);
+                table.addCell(cell);
+            }
+
+            // Estilo para datos
+            com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
+
+            // Agregar datos
+            for (Mantenimiento mantenimiento : mantenimientos) {
+                PdfPCell espacioCell = new PdfPCell(
+                        new Phrase(mantenimiento.getEspacioDeportivo().getNombre(), dataFont));
+                espacioCell.setPadding(4);
+                table.addCell(espacioCell);
+
+                PdfPCell establecimientoCell = new PdfPCell(new Phrase(mantenimiento.getEspacioDeportivo()
+                        .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre(), dataFont));
+                establecimientoCell.setPadding(4);
+                table.addCell(establecimientoCell);
+
+                PdfPCell motivoCell = new PdfPCell(new Phrase(
+                        mantenimiento.getMotivo() != null ? mantenimiento.getMotivo() : "", dataFont));
+                motivoCell.setPadding(4);
+                table.addCell(motivoCell);
+
+                PdfPCell fechaInicioCell = new PdfPCell(new Phrase(
+                        mantenimiento.getFechaInicio() != null
+                                ? mantenimiento.getFechaInicio()
+                                        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                                : "No definido",
+                        dataFont));
+                fechaInicioCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                fechaInicioCell.setPadding(4);
+                table.addCell(fechaInicioCell);
+
+                PdfPCell fechaFinCell = new PdfPCell(new Phrase(
+                        mantenimiento.getFechaEstimadaFin() != null
+                                ? mantenimiento.getFechaEstimadaFin()
+                                        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                                : "No definido",
+                        dataFont));
+                fechaFinCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                fechaFinCell.setPadding(4);
+                table.addCell(fechaFinCell);
+
+                PdfPCell estadoCell = new PdfPCell(
+                        new Phrase(mantenimiento.getEstado().name(), dataFont));
+                estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                estadoCell.setPadding(4);
+                table.addCell(estadoCell);
+
+                PdfPCell fechaCreacionCell = new PdfPCell(new Phrase(
+                        mantenimiento.getFechaCreacion() != null
+                                ? mantenimiento.getFechaCreacion()
+                                        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                                : "No definido",
+                        dataFont));
+                fechaCreacionCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                fechaCreacionCell.setPadding(4);
+                table.addCell(fechaCreacionCell);
+            }
+
+            document.add(table);
+            document.close();
+
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+            responseHeaders.setContentDispositionFormData("attachment", "mantenimientos_admin.pdf");
 
             return ResponseEntity.ok()
                     .headers(responseHeaders)
@@ -1616,7 +2082,7 @@ public class AdminController {
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Nombre", "Dirección", "Teléfono", "Correo", "Horario"};
+            String[] headers = { "Nombre", "Dirección", "Teléfono", "Correo", "Horario" };
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -1638,17 +2104,22 @@ public class AdminController {
                 direccionCell.setCellStyle(dataStyle);
 
                 Cell telefonoCell = row.createCell(2);
-                telefonoCell.setCellValue(establecimiento.getTelefonoContacto() != null ? establecimiento.getTelefonoContacto() : "");
+                telefonoCell.setCellValue(
+                        establecimiento.getTelefonoContacto() != null ? establecimiento.getTelefonoContacto() : "");
                 telefonoCell.setCellStyle(dataStyle);
 
                 Cell correoCell = row.createCell(3);
-                correoCell.setCellValue(establecimiento.getCorreoContacto() != null ? establecimiento.getCorreoContacto() : "");
+                correoCell.setCellValue(
+                        establecimiento.getCorreoContacto() != null ? establecimiento.getCorreoContacto() : "");
                 correoCell.setCellStyle(dataStyle);
 
                 Cell horarioCell = row.createCell(4);
-                String horario = (establecimiento.getHorarioApertura() != null ? establecimiento.getHorarioApertura().toString() : "") +
-                                " - " +
-                                (establecimiento.getHorarioCierre() != null ? establecimiento.getHorarioCierre().toString() : "");
+                String horario = (establecimiento.getHorarioApertura() != null
+                        ? establecimiento.getHorarioApertura().toString()
+                        : "") +
+                        " - " +
+                        (establecimiento.getHorarioCierre() != null ? establecimiento.getHorarioCierre().toString()
+                                : "");
                 horarioCell.setCellValue(horario);
                 horarioCell.setCellStyle(dataStyle);
             }
@@ -1700,7 +2171,9 @@ public class AdminController {
             // Fecha de generación
             com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
             Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+                    java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    dateFont);
             dateGenerated.setAlignment(Element.ALIGN_CENTER);
             dateGenerated.setSpacingAfter(20);
             document.add(dateGenerated);
@@ -1712,7 +2185,7 @@ public class AdminController {
             table.setSpacingAfter(10f);
 
             // Configurar anchos de columnas
-            float[] columnWidths = {3f, 4f, 2f, 3f, 3f};
+            float[] columnWidths = { 3f, 4f, 2f, 3f, 3f };
             table.setWidths(columnWidths);
 
             // Estilo para encabezados
@@ -1720,7 +2193,7 @@ public class AdminController {
             BaseColor headerColor = new BaseColor(52, 58, 64);
 
             // Agregar encabezados
-            String[] headers = {"Nombre", "Dirección", "Teléfono", "Correo", "Horario"};
+            String[] headers = { "Nombre", "Dirección", "Teléfono", "Correo", "Horario" };
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBackgroundColor(headerColor);
@@ -1735,7 +2208,8 @@ public class AdminController {
 
             // Agregar datos
             for (EstablecimientoDeportivo establecimiento : establecimientos) {
-                PdfPCell nombreCell = new PdfPCell(new Phrase(establecimiento.getEstablecimientoDeportivoNombre(), dataFont));
+                PdfPCell nombreCell = new PdfPCell(
+                        new Phrase(establecimiento.getEstablecimientoDeportivoNombre(), dataFont));
                 nombreCell.setPadding(5);
                 table.addCell(nombreCell);
 
@@ -1744,19 +2218,24 @@ public class AdminController {
                 table.addCell(direccionCell);
 
                 PdfPCell telefonoCell = new PdfPCell(new Phrase(
-                    establecimiento.getTelefonoContacto() != null ? establecimiento.getTelefonoContacto() : "", dataFont));
+                        establecimiento.getTelefonoContacto() != null ? establecimiento.getTelefonoContacto() : "",
+                        dataFont));
                 telefonoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 telefonoCell.setPadding(5);
                 table.addCell(telefonoCell);
 
                 PdfPCell correoCell = new PdfPCell(new Phrase(
-                    establecimiento.getCorreoContacto() != null ? establecimiento.getCorreoContacto() : "", dataFont));
+                        establecimiento.getCorreoContacto() != null ? establecimiento.getCorreoContacto() : "",
+                        dataFont));
                 correoCell.setPadding(5);
                 table.addCell(correoCell);
 
-                String horario = (establecimiento.getHorarioApertura() != null ? establecimiento.getHorarioApertura().toString() : "") +
-                                " - " +
-                                (establecimiento.getHorarioCierre() != null ? establecimiento.getHorarioCierre().toString() : "");
+                String horario = (establecimiento.getHorarioApertura() != null
+                        ? establecimiento.getHorarioApertura().toString()
+                        : "") +
+                        " - " +
+                        (establecimiento.getHorarioCierre() != null ? establecimiento.getHorarioCierre().toString()
+                                : "");
                 PdfPCell horarioCell = new PdfPCell(new Phrase(horario, dataFont));
                 horarioCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 horarioCell.setPadding(5);
@@ -1785,8 +2264,9 @@ public class AdminController {
     public ResponseEntity<byte[]> exportarEspaciosEstablecimientoExcel(@PathVariable("id") Integer establecimientoId) {
         try {
             EstablecimientoDeportivo establecimiento = establecimientoDeportivoRepository.findById(establecimientoId)
-                .orElseThrow(() -> new RuntimeException("Establecimiento no encontrado"));
-            List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAllByEstablecimientoDeportivo(establecimiento);
+                    .orElseThrow(() -> new RuntimeException("Establecimiento no encontrado"));
+            List<EspacioDeportivo> espacios = espacioDeportivoRepository
+                    .findAllByEstablecimientoDeportivo(establecimiento);
 
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Espacios Deportivos");
@@ -1815,7 +2295,7 @@ public class AdminController {
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Nombre", "Servicio Deportivo", "Estado", "Precio por Hora", "Descripción"};
+            String[] headers = { "Nombre", "Servicio Deportivo", "Estado", "Precio por Hora", "Descripción" };
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -1833,8 +2313,9 @@ public class AdminController {
                 nombreCell.setCellStyle(dataStyle);
 
                 Cell servicioCell = row.createCell(1);
-                servicioCell.setCellValue(espacio.getServicioDeportivo() != null ?
-                    espacio.getServicioDeportivo().getServicioDeportivo() : "N/A");
+                servicioCell.setCellValue(
+                        espacio.getServicioDeportivo() != null ? espacio.getServicioDeportivo().getServicioDeportivo()
+                                : "N/A");
                 servicioCell.setCellStyle(dataStyle);
 
                 Cell estadoCell = row.createCell(2);
@@ -1842,8 +2323,8 @@ public class AdminController {
                 estadoCell.setCellStyle(dataStyle);
 
                 Cell precioCell = row.createCell(3);
-                precioCell.setCellValue(espacio.getPrecioPorHora() != null ?
-                    "S/ " + espacio.getPrecioPorHora().toString() : "N/A");
+                precioCell.setCellValue(
+                        espacio.getPrecioPorHora() != null ? "S/ " + espacio.getPrecioPorHora().toString() : "N/A");
                 precioCell.setCellStyle(dataStyle);
 
                 Cell descripcionCell = row.createCell(4);
@@ -1866,7 +2347,8 @@ public class AdminController {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             responseHeaders.setContentDispositionFormData("attachment",
-                "espacios_" + establecimiento.getEstablecimientoDeportivoNombre().replaceAll("[^a-zA-Z0-9]", "_") + ".xlsx");
+                    "espacios_" + establecimiento.getEstablecimientoDeportivoNombre().replaceAll("[^a-zA-Z0-9]", "_")
+                            + ".xlsx");
 
             return ResponseEntity.ok()
                     .headers(responseHeaders)
@@ -1874,7 +2356,7 @@ public class AdminController {
 
         } catch (Exception e) {
             e.printStackTrace();
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -1882,8 +2364,9 @@ public class AdminController {
     public ResponseEntity<byte[]> exportarEspaciosEstablecimientoPdf(@PathVariable("id") Integer establecimientoId) {
         try {
             EstablecimientoDeportivo establecimiento = establecimientoDeportivoRepository.findById(establecimientoId)
-                .orElseThrow(() -> new RuntimeException("Establecimiento no encontrado"));
-            List<EspacioDeportivo> espacios = espacioDeportivoRepository.findAllByEstablecimientoDeportivo(establecimiento);
+                    .orElseThrow(() -> new RuntimeException("Establecimiento no encontrado"));
+            List<EspacioDeportivo> espacios = espacioDeportivoRepository
+                    .findAllByEstablecimientoDeportivo(establecimiento);
 
             Document document = new Document(PageSize.A4.rotate());
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -1893,7 +2376,8 @@ public class AdminController {
 
             // Título
             com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
-            Paragraph title = new Paragraph("Espacios Deportivos - " + establecimiento.getEstablecimientoDeportivoNombre(), titleFont);
+            Paragraph title = new Paragraph(
+                    "Espacios Deportivos - " + establecimiento.getEstablecimientoDeportivoNombre(), titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
             title.setSpacingAfter(20);
             document.add(title);
@@ -1901,7 +2385,9 @@ public class AdminController {
             // Fecha de generación
             com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
             Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+                    java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    dateFont);
             dateGenerated.setAlignment(Element.ALIGN_CENTER);
             dateGenerated.setSpacingAfter(20);
             document.add(dateGenerated);
@@ -1913,7 +2399,7 @@ public class AdminController {
             table.setSpacingAfter(10f);
 
             // Configurar anchos de columnas
-            float[] columnWidths = {3f, 3f, 2f, 2f, 4f};
+            float[] columnWidths = { 3f, 3f, 2f, 2f, 4f };
             table.setWidths(columnWidths);
 
             // Estilo para encabezados
@@ -1921,7 +2407,7 @@ public class AdminController {
             BaseColor headerColor = new BaseColor(52, 58, 64);
 
             // Agregar encabezados
-            String[] headers = {"Nombre", "Servicio Deportivo", "Estado", "Precio por Hora", "Descripción"};
+            String[] headers = { "Nombre", "Servicio Deportivo", "Estado", "Precio por Hora", "Descripción" };
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBackgroundColor(headerColor);
@@ -1941,8 +2427,9 @@ public class AdminController {
                 table.addCell(nombreCell);
 
                 PdfPCell servicioCell = new PdfPCell(new Phrase(
-                    espacio.getServicioDeportivo() != null ?
-                    espacio.getServicioDeportivo().getServicioDeportivo() : "N/A", dataFont));
+                        espacio.getServicioDeportivo() != null ? espacio.getServicioDeportivo().getServicioDeportivo()
+                                : "N/A",
+                        dataFont));
                 servicioCell.setPadding(5);
                 table.addCell(servicioCell);
 
@@ -1952,14 +2439,14 @@ public class AdminController {
                 table.addCell(estadoCell);
 
                 PdfPCell precioCell = new PdfPCell(new Phrase(
-                    espacio.getPrecioPorHora() != null ?
-                    "S/ " + espacio.getPrecioPorHora().toString() : "N/A", dataFont));
+                        espacio.getPrecioPorHora() != null ? "S/ " + espacio.getPrecioPorHora().toString() : "N/A",
+                        dataFont));
                 precioCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 precioCell.setPadding(5);
                 table.addCell(precioCell);
 
                 PdfPCell descripcionCell = new PdfPCell(new Phrase(
-                    espacio.getDescripcion() != null ? espacio.getDescripcion() : "", dataFont));
+                        espacio.getDescripcion() != null ? espacio.getDescripcion() : "", dataFont));
                 descripcionCell.setPadding(5);
                 table.addCell(descripcionCell);
             }
@@ -1970,7 +2457,8 @@ public class AdminController {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.setContentType(MediaType.APPLICATION_PDF);
             responseHeaders.setContentDispositionFormData("attachment",
-                "espacios_" + establecimiento.getEstablecimientoDeportivoNombre().replaceAll("[^a-zA-Z0-9]", "_") + ".pdf");
+                    "espacios_" + establecimiento.getEstablecimientoDeportivoNombre().replaceAll("[^a-zA-Z0-9]", "_")
+                            + ".pdf");
 
             return ResponseEntity.ok()
                     .headers(responseHeaders)
@@ -2009,13 +2497,13 @@ public class AdminController {
         }
     }
 
-
     // ---- Flujo reembolsos ----
 
     // Listar reembolsos pendientes
     @GetMapping("/reembolsos")
     public String listarReembolsos(Model model) {
-        List<Reembolso> reembolsosPendientes = reembolsoRepository.findByEstadoOrderByFechaReembolsoDesc(Reembolso.Estado.pendiente);
+        List<Reembolso> reembolsosPendientes = reembolsoRepository
+                .findByEstadoOrderByFechaReembolsoDesc(Reembolso.Estado.pendiente);
         model.addAttribute("reembolsosPendientes", reembolsosPendientes);
         return "admin/reembolsosList";
     }
@@ -2053,7 +2541,8 @@ public class AdminController {
             if (uploadResult != null && uploadResult.contains("URL:") && !uploadResult.trim().isEmpty()) {
                 String fotoUrl = uploadResult.substring(uploadResult.indexOf("URL: ") + 5).trim();
                 if (fotoUrl.length() > 255) {
-                    redirectAttributes.addFlashAttribute("message", "La URL de la foto no puede superar los 255 caracteres");
+                    redirectAttributes.addFlashAttribute("message",
+                            "La URL de la foto no puede superar los 255 caracteres");
                     redirectAttributes.addFlashAttribute("messageType", "error");
                     return "redirect:/admin/reembolsos/info?id=" + id;
                 } else if (fotoUrl.isEmpty()) {
@@ -2064,13 +2553,16 @@ public class AdminController {
                     reembolso.setFotoComprobacionReembolsoUrl(fotoUrl);
                 }
             } else {
-                reembolso.setFotoComprobacionReembolsoUrl(existingFotoUrl != null && !existingFotoUrl.isEmpty() ? existingFotoUrl : defaultFotoUrl);
-                redirectAttributes.addFlashAttribute("message", "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido"));
+                reembolso.setFotoComprobacionReembolsoUrl(
+                        existingFotoUrl != null && !existingFotoUrl.isEmpty() ? existingFotoUrl : defaultFotoUrl);
+                redirectAttributes.addFlashAttribute("message",
+                        "Error al subir la foto: " + (uploadResult != null ? uploadResult : "Resultado inválido"));
                 redirectAttributes.addFlashAttribute("messageType", "error");
                 return "redirect:/admin/reembolsos/info?id=" + id;
             }
         } else {
-            reembolso.setFotoComprobacionReembolsoUrl(existingFotoUrl != null && !existingFotoUrl.isEmpty() ? existingFotoUrl : defaultFotoUrl);
+            reembolso.setFotoComprobacionReembolsoUrl(
+                    existingFotoUrl != null && !existingFotoUrl.isEmpty() ? existingFotoUrl : defaultFotoUrl);
         }
 
         // Actualizar estado y detalles
@@ -2121,7 +2613,7 @@ public class AdminController {
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Usuario", "Establecimiento Deportivo", "Monto", "Motivo", "Estado", "Fecha y Hora"};
+            String[] headers = { "Usuario", "Establecimiento Deportivo", "Monto", "Motivo", "Estado", "Fecha y Hora" };
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -2133,32 +2625,35 @@ public class AdminController {
             int rowNum = 1;
             for (Reembolso reembolso : reembolsos) {
                 // Verificar que el reembolso tiene las relaciones necesarias
-                if (reembolso.getPago() == null || 
-                    reembolso.getPago().getReserva() == null || 
-                    reembolso.getPago().getReserva().getUsuario() == null ||
-                    reembolso.getPago().getReserva().getEspacioDeportivo() == null ||
-                    reembolso.getPago().getReserva().getEspacioDeportivo().getEstablecimientoDeportivo() == null) {
+                if (reembolso.getPago() == null ||
+                        reembolso.getPago().getReserva() == null ||
+                        reembolso.getPago().getReserva().getUsuario() == null ||
+                        reembolso.getPago().getReserva().getEspacioDeportivo() == null ||
+                        reembolso.getPago().getReserva().getEspacioDeportivo().getEstablecimientoDeportivo() == null) {
                     continue; // Saltar este reembolso si faltan datos
                 }
-                
+
                 Row row = sheet.createRow(rowNum++);
 
                 Cell usuarioCell = row.createCell(0);
-                String nombreUsuario = (reembolso.getPago().getReserva().getUsuario().getNombres() != null ? 
-                    reembolso.getPago().getReserva().getUsuario().getNombres() : "") + " " + 
-                    (reembolso.getPago().getReserva().getUsuario().getApellidos() != null ? 
-                    reembolso.getPago().getReserva().getUsuario().getApellidos() : "");
+                String nombreUsuario = (reembolso.getPago().getReserva().getUsuario().getNombres() != null
+                        ? reembolso.getPago().getReserva().getUsuario().getNombres()
+                        : "") + " " +
+                        (reembolso.getPago().getReserva().getUsuario().getApellidos() != null
+                                ? reembolso.getPago().getReserva().getUsuario().getApellidos()
+                                : "");
                 usuarioCell.setCellValue(nombreUsuario.trim());
                 usuarioCell.setCellStyle(dataStyle);
 
                 Cell establecimientoCell = row.createCell(1);
                 String nombreEstablecimiento = reembolso.getPago().getReserva().getEspacioDeportivo()
-                    .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre();
+                        .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre();
                 establecimientoCell.setCellValue(nombreEstablecimiento != null ? nombreEstablecimiento : "Sin nombre");
                 establecimientoCell.setCellStyle(dataStyle);
 
                 Cell montoCell = row.createCell(2);
-                montoCell.setCellValue("S/ " + (reembolso.getMonto() != null ? reembolso.getMonto().toString() : "0.00"));
+                montoCell.setCellValue(
+                        "S/ " + (reembolso.getMonto() != null ? reembolso.getMonto().toString() : "0.00"));
                 montoCell.setCellStyle(dataStyle);
 
                 Cell motivoCell = row.createCell(3);
@@ -2225,7 +2720,9 @@ public class AdminController {
             // Fecha de generación
             com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
             Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+                    java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    dateFont);
             dateGenerated.setAlignment(Element.ALIGN_CENTER);
             dateGenerated.setSpacingAfter(20);
             document.add(dateGenerated);
@@ -2237,7 +2734,7 @@ public class AdminController {
             table.setSpacingAfter(10f);
 
             // Configurar anchos de columnas
-            float[] columnWidths = {2.5f, 3.5f, 1.5f, 3f, 1.5f, 2.5f};
+            float[] columnWidths = { 2.5f, 3.5f, 1.5f, 3f, 1.5f, 2.5f };
             table.setWidths(columnWidths);
 
             // Estilo para encabezados
@@ -2245,7 +2742,7 @@ public class AdminController {
             BaseColor headerColor = new BaseColor(52, 58, 64);
 
             // Agregar encabezados
-            String[] headers = {"Usuario", "Establecimiento Deportivo", "Monto", "Motivo", "Estado", "Fecha y Hora"};
+            String[] headers = { "Usuario", "Establecimiento Deportivo", "Monto", "Motivo", "Estado", "Fecha y Hora" };
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBackgroundColor(headerColor);
@@ -2261,55 +2758,58 @@ public class AdminController {
             // Agregar datos
             for (Reembolso reembolso : reembolsos) {
                 // Verificar que el reembolso tiene las relaciones necesarias
-                if (reembolso.getPago() == null || 
-                    reembolso.getPago().getReserva() == null || 
-                    reembolso.getPago().getReserva().getUsuario() == null ||
-                    reembolso.getPago().getReserva().getEspacioDeportivo() == null ||
-                    reembolso.getPago().getReserva().getEspacioDeportivo().getEstablecimientoDeportivo() == null) {
+                if (reembolso.getPago() == null ||
+                        reembolso.getPago().getReserva() == null ||
+                        reembolso.getPago().getReserva().getUsuario() == null ||
+                        reembolso.getPago().getReserva().getEspacioDeportivo() == null ||
+                        reembolso.getPago().getReserva().getEspacioDeportivo().getEstablecimientoDeportivo() == null) {
                     continue; // Saltar este reembolso si faltan datos
                 }
-                
+
                 // Usuario
-                String nombreUsuario = (reembolso.getPago().getReserva().getUsuario().getNombres() != null ? 
-                    reembolso.getPago().getReserva().getUsuario().getNombres() : "") + " " + 
-                    (reembolso.getPago().getReserva().getUsuario().getApellidos() != null ? 
-                    reembolso.getPago().getReserva().getUsuario().getApellidos() : "");
+                String nombreUsuario = (reembolso.getPago().getReserva().getUsuario().getNombres() != null
+                        ? reembolso.getPago().getReserva().getUsuario().getNombres()
+                        : "") + " " +
+                        (reembolso.getPago().getReserva().getUsuario().getApellidos() != null
+                                ? reembolso.getPago().getReserva().getUsuario().getApellidos()
+                                : "");
                 PdfPCell usuarioCell = new PdfPCell(new Phrase(nombreUsuario.trim(), dataFont));
                 usuarioCell.setPadding(5);
                 table.addCell(usuarioCell);
 
                 // Establecimiento
                 String nombreEstablecimiento = reembolso.getPago().getReserva().getEspacioDeportivo()
-                    .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre();
+                        .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre();
                 PdfPCell establecimientoCell = new PdfPCell(new Phrase(
-                    nombreEstablecimiento != null ? nombreEstablecimiento : "Sin nombre", dataFont));
+                        nombreEstablecimiento != null ? nombreEstablecimiento : "Sin nombre", dataFont));
                 establecimientoCell.setPadding(5);
                 table.addCell(establecimientoCell);
 
                 // Monto
-                PdfPCell montoCell = new PdfPCell(new Phrase("S/ " + 
-                    (reembolso.getMonto() != null ? reembolso.getMonto().toString() : "0.00"), dataFont));
+                PdfPCell montoCell = new PdfPCell(new Phrase("S/ " +
+                        (reembolso.getMonto() != null ? reembolso.getMonto().toString() : "0.00"), dataFont));
                 montoCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 montoCell.setPadding(5);
                 table.addCell(montoCell);
 
                 // Motivo
                 PdfPCell motivoCell = new PdfPCell(new Phrase(
-                    reembolso.getMotivo() != null ? reembolso.getMotivo() : "Sin motivo", dataFont));
+                        reembolso.getMotivo() != null ? reembolso.getMotivo() : "Sin motivo", dataFont));
                 motivoCell.setPadding(5);
                 table.addCell(motivoCell);
 
                 // Estado
-                PdfPCell estadoCell = new PdfPCell(new Phrase(getEstadoReembolsoTexto(reembolso.getEstado()), dataFont));
+                PdfPCell estadoCell = new PdfPCell(
+                        new Phrase(getEstadoReembolsoTexto(reembolso.getEstado()), dataFont));
                 estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 estadoCell.setPadding(5);
                 table.addCell(estadoCell);
 
                 // Fecha
                 PdfPCell fechaCell = new PdfPCell(new Phrase(
-                    reembolso.getFechaReembolso() != null ? 
-                    reembolso.getFechaReembolso().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : 
-                    "Pendiente", dataFont));
+                        reembolso.getFechaReembolso() != null ? reembolso.getFechaReembolso()
+                                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "Pendiente",
+                        dataFont));
                 fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 fechaCell.setPadding(5);
                 table.addCell(fechaCell);
@@ -2330,7 +2830,9 @@ public class AdminController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }    // Método auxiliar para obtener texto del estado de reembolso
+    }
+
+    // Método auxiliar para obtener texto del estado de reembolso
     private String getEstadoReembolsoTexto(Reembolso.Estado estado) {
         if (estado == null) {
             return "Sin estado";
@@ -2356,14 +2858,15 @@ public class AdminController {
     public List<Usuario> obtenerCoordinadoresDisponibles(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime horarioEntrada,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime horarioSalida) {
-        
+
         // Calcular rango con margen de 15 minutos
         LocalDateTime inicioRango = horarioEntrada.minusMinutes(15);
         LocalDateTime finRango = horarioSalida.plusMinutes(15);
-        
+
         // Obtener todos los coordinadores activos
-        List<Usuario> todosCoordinadores = usuarioRepository.findByRol_RolAndEstadoCuenta("coordinador", Usuario.EstadoCuenta.activo);
-        
+        List<Usuario> todosCoordinadores = usuarioRepository.findByRol_RolAndEstadoCuenta("coordinador",
+                Usuario.EstadoCuenta.activo);
+
         // Filtrar coordinadores que NO tienen asistencias en el rango de tiempo
         return todosCoordinadores.stream()
                 .filter(coordinador -> {
@@ -2392,7 +2895,8 @@ public class AdminController {
             List<Asistencia> asistenciasSuperpuestas = asistenciaRepository
                     .findAsistenciasSuperpuestas(coordinadorId, inicioRango, finRango);
             if (!asistenciasSuperpuestas.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "El coordinador seleccionado ya tiene una asistencia asignada en este horario.");
+                redirectAttributes.addFlashAttribute("error",
+                        "El coordinador seleccionado ya tiene una asistencia asignada en este horario.");
                 return "redirect:/admin/espacios/calendario?id=" + espacioDeportivoId;
             }
 
@@ -2432,10 +2936,11 @@ public class AdminController {
                         .findFirst();
                 if (optTipo.isPresent()) {
                     Notificacion notificacion = new Notificacion();
-                    notificacion.setUsuario(coordinador);
+                    notificacion.setUsuario(optCoordinador.get());
                     notificacion.setTipoNotificacion(optTipo.get());
                     notificacion.setTituloNotificacion("Nueva Asistencia Asignada");
-                    notificacion.setMensaje("Se te ha asignado una nueva asistencia para el " + horarioEntrada.toLocalDate() + " de " + horarioEntrada.toLocalTime() + " a " + horarioSalida.toLocalTime());
+                    notificacion.setMensaje("Se te ha asignado una nueva asistencia para el " + fecha + " de "
+                            + horarioEntradaTime + " a " + horarioSalidaTime);
                     notificacion.setUrlRedireccion("/coordinador/asistencia");
                     notificacion.setFechaCreacion(LocalDateTime.now());
                     notificacion.setEstado(Notificacion.Estado.no_leido);
@@ -2447,14 +2952,15 @@ public class AdminController {
 
             // Send email to coordinator
             try {
-                emailService.sendAssistanceNotification(coordinador, nuevaAsistencia);
+                emailService.sendAssistanceNotification(optCoordinador.get(), asistencia);
             } catch (MessagingException e) {
                 // Log the error but don't interrupt the flow
                 System.err.println("Failed to send email to coordinator: " + e.getMessage());
             }
 
             redirectAttributes.addFlashAttribute("success",
-                    "Asistencia creada exitosamente para " + coordinador.getNombres() + " " + coordinador.getApellidos());
+                    "Asistencia creada exitosamente para " + coordinador.getNombres() + " "
+                            + coordinador.getApellidos());
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al crear la asistencia: " + e.getMessage());
@@ -2469,34 +2975,34 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<Map<String, Integer>> obtenerReservasPorDiaSemana(
             @RequestParam(required = false) Integer establecimientoId) {
-        
+
         Map<String, Integer> reservasPorDia = new HashMap<>();
-        
+
         // Inicializar todos los días de la semana con 0
-        String[] diasSemana = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+        String[] diasSemana = { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
         for (String dia : diasSemana) {
             reservasPorDia.put(dia, 0);
         }
-        
+
         try {
             // Obtener fechas de inicio y fin de la semana actual
             LocalDate hoy = LocalDate.now();
             LocalDate inicioSemana = hoy.with(DayOfWeek.MONDAY);
             LocalDate finSemana = hoy.with(DayOfWeek.SUNDAY);
-            
+
             LocalDateTime inicioDateTime = inicioSemana.atStartOfDay();
             LocalDateTime finDateTime = finSemana.atTime(23, 59, 59);
-            
+
             List<Reserva> reservas;
             if (establecimientoId != null && establecimientoId > 0) {
                 // Filtrar por establecimiento específico
                 reservas = reservaRepository.findReservasSemanaByEstablecimiento(
-                    inicioDateTime, finDateTime, establecimientoId);
+                        inicioDateTime, finDateTime, establecimientoId);
             } else {
                 // Todas las reservas de la semana
                 reservas = reservaRepository.findReservasSemana(inicioDateTime, finDateTime);
             }
-            
+
             // Mapear cada reserva al día de la semana correspondiente
             for (Reserva reserva : reservas) {
                 LocalDate fechaReserva = reserva.getInicioReserva().toLocalDate();
@@ -2504,12 +3010,12 @@ public class AdminController {
                 String nombreDia = obtenerNombreDia(dayOfWeek);
                 reservasPorDia.merge(nombreDia, 1, Integer::sum);
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             // En caso de error, devolver valores vacíos
         }
-        
+
         return ResponseEntity.ok(reservasPorDia);
     }
 
@@ -2517,15 +3023,15 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<Map<String, Integer>> obtenerAsistenciasPorCoordinador(
             @RequestParam(required = false) Integer coordinadorId) {
-        
+
         Map<String, Integer> asistenciasPorEstado = new HashMap<>();
-        
+
         // Inicializar contadores
         asistenciasPorEstado.put("puntual", 0);
         asistenciasPorEstado.put("tarde", 0);
         asistenciasPorEstado.put("inasistencia", 0);
         asistenciasPorEstado.put("cancelada", 0);
-        
+
         try {
             List<Asistencia> asistencias;
             if (coordinadorId != null && coordinadorId > 0) {
@@ -2535,7 +3041,7 @@ public class AdminController {
                 // Todas las asistencias
                 asistencias = asistenciaRepository.findAll();
             }
-            
+
             // Contar por estado de entrada
             for (Asistencia asistencia : asistencias) {
                 String estado = asistencia.getEstadoEntrada().toString().toLowerCase();
@@ -2543,50 +3049,42 @@ public class AdminController {
                     asistenciasPorEstado.merge(estado, 1, Integer::sum);
                 }
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             // En caso de error, devolver valores vacíos
         }
-        
+
         return ResponseEntity.ok(asistenciasPorEstado);
     }
 
     // Método auxiliar para obtener el nombre del día en español
     private String obtenerNombreDia(DayOfWeek dayOfWeek) {
         switch (dayOfWeek) {
-            case MONDAY: return "Lunes";
-            case TUESDAY: return "Martes";
-            case WEDNESDAY: return "Miércoles";
-            case THURSDAY: return "Jueves";
-            case FRIDAY: return "Viernes";
-            case SATURDAY: return "Sábado";
-            case SUNDAY: return "Domingo";
-            default: return "Desconocido";
-        }
-    }
-
-        // ================= GESTIÓN DE ASISTENCIAS =================
-
-    @GetMapping("/gestion-asistencias")
-    public String gestionAsistencias(Model model) {
-        // Obtener todos los coordinadores activos para el filtro
-        List<Usuario> coordinadores = usuarioRepository.findByRol_RolAndEstadoCuenta("coordinador", Usuario.EstadoCuenta.activo);
-        model.addAttribute("coordinadores", coordinadores);
-        return "admin/gestionAsistencias";
-    }
-
+            case MONDAY:
+                return "Lunes";
+            case TUESDAY:
+                return "Martes";
+            case WEDNESDAY:
+                return "Miércoles";
+            case THURSDAY:
+                return "Jueves";
+            case FRIDAY:
+                return "Viernes";
+            case SATURDAY:
+                return "Sábado";
+            case SUNDAY:
     @GetMapping("/gestion-asistencias/api/asistencias")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> obtenerAsistenciasConFiltros(
             @RequestParam(required = false) Integer coordinadorId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
-        
+
         try {
             LocalDateTime fechaInicioDateTime = null;
             LocalDateTime fechaFinDateTime = null;
-            
+
             // Convertir fechas si están presentes
             if (fechaInicio != null) {
                 fechaInicioDateTime = fechaInicio.atStartOfDay();
@@ -2594,24 +3092,24 @@ public class AdminController {
             if (fechaFin != null) {
                 fechaFinDateTime = fechaFin.atTime(23, 59, 59);
             }
-            
+
             // Si no se especifican fechas, usar el mes actual por defecto
             if (fechaInicioDateTime == null && fechaFinDateTime == null) {
                 LocalDate hoy = LocalDate.now();
                 fechaInicioDateTime = hoy.withDayOfMonth(1).atStartOfDay();
                 fechaFinDateTime = hoy.withDayOfMonth(hoy.lengthOfMonth()).atTime(23, 59, 59);
             }
-            
+
             List<Asistencia> asistencias = asistenciaRepository.findAsistenciasConFiltros(
-                coordinadorId, fechaInicioDateTime, fechaFinDateTime);
-            
+                    coordinadorId, fechaInicioDateTime, fechaFinDateTime);
+
             Map<String, Object> response = new HashMap<>();
             response.put("data", asistencias);
             response.put("recordsTotal", asistencias.size());
             response.put("recordsFiltered", asistencias.size());
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             Map<String, Object> errorResponse = new HashMap<>();
@@ -2642,12 +3140,12 @@ public class AdminController {
             @RequestParam Integer asistenciaOriginalId,
             @RequestParam Integer nuevoCoordinadorId,
             @RequestParam(required = false) String observaciones) {
-        
+
         try {
             // Obtener la asistencia original
             Asistencia asistenciaOriginal = asistenciaRepository.findById(asistenciaOriginalId)
                     .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
-            
+
             // Verificar que esté cancelada
             if (asistenciaOriginal.getEstadoEntrada() != Asistencia.EstadoEntrada.cancelada) {
                 Map<String, Object> errorResponse = new HashMap<>();
@@ -2655,49 +3153,51 @@ public class AdminController {
                 errorResponse.put("message", "Solo se pueden reasignar asistencias canceladas");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
-            
+
             // Verificar que sea más de 12 horas en el futuro
             LocalDateTime ahora = LocalDateTime.now();
             if (asistenciaOriginal.getHorarioEntrada().isBefore(ahora.plusHours(12))) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
-                errorResponse.put("message", "Solo se pueden reasignar asistencias con más de 12 horas de anticipación");
+                errorResponse.put("message",
+                        "Solo se pueden reasignar asistencias con más de 12 horas de anticipación");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
-            
+
             // Obtener el nuevo coordinador
             Usuario nuevoCoordinador = usuarioRepository.findById(nuevoCoordinadorId)
                     .orElseThrow(() -> new IllegalArgumentException("Coordinador no encontrado"));
-            
+
             // Verificar disponibilidad del coordinador
             LocalDateTime inicioRango = asistenciaOriginal.getHorarioEntrada().minusMinutes(15);
             LocalDateTime finRango = asistenciaOriginal.getHorarioSalida().plusMinutes(15);
-            
+
             List<Asistencia> asistenciasSuperpuestas = asistenciaRepository
                     .findAsistenciasSuperpuestas(nuevoCoordinadorId, inicioRango, finRango);
-            
+
             if (!asistenciasSuperpuestas.isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "El coordinador seleccionado no está disponible en ese horario");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
-            
+
             // Obtener administrador actual
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Usuario administrador = usuarioRepository.findByCorreoElectronico(auth.getName());
             if (administrador == null) {
                 throw new IllegalArgumentException("Administrador no encontrado");
             }
-            
-            // Marcar la asistencia como reasignada (no crear nueva, sino cambiar coordinador)
+
+            // Marcar la asistencia como reasignada (no crear nueva, sino cambiar
+            // coordinador)
             asistenciaOriginal.setCoordinador(nuevoCoordinador);
             asistenciaOriginal.setObservacionAsistencia("reasignada");
             if (observaciones != null && !observaciones.trim().isEmpty()) {
                 asistenciaOriginal.setObservacionAsistencia("reasignada - " + observaciones.trim());
             }
             asistenciaRepository.save(asistenciaOriginal);
-            
+
             // Enviar notificación de reasignación al nuevo coordinador
             try {
                 Optional<TipoNotificacion> optTipoAsignacion = tipoNotificacionRepository.findAll().stream()
@@ -2708,7 +3208,10 @@ public class AdminController {
                     notificacionAsignacion.setUsuario(nuevoCoordinador);
                     notificacionAsignacion.setTipoNotificacion(optTipoAsignacion.get());
                     notificacionAsignacion.setTituloNotificacion("Asistencia Reasignada");
-                    notificacionAsignacion.setMensaje("Se te ha reasignado una asistencia para el " + asistenciaOriginal.getHorarioEntrada().toLocalDate() + " de " + asistenciaOriginal.getHorarioEntrada().toLocalTime() + " a " + asistenciaOriginal.getHorarioSalida().toLocalTime());
+                    notificacionAsignacion.setMensaje("Se te ha reasignado una asistencia para el "
+                            + asistenciaOriginal.getHorarioEntrada().toLocalDate() + " de "
+                            + asistenciaOriginal.getHorarioEntrada().toLocalTime() + " a "
+                            + asistenciaOriginal.getHorarioSalida().toLocalTime());
                     notificacionAsignacion.setUrlRedireccion("/coordinador/asistencia");
                     notificacionAsignacion.setFechaCreacion(LocalDateTime.now());
                     notificacionAsignacion.setEstado(Notificacion.Estado.no_leido);
@@ -2717,21 +3220,21 @@ public class AdminController {
             } catch (Exception e) {
                 // Ignore notification failure as per requirement
             }
-            
+
             // Enviar correo de reasignación al nuevo coordinador
             try {
                 emailService.sendAssistanceNotification(nuevoCoordinador, asistenciaOriginal);
             } catch (MessagingException e) {
                 System.err.println("Error al enviar email al nuevo coordinador: " + e.getMessage());
             }
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Asistencia reasignada exitosamente");
             response.put("asistenciaId", asistenciaOriginal.getAsistenciaId());
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             Map<String, Object> errorResponse = new HashMap<>();
@@ -2746,12 +3249,12 @@ public class AdminController {
     public ResponseEntity<Map<String, Object>> cancelarYReasignarAsistencia(
             @RequestParam Integer asistenciaOriginalId,
             @RequestParam Integer nuevoCoordinadorId) {
-        
+
         try {
             // Obtener la asistencia original
             Asistencia asistenciaOriginal = asistenciaRepository.findById(asistenciaOriginalId)
                     .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
-            
+
             // Verificar que esté pendiente
             if (asistenciaOriginal.getEstadoEntrada() != Asistencia.EstadoEntrada.pendiente) {
                 Map<String, Object> errorResponse = new HashMap<>();
@@ -2759,47 +3262,48 @@ public class AdminController {
                 errorResponse.put("message", "Solo se pueden cancelar y reasignar asistencias pendientes");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
-            
+
             // Verificar que sea más de 24 horas en el futuro
             LocalDateTime ahora = LocalDateTime.now();
             if (asistenciaOriginal.getHorarioEntrada().isBefore(ahora.plusHours(24))) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
-                errorResponse.put("message", "Solo se pueden cancelar y reasignar asistencias con más de 24 horas de anticipación");
+                errorResponse.put("message",
+                        "Solo se pueden cancelar y reasignar asistencias con más de 24 horas de anticipación");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
-            
+
             // Obtener el nuevo coordinador
             Usuario nuevoCoordinador = usuarioRepository.findById(nuevoCoordinadorId)
                     .orElseThrow(() -> new IllegalArgumentException("Coordinador no encontrado"));
-            
+
             // Verificar disponibilidad del coordinador
             LocalDateTime inicioRango = asistenciaOriginal.getHorarioEntrada().minusMinutes(15);
             LocalDateTime finRango = asistenciaOriginal.getHorarioSalida().plusMinutes(15);
-            
+
             List<Asistencia> asistenciasSuperpuestas = asistenciaRepository
                     .findAsistenciasSuperpuestas(nuevoCoordinadorId, inicioRango, finRango);
-            
+
             if (!asistenciasSuperpuestas.isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "El coordinador seleccionado no está disponible en ese horario");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
-            
+
             // Obtener administrador actual
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Usuario administrador = usuarioRepository.findByCorreoElectronico(auth.getName());
             if (administrador == null) {
                 throw new IllegalArgumentException("Administrador no encontrado");
             }
-            
+
             // Cancelar la asistencia original
             Usuario coordinadorOriginal = asistenciaOriginal.getCoordinador();
             asistenciaOriginal.setEstadoEntrada(Asistencia.EstadoEntrada.cancelada);
             asistenciaOriginal.setObservacionAsistencia("reasignada");
             asistenciaRepository.save(asistenciaOriginal);
-            
+
             // Enviar notificación de cancelación al coordinador original
             try {
                 Optional<TipoNotificacion> optTipoCancelacion = tipoNotificacionRepository.findAll().stream()
@@ -2810,7 +3314,11 @@ public class AdminController {
                     notificacionCancelacion.setUsuario(coordinadorOriginal);
                     notificacionCancelacion.setTipoNotificacion(optTipoCancelacion.get());
                     notificacionCancelacion.setTituloNotificacion("Asistencia Reasignada");
-                    notificacionCancelacion.setMensaje("Tu asistencia del " + asistenciaOriginal.getHorarioEntrada().toLocalDate() + " de " + asistenciaOriginal.getHorarioEntrada().toLocalTime() + " a " + asistenciaOriginal.getHorarioSalida().toLocalTime() + " ha sido reasignada por el administrador");
+                    notificacionCancelacion
+                            .setMensaje("Tu asistencia del " + asistenciaOriginal.getHorarioEntrada().toLocalDate()
+                                    + " de " + asistenciaOriginal.getHorarioEntrada().toLocalTime() + " a "
+                                    + asistenciaOriginal.getHorarioSalida().toLocalTime()
+                                    + " ha sido reasignada por el administrador");
                     notificacionCancelacion.setUrlRedireccion("/coordinador/asistencia");
                     notificacionCancelacion.setFechaCreacion(LocalDateTime.now());
                     notificacionCancelacion.setEstado(Notificacion.Estado.no_leido);
@@ -2819,14 +3327,15 @@ public class AdminController {
             } catch (Exception e) {
                 // Ignore notification failure as per requirement
             }
-            
+
             // Enviar correo de cancelación al coordinador original
             try {
-                emailService.sendAssistanceCancellation(coordinadorOriginal, asistenciaOriginal, "Reasignada por administrador");
+                emailService.sendAssistanceCancellation(coordinadorOriginal, asistenciaOriginal,
+                        "Reasignada por administrador");
             } catch (MessagingException e) {
                 System.err.println("Error al enviar email de cancelación al coordinador: " + e.getMessage());
             }
-            
+
             // Crear nueva asistencia para el nuevo coordinador
             Asistencia nuevaAsistencia = new Asistencia();
             nuevaAsistencia.setAdministrador(administrador);
@@ -2838,10 +3347,10 @@ public class AdminController {
             nuevaAsistencia.setEstadoSalida(Asistencia.EstadoSalida.pendiente);
             nuevaAsistencia.setObservacionAsistencia(null);
             nuevaAsistencia.setFechaCreacion(LocalDateTime.now());
-            
+
             // Guardar nueva asistencia
             asistenciaRepository.save(nuevaAsistencia);
-            
+
             // Enviar notificación de asignación al nuevo coordinador
             try {
                 Optional<TipoNotificacion> optTipoAsignacion = tipoNotificacionRepository.findAll().stream()
@@ -2852,7 +3361,10 @@ public class AdminController {
                     notificacionAsignacion.setUsuario(nuevoCoordinador);
                     notificacionAsignacion.setTipoNotificacion(optTipoAsignacion.get());
                     notificacionAsignacion.setTituloNotificacion("Nueva Asistencia Asignada");
-                    notificacionAsignacion.setMensaje("Se te ha asignado una nueva asistencia para el " + nuevaAsistencia.getHorarioEntrada().toLocalDate() + " de " + nuevaAsistencia.getHorarioEntrada().toLocalTime() + " a " + nuevaAsistencia.getHorarioSalida().toLocalTime());
+                    notificacionAsignacion.setMensaje("Se te ha asignado una nueva asistencia para el "
+                            + nuevaAsistencia.getHorarioEntrada().toLocalDate() + " de "
+                            + nuevaAsistencia.getHorarioEntrada().toLocalTime() + " a "
+                            + nuevaAsistencia.getHorarioSalida().toLocalTime());
                     notificacionAsignacion.setUrlRedireccion("/coordinador/asistencia");
                     notificacionAsignacion.setFechaCreacion(LocalDateTime.now());
                     notificacionAsignacion.setEstado(Notificacion.Estado.no_leido);
@@ -2861,21 +3373,21 @@ public class AdminController {
             } catch (Exception e) {
                 // Ignore notification failure as per requirement
             }
-            
+
             // Enviar correo de asignación al nuevo coordinador
             try {
                 emailService.sendAssistanceNotification(nuevoCoordinador, nuevaAsistencia);
             } catch (MessagingException e) {
                 System.err.println("Error al enviar email al nuevo coordinador: " + e.getMessage());
             }
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Asistencia cancelada y reasignada exitosamente");
             response.put("nuevaAsistenciaId", nuevaAsistencia.getAsistenciaId());
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             Map<String, Object> errorResponse = new HashMap<>();
@@ -2892,11 +3404,11 @@ public class AdminController {
             @RequestParam(required = false) Integer coordinadorId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
-        
+
         try {
             LocalDateTime fechaInicioDateTime = null;
             LocalDateTime fechaFinDateTime = null;
-            
+
             // Convertir fechas si están presentes
             if (fechaInicio != null) {
                 fechaInicioDateTime = fechaInicio.atStartOfDay();
@@ -2904,16 +3416,16 @@ public class AdminController {
             if (fechaFin != null) {
                 fechaFinDateTime = fechaFin.atTime(23, 59, 59);
             }
-            
+
             // Si no se especifican fechas, usar el mes actual por defecto
             if (fechaInicioDateTime == null && fechaFinDateTime == null) {
                 LocalDate hoy = LocalDate.now();
                 fechaInicioDateTime = hoy.withDayOfMonth(1).atStartOfDay();
                 fechaFinDateTime = hoy.withDayOfMonth(hoy.lengthOfMonth()).atTime(23, 59, 59);
             }
-            
+
             List<Asistencia> asistencias = asistenciaRepository.findAsistenciasConFiltros(
-                coordinadorId, fechaInicioDateTime, fechaFinDateTime);
+                    coordinadorId, fechaInicioDateTime, fechaFinDateTime);
 
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("Asistencias");
@@ -2947,7 +3459,8 @@ public class AdminController {
 
             // Crear encabezados
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Coordinador", "Espacio Deportivo", "Establecimiento", "Fecha/Hora Entrada", "Fecha/Hora Salida", "Estado"};
+            String[] headers = { "Coordinador", "Espacio Deportivo", "Establecimiento", "Fecha/Hora Entrada",
+                    "Fecha/Hora Salida", "Estado" };
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -2961,8 +3474,8 @@ public class AdminController {
                 Row row = sheet.createRow(rowNum++);
 
                 Cell coordinadorCell = row.createCell(0);
-                coordinadorCell.setCellValue(asistencia.getCoordinador().getNombres() + " " + 
-                    asistencia.getCoordinador().getApellidos());
+                coordinadorCell.setCellValue(asistencia.getCoordinador().getNombres() + " " +
+                        asistencia.getCoordinador().getApellidos());
                 coordinadorCell.setCellStyle(dataStyle);
 
                 Cell espacioCell = row.createCell(1);
@@ -2971,7 +3484,7 @@ public class AdminController {
 
                 Cell establecimientoCell = row.createCell(2);
                 establecimientoCell.setCellValue(asistencia.getEspacioDeportivo()
-                    .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
+                        .getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre());
                 establecimientoCell.setCellStyle(dataStyle);
 
                 Cell entradaCell = row.createCell(3);
@@ -2983,7 +3496,8 @@ public class AdminController {
                 salidaCell.setCellStyle(dateStyle);
 
                 Cell estadoCell = row.createCell(5);
-                String estadoTexto = getEstadoAsistenciaTexto(asistencia.getEstadoEntrada(), asistencia.getObservacionAsistencia());
+                String estadoTexto = getEstadoAsistenciaTexto(asistencia.getEstadoEntrada(),
+                        asistencia.getObservacionAsistencia());
                 estadoCell.setCellValue(estadoTexto);
                 estadoCell.setCellStyle(dataStyle);
             }
@@ -3019,11 +3533,11 @@ public class AdminController {
             @RequestParam(required = false) Integer coordinadorId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
-        
+
         try {
             LocalDateTime fechaInicioDateTime = null;
             LocalDateTime fechaFinDateTime = null;
-            
+
             // Convertir fechas si están presentes
             if (fechaInicio != null) {
                 fechaInicioDateTime = fechaInicio.atStartOfDay();
@@ -3031,16 +3545,16 @@ public class AdminController {
             if (fechaFin != null) {
                 fechaFinDateTime = fechaFin.atTime(23, 59, 59);
             }
-            
+
             // Si no se especifican fechas, usar el mes actual por defecto
             if (fechaInicioDateTime == null && fechaFinDateTime == null) {
                 LocalDate hoy = LocalDate.now();
                 fechaInicioDateTime = hoy.withDayOfMonth(1).atStartOfDay();
                 fechaFinDateTime = hoy.withDayOfMonth(hoy.lengthOfMonth()).atTime(23, 59, 59);
             }
-            
+
             List<Asistencia> asistencias = asistenciaRepository.findAsistenciasConFiltros(
-                coordinadorId, fechaInicioDateTime, fechaFinDateTime);
+                    coordinadorId, fechaInicioDateTime, fechaFinDateTime);
 
             Document document = new Document(PageSize.A4.rotate());
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -3058,7 +3572,9 @@ public class AdminController {
             // Fecha de generación
             com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
             Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dateFont);
+                    java.time.LocalDateTime.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                    dateFont);
             dateGenerated.setAlignment(Element.ALIGN_CENTER);
             dateGenerated.setSpacingAfter(20);
             document.add(dateGenerated);
@@ -3070,7 +3586,7 @@ public class AdminController {
             table.setSpacingAfter(10f);
 
             // Configurar anchos de columnas
-            float[] columnWidths = {2.5f, 2.5f, 3f, 2f, 2f, 1.5f};
+            float[] columnWidths = { 2.5f, 2.5f, 3f, 2f, 2f, 1.5f };
             table.setWidths(columnWidths);
 
             // Estilo para encabezados
@@ -3078,7 +3594,8 @@ public class AdminController {
             BaseColor headerColor = new BaseColor(52, 58, 64);
 
             // Agregar encabezados
-            String[] headers = {"Coordinador", "Espacio Deportivo", "Establecimiento", "Fecha/Hora Entrada", "Fecha/Hora Salida", "Estado"};
+            String[] headers = { "Coordinador", "Espacio Deportivo", "Establecimiento", "Fecha/Hora Entrada",
+                    "Fecha/Hora Salida", "Estado" };
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBackgroundColor(headerColor);
@@ -3095,7 +3612,8 @@ public class AdminController {
             for (Asistencia asistencia : asistencias) {
                 // Coordinador
                 PdfPCell coordinadorCell = new PdfPCell(new Phrase(
-                    asistencia.getCoordinador().getNombres() + " " + asistencia.getCoordinador().getApellidos(), dataFont));
+                        asistencia.getCoordinador().getNombres() + " " + asistencia.getCoordinador().getApellidos(),
+                        dataFont));
                 coordinadorCell.setPadding(5);
                 table.addCell(coordinadorCell);
 
@@ -3106,27 +3624,34 @@ public class AdminController {
 
                 // Establecimiento
                 PdfPCell establecimientoCell = new PdfPCell(new Phrase(
-                    asistencia.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre(), dataFont));
+                        asistencia.getEspacioDeportivo().getEstablecimientoDeportivo()
+                                .getEstablecimientoDeportivoNombre(),
+                        dataFont));
                 establecimientoCell.setPadding(5);
                 table.addCell(establecimientoCell);
 
                 // Entrada
                 PdfPCell entradaCell = new PdfPCell(new Phrase(
-                    asistencia.getHorarioEntrada().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dataFont));
+                        asistencia.getHorarioEntrada()
+                                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                        dataFont));
                 entradaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 entradaCell.setPadding(5);
                 table.addCell(entradaCell);
 
                 // Salida
                 PdfPCell salidaCell = new PdfPCell(new Phrase(
-                    asistencia.getHorarioSalida().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")), dataFont));
+                        asistencia.getHorarioSalida()
+                                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                        dataFont));
                 salidaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 salidaCell.setPadding(5);
                 table.addCell(salidaCell);
 
                 // Estado
                 PdfPCell estadoCell = new PdfPCell(new Phrase(
-                    getEstadoAsistenciaTexto(asistencia.getEstadoEntrada(), asistencia.getObservacionAsistencia()), dataFont));
+                        getEstadoAsistenciaTexto(asistencia.getEstadoEntrada(), asistencia.getObservacionAsistencia()),
+                        dataFont));
                 estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 estadoCell.setPadding(5);
                 table.addCell(estadoCell);
@@ -3155,7 +3680,7 @@ public class AdminController {
         if (estado == Asistencia.EstadoEntrada.cancelada && "reasignada".equals(observacionAsistencia)) {
             return "Reasignada";
         }
-        
+
         switch (estado) {
             case pendiente:
                 return "Pendiente";

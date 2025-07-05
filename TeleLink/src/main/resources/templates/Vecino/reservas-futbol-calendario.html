@@ -315,14 +315,23 @@
                                 // Verificar si es un evento de mantenimiento
                                 if (evento.esMantenimiento === true) {
                                     // Formatear las fechas para mostrar en el título
-                                    const fechaInicio = new Date(evento.start);
+                                    const fechaInicioOriginal = new Date(evento.start);
                                     const fechaFin = new Date(evento.end);
+                                    const ahora = new Date();
+
+                                    // Determinar la fecha de inicio efectiva
+                                    let fechaInicio = fechaInicioOriginal;
+
+                                    // Si el mantenimiento está en curso y ya empezó, usar la hora actual
+                                    if (evento.estado && evento.estado.toLowerCase() === 'en_curso' || fechaInicioOriginal < ahora) {
+                                        fechaInicio = ahora;
+                                    }
 
                                     // Formatear solo la hora si es el mismo día, o fecha completa si es diferente día
                                     let horarioTexto = '';
-                                    if (fechaInicio.toDateString() === fechaFin.toDateString()) {
+                                    if (fechaInicioOriginal.toDateString() === fechaFin.toDateString()) {
                                         // Mismo día - mostrar solo las horas
-                                        const horaInicio = fechaInicio.toLocaleTimeString('es-PE', {
+                                        const horaInicio = fechaInicioOriginal.toLocaleTimeString('es-PE', {
                                             hour: '2-digit',
                                             minute: '2-digit',
                                             hour12: false
@@ -335,10 +344,10 @@
                                         horarioTexto = `${horaInicio} - ${horaFin}`;
                                     } else {
                                         // Diferentes días - mostrar fecha y hora
-                                        const inicioCompleto = fechaInicio.toLocaleDateString('es-PE', {
+                                        const inicioCompleto = fechaInicioOriginal.toLocaleDateString('es-PE', {
                                             day: '2-digit',
                                             month: '2-digit'
-                                        }) + ' ' + fechaInicio.toLocaleTimeString('es-PE', {
+                                        }) + ' ' + fechaInicioOriginal.toLocaleTimeString('es-PE', {
                                             hour: '2-digit',
                                             minute: '2-digit',
                                             hour12: false
@@ -360,7 +369,7 @@
                                     return {
                                         id: evento.id,
                                         title: `${motivo} (${horarioTexto})`, // Incluir horario en el título
-                                        start: evento.start,
+                                        start: fechaInicio.toISOString(),
                                         end: evento.end,
                                         backgroundColor: evento.backgroundColor || '#ff6b6b',
                                         borderColor: evento.borderColor || '#ff4757',
@@ -371,7 +380,7 @@
                                             esMantenimiento: true,
                                             estado: evento.estado,
                                             motivo: motivo,
-                                            horarioInicio: fechaInicio.toLocaleString('es-PE'),
+                                            horarioInicio: fechaInicioOriginal.toLocaleString('es-PE'),
                                             horarioFin: fechaFin.toLocaleString('es-PE')
                                         },
                                         classNames: ['evento-mantenimiento']

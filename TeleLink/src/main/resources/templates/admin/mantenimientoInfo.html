@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/fragments/headList.html :: headList(title='Información del Mantenimiento')}">
+    <meta charset="UTF-8">
+    <title>Información del Mantenimiento</title>
+</head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<div id="layout-wrapper">
+    <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Mantenimientos')}"></div>
+
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <h4 class="card-title mb-4 fw-semibold mt-3">
+                                    <i class="fas fa-tools me-2"></i>
+                                    Información del Mantenimiento
+                                </h4>
+
+                                <!-- Estado del mantenimiento -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title">Estado Actual</h5>
+                                                <span th:switch="${mantenimiento.estado.name()}"
+                                                      th:class="'badge fs-6 ' + ${mantenimiento.estado.name() == 'pendiente' ? 'bg-warning' : 
+                                                               (mantenimiento.estado.name() == 'en_curso' ? 'bg-info' : 
+                                                               (mantenimiento.estado.name() == 'finalizado' ? 'bg-success' : 'bg-danger'))}">
+                                                    <span th:case="pendiente">🕐 Pendiente</span>
+                                                    <span th:case="en_curso">🔧 En Curso</span>
+                                                    <span th:case="finalizado">✅ Finalizado</span>
+                                                    <span th:case="cancelado">❌ Cancelado</span>
+                                                    <span th:case="*">❓ Desconocido</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title">Duración Estimada</h5>
+                                                <span class="fs-5" th:if="${mantenimiento.fechaInicio != null && mantenimiento.fechaEstimadaFin != null}">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    <span th:text="${T(java.time.Duration).between(mantenimiento.fechaInicio, mantenimiento.fechaEstimadaFin).toHours()} + ' horas'"></span>
+                                                </span>
+                                                <span class="text-muted" th:unless="${mantenimiento.fechaInicio != null && mantenimiento.fechaEstimadaFin != null}">
+                                                    No calculado
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Información del espacio -->
+                                <div class="mb-4">
+                                    <h5 class="fw-semibold mb-3">
+                                        <i class="fas fa-map-marker-alt me-2"></i>
+                                        Información del Espacio
+                                    </h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Espacio Deportivo</label>
+                                            <input type="text" class="form-control border-0 bg-light"
+                                                   th:value="${mantenimiento.espacioDeportivo.nombre}" readonly />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Establecimiento</label>
+                                            <input type="text" class="form-control border-0 bg-light"
+                                                   th:value="${mantenimiento.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Motivo del mantenimiento -->
+                                <div class="mb-4">
+                                    <label class="form-label">Motivo del Mantenimiento</label>
+                                    <textarea class="form-control border-0 bg-light" rows="3"
+                                              th:text="${mantenimiento.motivo}" readonly></textarea>
+                                </div>
+
+                                <!-- Fechas del mantenimiento -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha y Hora de Inicio</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${mantenimiento.fechaInicio != null ? #temporals.format(mantenimiento.fechaInicio, 'dd/MM/yyyy HH:mm') : 'No definido'}" readonly />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha y Hora de Fin Estimada</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${mantenimiento.fechaEstimadaFin != null ? #temporals.format(mantenimiento.fechaEstimadaFin, 'dd/MM/yyyy HH:mm') : 'No definido'}" readonly />
+                                    </div>
+                                </div>
+
+                                <!-- Información de auditoría -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Fecha de Creación</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${mantenimiento.fechaCreacion != null ? #temporals.format(mantenimiento.fechaCreacion, 'dd/MM/yyyy HH:mm') : 'No definido'}" readonly />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Última Actualización</label>
+                                        <input type="text" class="form-control border-0 bg-light"
+                                               th:value="${mantenimiento.fechaActualizacion != null ? #temporals.format(mantenimiento.fechaActualizacion, 'dd/MM/yyyy HH:mm') : 'No definido'}" readonly />
+                                    </div>
+                                </div>
+
+                                <!-- Cambio de estado -->
+                                <div class="mb-4" th:if="${mantenimiento.estado.name() != 'finalizado' && mantenimiento.estado.name() != 'cancelado'}">
+                                    <h5 class="fw-semibold mb-3">
+                                        <i class="fas fa-exchange-alt me-2"></i>
+                                        Cambiar Estado
+                                    </h5>
+                                    <form th:action="@{/admin/mantenimientos/cambiar-estado}" method="post" class="d-inline">
+                                        <input type="hidden" name="id" th:value="${mantenimiento.mantenimientoId}" />
+                                        <div class="input-group" style="max-width: 400px;">
+                                            <select name="nuevoEstado" class="form-select" required>
+                                                <option value="">Seleccionar nuevo estado</option>
+                                                <option value="pendiente" th:selected="${mantenimiento.estado.name() == 'pendiente'}">Pendiente</option>
+                                                <option value="en_curso" th:selected="${mantenimiento.estado.name() == 'en_curso'}">En Curso</option>
+                                                <option value="finalizado">Finalizado</option>
+                                                <option value="cancelado">Cancelado</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-1"></i>
+                                                Cambiar Estado
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Botones de acción -->
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a th:href="@{/admin/mantenimientos/editar(id=${mantenimiento.mantenimientoId})}" 
+                                       class="btn btn-primary" 
+                                       th:if="${mantenimiento.estado.name() == 'pendiente'}">
+                                        <i class="fas fa-edit me-1"></i>
+                                        Editar Mantenimiento
+                                    </a>
+                                    <a th:href="@{/admin/espacios/calendario(id=${mantenimiento.espacioDeportivo.espacioDeportivoId})}" 
+                                       class="btn btn-info">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Ver Calendario del Espacio
+                                    </a>
+                                    <a th:href="@{/admin/mantenimientos}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i>
+                                        Volver a la Lista
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+    </div>
+</div>
+
+<div class="sidebar-overlay"></div>
+<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+
+</body>
+</html>
