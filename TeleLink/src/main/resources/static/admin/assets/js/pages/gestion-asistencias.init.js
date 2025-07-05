@@ -329,10 +329,14 @@ $(document).ready(function() {
         $btn.prop('disabled', true);
 
         // Usar fetch API para mayor control
+        const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        
         fetch('/admin/gestion-asistencias/api/reasignar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                [header]: token
             },
             body: new URLSearchParams({
                 'asistenciaOriginalId': asistenciaOriginalId,
@@ -341,9 +345,23 @@ $(document).ready(function() {
         })
         .then(response => {
             console.log('Status de respuesta:', response.status);
+            console.log('Headers de respuesta:', response.headers.get('content-type'));
             if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
+                return response.text().then(text => {
+                    console.log('Respuesta de error (HTML):', text);
+                    throw new Error('Error en la respuesta del servidor: ' + response.status);
+                });
             }
+            
+            // Verificar si la respuesta es JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                return response.text().then(text => {
+                    console.log('Respuesta no es JSON (HTML):', text);
+                    throw new Error('La respuesta no es JSON válido');
+                });
+            }
+            
             return response.json();
         })
         .then(data => {
@@ -406,10 +424,14 @@ $(document).ready(function() {
         $btn.prop('disabled', true);
 
         // Usar fetch API para el nuevo endpoint
+        const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        
         fetch('/admin/gestion-asistencias/api/cancelar-y-reasignar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                [header]: token
             },
             body: new URLSearchParams({
                 'asistenciaOriginalId': asistenciaOriginalId,
@@ -418,9 +440,23 @@ $(document).ready(function() {
         })
         .then(response => {
             console.log('Status de respuesta:', response.status);
+            console.log('Headers de respuesta:', response.headers.get('content-type'));
             if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
+                return response.text().then(text => {
+                    console.log('Respuesta de error (HTML):', text);
+                    throw new Error('Error en la respuesta del servidor: ' + response.status);
+                });
             }
+            
+            // Verificar si la respuesta es JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                return response.text().then(text => {
+                    console.log('Respuesta no es JSON (HTML):', text);
+                    throw new Error('La respuesta no es JSON válido');
+                });
+            }
+            
             return response.json();
         })
         .then(data => {
