@@ -377,51 +377,45 @@ public class UsuarioController {
         return "Vecino/vecino-pago";
     }
 
-    /*
-     * @GetMapping("/mis-reservas")
-     * public String mostrarReservas(Model model, HttpSession session) {
-     * Usuario usuario = (Usuario) session.getAttribute("usuario");
-     * if (usuario == null) {
-     * return "redirect:/usuarios/inicio";
-     * }
-     * List<Reserva> reservas =
-     * reservaRepository.findByUsuarioOrderByInicioReservaDesc(usuario);
-     * // Create a list of maps to include canCancel flag
-     * List<Map<String, Object>> reservasWithCancelFlag =
-     * reservas.stream().map(reserva -> {
-     * Map<String, Object> reservaMap = new HashMap<>();
-     * reservaMap.put("reserva", reserva);
-     * reservaMap.put("canCancel",
-     * LocalDateTime.now().isBefore(reserva.getInicioReserva().minusHours(48))
-     * && !reserva.getEstado().name().equals("cancelada"));
-     * return reservaMap;
-     * }).collect(Collectors.toList());
-     * 
-     * model.addAttribute("usuario", usuario);
-     * model.addAttribute("reservasWithCancelFlag", reservasWithCancelFlag);
-     * model.addAttribute("activeItem", "reservas");
-     * return "Vecino/vecino-mis-reservas";
-     * }
-     */
+
     @GetMapping("/mis-reservas")
     public String mostrarReservas(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
+
         List<Reserva> reservas = reservaRepository.findByUsuarioOrderByInicioReservaDesc(usuario);
         List<Map<String, Object>> reservasWithCancelFlag = reservas.stream().map(reserva -> {
             Map<String, Object> reservaMap = new HashMap<>();
             reservaMap.put("reserva", reserva);
             reservaMap.put("canCancel", LocalDateTime.now().isBefore(reserva.getInicioReserva().minusHours(48))
                     && !reserva.getEstado().name().equals("cancelada"));
+
             // Calculate duration in hours
             long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
             reservaMap.put("duracionHoras", duracionHoras);
+
             // Calculate total price
             BigDecimal precioTotal = reserva.getEspacioDeportivo().getPrecioPorHora()
                     .multiply(BigDecimal.valueOf(duracionHoras));
             reservaMap.put("precioTotal", precioTotal);
+
+            // Check if payment exists and is completed
+            Optional<Pago> pagoOpt = pagoRepository.findByReserva(reserva);
+            boolean isPagado = pagoOpt.isPresent() &&
+                    pagoOpt.get().getEstadoTransaccion().name().equals("completado");
+            reservaMap.put("isPagado", isPagado);
+
+            // Add payment object and completion status explicitly
+            if (pagoOpt.isPresent()) {
+                reservaMap.put("pago", pagoOpt.get());
+                reservaMap.put("pagoCompletado", pagoOpt.get().getEstadoTransaccion().name().equals("completado"));
+            } else {
+                reservaMap.put("pago", null);
+                reservaMap.put("pagoCompletado", false);
+            }
+
             return reservaMap;
         }).collect(Collectors.toList());
 
@@ -431,70 +425,71 @@ public class UsuarioController {
         return "Vecino/vecino-mis-reservas";
     }
 
-    /*
-     * @PostMapping("/reserva/cancelar/{id}")
-     * public String cancelarReserva(@PathVariable("id") Integer id,
-     * 
-     * @RequestParam(required = false) String razon,
-     * RedirectAttributes redirectAttributes,
-     * HttpSession session) {
-     * 
-     * // Obtener el usuario actual de la sesión
-     * Usuario usuario = (Usuario) session.getAttribute("usuario");
-     * if (usuario == null) {
-     * return "redirect:/usuarios/inicio";
-     * }
-     * 
-     * // Buscar la reserva por ID
-     * Reserva reserva = reservaRepository.findById(id)
-     * .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-     * "Reserva no encontrada"));
-     * 
-     * // Verificar que la reserva pertenezca al usuario actual
-     * if (!reserva.getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
-     * redirectAttributes.addFlashAttribute("error",
-     * "No tienes permiso para cancelar esta reserva");
-     * return "redirect:/usuarios/mis-reservas";
-     * }
-     * 
-     * // Verificar si la cancelación es con menos de 48 horas de anticipación
-     * LocalDateTime ahora = LocalDateTime.now();
-     * LocalDateTime limite = reserva.getInicioReserva().minusHours(48);
-     * 
-     * boolean conPenalidad = ahora.isAfter(limite);
-     * 
-     * // Cambiar el estado de la reserva
-     * reserva.setEstado(Reserva.Estado.cancelada);
-     * reserva.setRazonCancelacion(razon);
-     * reserva.setFechaActualizacion(LocalDateTime.now());
-     * reservaRepository.save(reserva);
-     * 
-     * // Buscar si existe un pago asociado a esta reserva
-     * Optional<Pago> pagoOptional = pagoRepository.findByReserva(reserva);
-     * 
-     * // Mensaje para el usuario
-     * String mensaje;
-     * if (conPenalidad) {
-     * mensaje =
-     * "Reserva cancelada. Se ha aplicado la penalidad por cancelación con menos de 48 horas de anticipación."
-     * ;
-     * } else {
-     * mensaje = "Reserva cancelada correctamente sin penalidad.";
-     * 
-     * // Si hay un pago y no hay penalidad, podríamos marcar el pago como
-     * reembolsable
-     * if (pagoOptional.isPresent()) {
-     * Pago pago = pagoOptional.get();
-     * // Aquí podrías implementar la lógica de reembolso
-     * // pago.setEstado("reembolsado");
-     * // pagoRepository.save(pago);
-     * }
-     * }
-     * 
-     * redirectAttributes.addFlashAttribute("success", mensaje);
-     * return "redirect:/usuarios/mis-reservas";
-     * }
-     */
+    @GetMapping("/comprobante-pago/{reservaId}")
+    public String mostrarComprobantePago(@PathVariable Integer reservaId, Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            System.out.println("Usuario no encontrado en sesión");
+            return "redirect:/usuarios/inicio";
+        }
+
+        Optional<Reserva> reservaOpt = reservaRepository.findById(reservaId);
+        if (!reservaOpt.isPresent() || !reservaOpt.get().getUsuario().equals(usuario)) {
+            System.out.println("Reserva no encontrada o no pertenece al usuario");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        Reserva reserva = reservaOpt.get();
+        Optional<Pago> pagoOpt = pagoRepository.findByReserva(reserva);
+
+        if (!pagoOpt.isPresent()) {
+            System.out.println("Pago no encontrado");
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        Pago pago = pagoOpt.get();
+
+        // Debug: Imprimir el estado actual de la transacción
+        System.out.println("Estado de transacción actual: " + pago.getEstadoTransaccion().name());
+
+        // Verificar diferentes posibles valores del enum
+        String estadoTransaccion = pago.getEstadoTransaccion().name().toLowerCase();
+
+        // Condiciones más flexibles para el estado completado
+        if (!estadoTransaccion.equals("completado") &&
+                !estadoTransaccion.equals("completed") &&
+                !estadoTransaccion.equals("exitoso") &&
+                !estadoTransaccion.equals("success")) {
+            System.out.println("Pago no completado. Estado actual: " + estadoTransaccion);
+            return "redirect:/usuarios/mis-reservas";
+        }
+
+        System.out.println("Mostrando comprobante de pago");
+
+        // Calculate duration and total price
+        long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
+        if (duracionHoras == 0) {
+            duracionHoras = 1; // Mínimo 1 hora
+        }
+
+        BigDecimal precioTotal = reserva.getEspacioDeportivo().getPrecioPorHora()
+                .multiply(BigDecimal.valueOf(duracionHoras));
+
+        model.addAttribute("reserva", reserva);
+        model.addAttribute("pago", pago);
+        model.addAttribute("duracionHoras", duracionHoras);
+        model.addAttribute("precioTotal", precioTotal);
+        model.addAttribute("usuario", usuario);
+
+        return "Vecino/vecino-comprobantePago";
+    }
+
+    @GetMapping("/comprobante")
+    public String mostrarComprobante(Model model) {
+        // Aquí puedes agregar cualquier lógica que necesites
+        return "Vecino/vecino-comprobantePago";
+    }
+
 
     @PostMapping("/reserva/cancelar/{id}")
     public String cancelarReserva(@PathVariable("id") Integer id,

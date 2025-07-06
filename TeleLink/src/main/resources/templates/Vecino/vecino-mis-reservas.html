@@ -103,17 +103,23 @@
                                                                 <i class="fas fa-eye me-2"></i> Ver detalles
                                                             </a>
                                                         </li>
+
                                                         <!-- Pagar (for pending reservations without completed payment) -->
-                                                        <div th:with="pago=${@pagoRepository.findByReserva(reservaMap.reserva).orElse(null)}">
-                                                            <li th:if="${reservaMap.reserva.estado.name() == 'pendiente' && (pago == null || pago.estadoTransaccion.name() == 'pendiente' || pago.estadoTransaccion.name() == 'fallido')}"
-                                                                th:remove="tag">
-                                                                <a class="dropdown-item" th:href="@{'/usuarios/confirmarReserva/' + ${reservaMap.reserva.reservaId}}">
-                                                                    <i class="fas fa-credit-card me-2"></i> Pagar
-                                                                </a>
-                                                            </li>
-                                                        </div>
+                                                        <li th:if="${reservaMap.reserva.estado.name() == 'pendiente' && (reservaMap.pago == null || reservaMap.pago.estadoTransaccion.name() == 'pendiente' || reservaMap.pago.estadoTransaccion.name() == 'fallido')}">
+                                                            <a class="dropdown-item" th:href="@{'/usuarios/confirmarReserva/' + ${reservaMap.reserva.reservaId}}">
+                                                                <i class="fas fa-credit-card me-2"></i> Pagar
+                                                            </a>
+                                                        </li>
+
+                                                        <!-- Ver comprobante de pago (if payment is completed) -->
+                                                        <li th:if="${reservaMap.pagoCompletado}">
+                                                            <a class="dropdown-item" th:href="@{'/usuarios/comprobante-pago/' + ${reservaMap.reserva.reservaId}}">
+                                                                <i class="fas fa-receipt me-2"></i> Ver comprobante
+                                                            </a>
+                                                        </li>
+
                                                         <!-- Cancelar (if cancellable) -->
-                                                        <li th:if="${reservaMap.canCancel}" th:remove="tag">
+                                                        <li th:if="${reservaMap.canCancel}">
                                                             <button class="dropdown-item" data-bs-toggle="modal"
                                                                     th:data-bs-target="'#cancelModal' + ${reservaMap.reserva.reservaId}">
                                                                 <i class="fas fa-times me-2"></i> Cancelar

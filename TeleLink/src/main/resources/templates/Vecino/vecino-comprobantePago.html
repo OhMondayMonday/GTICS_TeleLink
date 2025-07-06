@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Comprobante de Pago')}"></head>
+<body data-sidebar="dark" class="vertical-collpsed">
+<!-- Begin page -->
+<div id="layout-wrapper">
+    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Comprobante de Pago')}"></div>
+    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('reservas')}"></div>
+
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title mb-0">Comprobante de Pago</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <!-- Detalles de la reserva -->
+                                        <div class="table-responsive">
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                <tr>
+                                                    <th class="text-muted">Comprobante #:</th>
+                                                    <td th:text="${pago.transaccionId}">TXN-123456</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-muted">Fecha de Pago:</th>
+                                                    <td th:text="${#temporals.format(pago.fechaPago, 'dd MMMM yyyy, HH:mm')}">15 junio 2025, 14:30</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-muted">Espacio Deportivo:</th>
+                                                    <td th:text="${reserva.espacioDeportivo.nombre}">Piscina Semi-Olímpica</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-muted">Descripción:</th>
+                                                    <td th:text="${reserva.espacioDeportivo.descripcion}">Piscina para clases de natación</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-muted">Fecha y Hora de Reserva:</th>
+                                                    <td>
+                                                        <span th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}">20 junio 2025, 17:00</span>
+                                                        - <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}">18:00</span>
+                                                    </td>
+                                                </tr>
+                                                <tr th:if="${reserva.numeroCarrilPiscina != null}">
+                                                    <th class="text-muted">Carril de Piscina:</th>
+                                                    <td th:text="${'Carril ' + reserva.numeroCarrilPiscina}">Carril 3</td>
+                                                </tr>
+                                                <tr th:if="${reserva.numeroCarrilPista != null}">
+                                                    <th class="text-muted">Carril de Pista:</th>
+                                                    <td th:text="${'Carril ' + reserva.numeroCarrilPista}">Carril 1</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-muted">Duración:</th>
+                                                    <td th:text="${duracionHoras + ' hora(s)'}">1 hora(s)</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-muted">Precio por Hora:</th>
+                                                    <td th:text="${'S/ ' + #numbers.formatDecimal(reserva.espacioDeportivo.precioPorHora, 1, 'COMMA', 2, 'POINT')}">S/ 40.00</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-muted">Método de Pago:</th>
+                                                    <td th:text="${pago.metodoPago.metodoPago}">Tarjeta de Crédito</td>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-muted">Estado de Transacción:</th>
+                                                    <td>
+                                                        <span class="badge bg-success" th:text="${pago.estadoTransaccion.name()}">Completado</span>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <!-- Imagen del espacio deportivo -->
+                                        <img th:if="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl != null}"
+                                             th:src="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl}"
+                                             th:alt="${reserva.espacioDeportivo.nombre}"
+                                             class="img-fluid rounded mb-3" />
+
+                                        <!-- Resumen de pago -->
+                                        <div class="card border-primary">
+                                            <div class="card-header bg-primary text-white">
+                                                <h5 class="mb-0">Resumen de Pago</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span>Subtotal:</span>
+                                                    <span th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}">S/ 40.00</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span>IGV (0%):</span>
+                                                    <span>S/ 0.00</span>
+                                                </div>
+                                                <hr>
+                                                <div class="d-flex justify-content-between h5">
+                                                    <strong>Total Pagado:</strong>
+                                                    <strong th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}">S/ 40.00</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botones de acción -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between">
+                                            <a th:href="@{/usuarios/mis-reservas}" class="btn btn-secondary">
+                                                <i class="fas fa-arrow-left me-1"></i> Volver a Mis Reservas
+                                            </a>
+                                            <button class="btn btn-primary" onclick="window.print()">
+                                                <i class="fas fa-print me-1"></i> Imprimir Comprobante
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay"></div>
+
+<!-- JavaScript -->
+<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+<script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+<script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+<script th:src="@{/assets/js/app.js}"></script>
+
+<!-- Estilos para impresión -->
+<style>
+    @media print {
+        .btn, .sidebar, .navbar, .main-content .page-content .container-fluid .row .col-lg-12 .card .card-header,
+        .sidebar-overlay {
+            display: none !important;
+        }
+
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .card-body {
+            padding: 0 !important;
+        }
+
+        body {
+            background: white !important;
+        }
+    }
+</style>
+</body>
+</html>
