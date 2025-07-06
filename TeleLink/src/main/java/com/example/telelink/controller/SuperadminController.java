@@ -307,7 +307,7 @@ public class SuperadminController {
         model.addAttribute("nuevosUsuariosEsteMes", nuevosUsuariosEsteMes);
 
         // Obtener lista completa de usuarios
-        List<Usuario> usuarios = usuarioRepository.findAll();
+        List<Usuario> usuarios = usuarioRepository.findAllExceptSuperadmin();
         model.addAttribute("usuarios", usuarios);
 
         return "Superadmin/Usuarios";
@@ -587,7 +587,7 @@ public class SuperadminController {
     @GetMapping("/usuarios/export/excel")
 public ResponseEntity<byte[]> exportarUsuariosExcel() {
     try {
-        List<Usuario> usuarios = usuarioRepository.findAll();
+        List<Usuario> usuarios = usuarioRepository.findAllExceptSuperadmin();
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Usuarios");
@@ -697,7 +697,7 @@ public ResponseEntity<byte[]> exportarUsuariosExcel() {
     @GetMapping("/usuarios/export/pdf")
 public ResponseEntity<byte[]> exportarUsuariosPdf() {
     try {
-        List<Usuario> usuarios = usuarioRepository.findAll();
+        List<Usuario> usuarios = usuarioRepository.findAllExceptSuperadmin();
 
         Document document = new Document(PageSize.A4.rotate()); // Orientación horizontal
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
