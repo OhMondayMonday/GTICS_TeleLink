@@ -217,16 +217,19 @@
                                                     <div class="mt-2">Cargando reservas...</div>
                                                   </div>
 
-                                                    <table id="alternative-page-datatable" class="table table-centered datatable dt-responsive nowrap" style="display: none; border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                  <!-- Tabla envuelta en contenedor oculto -->
+                                                  <div id="table-content-reservas" style="display: none;">
+                                                    <div class="table-responsive">
+                                                      <table id="alternative-page-datatable" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                                         <thead>
                                                             <tr>
-                                                                <th>ID</th>
+                                                                <th style="width: 40px">ID</th>
                                                                 <th>Espacio</th>
                                                                 <th>Servicio</th>
                                                                 <th>Inicio</th>
                                                                 <th>Fin</th>
                                                                 <th>Estado</th>
-                                                                <th>Acción</th>
+                                                                <th style="width: 100px">Acción</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -256,7 +259,9 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
-                                                    </table>
+                                                      </table>
+                                                    </div>
+                                                  </div>
 
                                                 </div>
 
@@ -292,18 +297,21 @@
                                                       <div class="mt-2">Cargando pagos...</div>
                                                     </div>
 
-                                                    <table id="alternative-page-datatable2" class="table table-centered datatable dt-responsive nowrap" style="display: none; border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                                        <thead>
+                                                    <!-- Tabla envuelta en contenedor oculto -->
+                                                    <div id="table-content-pagos" style="display: none;">
+                                                      <div class="table-responsive">
+                                                        <table id="alternative-page-datatable2" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                          <thead>
                                                             <tr>
-                                                                <th>ID</th>
+                                                                <th style="width: 40px">ID</th>
                                                                 <th>Reserva ID</th>
                                                                 <th>Método</th>
                                                                 <th>Monto</th>
                                                                 <th>Estado</th>
                                                                 <th>Fecha Pago</th>
-                                                                <th>Acciones</th>
+                                                                <th style="width: 100px">Acciones</th>
                                                             </tr>
-                                                        </thead>
+                                                          </thead>
                                                         <tbody>
                                                             <tr th:each="pago : ${pagos}">
                                                                 <td th:text="${pago.pagoId}"></td>
@@ -341,7 +349,9 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
-                                                    </table>
+                                                        </table>
+                                                      </div>
+                                                    </div>
                                                 </div>
 
                                                 <div class="tab-pane fade" id="reembolsos" role="tabpanel"
@@ -376,18 +386,21 @@
                                                       <div class="mt-2">Cargando reembolsos...</div>
                                                     </div>
 
-                                                    <table id="alternative-page-datatable3" class="table table-centered datatable dt-responsive nowrap" style="display: none; border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                                        <thead>
+                                                    <!-- Tabla envuelta en contenedor oculto -->
+                                                    <div id="table-content-reembolsos" style="display: none;">
+                                                      <div class="table-responsive">
+                                                        <table id="alternative-page-datatable3" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                          <thead>
                                                             <tr>
-                                                                <th>ID</th>
+                                                                <th style="width: 40px">ID</th>
                                                                 <th>Pago ID</th>
                                                                 <th>Monto</th>
                                                                 <th>Estado</th>
                                                                 <th>Fecha Reembolso</th>
                                                                 <th>Motivo</th>
-                                                                <th>Acciones</th>
+                                                                <th style="width: 100px">Acciones</th>
                                                             </tr>
-                                                        </thead>
+                                                          </thead>
                                                         <tbody>
                                                             <tr th:each="reembolso : ${reembolsos}">
                                                                 <td th:text="${reembolso.reembolsoId}"></td>
@@ -420,7 +433,9 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
-                                                    </table>
+                                                        </table>
+                                                      </div>
+                                                    </div>
                                                 </div>
 
                                                 <!-- Modal Universal para Detalles -->
@@ -511,7 +526,7 @@
                   },
                   initComplete: function() {
                     $("#loading-container-reservas").remove();
-                    $("#alternative-page-datatable").show();
+                    $("#table-content-reservas").show();
                   },
                   drawCallback: function() {
                     $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
@@ -562,7 +577,7 @@
                   },
                   initComplete: function() {
                     $("#loading-container-pagos").remove();
-                    $("#alternative-page-datatable2").show();
+                    $("#table-content-pagos").show();
                   },
                   drawCallback: function() {
                     $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
@@ -613,7 +628,7 @@
                   },
                   initComplete: function() {
                     $("#loading-container-reembolsos").remove();
-                    $("#alternative-page-datatable3").show();
+                    $("#table-content-reembolsos").show();
                   },
                   drawCallback: function() {
                     $(".dataTables_paginate > .pagination").addClass("pagination-rounded");

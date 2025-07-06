@@ -95,20 +95,23 @@
                             <div class="mt-2">Cargando administradores...</div>
                           </div>
 
-                          <table id="alternative-page-datatable" class="table table-centered datatable dt-responsive nowrap" style="display: none;">
-                            <thead>
-                              <tr>
-                                <th style="width: 40px">ID</th>
-                                <th>Nombre</th>
-                                <th>Rol</th>
-                                <th>DNI</th>
-                                <th>Correo Electrónico</th>
-                                <th>Celular</th>
-                                <th>Fecha creación</th>
-                                <th>Estado</th>
-                                <th style="width: 100px">Acción</th>
-                              </tr>
-                            </thead>
+                          <!-- Tabla envuelta en contenedor oculto -->
+                          <div id="table-content-admin" style="display: none;">
+                            <div class="table-responsive">
+                              <table id="alternative-page-datatable" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                <thead>
+                                  <tr>
+                                    <th style="width: 40px">ID</th>
+                                    <th>Nombre</th>
+                                    <th>Rol</th>
+                                    <th>DNI</th>
+                                    <th>Correo Electrónico</th>
+                                    <th>Celular</th>
+                                    <th>Fecha creación</th>
+                                    <th>Estado</th>
+                                    <th style="width: 100px">Acción</th>
+                                  </tr>
+                                </thead>
                             <tbody>
                               <tr th:each="admin : ${administradores}">
                                 <td th:text="${admin.usuarioId}"></td>
@@ -192,7 +195,9 @@
                                 </td>
                               </tr>
                             </tbody>
-                          </table>
+                              </table>
+                            </div>
+                          </div>
                         </div>
 
                         <!-- TAB DE COORDINADORES -->
@@ -226,13 +231,16 @@
                             <div class="mt-2">Cargando coordinadores...</div>
                           </div>
 
-                          <table id="alternative-page-datatable2" class="table table-centered datatable dt-responsive nowrap" style="display: none;">
-                            <thead>
-                              <tr>
-                                <th style="width: 40px">ID</th>
-                                <th>Nombre</th>
-                                <th>Rol</th>
-                                <th>DNI</th>
+                          <!-- Tabla envuelta en contenedor oculto -->
+                          <div id="table-content-coord" style="display: none;">
+                            <div class="table-responsive">
+                              <table id="alternative-page-datatable2" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                <thead>
+                                  <tr>
+                                    <th style="width: 40px">ID</th>
+                                    <th>Nombre</th>
+                                    <th>Rol</th>
+                                    <th>DNI</th>
                                 <th>Correo Electrónico</th>
                                 <th>Celular</th>
                                 <th>Fecha creación</th>
@@ -331,7 +339,9 @@
                                 </td>
                               </tr>
                             </tbody>
-                          </table>
+                              </table>
+                            </div>
+                          </div>
                         </div>
                         <!-- Modal Perfil Usuario -->
                         <!-- Modal Perfil del Usuario -->
@@ -621,7 +631,7 @@
           },
           initComplete: function() {
             $("#loading-container-admin").remove();
-            $("#alternative-page-datatable").show();
+            $("#table-content-admin").show();
           },
           drawCallback: function() {
             $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
@@ -672,7 +682,7 @@
           },
           initComplete: function() {
             $("#loading-container-coord").remove();
-            $("#alternative-page-datatable2").show();
+            $("#table-content-coord").show();
           },
           drawCallback: function() {
             $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
