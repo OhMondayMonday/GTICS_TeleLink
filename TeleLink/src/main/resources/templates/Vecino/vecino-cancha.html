@@ -20,20 +20,7 @@
                     <span th:text="${error}"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <!-- start page title -->
-                <!--<div class="row">
-                    <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                            <h4 class="mb-sm-0">Canchas Disponibles</h4>
-                            <div class="page-title-right">
-                                <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a th:href="@{/usuarios/cancha}">Servicios Deportivos</a></li>
-                                    <li class="breadcrumb-item active">Canchas Disponibles</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-                </div>-->
+
                 <!-- end page title -->
                 <div class="row">
                     <div class="col-xl-3 col-lg-4">
@@ -119,27 +106,7 @@
                                             }
                                         }
                                     </script>
-
-                                    <!-- Zonas -->
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="zonaHeading">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseZona" aria-expanded="false" aria-controls="collapseZona">
-                                                <i class="mdi mdi-map-marker-radius font-size-16 align-middle me-2"></i> Zonas
-                                            </button>
-                                        </h2>
-                                        <div id="collapseZona" class="accordion-collapse collapse" aria-labelledby="zonaHeading" data-bs-parent="#accordionCanchaFiltros">
-                                            <div class="accordion-body">
-                                                <ul class="list-unstyled mb-0">
-                                                    <li><input type="checkbox" id="zona-costado"> <label for="zona-costado">Costado de la UPC</label></li>
-                                                    <li><input type="checkbox" id="zona-avla-marina"> <label for="zona-avla-marina">Av. La Marina</label></li>
-                                                    <li><input type="checkbox" id="zona-parque-zonal"> <label for="zona-parque-zonal">Parque Zonal</label></li>
-                                                    <li><input type="checkbox" id="zona-plaza-sanmiguel"> <label for="zona-plaza-sanmiguel">Cerca a Plaza San Miguel</label></li>
-                                                    <li><input type="checkbox" id="zona-univcatolica"> <label for="zona-univcatolica">Cerca a PUCP</label></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                    
                                     <!-- Calificación -->
                                     <div class="accordion-item">
                                         <h2 class="accordion-header" id="ratingHeading">
@@ -249,8 +216,16 @@
                                                     </p>
 
                                                     <!-- Botón -->
-                                                    <a th:href="@{'/usuarios/reservasCalendario/' + ${espacio.espacioDeportivoId}}"
-                                                       class="btn btn-sm btn-primary mt-2">Reservar</a>
+                                                    <div class="d-flex justify-content-center gap-2 mt-2">
+                                                        <a th:href="@{'/usuarios/reservas/' + ${espacio.espacioDeportivoId}}"
+                                                           class="btn btn-sm btn-outline-info">
+                                                            <i class="fas fa-eye me-1"></i> Ver detalles
+                                                        </a>
+                                                        <a th:href="@{'/usuarios/reservasCalendario/' + ${espacio.espacioDeportivoId}}"
+                                                           class="btn btn-sm btn-primary">
+                                                            <i class="fas fa-calendar-check me-1"></i> Reservar
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -378,7 +353,8 @@
                                                 enlace: `/usuarios/reservasCalendario/${espacio.espacioDeportivoId}`,
                                                 horario: formatearHorario(espacio.horarioApertura, espacio.horarioCierre),
                                                 caracteristicas: obtenerCaracteristicas(espacio),
-                                                estado: espacio.estadoServicio
+                                                estado: espacio.estadoServicio,
+                                                espacioId: espacio.espacioDeportivoId
                                             };
                                         }
 
@@ -532,12 +508,12 @@
 
                                             if (tarjetasPagina.length === 0) {
                                                 contenedor.innerHTML = `
-                                                                                <div class="col-12 text-center p-5">
-                                                                                    <i class="mdi mdi-soccer font-size-48 text-muted mb-3"></i>
-                                                                                    <h4>No se encontraron espacios deportivos</h4>
-                                                                                    <p class="text-muted">Intenta cambiar los filtros o ajustar el rango de precios.</p>
-                                                                                </div>
-                                                                            `;
+                                                    <div class="col-12 text-center p-5">
+                                                        <i class="mdi mdi-soccer font-size-48 text-muted mb-3"></i>
+                                                        <h4>No se encontraron espacios deportivos</h4>
+                                                        <p class="text-muted">Intenta cambiar los filtros o ajustar el rango de precios.</p>
+                                                    </div>
+                                                `;
                                             } else {
                                                 tarjetasPagina.forEach(tarjeta => {
                                                     let badgeClass = "bg-info";
@@ -567,6 +543,9 @@
                                                         caracteristicasHTML += '</small></div>';
                                                     }
 
+                                                    // Extraer el ID del espacio desde la URL de reserva
+                                                    const espacioId = tarjeta.enlace.split('/').pop();
+
                                                     contenedor.innerHTML += `
                                                                                     <div class="col-xl-4 col-sm-6 mb-3">
                                                                                         <div class="product-box border p-3 rounded shadow-sm">
@@ -589,7 +568,15 @@
                                                                                                 </div>
                                                                                                 <div class="d-flex justify-content-between align-items-center">
                                                                                                     <h5 class="text-primary">${tarjeta.precio}</h5>
-                                                                                                    <a href="${tarjeta.enlace}" class="btn btn-primary btn-sm">Reservar</a>
+                                                                                                </div>
+                                                                                                <!-- BOTONES MODIFICADOS -->
+                                                                                                <div class="d-flex justify-content-center gap-2 mt-2">
+                                                                                                    <a href="/usuarios/reservas/${espacioId}" class="btn btn-outline-info btn-sm">
+                                                                                                        <i class="fas fa-eye me-1"></i> Ver detalles
+                                                                                                    </a>
+                                                                                                    <a href="${tarjeta.enlace}" class="btn btn-primary btn-sm">
+                                                                                                        <i class="fas fa-calendar-check me-1"></i> Reservar
+                                                                                                    </a>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
@@ -771,21 +758,21 @@
                                             // Añadir estilos para forzar que la paginación sea horizontal
                                             const style = document.createElement('style');
                                             style.textContent = `
-        .pagination-container {
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: center !important;
-        }
+                                                .pagination-container {
+                                                    display: flex !important;
+                                                    flex-direction: row !important;
+                                                    justify-content: center !important;
+                                                }
 
-        #pagination {
-            display: flex !important;
-            flex-direction: row !important;
-        }
+                                                #pagination {
+                                                    display: flex !important;
+                                                    flex-direction: row !important;
+                                                }
 
-        /* Asegurar que los elementos de página se muestren en línea */
-        .pagination-container .page-item {
-            display: inline-block !important;
-        }
+                                                /* Asegurar que los elementos de página se muestren en línea */
+                                                .pagination-container .page-item {
+                                                    display: inline-block !important;
+                                                }
     `;
                                             document.head.appendChild(style);
                                         });
