@@ -8,8 +8,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.telelink.service.S3Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -73,14 +70,10 @@ public class SuperadminController {
         Integer reservasPiscina = reservaRepository.obtenerNumeroReservasPorServicio(4);
         Integer reservasGimnasio = reservaRepository.obtenerNumeroReservasPorServicio(1);
         Integer reservasAtletismo = reservaRepository.obtenerNumeroReservasPorServicio(3);
-        BigDecimal pagoPlinMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(2); // ID para Plin
-        BigDecimal pagoYapeMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(1); // ID para Yape
-        BigDecimal pagoIzipayMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(3); // ID para Izipay
-        BigDecimal pagoEfectivoMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(4);
-        BigDecimal pagoPlinSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(2); // ID para Plin
-        BigDecimal pagoYapeSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(1); // ID para Yape
-        BigDecimal pagoIzipaySemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(3); // ID para Izipay
-        BigDecimal pagoEfectivoSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(4); // ID para Efectivo
+        BigDecimal pagoOnlineMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(1); // ID para Pago Online
+        BigDecimal pagoDepositoMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(2); // ID para Depósito Bancario
+        BigDecimal pagoOnlineSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(1); // ID para Pago Online
+        BigDecimal pagoDepositoSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(2); // ID para Depósito Bancario
         List<Integer> chartData = Arrays.asList(reservasGimnasio, reservasFutbol, reservasAtletismo, reservasPiscina);
 
         // Calcular la diferencia en las reservas y definir el badge
@@ -113,14 +106,10 @@ public class SuperadminController {
         model.addAttribute("avisos", avisos);
         model.addAttribute("avisoActivo", avisoActivo);
         model.addAttribute("chartData", chartData);
-        model.addAttribute("pagoPlinMensual", pagoPlinMensual);
-        model.addAttribute("pagoYapeMensual", pagoYapeMensual);
-        model.addAttribute("pagoIzipayMensual", pagoIzipayMensual);
-        model.addAttribute("pagoEfectivoMensual", pagoEfectivoMensual);
-        model.addAttribute("pagoPlinSemanal", pagoPlinSemanal);
-        model.addAttribute("pagoYapeSemanal", pagoYapeSemanal);
-        model.addAttribute("pagoIzipaySemanal", pagoIzipaySemanal);
-        model.addAttribute("pagoEfectivoSemanal", pagoEfectivoSemanal);
+        model.addAttribute("pagoOnlineMensual", pagoOnlineMensual);
+        model.addAttribute("pagoDepositoMensual", pagoDepositoMensual);
+        model.addAttribute("pagoOnlineSemanal", pagoOnlineSemanal);
+        model.addAttribute("pagoDepositoSemanal", pagoDepositoSemanal);
 
         // Retornar la vista HTML
         return "Superadmin/Dashboard";  // Nombre de la vista (dashboard.html)
