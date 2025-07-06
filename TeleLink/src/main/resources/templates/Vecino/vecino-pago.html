@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Mis Pagos')}"></head>
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
@@ -8,7 +8,7 @@
     <div class="main-content">
         <div class="page-content">
             <div class="container-fluid">
-                <div class="row">
+                <!--<div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                             <h4 class="mb-sm-0">Mis Pagos</h4>
@@ -20,8 +20,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- Reservas Pendientes sin Pagos -->
+                </div>-->
+                <!-- Reservas Pendientes sin Pagos 
                 <div th:if="${!#lists.isEmpty(reservasPendientes)}">
                     <div class="card">
                         <div class="card-body pt-0">
@@ -52,26 +52,26 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>-->
                 <!-- Pagos Existentes -->
                 <div class="card">
-                    <div class="card-body pt-0">
-                        <ul class="nav nav-tabs nav-tabs-custom mb-4">
-                            <li class="nav-item">
-                                <a class="nav-link fw-bold p-3 active" href="#">Mis pagos</a>
-                            </li>
-                        </ul>
-                        <div th:if="${#lists.isEmpty(pagos)}">
-                            <p class="text-danger">No se encontraron pagos para este usuario.</p>
+                    <div class="card-body">
+                        
+
+                        <!-- Loader for Pagos -->
+                        <div id="loading-container-pagos" class="text-center p-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <div class="mt-2">Cargando pagos...</div>
                         </div>
-                        <div th:if="${!#lists.isEmpty(pagos)}">
-                            <p class="text-success">Sí hay pagos.</p>
-                        </div>
-                        <div class="table-responsive">
+
+                        <!-- Tabla envuelta en contenedor oculto -->
+                        <div id="table-content-pagos" style="display: none;">
+                            <div class="table-responsive">
                             <table id="tablaPagos" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                <thead class="thead-light">
+                                <thead>
                                 <tr>
-                                    <th></th>
                                     <th>Servicio Deportivo</th>
                                     <th>Fecha y Hora</th>
                                     <th>Nombre de facturación</th>
@@ -84,8 +84,7 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="pago : ${pagos}">
-                                    <td></td>
-                                    <td th:text="${pago.reserva.espacioDeportivo.nombre}">Nombre</td>
+                                    <td th:text="${pago.reserva.espacioDeportivo.nombre+' (' + pago.reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre + ')'}">Nombre</td>
                                     <td th:text="${#temporals.format(pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
                                     <td th:text="${pago.reserva.usuario.nombres + ' ' + pago.reserva.usuario.apellidos}">Usuario</td>
                                     <td th:text="${pago.metodoPago.metodoPago}">Método</td>
@@ -131,6 +130,8 @@
                                 </tbody>
                             </table>
                         </div>
+                        </div>
+
                         <!-- Modal Comprobante -->
                         <div class="modal fade" id="modalComprobante" tabindex="-1" aria-labelledby="modalComprobanteLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
@@ -195,6 +196,30 @@
 <script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
 <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
 <script th:src="@{/assets/js/app.js}"></script>
+
+<!-- Agregar margen inferior a la tabla -->
+<style>
+#tablaPagos {
+    margin-bottom: 15px !important;
+}
+
+/* Evitar que DataTables aplique anchos específicos */
+#tablaPagos th,
+#tablaPagos td {
+    width: auto !important;
+}
+
+#tablaPagos {
+    width: 100% !important;
+    table-layout: auto !important;
+}
+
+/* Limpiar estilos específicos de DataTables */
+.dataTables_wrapper .table {
+    width: 100% !important;
+}
+</style>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Script para cargar imagen en modal comprobante
@@ -255,9 +280,65 @@
         });
 
         // Inicializar DataTable
-        $('#tablaPagos').DataTable({
-            responsive: true,
-            columnDefs: [{ orderable: false, targets: [0, 7, 8] }]
+        var pagosTable = $('#tablaPagos').DataTable({
+            lengthMenu: [10, 25, 50, 100],
+            pageLength: 10,
+            processing: false,
+            serverSide: false,
+            scrollX: true,
+            autoWidth: true, // Permitir que calcule anchos automáticamente
+            columnDefs: [
+                {
+                    targets: [-2, -1], // Comprobante y Detalles (últimas dos columnas)
+                    orderable: false
+                },
+                {
+                    targets: '_all',
+                    className: 'text-nowrap',
+                    width: null // Forzar que no aplique anchos específicos
+                }
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay pagos disponibles",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ pagos",
+                "infoEmpty": "Mostrando 0 a 0 de 0 pagos",
+                "infoFiltered": "(filtrado de _MAX_ pagos totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ pagos",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron pagos",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "<i class='mdi mdi-chevron-right'></i>",
+                    "previous": "<i class='mdi mdi-chevron-left'></i>"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar ascendente",
+                    "sortDescending": ": activar para ordenar descendente"
+                }
+            },
+            drawCallback: function() {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+            initComplete: function() {
+                $("#loading-container-pagos").remove();
+                $("#table-content-pagos").show();
+                
+                // Ocultar selector de longitud para mantener 10 registros fijos
+                $(".dataTables_length").hide();
+                
+                // Limpiar anchos específicos aplicados por DataTables
+                $('#tablaPagos th, #tablaPagos td').css('width', '');
+                $('#tablaPagos').css({
+                    'width': '100%',
+                    'table-layout': 'auto'
+                });
+            }
         });
     });
 </script>
