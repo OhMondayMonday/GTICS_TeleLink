@@ -15,11 +15,16 @@
             <div class="page-content" style="min-height: 100%;">
                 <div class="container-fluid">
 
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
                     <!-- start page title -->
                     <div class="row">
                         <div class="col-12">
                             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                <h4 class="mb-sm-0">Reservar pista de atletismo</h4>
+                                <h4 class="mb-sm-0">Reservar espacio deportivo</h4>
                                 <div class="page-title-right">
                                     <a th:href="@{/usuarios/cancha}" class="btn ms-2 btn-outline-primary">
                                         <i class="fas fa-arrow-left me-1"></i> Regresar a espacios
@@ -34,7 +39,7 @@
                             <div class="card">
                                 <!-- Foto del establecimiento deportivo -->
                                 <div class="position-relative">
-                                    <img th:src="${espacio.fotoEspacioDeportivoUrl != null ? espacio.fotoEspacioDeportivoUrl : '/assets/images/atletismo.jpg'}"
+                                    <img th:src="${espacio.fotoEspacioDeportivoUrl != null ? espacio.fotoEspacioDeportivoUrl : '/assets/images/canchita.jpg'}"
                                         alt="Establecimiento Deportivo" class="card-img-top"
                                         style="height: 160px; object-fit: cover;">
                                 </div>
@@ -53,18 +58,9 @@
                                             <span class="text-muted">Capacidad:</span>
                                             <span class="fw-medium">
                                                 <i class="fas fa-users text-info me-2"></i>
-                                                <span
-                                                    th:text="${espacio.maxPersonasPorCarril != null ? espacio.maxPersonasPorCarril + ' por carril' : '1'}">1
-                                                    por carril</span>
-                                            </span>
-                                        </div>
-
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="text-muted">Carriles:</span>
-                                            <span class="fw-medium">
-                                                <i class="fas fa-road text-info me-2"></i>
-                                                <span
-                                                    th:text="${espacio.carrilesPista != null ? espacio.carrilesPista : '8'}">8</span>
+                                                <span th:text="${espacio.aforoGimnasio != null ? espacio.aforoGimnasio : 
+                                                                     (espacio.maxPersonasPorCarril != null ? espacio.maxPersonasPorCarril + ' por carril' : 
+                                                                      '22')}">22</span>
                                             </span>
                                         </div>
 
@@ -73,7 +69,7 @@
                                             <span class="text-success fw-bold">
                                                 <i class="fas fa-dollar-sign me-2"></i>
                                                 S/. <span
-                                                    th:text="${espacio.precioPorHora != null ? espacio.precioPorHora : '30.00'}">30.00</span>
+                                                    th:text="${espacio.precioPorHora != null ? espacio.precioPorHora : '50.00'}">50.00</span>
                                             </span>
                                         </div>
 
@@ -104,8 +100,36 @@
                                                 </span>
                                             </span>
                                         </div>
+                                        <div th:if="${espacio.descripcion}" class="mb-3 pb-3 border-bottom">
+                                            <div class="d-flex align-items-start mb-2">
+                                                <i class="fas fa-info-circle text-primary me-2 mt-1"></i>
+                                                <span class="text-muted fw-medium">Descripción</span>
+                                            </div>
+                                            <p th:text="${espacio.descripcion}"
+                                                class="text-secondary mb-0 lh-base ps-4">Descripción del espacio...</p>
+                                        </div>
 
-                                        <!-- Resto del HTML similar al de reservas-piscina-calendario.html -->
+                                        <div th:if="${espacio.geolocalizacion}" class="mb-0">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                                <span class="text-muted fw-medium">Ubicación</span>
+                                            </div>
+                                            <div class="map-container"
+                                                style="height: 150px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
+                                                <!-- Alternativa 1: Si las coordenadas están en formato "lat,lng" -->
+                                                <iframe th:if="${#strings.contains(espacio.geolocalizacion, ',')}"
+                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${espacio.geolocalizacion}"
+                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
+                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                                                </iframe>
+                                                <!-- Alternativa 2: Si es una dirección de texto -->
+                                                <iframe th:unless="${#strings.contains(espacio.geolocalizacion, ',')}"
+                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${#strings.replace(espacio.geolocalizacion, ' ', '+')}"
+                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
+                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                                                </iframe>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -118,15 +142,16 @@
                                     <!-- En el div del calendario -->
                                     <div id="calendar" style="height: 100%;"
                                         th:attr="data-espacio-id=${espacioId},
-                                        data-horario-apertura=${espacio.horarioApertura != null ? #temporals.format(espacio.horarioApertura, 'HH:mm:ss') : '07:00:00'},
-                                        data-horario-cierre=${espacio.horarioCierre != null ? #temporals.format(espacio.horarioCierre, 'HH:mm:ss') : '22:00:00'}">
+              data-horario-apertura=${espacio.horarioApertura != null ? #temporals.format(espacio.horarioApertura, 'HH:mm:ss') : '07:00:00'},
+              data-horario-cierre=${espacio.horarioCierre != null ? #temporals.format(espacio.horarioCierre, 'HH:mm:ss') : '22:00:00'}">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div> <!-- end row-->
+                    <div style='clear:both'></div>
 
-                    <!-- Modal para eventos -->
+                    <!-- Add New Event MODAL -->
                     <div class="modal fade" id="event-modal" data-bs-backdrop="static" data-bs-keyboard="false"
                         tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
@@ -143,8 +168,8 @@
                                         <input type="hidden" name="reservaId" id="reserva-id">
                                         <input type="hidden" name="espacioId" id="input-espacio-id">
                                         <input type="hidden" name="fechaInicio" id="input-fecha-inicio">
-                                        <input type="hidden" name="fechaFin" id="input-fecha-fin">
-                                        <input type="hidden" name="numeroCarrilPista" id="input-carril-atletismo">
+                                        <input type="hidden" name="fechaFin" id="input-fecha-fin"> <input type="hidden"
+                                            name="numeroCarrilPista" id="input-carril-atletismo">
                                         <input type="hidden" name="numeroParticipantes"
                                             id="input-participantes-atletismo">
                                         <div id="create-reservation-form">
@@ -193,7 +218,6 @@
                                                     disponibles.
                                                 </div>
                                             </div>
-
                                             <div class="mb-3">
                                                 <label class="form-label">Precio estimado</label>
                                                 <div class="input-group">
@@ -217,7 +241,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Vista de detalles para reservas existentes -->
                                         <div id="view-reservation-details" style="display: none;">
                                             <div class="mb-3">
                                                 <h6>Detalles de tu reserva</h6>
@@ -245,14 +268,10 @@
                                                         </tr>
                                                         <tr>
                                                             <th scope="row">Ocupación:</th>
+                                                            <td id="detail-ocupacion"></td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <div id="detail-ocupacion" class="mt-2">
-                                                    <div class="alert" id="ocupacion-alert">
-                                                        <!-- Mensaje de ocupación se actualizará dinámicamente -->
-                                                    </div>
-                                                </div>
                                             </div>
                                             <div class="row mt-2">
                                                 <div class="col-12 text-end">
@@ -270,19 +289,101 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- end modal-->
+
                 </div>
-
-                <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
             </div>
-        </div> <!-- Scripts -->
-        <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
 
-        <!-- SweetAlert2 para notificaciones de conflictos -->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
-            // Esperar a que el DOM esté completamente cargado
-            document.addEventListener('DOMContentLoaded', function () {
-                // Verificar si hay un conflicto detectado desde el servidor
+            <div th:replace="~{Superadmin/fragments/footer.html :: footer}"></div>
+        </div>
+    </div> <!-- Scripts -->
+    <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
+
+    <!-- SweetAlert2 para notificaciones de conflictos -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* ===== SOLUCIÓN PARA TEXTAREA EN SWEETALERT2 ===== */
+        .swal2-container .swal2-popup .swal2-html-container {
+            overflow: visible !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .form-control {
+            pointer-events: auto !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            background-color: #fff !important;
+            border: 1px solid #ced4da !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            color: #495057 !important;
+            opacity: 1 !important;
+            cursor: text !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .form-control:focus {
+            border-color: #80bdff !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+            outline: 0 !important;
+            background-color: #fff !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .alert {
+            border-radius: 8px !important;
+            border: 1px solid !important;
+            padding: 12px !important;
+            margin: 15px 0 !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .alert-info {
+            background-color: #e7f3ff !important;
+            border-color: #b3d9ff !important;
+            color: #004085 !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .alert-success {
+            background-color: #d1edff !important;
+            border-color: #b3d9ff !important;
+            color: #0c5460 !important;
+        }
+
+        .swal2-container .swal2-popup .swal2-html-container .alert-warning {
+            background-color: #fff3cd !important;
+            border-color: #ffeaa7 !important;
+            color: #856404 !important;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // =============================
+            // VARIABLES GLOBALES
+            // =============================
+            const modalEl = document.getElementById('event-modal');
+            const modal = new bootstrap.Modal(modalEl);
+            const modalTitle = document.getElementById('modal-title');
+            const form = document.getElementById('form-event');
+            const calendarEl = document.getElementById('calendar');
+
+            const espacioId = calendarEl.dataset.espacioId;
+            const horarioApertura = calendarEl.dataset.horarioApertura || '07:00:00';
+            const horarioCierre = calendarEl.dataset.horarioCierre || '22:00:00';
+
+            let selectedEvent = null;
+            let clickInfo = null;
+            let calendar = null;
+
+            const now = new Date();
+
+            // =============================
+            // VERIFICACIÓN DE CONFLICTOS INICIALES
+            // =============================
+            function verificarConflictosIniciales() {
                 const conflictoDetectado = /*[[${conflictoDetectado}]]*/ false;
                 const mensajeConflicto = /*[[${mensajeConflicto}]]*/ '';
 
@@ -295,44 +396,26 @@
                         confirmButtonColor: '#d33'
                     });
                 }
+            }
 
-                // Referencias a elementos DOM usando JavaScript puro
-                const modalEl = document.getElementById('event-modal');
-                const modal = new bootstrap.Modal(modalEl);
-                const modalTitle = document.getElementById('modal-title');
-                const form = document.getElementById('form-event');
-                const calendarEl = document.getElementById('calendar');
-                const horarioApertura = calendarEl.dataset.horarioApertura || '07:00:00';
-                const horarioCierre = calendarEl.dataset.horarioCierre || '22:00:00';
-
-                let selectedEvent = null;
-                let clickInfo = null;
-
-                const espacioId = calendarEl.dataset.espacioId;
-                const now = new Date();
-
-                // Usar la configuración base del archivo calendar-config.js
+            // =============================
+            // CONFIGURACIÓN DEL CALENDARIO
+            // =============================
+            function configurarCalendario() {
                 const customConfig = {
-                    // Configuración de eventos específica para este calendario
+                    // Clases CSS para eventos
                     eventClassNames: function (arg) {
                         try {
                             const evento = arg.event;
                             const esPropia = evento.extendedProps && evento.extendedProps.esPropia === true;
                             const estado = evento.extendedProps && evento.extendedProps.estado;
 
-                            // Si no es propia, siempre mostrar como ajena
                             if (!esPropia) return ['reserva-ajena'];
 
-                            // Si es propia, asignar clase según estado
-                            if (estado === 'confirmada') {
-                                return ['reserva-propia-confirmada'];
-                            } else if (estado === 'pendiente') {
-                                return ['reserva-propia-pendiente'];
-                            } else if (estado === 'en_proceso') {
-                                return ['reserva-propia-en-proceso'];
-                            }
+                            if (estado === 'confirmada') return ['reserva-propia-confirmada'];
+                            if (estado === 'pendiente') return ['reserva-propia-pendiente'];
+                            if (estado === 'en_proceso') return ['reserva-propia-en-proceso'];
 
-                            // Por defecto
                             return ['reserva-propia-pendiente'];
                         } catch (error) {
                             console.error("Error al asignar clases a evento:", error);
@@ -340,6 +423,7 @@
                         }
                     },
 
+                    // Cargar eventos
                     events: function (info, successCallback, failureCallback) {
                         fetch('/api/reservas/atletismo/' + espacioId)
                             .then(response => {
@@ -354,70 +438,84 @@
                                     // Verificar si es un evento de mantenimiento
                                     if (evento.esMantenimiento === true) {
                                         // Formatear las fechas para mostrar en el título
-                                        const fechaInicio = new Date(evento.start);
+                                        const fechaInicioOriginal = new Date(evento.start);
                                         const fechaFin = new Date(evento.end);
-                                        
+                                        const ahora = new Date();
+
+                                        // Determinar la fecha de inicio efectiva
+                                        let fechaInicio = fechaInicioOriginal;
+
+                                        // Si el mantenimiento está en curso y ya empezó, usar la hora actual
+                                        if (evento.estado && evento.estado.toLowerCase() === 'en_curso' || fechaInicioOriginal < ahora) {
+                                            fechaInicio = ahora;
+                                        }
+
                                         // Formatear solo la hora si es el mismo día, o fecha completa si es diferente día
                                         let horarioTexto = '';
-                                        if (fechaInicio.toDateString() === fechaFin.toDateString()) {
+                                        if (fechaInicioOriginal.toDateString() === fechaFin.toDateString()) {
                                             // Mismo día - mostrar solo las horas
-                                            const horaInicio = fechaInicio.toLocaleTimeString('es-PE', { 
-                                                hour: '2-digit', 
-                                                minute: '2-digit', 
-                                                hour12: false 
+                                            const horaInicio = fechaInicioOriginal.toLocaleTimeString('es-PE', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: false
                                             });
-                                            const horaFin = fechaFin.toLocaleTimeString('es-PE', { 
-                                                hour: '2-digit', 
-                                                minute: '2-digit', 
-                                                hour12: false 
+                                            const horaFin = fechaFin.toLocaleTimeString('es-PE', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: false
                                             });
                                             horarioTexto = `${horaInicio} - ${horaFin}`;
                                         } else {
                                             // Diferentes días - mostrar fecha y hora
-                                            const inicioCompleto = fechaInicio.toLocaleDateString('es-PE', { 
-                                                day: '2-digit', 
-                                                month: '2-digit' 
-                                            }) + ' ' + fechaInicio.toLocaleTimeString('es-PE', { 
-                                                hour: '2-digit', 
-                                                minute: '2-digit', 
-                                                hour12: false 
+                                            const inicioCompleto = fechaInicioOriginal.toLocaleDateString('es-PE', {
+                                                day: '2-digit',
+                                                month: '2-digit'
+                                            }) + ' ' + fechaInicioOriginal.toLocaleTimeString('es-PE', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: false
                                             });
-                                            const finCompleto = fechaFin.toLocaleDateString('es-PE', { 
-                                                day: '2-digit', 
-                                                month: '2-digit' 
-                                            }) + ' ' + fechaFin.toLocaleTimeString('es-PE', { 
-                                                hour: '2-digit', 
-                                                minute: '2-digit', 
-                                                hour12: false 
+                                            const finCompleto = fechaFin.toLocaleDateString('es-PE', {
+                                                day: '2-digit',
+                                                month: '2-digit'
+                                            }) + ' ' + fechaFin.toLocaleTimeString('es-PE', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: false
                                             });
                                             horarioTexto = `${inicioCompleto} - ${finCompleto}`;
                                         }
 
                                         // Extraer solo el motivo del título (sin "Mantenimiento - ")
                                         const motivo = evento.title.replace('Mantenimiento - ', '');
-                                        
+
                                         return {
                                             id: evento.id,
-                                            title: `🔧 ${motivo} (${horarioTexto})`, // Incluir horario en el título
-                                            start: evento.start,
+                                            title: `${motivo} (${horarioTexto})`, // Incluir horario en el título
+                                            start: fechaInicio.toISOString(),
                                             end: evento.end,
                                             backgroundColor: evento.backgroundColor || '#ff6b6b',
                                             borderColor: evento.borderColor || '#ff4757',
                                             textColor: evento.textColor || '#ffffff',
-                                            display: evento.display || 'background',
+                                            display: evento.display || 'block',
                                             rendering: evento.rendering || 'background',
                                             extendedProps: {
                                                 esMantenimiento: true,
                                                 estado: evento.estado,
                                                 motivo: motivo,
-                                                horarioInicio: fechaInicio.toLocaleString('es-PE'),
+                                                horarioInicio: fechaInicioOriginal.toLocaleString('es-PE'),
                                                 horarioFin: fechaFin.toLocaleString('es-PE')
                                             },
                                             classNames: ['evento-mantenimiento']
                                         };
                                     }
-                                    
+
                                     // Si no es mantenimiento, procesar como reserva normal
+                                    // Filtrar reservas canceladas
+                                    if (evento.estado === 'cancelada' || evento.estado === 'CANCELADA') {
+                                        return null; // Será filtrado después
+                                    }
+
                                     const esPropia = evento.esPropia === true;
                                     const estado = evento.estado ? evento.estado.toLowerCase() : null;
 
@@ -435,37 +533,35 @@
                                         title: title,
                                         start: evento.start,
                                         end: evento.end,
+                                        backgroundColor: evento.backgroundColor,
+                                        borderColor: evento.borderColor,
+                                        textColor: evento.textColor,
                                         extendedProps: {
                                             esPropia: esPropia,
                                             estado: estado,
                                             esMantenimiento: false
-                                        }
+                                        },
+                                        classNames: esPropia ? ['reserva-propia'] : ['reserva-ajena']
                                     };
-                                });
+                                }).filter(evento => evento !== null); // Filtrar eventos nulos (cancelados)
 
                                 successCallback(events);
                             })
                             .catch(error => {
                                 console.error('Error al cargar reservas:', error);
+                                alert('No se pudieron cargar las reservas. Por favor, intente nuevamente.');
                                 failureCallback(error);
                             });
                     },
 
+                    // Click en evento existente
                     eventClick: function (info) {
                         // Verificar si es un evento de mantenimiento
                         if (info.event.extendedProps.esMantenimiento === true) {
                             const motivo = info.event.extendedProps.motivo || 'No especificado';
                             const estado = info.event.extendedProps.estado || 'desconocido';
-                            const fechaInicio = info.event.extendedProps.horarioInicio || 
-                                               info.event.start.toLocaleString('es-PE', {
-                                                   weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                                                   hour: '2-digit', minute: '2-digit'
-                                               });
-                            const fechaFin = info.event.extendedProps.horarioFin || 
-                                            info.event.end.toLocaleString('es-PE', {
-                                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                                                hour: '2-digit', minute: '2-digit'
-                                            });
+                            const fechaInicio = info.event.extendedProps.horarioInicio;
+                            const fechaFin = info.event.extendedProps.horarioFin;
 
                             let estadoTexto = '';
                             let iconoEstado = '';
@@ -489,9 +585,10 @@
 
                             Swal.fire({
                                 icon: 'info',
-                                title: '🔧 Mantenimiento Programado',
+                                title: '🔧 Mantenimiento de Pista',
                                 html: `
                                     <div class="text-start">
+                                        <p><strong>🏊‍♂️ Instalación:</strong> Pista</p>
                                         <p><strong>📋 Motivo:</strong> ${motivo}</p>
                                         <p><strong>📅 Inicio:</strong> ${fechaInicio}</p>
                                         <p><strong>🏁 Fin estimado:</strong> ${fechaFin}</p>
@@ -499,7 +596,7 @@
                                         <hr>
                                         <p class="text-muted small">
                                             <i class="fas fa-info-circle"></i> 
-                                            Durante este período no se pueden realizar reservas en este espacio.
+                                            La pista de atletismo no estará disponible para reservas durante este período.
                                         </p>
                                     </div>
                                 `,
@@ -510,409 +607,30 @@
                             return;
                         }
 
-                        // Solo permitir interacción con eventos propios (reservas)
+                        // Solo permitir interacción con eventos propios
                         if (!info.event.extendedProps.esPropia) {
                             alert("Este horario ya está reservado por otro usuario y no se puede modificar.");
                             return;
                         }
 
-                        // Mostrar modal con detalles de la reserva
                         modal.show();
                         form.reset();
                         selectedEvent = info.event;
 
-                        // Ocultar formulario de creación y mostrar vista de detalles
                         document.getElementById("create-reservation-form").style.display = "none";
                         document.getElementById("view-reservation-details").style.display = "block";
-
-                        // Establecer título modal
                         modalTitle.textContent = "Tu reserva";
 
-                        // Obtener ID de la reserva
                         const reservaId = info.event.id;
                         document.getElementById("reserva-id").value = reservaId;
 
-                        // Obtener datos detallados de la reserva mediante API
-                        fetch(`/usuarios/api/reservas/${reservaId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                // Formatear fechas
-                                const startDate = new Date(data.inicioReserva);
-                                const endDate = new Date(data.finReserva);
-
-                                document.getElementById("detail-start").textContent = startDate.toLocaleString('es-PE', {
-                                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                                    hour: '2-digit', minute: '2-digit'
-                                });
-
-                                document.getElementById("detail-end").textContent = endDate.toLocaleString('es-PE', {
-                                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                                    hour: '2-digit', minute: '2-digit'
-                                });
-
-                                // Mostrar información del carril
-                                const laneElement = document.getElementById("detail-lane");
-                                if (data.numeroCarrilPista) {
-                                    laneElement.textContent = `Carril ${data.numeroCarrilPista}`;
-                                } else {
-                                    laneElement.textContent = "No especificado";
-                                }
-
-                                // Mostrar información de participantes
-                                const participantsElement = document.getElementById("detail-participants");
-                                if (data.numeroParticipantes) {
-                                    participantsElement.textContent = `${data.numeroParticipantes} ${data.numeroParticipantes === 1 ? 'participante' : 'participantes'}`;
-                                } else {
-                                    participantsElement.textContent = "1 participante";
-                                }
-
-                                // Mostrar estado con formato más amigable
-                                let estadoTexto = "Desconocido";
-                                let estadoClase = "";
-
-                                switch (data.estado.toLowerCase()) {
-                                    case 'confirmada': estadoTexto = "Confirmada"; estadoClase = "text-success"; break;
-                                    case 'pendiente': estadoTexto = "Pendiente de pago"; estadoClase = "text-warning"; break;
-                                    case 'en_proceso': estadoTexto = "En proceso"; estadoClase = "text-primary"; break;
-                                    case 'cancelada': estadoTexto = "Cancelada"; estadoClase = "text-danger"; break;
-                                    case 'completada': estadoTexto = "Completada"; estadoClase = "text-info"; break;
-                                }
-
-                                const detailStatus = document.getElementById("detail-status");
-                                detailStatus.textContent = estadoTexto;
-                                detailStatus.className = estadoClase;
-
-                                fetch(`/api/reserva/${reservaId}/ocupacion`)
-                                    .then(response => response.json())
-                                    .then(ocupacionData => {
-                                        const ocupacionDiv = document.getElementById("detail-ocupacion");
-
-                                        if (ocupacionData.error) {
-                                            ocupacionDiv.innerHTML = `
-                                            <div class="alert alert-warning mb-0">
-                                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                                <strong>No se pudo obtener la información de ocupación.</strong> 
-                                                <small>Intenta nuevamente más tarde.</small>
-                                            </div>
-                                        `;
-                                        } else if (ocupacionData.tipoOcupacion === "carril") {
-                                            // Obtener datos
-                                            const aforoTotal = ocupacionData.capacidadMaxima;
-                                            const ocupacionActual = ocupacionData.participantesTotales;
-                                            const porcentajeOcupacion = ocupacionData.porcentajeOcupacion;
-                                            const numeroCarril = ocupacionData.numeroCarril;
-
-                                            // Determinar estilos y mensaje según nivel de ocupación
-                                            let colorBarra = "bg-success";
-                                            let alertClass = "alert-success";
-                                            let mensaje = "Ocupación baja. El carril estará poco concurrido.";
-
-                                            if (porcentajeOcupacion >= 100) {
-                                                colorBarra = "bg-danger";
-                                                alertClass = "alert-danger";
-                                                mensaje = "Carril completo. El carril estará bastante concurrido.";
-                                            } else if (porcentajeOcupacion >= 75) {
-                                                colorBarra = "bg-warning";
-                                                alertClass = "alert-warning";
-                                                mensaje = "Ocupación alta. El carril tendrá una afluencia considerable.";
-                                            } else if (porcentajeOcupacion >= 50) {
-                                                colorBarra = "bg-info";
-                                                alertClass = "alert-info";
-                                                mensaje = "Ocupación media. El carril tendrá una afluencia moderada.";
-                                            }
-
-                                            // Construir HTML con la información de ocupación
-                                            ocupacionDiv.innerHTML = `
-                                            <div class="alert ${alertClass} mb-0">
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <strong>Carril ${numeroCarril}: ${ocupacionActual} de ${aforoTotal} personas</strong>
-                                                    <span class="badge bg-secondary">${Math.round(porcentajeOcupacion)}% ocupado</span>
-                                                </div>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar ${colorBarra}" role="progressbar" 
-                                                        style="width: ${porcentajeOcupacion}%" 
-                                                        aria-valuenow="${ocupacionActual}" aria-valuemin="0" aria-valuemax="${aforoTotal}">
-                                                    </div>
-                                                </div>
-                                                <small class="mt-2 d-block">${mensaje}</small>
-                                                ${ocupacionData.espaciosDisponibles > 0 ?
-                                                    `<small class="text-muted d-block">Espacios libres: ${ocupacionData.espaciosDisponibles}</small>` :
-                                                    '<small class="text-danger d-block">Sin espacios disponibles</small>'
-                                                }
-                                            </div>
-                                        `;
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error('Error al obtener ocupación:', error);
-                                        const ocupacionDiv = document.getElementById("detail-ocupacion");
-                                        ocupacionDiv.innerHTML = `
-                                        <div class="alert alert-warning mb-0">
-                                            <i class="fas fa-exclamation-triangle me-2"></i>
-                                            <strong>No se pudo obtener la información de ocupación.</strong> 
-                                            <small>Intenta nuevamente más tarde.</small>
-                                        </div>
-                                    `;
-                                    });
-
-                                // Declarar las variables de los botones fuera del scope para evitar problemas
-                                let btnVerReservas = document.querySelector("#view-reservation-details a.btn-primary");
-                                let btnCancelar = document.getElementById("btn-cancel-reservation");
-
-                                // Configurar cancelación mediante AJAX en lugar de href directo
-                                btnCancelar.onclick = function (e) {
-                                    e.preventDefault();
-
-                                    // Obtener el estado de la reserva para mostrar mensaje apropiado
-                                    const estadoReserva = data.estado.toLowerCase();
-                                    let tituloConfirmacion = '¿Cancelar reserva?';
-                                    let textoConfirmacion = "Esta acción no se puede deshacer";
-
-                                    // Personalizar mensaje según el estado
-                                    if (estadoReserva === 'pendiente') {
-                                        tituloConfirmacion = '¿Cancelar reserva pendiente?';
-                                        textoConfirmacion = "La reserva pendiente será cancelada inmediatamente sin penalización.";
-                                    } else if (estadoReserva === 'confirmada') {
-                                        tituloConfirmacion = '¿Cancelar reserva confirmada?';
-                                        textoConfirmacion = "Solo se puede cancelar si faltan más de 48 horas para el inicio de la reserva.";
-                                    }
-
-                                    // Mostrar modal con input para la razón de cancelación
-                                    Swal.fire({
-                                        title: tituloConfirmacion,
-                                        html: `
-                                            <div class="text-start mb-3">
-                                                <p class="mb-3">${textoConfirmacion}</p>
-                                                <label for="razon-cancelacion" class="form-label">
-                                                    <strong>Razón de cancelación:</strong>
-                                                </label>
-                                                <small class="text-muted">Máximo 500 caracteres</small>
-                                            </div>
-                                        `,
-                                        icon: 'warning',
-                                        showCancelButton: true,
-                                        confirmButtonColor: '#d33',
-                                        cancelButtonColor: '#3085d6',
-                                        confirmButtonText: 'Sí, cancelar reserva',
-                                        cancelButtonText: 'No cancelar',
-                                        width: '600px',
-                                        focusConfirm: false,
-                                        preConfirm: () => {
-                                            const razonInput = document.getElementById('razon-cancelacion');
-                                            return {
-                                                razon: razonInput.value.trim() || 'Cancelación solicitada por el usuario'
-                                            };
-                                        }
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            const razonCancelacion = result.value.razon;
-
-                                            // Mostrar indicador de carga
-                                            Swal.fire({
-                                                title: 'Procesando cancelación...',
-                                                text: 'Por favor espera mientras procesamos tu solicitud',
-                                                allowOutsideClick: false,
-                                                didOpen: () => {
-                                                    Swal.showLoading();
-                                                }
-                                            });
-
-                                            // Realizar la cancelación mediante AJAX con la razón personalizada
-                                            const cancelarUrl = `/api/cancelar-reserva-pendiente/${reservaId}?razon=${encodeURIComponent(razonCancelacion)}`;
-
-                                            fetch(cancelarUrl)
-                                                .then(response => response.json())
-                                                .then(data => {
-                                                    if (data.success) {
-                                                        let mensajeExito = data.mensaje;
-                                                        let iconoExito = 'success';
-
-                                                        // Personalizar mensaje según el tipo de cancelación
-                                                        if (data.tipo === 'cancelacion_directa') {
-                                                            mensajeExito = `
-                                                                <div class="text-start">
-                                                                    <h5 class="text-success mb-3"><i class="fas fa-check-circle"></i> Reserva cancelada exitosamente</h5>
-                                                                    <p><strong>Tipo:</strong> Reserva pendiente</p>
-                                                                    <p><strong>Razón:</strong> ${razonCancelacion}</p>
-                                                                    <p class="text-muted mb-0">No se aplicaron penalizaciones.</p>
-                                                                </div>
-                                                            `;
-                                                        } else if (data.tipo === 'cancelacion_con_reembolso') {
-                                                            iconoExito = 'success';
-                                                            mensajeExito = `
-                                                                <div class="text-start">
-                                                                    <h5 class="text-success mb-3"><i class="fas fa-check-circle"></i> Reserva cancelada exitosamente</h5>
-                                                                    <p><strong>Tipo:</strong> Reserva confirmada</p>
-                                                                    <p><strong>Razón:</strong> ${razonCancelacion}</p>
-                                                                    <div class="alert alert-info mt-3 mb-3">
-                                                                        <h6><strong><i class="fas fa-money-bill-wave text-success"></i> Reembolso generado:</strong></h6>
-                                                                        <p class="mb-1"><strong>Monto:</strong> S/ ${data.montoReembolso}</p>
-                                                                        <p class="mb-0"><strong>ID de reembolso:</strong> #${data.reembolsoId}</p>
-                                                                    </div>
-                                                                    <p class="text-muted mb-0">El reembolso será procesado en los próximos días laborables y te notificaremos por email.</p>
-                                                                </div>
-                                                            `;
-                                                        } else if (data.tipo === 'cancelacion_sin_reembolso_automatico') {
-                                                            iconoExito = 'warning';
-                                                            mensajeExito = `
-                                                                <div class="text-start">
-                                                                    <h5 class="text-warning mb-3"><i class="fas fa-exclamation-triangle"></i> Reserva cancelada</h5>
-                                                                    <p><strong>Razón:</strong> ${razonCancelacion}</p>
-                                                                    <p>${data.mensaje}</p>
-                                                                    <p class="text-muted mb-0">Si necesitas asistencia con el reembolso, contacta con nuestro equipo de soporte.</p>
-                                                                </div>
-                                                            `;
-                                                        } else if (data.tipo === 'cancelacion_sin_pago') {
-                                                            iconoExito = 'info';
-                                                            mensajeExito = `
-                                                                <div class="text-start">
-                                                                    <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Reserva cancelada</h5>
-                                                                    <p><strong>Razón:</strong> ${razonCancelacion}</p>
-                                                                    <p>${data.mensaje}</p>
-                                                                    <p class="text-muted mb-0">Si realizaste un pago, por favor contacta con soporte.</p>
-                                                                </div>
-                                                            `;
-                                                        }
-
-                                                        Swal.fire({
-                                                            icon: iconoExito,
-                                                            title: 'Cancelación procesada',
-                                                            html: mensajeExito,
-                                                            confirmButtonText: 'Aceptar',
-                                                            width: '600px',
-                                                            customClass: {
-                                                                htmlContainer: 'text-start'
-                                                            }
-                                                        }).then(() => {
-                                                            // Cerrar modal y actualizar calendario
-                                                            modal.hide();
-                                                            calendar.refetchEvents();
-                                                        });
-                                                    } else {
-                                                        let iconoError = 'error';
-                                                        let tituloError = 'Error al cancelar';
-                                                        let textoError = data.error || 'No se pudo cancelar la reserva';
-
-                                                        // Personalizar mensaje según el tipo de error
-                                                        if (data.tipo === 'tiempo_insuficiente') {
-                                                            iconoError = 'warning';
-                                                            tituloError = 'Cancelación no permitida';
-                                                            textoError = `
-                                                                <div class="text-start">
-                                                                    <h5 class="text-warning mb-3"><i class="fas fa-exclamation-triangle"></i> No se puede cancelar</h5>
-                                                                    <p><strong>Razón solicitada:</strong> ${razonCancelacion}</p>
-                                                                    <div class="alert alert-warning mt-3 mb-3">
-                                                                        <p class="mb-1">No se puede cancelar la reserva confirmada.</p>
-                                                                        <p class="mb-1"><strong>Horas restantes:</strong> ${data.horasRestantes || 'N/A'}</p>
-                                                                        <p class="mb-0">Se requieren al menos 48 horas de anticipación.</p>
-                                                                    </div>
-                                                                    <p class="text-muted mb-0">Las reservas confirmadas solo pueden cancelarse con al menos 48 horas de anticipación para generar reembolso.</p>
-                                                                </div>
-                                                            `;
-                                                        } else if (data.tipo === 'ya_cancelada') {
-                                                            iconoError = 'info';
-                                                            tituloError = 'Reserva ya cancelada';
-                                                            textoError = `
-                                                                <div class="text-start">
-                                                                    <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Estado actual</h5>
-                                                                    <p>Esta reserva ya fue cancelada anteriormente.</p>
-                                                                    <p class="text-muted mb-0">No es necesario realizar ninguna acción adicional.</p>
-                                                                </div>
-                                                            `;
-                                                        } else if (data.tipo === 'completada') {
-                                                            iconoError = 'info';
-                                                            tituloError = 'Cancelación no permitida';
-                                                            textoError = `
-                                                                <div class="text-start">
-                                                                    <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Reserva completada</h5>
-                                                                    <p>No se puede cancelar una reserva que ya ha sido completada.</p>
-                                                                    <p class="text-muted mb-0">La reserva fue utilizada exitosamente.</p>
-                                                                </div>
-                                                            `;
-                                                        } else if (data.tipo === 'en_proceso') {
-                                                            iconoError = 'info';
-                                                            tituloError = 'Cancelación no permitida';
-                                                            textoError = `
-                                                                <div class="text-start">
-                                                                    <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Reserva en proceso</h5>
-                                                                    <p>No se puede cancelar una reserva que está en proceso.</p>
-                                                                    <p class="text-muted mb-0">La reserva está siendo utilizada actualmente.</p>
-                                                                </div>
-                                                            `;
-                                                        }
-
-                                                        Swal.fire({
-                                                            icon: iconoError,
-                                                            title: tituloError,
-                                                            html: textoError,
-                                                            confirmButtonText: 'Entendido',
-                                                            width: '600px',
-                                                            customClass: {
-                                                                htmlContainer: 'text-start'
-                                                            }
-                                                        });
-                                                    }
-                                                })
-                                                .catch(error => {
-                                                    console.error('Error:', error);
-                                                    Swal.fire({
-                                                        icon: 'error',
-                                                        title: 'Error de conexión',
-                                                        html: `
-                                                            <div class="text-start">
-                                                                <h5 class="text-danger mb-3"><i class="fas fa-times-circle"></i> Error de conexión</h5>
-                                                                <p><strong>Razón solicitada:</strong> ${razonCancelacion}</p>
-                                                                <p class="text-muted mb-0">No se pudo conectar con el servidor. Por favor, intenta nuevamente.</p>
-                                                            </div>
-                                                        `,
-                                                        confirmButtonText: 'Aceptar',
-                                                        width: '600px'
-                                                    });
-                                                });
-                                        }
-                                    });
-
-                                    return false;
-                                };
-
-                                // Verificar si ya existe un botón confirmar y eliminarlo para evitar duplicados
-                                const btnConfirmarExistente = document.getElementById("btn-confirmar-reserva");
-                                if (btnConfirmarExistente) {
-                                    btnConfirmarExistente.remove();
-                                }
-
-                                // Si la reserva está en estado pendiente
-                                if (data.estado.toLowerCase() === 'pendiente') {
-                                    // Crear botón confirmar reserva
-                                    const btnConfirmar = document.createElement("a");
-                                    btnConfirmar.id = "btn-confirmar-reserva";
-                                    btnConfirmar.href = `/usuarios/confirmarReserva/${reservaId}`;
-                                    btnConfirmar.className = "btn btn-success ms-2";
-                                    btnConfirmar.textContent = "Confirmar reserva";
-
-                                    // Insertar el botón antes del de "Ver todas mis reservas"
-                                    btnCancelar.parentNode.insertBefore(btnConfirmar, btnVerReservas);
-
-                                    // Ocultar el botón "Ver todas mis reservas"
-                                    if (btnVerReservas) {
-                                        btnVerReservas.style.display = 'none';
-                                    }
-                                } else {
-                                    // Para otros estados, asegurar que el botón "Ver todas mis reservas" esté visible
-                                    if (btnVerReservas) {
-                                        btnVerReservas.style.display = 'inline-block';
-                                    }
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('No se pudo cargar los detalles de la reserva');
-                            });
+                        cargarDetallesReserva(reservaId);
                     },
 
+                    // Click en fecha vacía
                     dateClick: function (info) {
-                        // Verificar si la fecha es pasada
                         const clickedTime = info.date;
+
                         if (clickedTime < now) {
                             Swal.fire({
                                 icon: 'error',
@@ -923,29 +641,27 @@
                             return;
                         }
 
-                        // Verificar si hay un evento en esta hora
                         const eventsAtTime = calendar.getEvents().filter(event => {
                             return (event.start <= clickedTime && event.end > clickedTime);
                         });
 
-                        // Si hay eventos en esta hora, verificar qué tipo son
                         if (eventsAtTime.length > 0) {
                             const eventoConflicto = eventsAtTime[0];
-                            
+
                             // Si es un mantenimiento, mostrar mensaje específico
                             if (eventoConflicto.extendedProps && eventoConflicto.extendedProps.esMantenimiento) {
                                 const motivo = eventoConflicto.extendedProps.motivo || 'mantenimiento programado';
                                 Swal.fire({
                                     icon: 'warning',
-                                    title: '🔧 Mantenimiento en Progreso',
+                                    title: '🔧 Pista en Mantenimiento',
                                     html: `
                                         <div class="text-center">
-                                            <p>No se pueden realizar reservas durante el mantenimiento.</p>
+                                            <p>🏊‍♂️ La pista de atletismo no está disponible para reservas.</p>
                                             <p><strong>Motivo:</strong> ${motivo}</p>
                                             <hr>
                                             <p class="text-muted small">
                                                 <i class="fas fa-clock"></i> 
-                                                Selecciona otro horario cuando termine el mantenimiento.
+                                                Vuelve cuando termine el mantenimiento para hacer tu reserva.
                                             </p>
                                         </div>
                                     `,
@@ -955,7 +671,6 @@
                                 return;
                             }
 
-                            // Si es una reserva
                             const esPropiaReserva = eventoConflicto.extendedProps && eventoConflicto.extendedProps.esPropia;
                             if (esPropiaReserva) {
                                 alert(`Ya tienes una reserva activa para esta hora. Puedes ver sus detalles haciendo clic en ella.`);
@@ -965,93 +680,806 @@
                             return;
                         }
 
-                        form.reset();
-
-                        // Mostrar formulario de creación y ocultar vista de detalles
-                        document.getElementById("create-reservation-form").style.display = "block";
-                        document.getElementById("view-reservation-details").style.display = "none";
-
-                        const start = new Date(info.date);
-                        clickInfo = info;
-
-                        document.getElementById("event-start").dataset.raw = toLocalISOString(start);
-
-                        const formattedDate = start.toLocaleDateString('es-PE');
-                        const formattedHour = start.toLocaleTimeString('es-PE', {
-                            hour: '2-digit', minute: '2-digit', hour12: false
-                        });
-                        document.getElementById("event-start").value = `${formattedDate} ${formattedHour}`;
-
-                        // Obtener eventos del mismo día posteriores
-                        const eventosDelDia = calendar.getEvents()
-                            .filter(e => e.start > start && e.start.toDateString() === start.toDateString())
-                            .sort((a, b) => a.start - b.start);
-
-                        const limiteMax = new Date(start);
-                        limiteMax.setHours(start.getHours() + 2);
-
-                        if (eventosDelDia.length > 0 && eventosDelDia[0].start < limiteMax) {
-                            limiteMax.setTime(eventosDelDia[0].start.getTime());
-                        }
-
-                        const endSelect = document.getElementById("event-end");
-                        endSelect.innerHTML = '<option value="" disabled selected>Seleccione hora de fin</option>';
-
-                        const current = new Date(start);
-                        current.setMinutes(0);
-                        current.setSeconds(0);
-                        current.setMilliseconds(0);
-
-                        while (current < limiteMax) {
-                            current.setMinutes(current.getMinutes() + 60);
-                            if (current > limiteMax) break;
-                            const option = document.createElement("option");
-                            option.value = toLocalISOString(current);
-                            option.textContent = current.toLocaleTimeString('es-PE', {
-                                hour: '2-digit', minute: '2-digit', hour12: false
-                            });
-                            endSelect.appendChild(option);
-                        }
-
-                        // Resetear los selectores de carril y participantes
-                        const laneSelect = document.getElementById("lane-select");
-                        const participantsSelect = document.getElementById("participants-select");
-
-                        // Resetear y deshabilitar carril
-                        laneSelect.innerHTML = '<option value="" disabled selected>Primero seleccione la hora de fin</option>';
-                        laneSelect.disabled = true;
-
-                        // Resetear y deshabilitar participantes
-                        participantsSelect.innerHTML = '<option value="" disabled selected>Primero seleccione un carril</option>';
-                        participantsSelect.disabled = true;
-
-                        // Limpiar el precio estimado
-                        document.getElementById("price-display").value = "";
-
-                        // Escuchar cambios en el select de hora fin para cargar los carriles
-                        document.getElementById("event-end").addEventListener("change", cargarDisponibilidadCarriles);
-
-                        modal.show();
-                        modalTitle.textContent = "Crear Reserva";
-                        selectedEvent = null;
+                        abrirFormularioReserva(info);
                     }
                 };
 
-                // Inicializar el calendario con la configuración personalizada
-                const calendar = initializeCalendar(calendarEl, customConfig, horarioApertura, horarioCierre);
+                calendar = initializeCalendar(calendarEl, customConfig, horarioApertura, horarioCierre);
                 calendar.render();
 
-                // Función para controlar la navegación
+                configurarNavegacion();
+                marcarHorariosPasadosComoNoDisponibles(calendar);
+                setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);
+            }
+
+            // =============================
+            // MANEJO DE CLICKS EN EVENTOS
+            // =============================
+            function manejarClickEvento(info) {
+                if (!info.event.extendedProps.esPropia) {
+                    alert("Este horario ya está reservado por otro usuario y no se puede modificar.");
+                    return;
+                }
+
+                modal.show();
+                form.reset();
+                selectedEvent = info.event;
+
+                document.getElementById("create-reservation-form").style.display = "none";
+                document.getElementById("view-reservation-details").style.display = "block";
+                modalTitle.textContent = "Tu reserva";
+
+                const reservaId = info.event.id;
+                document.getElementById("reserva-id").value = reservaId;
+
+                cargarDetallesReserva(reservaId);
+            }
+
+            // =============================
+            // CARGAR DETALLES DE RESERVA
+            // =============================
+            function cargarDetallesReserva(reservaId) {
+                fetch(`/usuarios/api/reservas/${reservaId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        mostrarDetallesBasicos(data);
+                        cargarOcupacionHorario(reservaId);
+                        configurarBotonesPorEstado(data, reservaId);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('No se pudo cargar los detalles de la reserva');
+                    });
+            }
+
+            // =============================
+            // MOSTRAR DETALLES BÁSICOS
+            // =============================
+            function mostrarDetallesBasicos(data) {
+                const startDate = new Date(data.inicioReserva);
+                const endDate = new Date(data.finReserva);
+
+                const formatoCompleto = {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                };
+
+                document.getElementById("detail-start").textContent = startDate.toLocaleString('es-PE', formatoCompleto);
+                document.getElementById("detail-end").textContent = endDate.toLocaleString('es-PE', formatoCompleto);
+
+                // Carril
+                const laneElement = document.getElementById("detail-lane");
+                laneElement.textContent = data.numeroCarrilPista ? `Carril ${data.numeroCarrilPista}` : "No especificado";
+
+                // Participantes
+                const participantsElement = document.getElementById("detail-participants");
+                const numParticipantes = data.numeroParticipantes || 1;
+                participantsElement.textContent = `${numParticipantes} ${numParticipantes === 1 ? 'participante' : 'participantes'}`;
+
+                // Estado
+                const estadoMap = {
+                    'confirmada': { texto: "Confirmada", clase: "text-success" },
+                    'pendiente': { texto: "Pendiente de pago", clase: "text-warning" },
+                    'en_proceso': { texto: "En proceso", clase: "text-primary" },
+                    'cancelada': { texto: "Cancelada", clase: "text-danger" },
+                    'completada': { texto: "Completada", clase: "text-info" }
+                };
+
+                const estadoInfo = estadoMap[data.estado.toLowerCase()] || { texto: "Desconocido", clase: "" };
+                const detailStatus = document.getElementById("detail-status");
+                detailStatus.textContent = estadoInfo.texto;
+                detailStatus.className = estadoInfo.clase;
+            }
+
+            // =============================
+            // CARGAR OCUPACIÓN DEL HORARIO
+            // =============================
+            function cargarOcupacionHorario(reservaId) {
+                fetch(`/api/reserva/${reservaId}/ocupacion`)
+                    .then(response => response.json())
+                    .then(ocupacionData => {
+                        const ocupacionDiv = document.getElementById("detail-ocupacion");
+
+                        if (ocupacionData.error) {
+                            ocupacionDiv.innerHTML = `
+                        <h6>Ocupación del horario</h6>
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>No se pudo obtener la información de ocupación.</strong>
+                            <small>Intenta nuevamente más tarde.</small>
+                        </div>
+                    `;
+                            return;
+                        }
+
+                        if (ocupacionData.tipoOcupacion === "carril") {
+                            mostrarOcupacionCarril(ocupacionData, ocupacionDiv);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener ocupación:', error);
+                        const ocupacionDiv = document.getElementById("detail-ocupacion");
+                        ocupacionDiv.innerHTML = `
+                    <h6>Ocupación del horario</h6>
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>No se pudo obtener la información de ocupación.</strong>
+                        <small>Intenta nuevamente más tarde.</small>
+                    </div>
+                `;
+                    });
+            }
+
+            // =============================
+            // MOSTRAR OCUPACIÓN DEL CARRIL
+            // =============================
+            function mostrarOcupacionCarril(ocupacionData, container) {
+                const aforoTotal = ocupacionData.capacidadMaxima;
+                const ocupacionActual = ocupacionData.participantesTotales;
+                const porcentajeOcupacion = ocupacionData.porcentajeOcupacion;
+                const numeroCarril = ocupacionData.numeroCarril;
+
+                let colorBarra = "bg-success";
+                let alertClass = "alert-success";
+                let mensaje = "Ocupación baja. ¡Buena elección para nadar con tranquilidad!";
+
+                if (porcentajeOcupacion >= 100) {
+                    colorBarra = "bg-danger";
+                    alertClass = "alert-danger";
+                    mensaje = "Carril completo. El carril estará bastante concurrido.";
+                } else if (porcentajeOcupacion >= 75) {
+                    colorBarra = "bg-warning";
+                    alertClass = "alert-warning";
+                    mensaje = "Ocupación alta. El carril tendrá una afluencia considerable.";
+                } else if (porcentajeOcupacion >= 50) {
+                    colorBarra = "bg-info";
+                    alertClass = "alert-info";
+                    mensaje = "Ocupación media. El carril tendrá una afluencia moderada.";
+                }
+
+                container.innerHTML = `
+            <h6>Ocupación del horario</h6>
+            <div class="alert ${alertClass} mb-0">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>Carril ${numeroCarril}: ${ocupacionActual} de ${aforoTotal} personas</strong>
+                    <span class="badge bg-secondary">${Math.round(porcentajeOcupacion)}% ocupado</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar ${colorBarra}" role="progressbar" 
+                        style="width: ${porcentajeOcupacion}%" 
+                        aria-valuenow="${ocupacionActual}" aria-valuemin="0" aria-valuemax="${aforoTotal}">
+                    </div>
+                </div>
+                <small class="mt-2 d-block">${mensaje}</small>
+                ${ocupacionData.espaciosDisponibles > 0 ?
+                        `<small class="text-muted d-block">Espacios libres: ${ocupacionData.espaciosDisponibles}</small>` :
+                        '<small class="text-danger d-block">Sin espacios disponibles</small>'
+                    }
+            </div>
+        `;
+            }
+
+            // =============================
+            // CONFIGURAR BOTONES POR ESTADO
+            // =============================
+            function configurarBotonesPorEstado(data, reservaId) {
+                const btnCancelar = document.getElementById("btn-cancel-reservation");
+                const btnVerReservas = document.querySelector("#view-reservation-details a.btn-primary");
+
+                // Limpiar botones existentes
+                const btnConfirmarExistente = document.getElementById("btn-confirmar-reserva");
+                if (btnConfirmarExistente) {
+                    btnConfirmarExistente.remove();
+                }
+
+                // Configurar botón cancelar
+                configurarBotonCancelar(btnCancelar, data, reservaId);
+
+                // Configurar botones según estado
+                if (data.estado.toLowerCase() === 'pendiente') {
+                    agregarBotonConfirmar(reservaId, btnCancelar, btnVerReservas);
+                } else {
+                    if (btnVerReservas) {
+                        btnVerReservas.style.display = 'inline-block';
+                    }
+                }
+
+                // Deshabilitar cancelar si está cancelada o completada
+                if (['cancelada', 'completada'].includes(data.estado.toLowerCase())) {
+                    btnCancelar.classList.add('disabled');
+                    btnCancelar.setAttribute('aria-disabled', 'true');
+                } else {
+                    btnCancelar.classList.remove('disabled');
+                    btnCancelar.removeAttribute('aria-disabled');
+                }
+            }
+
+            // =============================
+            // CONFIGURAR BOTÓN CANCELAR
+            // =============================
+            function configurarBotonCancelar(btnCancelar, data, reservaId) {
+                btnCancelar.onclick = function (e) {
+                    e.preventDefault();
+                    mostrarConfirmacionCancelacion(data, reservaId);
+                    return false;
+                };
+            }
+
+            // =============================
+            // MOSTRAR CONFIRMACIÓN DE CANCELACIÓN
+            // =============================
+            function mostrarConfirmacionCancelacion(data, reservaId) {
+                const estadoReserva = data.estado.toLowerCase();
+                let tituloConfirmacion = '¿Cancelar reserva?';
+                let textoConfirmacion = "Esta acción no se puede deshacer";
+                let iconoConfirmacion = 'warning';
+
+                if (estadoReserva === 'pendiente') {
+                    tituloConfirmacion = '¿Cancelar reserva pendiente?';
+                    textoConfirmacion = `
+                <div class="text-start">
+                    <p class="mb-3">La reserva pendiente será cancelada inmediatamente.</p>
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Sin penalizaciones:</strong> Al estar pendiente de pago, no se aplicarán cargos adicionales.
+                    </div>
+                </div>
+            `;
+                    iconoConfirmacion = 'question';
+                } else if (estadoReserva === 'confirmada') {
+                    tituloConfirmacion = '¿Cancelar reserva confirmada?';
+                    textoConfirmacion = `
+                <div class="text-start">
+                    <p class="mb-3">Se verificará si cumples con el plazo de 48 horas para generar reembolso.</p>
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-clock me-2"></i>
+                        <strong>Política de cancelación:</strong> Las reservas confirmadas solo pueden cancelarse con al menos 48 horas de anticipación para generar reembolso automático.
+                    </div>
+                </div>
+            `;
+                    iconoConfirmacion = 'warning';
+                }
+
+                Swal.fire({
+                    title: tituloConfirmacion,
+                    html: textoConfirmacion,
+                    icon: iconoConfirmacion,
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, cancelar reserva',
+                    cancelButtonText: 'No cancelar',
+                    width: '500px',
+                    customClass: {
+                        htmlContainer: 'text-start'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        procesarCancelacion(reservaId);
+                    }
+                });
+            }
+
+            // =============================
+            // PROCESAR CANCELACIÓN
+            // =============================
+            function procesarCancelacion(reservaId) {
+                Swal.fire({
+                    title: 'Procesando cancelación...',
+                    text: 'Por favor espera mientras procesamos tu solicitud',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                fetch(`/api/cancelar-reserva-pendiente/${reservaId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            mostrarResultadoCancelacion(data);
+                        } else {
+                            mostrarErrorCancelacion(data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        mostrarErrorConexion();
+                    });
+            }
+
+            // =============================
+            // MOSTRAR RESULTADO DE CANCELACIÓN
+            // =============================
+            function mostrarResultadoCancelacion(data) {
+                let mensajeExito = data.mensaje;
+                let iconoExito = 'success';
+
+                if (data.tipo === 'cancelacion_directa') {
+                    mensajeExito = `
+                <div class="text-start">
+                    <h5 class="text-success mb-3">Reserva cancelada exitosamente</h5>
+                    <p><strong>Tipo:</strong> Reserva pendiente</p>
+                    <p class="text-muted mb-0">No se aplicaron penalizaciones. Puedes realizar una nueva reserva cuando gustes.</p>
+                </div>
+            `;
+                } else if (data.tipo === 'cancelacion_con_reembolso') {
+                    mensajeExito = `
+                <div class="text-start">
+                    <h5 class="text-success mb-3">Reserva cancelada exitosamente</h5>
+                    <p><strong>Tipo:</strong> Reserva confirmada</p>
+                    <div class="alert alert-success mt-3 mb-3">
+                        <h6><strong><i class="fas fa-money-bill-wave text-success"></i> Reembolso generado automáticamente:</strong></h6>
+                        <p class="mb-1"><strong>Monto:</strong> S/ ${data.montoReembolso}</p>
+                        <p class="mb-0"><strong>ID de reembolso:</strong> #${data.reembolsoId}</p>
+                    </div>
+                    <p class="text-muted mb-0">El reembolso será procesado en los próximos días laborables y recibirás una notificación por email.</p>
+                </div>
+            `;
+                } else if (data.tipo === 'cancelacion_sin_reembolso_automatico') {
+                    iconoExito = 'warning';
+                    mensajeExito = `
+                <div class="text-start">
+                    <h5 class="text-warning mb-3">Reserva cancelada</h5>
+                    <p>${data.mensaje}</p>
+                    <div class="alert alert-warning mt-3 mb-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Reembolso manual:</strong> Contacta con nuestro equipo de soporte si necesitas asistencia con el reembolso.
+                    </div>
+                    <p class="text-muted mb-0">Teléfono: (01) 567-8900 | Email: soporte@munisanmiguel.gob.pe</p>
+                </div>
+            `;
+                } else if (data.tipo === 'cancelacion_sin_pago') {
+                    iconoExito = 'info';
+                    mensajeExito = `
+                <div class="text-start">
+                    <h5 class="text-info mb-3">ℹReserva cancelada</h5>
+                    <p>${data.mensaje}</p>
+                    <div class="alert alert-info mt-3 mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Sin pago asociado:</strong> No se encontró un pago completado para esta reserva.
+                    </div>
+                    <p class="text-muted mb-0">Si realizaste un pago, por favor contacta con soporte: <i class="fas fa-phone text-info"></i> (01) 567-8900</p>
+                </div>
+            `;
+                }
+
+                Swal.fire({
+                    icon: iconoExito,
+                    title: 'Cancelación procesada',
+                    html: mensajeExito,
+                    confirmButtonText: 'Aceptar',
+                    width: '600px',
+                    customClass: {
+                        htmlContainer: 'text-start'
+                    }
+                }).then(() => {
+                    modal.hide();
+                    calendar.refetchEvents();
+                });
+            }
+
+            // =============================
+            // MOSTRAR ERROR DE CANCELACIÓN
+            // =============================
+            function mostrarErrorCancelacion(data) {
+                let iconoError = 'error';
+                let tituloError = 'Error al cancelar';
+                let textoError = data.error || 'No se pudo cancelar la reserva';
+
+                const erroresMap = {
+                    'tiempo_insuficiente': {
+                        icono: 'warning',
+                        titulo: 'Cancelación no permitida',
+                        texto: `
+                    <div class="text-start">
+                        <i class="fas fa-info-circle me-2"></i><strong class="mb-3">No se puede cancelar la reserva</strong>
+                        <div class="alert alert-warning mt-3 mb-3">
+                            <p class="mb-1"><strong>Tiempo insuficiente:</strong> Faltan menos de 48 horas para el inicio.</p>
+                            <p class="mb-1"><strong>Horas restantes:</strong> ${data.horasRestantes || 'N/A'}</p>
+                            <p class="mb-0"><strong>Política:</strong> Se requieren al menos 48 horas de anticipación para generar reembolso.</p>
+                        </div>
+                    </div>
+                `
+                    },
+                    'ya_cancelada': {
+                        icono: 'info',
+                        titulo: 'Reserva ya cancelada',
+                        texto: `
+                    <div class="text-start">
+                        <i class="fas fa-info-circle me-2"></i><h5 class="text-info mb-3">Estado actual</h5>
+                        <p>Esta reserva ya fue cancelada anteriormente.</p>
+                        <p class="text-muted mb-0">No es necesario realizar ninguna acción adicional.</p>
+                    </div>
+                `
+                    },
+                    'completada': {
+                        icono: 'info',
+                        titulo: 'Cancelación no permitida',
+                        texto: `
+                    <div class="text-start">
+                        <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Reserva completada</h5>
+                        <p>No se puede cancelar una reserva que ya ha sido completada.</p>
+                        <p class="text-muted mb-0">La reserva fue utilizada exitosamente.</p>
+                    </div>
+                `
+                    },
+                    'en_proceso': {
+                        icono: 'info',
+                        titulo: 'Cancelación no permitida',
+                        texto: `
+                    <div class="text-start">
+                        <h5 class="text-info mb-3"><i class="fas fa-info-circle"></i> Reserva en proceso</h5>
+                        <p>No se puede cancelar una reserva que está en proceso.</p>
+                        <p class="text-muted mb-0">La reserva está siendo utilizada actualmente.</p>
+                    </div>
+                `
+                    }
+                };
+
+                if (erroresMap[data.tipo]) {
+                    iconoError = erroresMap[data.tipo].icono;
+                    tituloError = erroresMap[data.tipo].titulo;
+                    textoError = erroresMap[data.tipo].texto;
+                }
+
+                Swal.fire({
+                    icon: iconoError,
+                    title: tituloError,
+                    html: textoError,
+                    confirmButtonText: 'Entendido',
+                    width: '600px',
+                    customClass: {
+                        htmlContainer: 'text-start'
+                    }
+                });
+            }
+
+            // =============================
+            // MOSTRAR ERROR DE CONEXIÓN
+            // =============================
+            function mostrarErrorConexion() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    html: `
+                <div class="text-start">
+                    <h5 class="text-danger mb-3">Error de conexión</h5>
+                    <p>No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta nuevamente.</p>
+                    <p class="text-muted mb-0">Si el problema persiste, contacta con soporte técnico.</p>
+                </div>
+            `,
+                    confirmButtonText: 'Aceptar',
+                    width: '500px'
+                });
+            }
+
+            // =============================
+            // AGREGAR BOTÓN CONFIRMAR
+            // =============================
+            function agregarBotonConfirmar(reservaId, btnCancelar, btnVerReservas) {
+                const btnConfirmar = document.createElement("a");
+                btnConfirmar.id = "btn-confirmar-reserva";
+                btnConfirmar.href = `/usuarios/confirmarReserva/${reservaId}`;
+                btnConfirmar.className = "btn btn-success ms-2";
+                btnConfirmar.textContent = "Confirmar reserva";
+
+                btnCancelar.parentNode.insertBefore(btnConfirmar, btnVerReservas);
+
+                if (btnVerReservas) {
+                    btnVerReservas.style.display = 'none';
+                }
+            }
+
+            // =============================
+            // MANEJO DE CLICKS EN FECHAS
+            // =============================
+            function manejarClickFecha(info) {
+                const clickedTime = info.date;
+
+                if (clickedTime < now) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Fecha inválida',
+                        text: 'No puedes reservar en fechas pasadas.',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    return;
+                }
+
+                const eventsAtTime = calendar.getEvents().filter(event => {
+                    return (event.start <= clickedTime && event.end > clickedTime);
+                });
+
+                if (eventsAtTime.length > 0) {
+                    const eventoConflicto = eventsAtTime[0];
+
+                    // Si es un mantenimiento, mostrar mensaje específico
+                    if (eventoConflicto.extendedProps && eventoConflicto.extendedProps.esMantenimiento) {
+                        const motivo = eventoConflicto.extendedProps.motivo || 'mantenimiento programado';
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '🔧 Pista en Mantenimiento',
+                            html: `
+                                <div class="text-center">
+                                    <p>🏊‍♂️ La pista no está disponible para reservas.</p>
+                                    <p><strong>Motivo:</strong> ${motivo}</p>
+                                    <hr>
+                                    <p class="text-muted small">
+                                        <i class="fas fa-clock"></i> 
+                                        Vuelve cuando termine el mantenimiento para hacer tu reserva.
+                                    </p>
+                                </div>
+                            `,
+                            confirmButtonText: 'Entendido',
+                            confirmButtonColor: '#6c757d'
+                        });
+                        return;
+                    }
+
+                    const esPropiaReserva = eventoConflicto.extendedProps && eventoConflicto.extendedProps.esPropia;
+                    if (esPropiaReserva) {
+                        alert(`Ya tienes una reserva activa para esta hora. Puedes ver sus detalles haciendo clic en ella.`);
+                    } else {
+                        alert(`Este horario ya está reservado por otro usuario. Por favor selecciona otro horario.`);
+                    }
+                    return;
+                }
+
+                abrirFormularioReserva(info);
+            }
+
+            // =============================
+            // ABRIR FORMULARIO DE RESERVA
+            // =============================
+            function abrirFormularioReserva(info) {
+                form.reset();
+
+                document.getElementById("create-reservation-form").style.display = "block";
+                document.getElementById("view-reservation-details").style.display = "none";
+
+                const start = new Date(info.date);
+                clickInfo = info;
+
+                document.getElementById("event-start").dataset.raw = toLocalISOString(start);
+
+                const formattedDate = start.toLocaleDateString('es-PE');
+                const formattedHour = start.toLocaleTimeString('es-PE', {
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                });
+                document.getElementById("event-start").value = `${formattedDate} ${formattedHour}`;
+
+                configurarOpcionesHoraFin(start);
+                resetearSelectores();
+
+                document.getElementById("event-end").addEventListener("change", cargarDisponibilidadCarriles);
+
+                modal.show();
+                modalTitle.textContent = "Crear Reserva";
+                selectedEvent = null;
+            }
+
+            // =============================
+            // CONFIGURAR OPCIONES HORA FIN
+            // =============================
+            function configurarOpcionesHoraFin(start) {
+                const eventosDelDia = calendar.getEvents()
+                    .filter(e => e.start > start && e.start.toDateString() === start.toDateString())
+                    .sort((a, b) => a.start - b.start);
+
+                const limiteMax = new Date(start);
+                limiteMax.setHours(start.getHours() + 1);
+
+                if (eventosDelDia.length > 0 && eventosDelDia[0].start < limiteMax) {
+                    limiteMax.setTime(eventosDelDia[0].start.getTime());
+                }
+
+                const endSelect = document.getElementById("event-end");
+                endSelect.innerHTML = '<option value="" disabled selected>Seleccione hora de fin</option>';
+
+                const current = new Date(start);
+                current.setMinutes(0);
+                current.setSeconds(0);
+                current.setMilliseconds(0);
+
+                while (current < limiteMax) {
+                    current.setMinutes(current.getMinutes() + 60);
+                    if (current > limiteMax) break;
+                    const option = document.createElement("option");
+                    option.value = toLocalISOString(current);
+                    option.textContent = current.toLocaleTimeString('es-PE', {
+                        hour: '2-digit', minute: '2-digit', hour12: false
+                    });
+                    endSelect.appendChild(option);
+                }
+            }
+
+            // =============================
+            // RESETEAR SELECTORES
+            // =============================
+            function resetearSelectores() {
+                const laneSelect = document.getElementById("lane-select");
+                const participantsSelect = document.getElementById("participants-select");
+
+                laneSelect.innerHTML = '<option value="" disabled selected>Primero seleccione la hora de fin</option>';
+                laneSelect.disabled = true;
+
+                participantsSelect.innerHTML = '<option value="" disabled selected>Primero seleccione un carril</option>';
+                participantsSelect.disabled = true;
+
+                document.getElementById("price-display").value = "";
+            }
+
+            // =============================
+            // CARGAR DISPONIBILIDAD DE CARRILES
+            // =============================
+            function cargarDisponibilidadCarriles() {
+                const start = document.getElementById("event-start").dataset.raw;
+                const end = document.getElementById("event-end").value;
+                const laneSelect = document.getElementById("lane-select");
+                const laneInfo = document.getElementById("lane-info");
+                const participantsSelect = document.getElementById("participants-select");
+
+                if (!start || !end) return;
+
+                laneSelect.disabled = true;
+                laneSelect.innerHTML = '<option value="" disabled selected>Cargando carriles...</option>';
+                laneInfo.textContent = "Consultando disponibilidad de carriles...";
+
+                participantsSelect.disabled = true;
+                participantsSelect.innerHTML = '<option value="" disabled selected>Primero seleccione un carril</option>';
+
+                fetch(`/api/espacios/${espacioId}/disponibilidad-carriles-atletismo?inicio=${encodeURIComponent(start)}&fin=${encodeURIComponent(end)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        procesarDisponibilidadCarriles(data, laneSelect, laneInfo);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        laneInfo.textContent = "Error al obtener disponibilidad de carriles";
+                        laneSelect.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+                        laneSelect.disabled = true;
+                    });
+            }
+
+            // =============================
+            // PROCESAR DISPONIBILIDAD DE CARRILES
+            // =============================
+            function procesarDisponibilidadCarriles(data, laneSelect, laneInfo) {
+                laneSelect.innerHTML = '<option value="" disabled selected>Seleccione un carril</option>';
+
+                if (data.error) {
+                    laneInfo.textContent = "Error: " + data.error;
+                    return;
+                }
+
+                const carrilInfo = data.carrilInfo;
+                const maxPersonasPorCarril = data.maxPersonasPorCarril;
+
+                for (let i = 1; i <= data.totalCarriles; i++) {
+                    const info = carrilInfo[i];
+                    const option = document.createElement("option");
+                    option.value = i;
+
+                    const espaciosDisp = info.espaciosDisponibles;
+                    option.textContent = `Carril ${i} - ${espaciosDisp} espacios disponibles`;
+
+                    if (espaciosDisp < 1) {
+                        option.disabled = true;
+                        option.textContent += " (LLENO)";
+                    }
+
+                    laneSelect.appendChild(option);
+                }
+
+                laneSelect.disabled = false;
+                laneInfo.textContent = `Seleccione un carril con espacios disponibles (máximo ${maxPersonasPorCarril} personas por carril)`;
+
+                document.getElementById("price-display").dataset.precioPorHora = data.precioPorHora;
+                document.getElementById("price-display").dataset.maxPersonasPorCarril = maxPersonasPorCarril;
+
+                const laneSelectElement = document.getElementById("lane-select");
+                laneSelectElement.removeEventListener("change", handleLaneChange);
+                laneSelectElement.addEventListener("change", handleLaneChange);
+            }
+
+            // =============================
+            // MANEJO DE CAMBIO DE CARRIL
+            // =============================
+            function handleLaneChange() {
+                actualizarOpcionesParticipantes();
+            }
+
+            // =============================
+            // ACTUALIZAR OPCIONES DE PARTICIPANTES
+            // =============================
+            function actualizarOpcionesParticipantes() {
+                const start = document.getElementById("event-start").dataset.raw;
+                const end = document.getElementById("event-end").value;
+                const lane = document.getElementById("lane-select").value;
+                const participantsSelect = document.getElementById("participants-select");
+                const participantsInfo = document.getElementById("participants-info");
+
+                if (!start || !end || !lane) {
+                    participantsSelect.disabled = true;
+                    participantsSelect.innerHTML = '<option value="" disabled selected>Primero seleccione un carril</option>';
+                    return;
+                }
+
+                fetch(`/api/verificar-disponibilidad-atletismo?espacioId=${espacioId}&inicio=${encodeURIComponent(start)}&fin=${encodeURIComponent(end)}&carril=${lane}&participantes=1`)
+                    .then(response => response.json())
+                    .then(data => {
+                        participantsSelect.innerHTML = '';
+
+                        if (data.disponible && data.espaciosDisponibles > 0) {
+                            for (let i = 1; i <= data.espaciosDisponibles; i++) {
+                                const option = document.createElement("option");
+                                option.value = i;
+                                option.textContent = `${i} participante${i > 1 ? 's' : ''}`;
+                                participantsSelect.appendChild(option);
+                            }
+
+                            participantsSelect.value = "1";
+                            participantsSelect.disabled = false;
+                            participantsInfo.textContent = `Espacios disponibles en el carril ${lane}: ${data.espaciosDisponibles}`;
+                            calcularPrecio();
+                        } else {
+                            participantsSelect.innerHTML = '<option value="" disabled selected>Carril no disponible</option>';
+                            participantsSelect.disabled = true;
+                            participantsInfo.textContent = data.mensaje || "Este carril no tiene espacios disponibles";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        participantsSelect.innerHTML = '<option value="" disabled selected>Error al consultar</option>';
+                        participantsSelect.disabled = true;
+                        participantsInfo.textContent = "Error al consultar disponibilidad del carril";
+                    });
+            }
+
+            // =============================
+            // CALCULAR PRECIO
+            // =============================
+            function calcularPrecio() {
+                const start = document.getElementById("event-start").dataset.raw;
+                const end = document.getElementById("event-end").value;
+                const lane = document.getElementById("lane-select").value;
+                const participants = document.getElementById("participants-select").value;
+                const priceDisplay = document.getElementById("price-display");
+
+                if (!start || !end || !lane || !participants || !priceDisplay.dataset.precioPorHora) {
+                    priceDisplay.value = "";
+                    return;
+                }
+
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                let hours = (endDate - startDate) / (1000 * 60 * 60);
+                if (hours < 1) hours = 1;
+
+                const precioPorHora = parseFloat(priceDisplay.dataset.precioPorHora);
+                const total = precioPorHora * hours * parseInt(participants);
+
+                priceDisplay.value = total.toFixed(2);
+
+                const participantsInfo = document.getElementById("participants-info");
+                participantsInfo.textContent = `El precio total es S/. ${total.toFixed(2)} (${precioPorHora} × ${hours} horas × ${participants} participante${participants !== '1' ? 's' : ''})`;
+            }
+
+            // =============================
+            // CONFIGURAR NAVEGACIÓN
+            // =============================
+            function configurarNavegacion() {
                 function controlNavigation() {
                     const now = new Date();
                     const startOfWeek = new Date(now);
-                    startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Lunes de esta semana
+                    startOfWeek.setDate(now.getDate() - now.getDay() + 1);
                     startOfWeek.setHours(0, 0, 0, 0);
 
                     const currentView = calendar.view;
                     const viewStart = new Date(currentView.activeStart);
 
-                    // Controlar botón prev
                     const prevButton = document.querySelector('.fc-prev-button');
                     if (prevButton) {
                         if (viewStart < startOfWeek) {
@@ -1068,13 +1496,9 @@
                     }
                 }
 
-                // Ejecutar control de navegación después del render
                 setTimeout(controlNavigation, 100);
-
-                // Agregar event listener para controlar navegación en cada cambio de vista
                 calendar.on('datesSet', controlNavigation);
 
-                // Interceptar clics en el botón prev para prevenir navegación a semanas pasadas
                 document.addEventListener('click', function (e) {
                     if (e.target.classList.contains('fc-prev-button') && e.target.disabled) {
                         e.preventDefault();
@@ -1082,176 +1506,12 @@
                         return false;
                     }
                 });
+            }
 
-                // Marcar horarios pasados como no disponibles
-                marcarHorariosPasadosComoNoDisponibles(calendar);
-
-                // Actualizar cada minuto
-                setInterval(() => marcarHorariosPasadosComoNoDisponibles(calendar), 60000);
-
-                // Función para actualizar las opciones de participantes según el carril seleccionado
-                function actualizarOpcionesParticipantes() {
-                    const start = document.getElementById("event-start").dataset.raw;
-                    const end = document.getElementById("event-end").value;
-                    const lane = document.getElementById("lane-select").value;
-                    const participantsSelect = document.getElementById("participants-select");
-                    const participantsInfo = document.getElementById("participants-info");
-
-                    if (!start || !end || !lane) {
-                        participantsSelect.disabled = true;
-                        participantsSelect.innerHTML = '<option value="" disabled selected>Primero seleccione un carril</option>';
-                        return;
-                    }
-
-                    // Verificar disponibilidad específica del carril seleccionado
-                    fetch(`/api/verificar-disponibilidad-atletismo?espacioId=${espacioId}&inicio=${encodeURIComponent(start)}&fin=${encodeURIComponent(end)}&carril=${lane}&participantes=1`)
-                        .then(response => response.json())
-                        .then(data => {
-                            participantsSelect.innerHTML = '';
-
-                            if (data.disponible && data.espaciosDisponibles > 0) {
-                                // Crear opciones según espacios disponibles
-                                for (let i = 1; i <= data.espaciosDisponibles; i++) {
-                                    const option = document.createElement("option");
-                                    option.value = i;
-                                    option.textContent = `${i} participante${i > 1 ? 's' : ''}`;
-                                    participantsSelect.appendChild(option);
-                                }
-
-                                // Seleccionar 1 participante por defecto
-                                participantsSelect.value = "1";
-                                participantsSelect.disabled = false;
-
-                                participantsInfo.textContent = `Espacios disponibles en el carril ${lane}: ${data.espaciosDisponibles}`;
-
-                                // Calcular precio después de actualizar participantes
-                                calcularPrecio();
-                            } else {
-                                participantsSelect.innerHTML = '<option value="" disabled selected>Carril no disponible</option>';
-                                participantsSelect.disabled = true;
-                                participantsInfo.textContent = data.mensaje || "Este carril no tiene espacios disponibles";
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            participantsSelect.innerHTML = '<option value="" disabled selected>Error al consultar</option>';
-                            participantsSelect.disabled = true;
-                            participantsInfo.textContent = "Error al consultar disponibilidad del carril";
-                        });
-                }
-
-                // Función para cargar la disponibilidad de carriles
-                function cargarDisponibilidadCarriles() {
-                    const start = document.getElementById("event-start").dataset.raw;
-                    const end = document.getElementById("event-end").value;
-                    const laneSelect = document.getElementById("lane-select");
-                    const laneInfo = document.getElementById("lane-info");
-                    const participantsSelect = document.getElementById("participants-select");
-
-                    if (!start || !end) return;
-
-                    // Deshabilitar carril y participantes mientras se carga
-                    laneSelect.disabled = true;
-                    laneSelect.innerHTML = '<option value="" disabled selected>Cargando carriles...</option>';
-                    laneInfo.textContent = "Consultando disponibilidad de carriles...";
-
-                    // Resetear y deshabilitar participantes hasta que se seleccione un carril
-                    participantsSelect.disabled = true;
-                    participantsSelect.innerHTML = '<option value="" disabled selected>Primero seleccione un carril</option>';
-
-                    // Obtener disponibilidad de carriles
-                    fetch(`/api/espacios/${espacioId}/disponibilidad-carriles-atletismo?inicio=${encodeURIComponent(start)}&fin=${encodeURIComponent(end)}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            laneSelect.innerHTML = '<option value="" disabled selected>Seleccione un carril</option>';
-
-                            if (data.error) {
-                                laneInfo.textContent = "Error: " + data.error;
-                                return;
-                            }
-
-                            const carrilInfo = data.carrilInfo;
-                            const maxPersonasPorCarril = data.maxPersonasPorCarril;
-
-                            for (let i = 1; i <= data.totalCarriles; i++) {
-                                const info = carrilInfo[i];
-                                const option = document.createElement("option");
-                                option.value = i;
-
-                                const espaciosDisp = info.espaciosDisponibles;
-                                const ocupados = info.participantesActuales;
-
-                                option.textContent = `Carril ${i} - ${espaciosDisp} espacios disponibles`;
-
-                                // Deshabilitar opción si no hay espacios disponibles
-                                if (espaciosDisp < 1) {
-                                    option.disabled = true;
-                                    option.textContent += " (LLENO)";
-                                }
-
-                                laneSelect.appendChild(option);
-                            }
-
-                            // Habilitar solo el selector de carril
-                            laneSelect.disabled = false;
-                            // Los participantes se habilitarán cuando se seleccione un carril
-                            laneInfo.textContent = `Seleccione un carril con espacios disponibles (máximo ${maxPersonasPorCarril} personas por carril)`;
-
-                            // Guardar información necesaria para el flujo
-                            document.getElementById("price-display").dataset.precioPorHora = data.precioPorHora;
-                            document.getElementById("price-display").dataset.maxPersonasPorCarril = maxPersonasPorCarril;
-
-                            // Agregar listener al selector de carril para actualizar participantes
-                            const laneSelectElement = document.getElementById("lane-select");
-                            laneSelectElement.removeEventListener("change", handleLaneChange); // Remover listener previo si existe
-                            laneSelectElement.addEventListener("change", handleLaneChange);
-
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            laneInfo.textContent = "Error al obtener disponibilidad de carriles";
-                            laneSelect.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
-                            laneSelect.disabled = true;
-                        });
-                }
-
-                // Función para manejar cambios en el selector de carril
-                function handleLaneChange() {
-                    actualizarOpcionesParticipantes();
-                }
-
-                // Función para calcular y mostrar el precio estimado
-                function calcularPrecio() {
-                    const start = document.getElementById("event-start").dataset.raw;
-                    const end = document.getElementById("event-end").value;
-                    const lane = document.getElementById("lane-select").value;
-                    const participants = document.getElementById("participants-select").value;
-                    const priceDisplay = document.getElementById("price-display");
-
-                    if (!start || !end || !lane || !participants || !priceDisplay.dataset.precioPorHora) {
-                        priceDisplay.value = "";
-                        return;
-                    }
-
-                    // Calcular duración en horas
-                    const startDate = new Date(start);
-                    const endDate = new Date(end);
-                    let hours = (endDate - startDate) / (1000 * 60 * 60);
-                    if (hours < 1) hours = 1; // Mínimo 1 hora
-
-                    // Calcular precio total
-                    const precioPorHora = parseFloat(priceDisplay.dataset.precioPorHora);
-                    const total = precioPorHora * hours * parseInt(participants);
-
-                    // Mostrar precio con dos decimales
-                    priceDisplay.value = total.toFixed(2);
-
-                    // Actualizar mensaje de participantes
-                    const participantsInfo = document.getElementById("participants-info");
-                    participantsInfo.textContent = `El precio total es S/. ${total.toFixed(2)} (${precioPorHora} × ${hours} horas × ${participants} participante${participants !== '1' ? 's' : ''})`;
-                }
-
-                // Manejador del submit para crear reserva directamente
+            // =============================
+            // CONFIGURAR ENVÍO DE FORMULARIO
+            // =============================
+            function configurarEnvioFormulario() {
                 document.getElementById("form-event").addEventListener("submit", function (e) {
                     e.preventDefault();
 
@@ -1270,13 +1530,11 @@
                         return;
                     }
 
-                    // Verificar disponibilidad antes de enviar
                     const btnSave = document.getElementById("btn-save-event");
                     const originalText = btnSave.textContent;
                     btnSave.disabled = true;
                     btnSave.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verificando...';
 
-                    // Verificar disponibilidad con el número de participantes
                     const verificarUrl = `/api/verificar-disponibilidad-atletismo?espacioId=${espacioId}&inicio=${encodeURIComponent(rawStart)}&fin=${encodeURIComponent(rawEnd)}&carril=${carril}&participantes=${participantes}`;
 
                     fetch(verificarUrl)
@@ -1287,6 +1545,17 @@
                                 document.getElementById("input-espacio-id").value = espacioId;
                                 document.getElementById("input-fecha-inicio").value = rawStart;
                                 document.getElementById("input-fecha-fin").value = rawEnd;
+                                document.getElementById("input-carril-atletismo").value = carril;
+                                document.getElementById("input-participantes-atletismo").value = participantes;
+
+                                console.log('Valores asignados:', {
+                                    espacioId: espacioId,
+                                    fechaInicio: rawStart,
+                                    fechaFin: rawEnd,
+                                    carril: carril,
+                                    participantes: participantes
+                                });
+
                                 form.submit();
                             } else {
                                 // Mostrar mensaje de error específico según el tipo
@@ -1321,10 +1590,12 @@
                                         icon: icono,
                                         title: titulo,
                                         text: data.mensaje,
-                                        confirmButtonText: 'Entendido',
-                                        confirmButtonColor: '#d33'
+                                        confirmButtonText: 'Entendido'
                                     });
                                 }
+
+                                // Actualizar calendario para mostrar cambios
+                                calendar.refetchEvents();
                             }
                         })
                         .catch(error => {
@@ -1332,7 +1603,7 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error de conexión',
-                                text: 'No se pudo verificar la disponibilidad. Intenta nuevamente.',
+                                text: 'No se pudo verificar la disponibilidad. Intente nuevamente.',
                                 confirmButtonText: 'Aceptar'
                             });
                         })
@@ -1341,38 +1612,60 @@
                             btnSave.textContent = originalText;
                         });
                 });
+            }
 
-                // Tooltip para información de reservas
+            // =============================
+            // CONFIGURAR TOOLTIPS
+            // =============================
+            function configurarTooltips() {
                 const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                 const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                    return new bootstrap.Tooltip(tooltipTriggerEl, {
+                        trigger: 'click',
+                        placement: 'left',
+                        html: true
+                    });
                 });
 
-                // Cerrar tooltip al hacer clic fuera
                 document.addEventListener('click', function (e) {
                     if (!e.target.closest('[data-bs-toggle="tooltip"]')) {
                         tooltipList.forEach(tooltip => tooltip.hide());
                     }
                 });
+            }
 
-                // Función auxiliar para formatear fecha a ISO local
-                function toLocalISOString(date) {
-                    const tzoffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
-                    const localISOTime = (new Date(date - tzoffset)).toISOString().slice(0, 19);
-                    return localISOTime;
-                }
+            // =============================
+            // FUNCIÓN AUXILIAR
+            // =============================
+            function toLocalISOString(date) {
+                const pad = n => n < 10 ? '0' + n : n;
+                return date.getFullYear() + '-' +
+                    pad(date.getMonth() + 1) + '-' +
+                    pad(date.getDate()) + 'T' +
+                    pad(date.getHours()) + ':' +
+                    pad(date.getMinutes()) + ':' +
+                    pad(date.getSeconds());
+            }
 
-                // Función para marcar horarios pasados como no disponibles
-                function marcarHorariosPasadosComoNoDisponibles(calendar) {
-                    const now = new Date();
-                    calendar.getEvents().forEach(event => {
-                        if (event.end < now && !event.extendedProps.esMantenimiento) {
-                            event.setProp('classNames', ['evento-pasado']);
-                        }
-                    });
-                }
-            });
-        </script>
+            // =============================
+            // INICIALIZACIÓN PRINCIPAL
+            // =============================
+            function inicializar() {
+                verificarConflictosIniciales();
+                configurarCalendario();
+                configurarEnvioFormulario();
+                configurarTooltips();
+
+                // Agregar listener para cambios en participantes
+                document.getElementById("participants-select").addEventListener("change", calcularPrecio);
+            }
+
+            // =============================
+            // EJECUTAR INICIALIZACIÓN
+            // =============================
+            inicializar();
+        });
+    </script>
 </body>
 
 </html>

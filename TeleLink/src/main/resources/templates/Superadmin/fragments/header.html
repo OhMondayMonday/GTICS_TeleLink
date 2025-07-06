@@ -94,6 +94,28 @@
                 let notificationPollingInterval;
                 let isLoadingNotifications = false; // Variable para prevenir cargas concurrentes
                 
+                // Obtener token CSRF para requests
+                function getCsrfToken() {
+                    const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                    const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                    console.log('🔍 CSRF Debug en Superadmin header.html:');
+                    console.log('- Meta _csrf encontrado:', !!token);
+                    console.log('- Meta _csrf_header encontrado:', !!header);
+                    console.log('- Token preview:', token?.substring(0, 10) + '...');
+                    return { token, header };
+                }
+                
+                // Validar token CSRF antes de enviar requests
+                function validateCsrfToken() {
+                    const { token, header } = getCsrfToken();
+                    if (!token || !header) {
+                        console.error('CSRF token o header no encontrado. Token:', !!token, 'Header:', !!header);
+                        alert('Error de seguridad: Token CSRF no disponible');
+                        return false;
+                    }
+                    return true;
+                }
+                
                 // Función para formatear tiempo relativo
                 function timeAgo(date) {
                     const now = new Date();
@@ -216,21 +238,66 @@
                 
                 // Función para marcar como leída y redirigir
                 function markAsReadAndRedirect(notificationId) {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = `/notificaciones/superadmin/marcar-leida/${notificationId}`;
-                    document.body.appendChild(form);
-                    form.submit();
+                    if (!notificationId) {
+                        console.error('ID de notificación no válido');
+                        return;
+                    }
+                    
+                    console.log('🔄 Marcando como leída y redirigiendo desde Superadmin header:', notificationId);
+                    
+                    if (!validateCsrfToken()) {
+                        return;
+                    }
+                    
+                    try {
+                        const { token, header } = getCsrfToken();
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/notificaciones/superadmin/marcar-leida/${notificationId}`;
+                        form.style.display = 'none';
+                        
+                        // Agregar token CSRF al formulario
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_csrf';
+                        csrfInput.value = token;
+                        form.appendChild(csrfInput);
+                        
+                        console.log('📤 Enviando formulario desde Superadmin header:');
+                        console.log('- Action:', form.action);
+                        console.log('- CSRF Token:', token.substring(0, 10) + '...');
+                        
+                        document.body.appendChild(form);
+                        form.submit();
+                        
+                        console.log('✅ Formulario enviado desde Superadmin header');
+                        
+                    } catch (error) {
+                        console.error('❌ Error al procesar notificación en Superadmin header:', error);
+                        alert('Error al procesar la notificación: ' + error.message);
+                    }
                 }
                 
                 // Función para marcar todas como leídas
                 async function markAllAsRead() {
+                    console.log('🔄 Marcando todas como leídas desde Superadmin header');
+                    
+                    if (!validateCsrfToken()) {
+                        return;
+                    }
+                    
                     try {
+                        const { token, header } = getCsrfToken();
+                        const headers = {
+                            'Content-Type': 'application/json'
+                        };
+                        headers[header] = token;
+                        
+                        console.log('📤 Enviando fetch desde Superadmin header para marcar todas');
+                        
                         const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
+                            headers: headers
                         });
                         
                         if (response.ok) {

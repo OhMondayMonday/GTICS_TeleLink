@@ -1679,6 +1679,11 @@ public class UsuarioController {
             // Verificación de conflictos dependiendo del tipo de espacio deportivo
             if ("piscina".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
                 // Lógica existente para piscinas...
+                if (numeroCarrilPiscina == null) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "Debe seleccionar un carril para la piscina");
+                    return "redirect:/usuarios/reservasCalendario/" + espacioId;
+                }
                 List<Reserva> reservasCarril = reservaRepository.findActiveReservationsForLane(
                         espacioId, inicioReserva, finReserva, numeroCarrilPiscina);
 

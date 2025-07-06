@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{admin/fragments/headList.html :: headList(title='Lista de establecimientos deportivos')}">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body data-sidebar="dark" class="vertical-collpsed">
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <!--
+
+<div th:replace="~{admin/fragments/header.html :: header}"></div>
+
+<div th:replace="~{admin/fragments/sidebar.html :: sidebar}"></div>
+
+-->
+
+        <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}">
+        </div>
+
+
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-lg-12">
+                            <div class="card mb-0">
+                                <div class="card-body">
+                                    <!-- Export buttons will be positioned via JavaScript after DataTable initialization -->
+                                    <div id="export-buttons-container" class="d-none">
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/admin/mantenimientos/export/excel}"
+                                                class="btn btn-success btn-sm">
+                                                <i class="fas fa-file-excel me-1"></i>
+                                                Exportar Excel
+                                            </a>
+                                            <a th:href="@{/admin/mantenimientos/export/pdf}"
+                                                class="btn btn-danger btn-sm">
+                                                <i class="fas fa-file-pdf me-1"></i>
+                                                Exportar PDF
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Contenedor de botones -->
+                                    <div class="d-flex mb-3">
+                                        <a th:href="@{/admin/mantenimientos/nuevo}" class="btn btn-primary me-3 mb-2">
+                                            <i class="fas fa-tools me-1"></i> Nuevo Mantenimiento
+                                        </a>
+                                        <a th:href="@{/admin/establecimientos}" class="btn btn-secondary mb-2">
+                                            <i class="fas fa-building me-1"></i> Ver Establecimientos
+                                        </a>
+                                    </div>
+
+                                    <!-- Loader -->
+                                    <div id="table-loader" class="d-flex justify-content-center align-items-center"
+                                        style="height: 200px;">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Cargando...</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <table class="table table-centered datatable dt-responsive nowrap"
+                                            data-bs-page-length="10"
+                                            style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Espacio Deportivo</th>
+                                                    <th>Establecimiento</th>
+                                                    <th>Motivo</th>
+                                                    <th>Fecha Inicio</th>
+                                                    <th>Fecha Fin Est.</th>
+                                                    <th>Estado</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="mantenimiento : ${mantenimientos}">
+                                                    <td th:text="${mantenimiento.espacioDeportivo.nombre}"></td>
+                                                    <td
+                                                        th:text="${mantenimiento.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}">
+                                                    </td>
+                                                    <td>
+                                                        <span th:text="${#strings.abbreviate(mantenimiento.motivo, 50)}"
+                                                            th:title="${mantenimiento.motivo}"></span>
+                                                    </td>
+                                                    <td
+                                                        th:text="${mantenimiento.fechaInicio != null ? #temporals.format(mantenimiento.fechaInicio, 'dd/MM/yyyy HH:mm') : 'No definido'}">
+                                                    </td>
+                                                    <td
+                                                        th:text="${mantenimiento.fechaEstimadaFin != null ? #temporals.format(mantenimiento.fechaEstimadaFin, 'dd/MM/yyyy HH:mm') : 'No definido'}">
+                                                    </td>
+                                                    <td>
+                                                        <span th:switch="${mantenimiento.estado.name()}"
+                                                            th:class="'badge ' + ${mantenimiento.estado.name() == 'pendiente' ? 'bg-warning' : 
+                                                           (mantenimiento.estado.name() == 'en_curso' ? 'bg-info' : 
+                                                           (mantenimiento.estado.name() == 'finalizado' ? 'bg-success' : 'bg-danger'))}">
+                                                            <span th:case="pendiente">Pendiente</span>
+                                                            <span th:case="en_curso">En Curso</span>
+                                                            <span th:case="finalizado">Finalizado</span>
+                                                            <span th:case="cancelado">Cancelado</span>
+                                                            <span th:case="*">Desconocido</span>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <a th:href="@{/admin/mantenimientos/info(id=${mantenimiento.mantenimientoId})}"
+                                                            class="btn btn-outline-secondary btn-sm"
+                                                            title="Ver Detalles">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a th:href="@{/admin/mantenimientos/editar(id=${mantenimiento.mantenimientoId})}"
+                                                            class="btn btn-outline-secondary btn-sm" title="Editar"
+                                                            th:if="${mantenimiento.estado.name() == 'pendiente'}">
+                                                            <i class="fas fa-pencil-alt"></i>
+                                                        </a>
+                                                        <a th:href="@{/admin/mantenimientos/eliminar(id=${mantenimiento.mantenimientoId})}"
+                                                            class="btn btn-outline-danger btn-sm" title="Eliminar"
+                                                            th:if="${mantenimiento.estado.name() == 'pendiente'}"
+                                                            onclick="return confirm('¿Está seguro de eliminar este mantenimiento?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr th:if="${mantenimientos == null or #lists.isEmpty(mantenimientos)}">
+                                                    <td colspan="7" class="text-center text-muted">
+                                                        <i class="fas fa-tools fa-2x mb-2"></i>
+                                                        <br>No hay mantenimientos registrados
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- container-fluid -->
+            </div>
+            <!-- End Page-content -->
+
+
+
+            <!-- Footer -->
+            <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+
+
+        </div>
+        <!-- end main content-->
+
+
+    </div>
+    <!-- END layout-wrapper -->
+
+    <!-- Right bar overlay-->
+    <div class="sidebar-overlay"></div>
+
+
+    <!-- Incluir los scripts del listado -->
+    <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+
+    <!-- Script para inicializar DataTable con loader -->
+    <script>
+    $(document).ready(function() {
+        // Esperar a que DataTables se inicialice completamente
+        setTimeout(function() {
+            // Buscar el contenedor de controles de DataTables
+            var datatableWrapper = $('.dataTables_wrapper');
+            if (datatableWrapper.length > 0) {
+                // Buscar el contenedor superior que contiene length y filter
+                var topContainer = datatableWrapper.find('.dataTables_length').parent();
+                if (topContainer.length > 0) {
+                    // Agregar los botones al lado izquierdo del contenedor
+                    var exportButtons = $('#export-buttons-container').html();
+                    topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
+                    
+                    // Ajustar el contenedor del filtro para que use las clases correctas
+                    var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
+                    if (filterContainer.length > 0) {
+                        filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                    }
+                    
+                    // Asegurar que el contenedor padre use row
+                    topContainer.addClass('row');
+                }
+            }
+        }, 100);
+    });
+</script>
+
+</body>
+
+</html>

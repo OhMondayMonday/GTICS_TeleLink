@@ -18,14 +18,13 @@
                     </a>
                 </div>
 
-                <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect" id="vertical-menu-btn">
+                <button type="button" class="btn btn-sm px-3 font-size-24 header-item waves-effect"
+                    id="vertical-menu-btn">
                     <i class="ri-menu-2-line align-middle"></i>
                 </button>
 
                 <div class="dropdown dropdown-mega d-none d-lg-block ms-2">
-                    <button type="button"
-                            class="btn header-item waves-effect"
-                            style="cursor: default !important;
+                    <button type="button" class="btn header-item waves-effect" style="cursor: default !important;
                              pointer-events: none;
                              box-shadow: none !important;
                              transform: none !important;" th:text="${titulo}">
@@ -36,15 +35,14 @@
             <div class="d-flex">
                 <!-- Dropdown de notificaciones -->
                 <div class="dropdown d-inline-block">
-                    <button type="button" class="btn header-item noti-icon waves-effect position-relative" 
-                            id="page-header-notifications-dropdown"
-                            data-bs-toggle="dropdown" aria-expanded="false">
+                    <button type="button" class="btn header-item noti-icon waves-effect position-relative"
+                        id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="ri-notification-3-line"></i>
                         <!-- Badge para notificaciones no leídas -->
                         <span id="notification-badge" class="noti-dot" style="display: none;"></span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0 notification-dropdown"
-                         aria-labelledby="page-header-notifications-dropdown" style="width: 350px; max-height: 400px;">
+                        aria-labelledby="page-header-notifications-dropdown" style="width: 350px; max-height: 400px;">
                         <div class="p-3 bg-light">
                             <div class="row align-items-center">
                                 <div class="col">
@@ -61,7 +59,8 @@
                             <!-- Las notificaciones se cargarán aquí dinámicamente -->
                         </div>
                         <div class="p-2 border-top text-center">
-                            <a href="/notificaciones/admin/lista" class="btn btn-sm btn-primary">Ver todas las notificaciones</a>
+                            <a href="/notificaciones/admin/lista" class="btn btn-sm btn-primary">Ver todas las
+                                notificaciones</a>
                         </div>
                     </div>
                 </div>
@@ -69,21 +68,23 @@
                 <!-- Usuario -->
                 <div class="dropdown d-inline-block user-dropdown">
                     <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <!--<img class="rounded-circle header-profile-user" th:src="@{/admin/assets/images/users/avatar-2.jpg}"
                              alt="Header Avatar">-->
-                        <img class="rounded-circle header-profile-user"
-                             th:src="@{${session.usuario.fotoPerfilUrl}}"
-                             alt="Header Avatar">
-                        <span class="d-none d-xl-inline-block ms-1" th:text="${session.usuario.nombres.split(' ')[0]}"></span>
+                        <img class="rounded-circle header-profile-user" th:src="@{${session.usuario.fotoPerfilUrl}}"
+                            alt="Header Avatar">
+                        <span class="d-none d-xl-inline-block ms-1"
+                            th:text="${session.usuario.nombres.split(' ')[0]}"></span>
                         <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" th:href="@{/admin/perfil}"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
+                        <a class="dropdown-item" th:href="@{/admin/perfil}"><i
+                                class="ri-user-line align-middle me-1"></i> Perfil</a>
                         <div class="dropdown-divider"></div>
                         <!--<a class="dropdown-item text-danger" th:href="@{/logout}"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>-->
                         <form th:action="@{/logout}" method="post" style="display:inline;">
-                            <button type="submit" class="dropdown-item text-danger" style="background:none;border:none;">
+                            <button type="submit" class="dropdown-item text-danger"
+                                style="background:none;border:none;">
                                 <i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión
                             </button>
                         </form>
@@ -142,6 +143,12 @@
                             <span>Asistencias</span>
                         </a>
                     </li>
+                    <li>
+                        <a th:href="@{/admin/mantenimientos}" class="waves-effect">
+                            <i class="fas fa-tools"></i>
+                            <span>Mantenimientos</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -149,26 +156,26 @@
 
     <!-- JavaScript para notificaciones -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             let notificationPollingInterval;
-            
+
             // Función para formatear tiempo relativo
             function timeAgo(date) {
                 const now = new Date();
                 const diffInMinutes = Math.floor((now - date) / 60000);
-                
+
                 if (diffInMinutes < 1) return 'Hace un momento';
                 if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`;
-                
+
                 const diffInHours = Math.floor(diffInMinutes / 60);
                 if (diffInHours < 24) return `Hace ${diffInHours}h`;
-                
+
                 const diffInDays = Math.floor(diffInHours / 24);
                 if (diffInDays < 7) return `Hace ${diffInDays}d`;
-                
+
                 return date.toLocaleDateString();
             }
-            
+
             // Función para obtener información del tipo de notificación
             function getTipoInfo(tipo) {
                 // Mapeo exacto del backend - FontAwesome icons
@@ -180,15 +187,15 @@
                     'aprobación': { icono: 'fas fa-check-circle', color: '#007bff' },
                     'asignación': { icono: 'fas fa-user-plus', color: '#6610f2' }
                 };
-                
+
                 return tipoMap[tipo] || { icono: 'fas fa-bell', color: '#6c757d' };
             }
-            
+
             // Función para crear un item de notificación
             function createNotificationItem(notification) {
                 const tipoInfo = getTipoInfo(notification.tipoNotificacion.tipoNotificacion);
                 const isUnread = notification.estado === 'no_leido';
-                
+
                 return `
                     <a href="#" class="text-reset notification-item d-block p-3 border-bottom ${isUnread ? 'bg-light' : ''}" 
                        onclick="markAsReadAndRedirect(${notification.notificacionId}); return false;">
@@ -211,46 +218,46 @@
                         </div>
                     </a>`;
             }
-            
+
             // Función para cargar notificaciones
             let isLoadingNotifications = false;
             async function loadNotifications() {
                 if (isLoadingNotifications) return; // Evitar múltiples cargas concurrentes
-                
+
                 isLoadingNotifications = true;
                 const notificationList = document.getElementById('notification-list');
-                
+
                 try {
                     // Mostrar indicador de carga solo si la lista está vacía
                     if (!notificationList.innerHTML.trim() || notificationList.querySelector('#loading-notifications')) {
                         notificationList.innerHTML = '<div class="text-center p-3" id="loading-notifications"><i class="ri-loader-4-line" style="animation: spin 1s linear infinite;"></i> Cargando...</div>';
                     }
-                    
+
                     const response = await fetch('/notificaciones/api/latest');
                     if (!response.ok) {
                         throw new Error('Error al cargar notificaciones');
                     }
-                    
+
                     const data = await response.json();
                     const notifications = data.notificaciones || [];
                     const unreadCount = data.conteoNoLeidas || 0;
-                    
+
                     // Actualizar badge
                     updateNotificationBadge(unreadCount);
-                    
+
                     // Limpiar lista
                     notificationList.innerHTML = '';
-                    
+
                     if (notifications.length === 0) {
                         notificationList.innerHTML = '<div class="text-center p-3"><p class="text-muted">No hay notificaciones</p></div>';
                         return;
                     }
-                    
+
                     // Crear items de notificación
                     const notificationItems = notifications.map(notification => createNotificationItem(notification));
-                    
+
                     notificationList.innerHTML = notificationItems.join('');
-                    
+
                 } catch (error) {
                     console.error('Error cargando notificaciones:', error);
                     notificationList.innerHTML = '<div class="text-center p-3"><p class="text-danger">Error al cargar notificaciones</p></div>';
@@ -258,37 +265,76 @@
                     isLoadingNotifications = false;
                 }
             }
-            
+
             // Función para actualizar el badge
             function updateNotificationBadge(count) {
                 const badge = document.getElementById('notification-badge');
-                
+
                 if (count > 0) {
                     badge.style.display = 'inline-block';
                 } else {
                     badge.style.display = 'none';
                 }
             }
-            
+
             // Función para marcar como leída y redirigir
             function markAsReadAndRedirect(notificationId) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/notificaciones/admin/marcar-leida/${notificationId}`;
-                document.body.appendChild(form);
-                form.submit();
+                try {
+                    // Obtener el token CSRF
+                    const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                    const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                    
+                    if (!token || !headerName) {
+                        console.error('Token CSRF no encontrado');
+                        alert('Error: Token de seguridad no encontrado');
+                        return;
+                    }
+                    
+                    // Crear formulario dinámico
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/notificaciones/admin/marcar-leida/${notificationId}`;
+                    form.style.display = 'none';
+                    
+                    // Agregar token CSRF
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = headerName === 'X-CSRF-TOKEN' ? '_csrf' : headerName.replace('X-', '').toLowerCase().replace('-', '_');
+                    csrfInput.value = token;
+                    form.appendChild(csrfInput);
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                } catch (error) {
+                    console.error('Error al procesar notificación:', error);
+                    alert('Error al procesar la notificación: ' + error.message);
+                }
             }
-            
+
             // Función para marcar todas como leídas
             async function markAllAsRead() {
                 try {
+                    // Obtener el token CSRF
+                    const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                    const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                    
+                    if (!token || !headerName) {
+                        console.error('Token CSRF no encontrado');
+                        alert('Error: Token de seguridad no encontrado');
+                        return;
+                    }
+                    
+                    // Preparar headers
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    headers[headerName] = token;
+                    
                     const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
+                        headers: headers
                     });
-                    
+
                     if (response.ok) {
                         await loadNotifications();
                     } else {
@@ -296,27 +342,27 @@
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error al marcar todas las notificaciones como leídas');
+                    alert('Error al marcar todas las notificaciones como leídas: ' + error.message);
                 }
             }
-            
+
             // Event listeners
             if (document.getElementById('mark-all-read-btn')) {
                 document.getElementById('mark-all-read-btn').addEventListener('click', markAllAsRead);
             }
-            
+
             // Cargar notificaciones al mostrar el dropdown (no en click)
             const dropdownElement = document.getElementById('page-header-notifications-dropdown');
             if (dropdownElement) {
                 // Usar el evento de Bootstrap para cuando se muestra el dropdown
-                dropdownElement.addEventListener('shown.bs.dropdown', function(e) {
+                dropdownElement.addEventListener('shown.bs.dropdown', function (e) {
                     loadNotifications();
                 });
             }
-            
+
             // Configurar polling cada 20 segundos
             function startNotificationPolling() {
-                notificationPollingInterval = setInterval(async function() {
+                notificationPollingInterval = setInterval(async function () {
                     try {
                         const response = await fetch('/notificaciones/api/unread-count');
                         if (response.ok) {
@@ -328,13 +374,13 @@
                     }
                 }, 20000); // 20 segundos
             }
-            
+
             function stopNotificationPolling() {
                 if (notificationPollingInterval) {
                     clearInterval(notificationPollingInterval);
                 }
             }
-            
+
             // Inicializar - solo cargar conteo de badge inicialmente
             async function initializeNotifications() {
                 try {
@@ -347,17 +393,18 @@
                     console.error('Error inicializando notificaciones:', error);
                 }
             }
-            
+
             initializeNotifications();
             startNotificationPolling();
-            
+
             // Limpiar interval al cerrar la página
             window.addEventListener('beforeunload', stopNotificationPolling);
-            
+
             // Hacer la función global para poder usarla en los onclick
             window.markAsReadAndRedirect = markAsReadAndRedirect;
         });
     </script>
 
 </div>
+
 </html>

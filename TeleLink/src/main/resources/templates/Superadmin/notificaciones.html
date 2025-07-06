@@ -1,6 +1,28 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{Superadmin/fragments/head.html :: head(title='Notificaciones')}"></head>
+<head th:replace="~{Superadmin/fragments/head.html :: head(title='Notificaciones')}">
+    <!-- Meta tags CSRF necesarios para JavaScript -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<style>
+    /* CSS unificado para notificaciones */
+    .notification-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .dropdown-menu {
+        z-index: 1050 !important;
+    }
+    
+    .dropdown-toggle::after {
+        display: none !important;
+    }
+    
+    .btn.dropdown-toggle:focus {
+        box-shadow: none !important;
+    }
+</style>
 <body data-sidebar="dark" class="vertical-collpsed">
 
 <!-- Begin page -->
@@ -86,9 +108,7 @@
                                  th:classappend="${notification.estado.name() == 'no_leido'} ? 'border-primary bg-primary-subtle' : 'border-light'"
                                  th:data-notification-id="${notification.notificacionId}"
                                  style="cursor: pointer; transition: all 0.2s ease;" 
-                                 onclick="markAsReadAndRedirect(this.getAttribute('data-notification-id'))"
-                                 onmouseover="this.style.boxShadow='0 0.125rem 0.25rem rgba(0, 0, 0, 0.075)'; this.style.transform='translateY(-2px)'"
-                                 onmouseout="this.style.boxShadow=''; this.style.transform=''">
+                                 onclick="markAsReadAndRedirect(this.getAttribute('data-notification-id'))">
                                 <div class="card-body">
                                     <div class="d-flex align-items-start">
                                         <!-- Icono de tipo -->
@@ -120,12 +140,13 @@
                                                 
                                                 <!-- Acciones -->
                                                 <div class="dropdown">
-                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                                    <button class="btn btn-sm btn-outline-secondary" 
                                                             type="button" data-bs-toggle="dropdown" 
-                                                            onclick="event.stopPropagation()">
+                                                            onclick="event.stopPropagation()"
+                                                            style="border: none; background: none; padding: 4px 8px;">
                                                         <i class="ri-more-2-line"></i>
                                                     </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                    <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1050;">
                                                         <li th:if="${notification.estado.name() == 'no_leido'}">
                                                             <a class="dropdown-item" href="#" 
                                                                th:data-notification-id="${notification.notificacionId}"
@@ -134,7 +155,9 @@
                                                             </a>
                                                         </li>
                                                         <li th:if="${notification.urlRedireccion != null and !notification.urlRedireccion.isEmpty()}">
-                                                            <a class="dropdown-item" th:href="${notification.urlRedireccion}">
+                                                            <a class="dropdown-item" href="#"
+                                                               th:data-notification-id="${notification.notificacionId}"
+                                                               onclick="markAsReadAndRedirect(this.getAttribute('data-notification-id')); event.preventDefault(); event.stopPropagation();">
                                                                 <i class="ri-external-link-line me-2"></i>Ir al elemento
                                                             </a>
                                                         </li>
@@ -200,6 +223,29 @@
 <div th:replace="~{Superadmin/fragments/foot.html :: foot}"></div>
 
 <script>
+    // Obtener token CSRF para requests
+    function getCsrfToken() {
+        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+        console.log('🔍 CSRF Debug en Superadmin notificaciones.html:');
+        console.log('- Meta _csrf encontrado:', !!token);
+        console.log('- Meta _csrf_header encontrado:', !!header);
+        console.log('- Token preview:', token?.substring(0, 10) + '...');
+        console.log('- Header name:', header);
+        return { token, header };
+    }
+    
+    // Validar token CSRF antes de enviar requests
+    function validateCsrfToken() {
+        const { token, header } = getCsrfToken();
+        if (!token || !header) {
+            console.error('CSRF token o header no encontrado. Token:', !!token, 'Header:', !!header);
+            alert('Error de seguridad: Token CSRF no disponible');
+            return false;
+        }
+        return true;
+    }
+
     // Función para obtener información del tipo de notificación
     async function getTipoInfo(tipo) {
         try {
@@ -250,31 +296,82 @@
 
     // Función para marcar como leída y redirigir
     function markAsReadAndRedirect(notificationId) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/notificaciones/superadmin/marcar-leida/${notificationId}`;
-        document.body.appendChild(form);
-        form.submit();
+        if (!notificationId) {
+            console.error('ID de notificación no válido');
+            return;
+        }
+        
+        console.log('🔄 Marcando como leída y redirigiendo desde Superadmin notificaciones.html:', notificationId);
+        
+        if (!validateCsrfToken()) {
+            return;
+        }
+        
+        try {
+            const { token, header } = getCsrfToken();
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/notificaciones/superadmin/marcar-leida/${notificationId}`;
+            form.style.display = 'none';
+            
+            // Agregar token CSRF al formulario
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_csrf';
+            csrfInput.value = token;
+            form.appendChild(csrfInput);
+            
+            console.log('📤 Enviando formulario desde Superadmin:');
+            console.log('- Action:', form.action);
+            console.log('- CSRF Token:', token.substring(0, 10) + '...');
+            
+            document.body.appendChild(form);
+            form.submit();
+            
+            console.log('✅ Formulario enviado desde Superadmin');
+            
+        } catch (error) {
+            console.error('❌ Error al procesar notificación en Superadmin:', error);
+            alert('Error al procesar la notificación: ' + error.message);
+        }
     }
 
     // Función para marcar como leída sin redirigir
     async function markAsRead(notificationId) {
+        if (!notificationId) {
+            console.error('ID de notificación no válido');
+            return;
+        }
+        
+        console.log('🔄 Marcando como leída desde Superadmin:', notificationId);
+        
+        if (!validateCsrfToken()) {
+            return;
+        }
+        
         try {
+            const { token, header } = getCsrfToken();
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            headers[header] = token;
+            
+            console.log('📤 Enviando fetch desde Superadmin a endpoint específico');
+            
             const response = await fetch(`/notificaciones/superadmin/marcar-leida/${notificationId}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: headers
             });
             
             if (response.ok) {
+                console.log('✅ Notificación marcada como leída en Superadmin');
                 window.location.reload();
             } else {
                 throw new Error('Error al marcar como leída');
             }
         } catch (error) {
-            console.error('Error marcando como leída:', error);
-            alert('Error al marcar la notificación como leída');
+            console.error('❌ Error marcando como leída en Superadmin:', error);
+            alert('Error al marcar la notificación como leída: ' + error.message);
         }
     }
 
@@ -284,22 +381,35 @@
             return;
         }
         
+        console.log('🔄 Marcando todas como leídas desde Superadmin');
+        
+        if (!validateCsrfToken()) {
+            return;
+        }
+        
         try {
+            const { token, header } = getCsrfToken();
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            headers[header] = token;
+            
+            console.log('📤 Enviando fetch desde Superadmin para marcar todas');
+            
             const response = await fetch('/notificaciones/api/marcar-todas-leidas', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: headers
             });
             
             if (response.ok) {
+                console.log('✅ Todas las notificaciones marcadas como leídas desde Superadmin');
                 window.location.reload();
             } else {
                 const errorData = await response.json().catch(() => ({ message: 'Error desconocido' }));
                 throw new Error(errorData.message || 'Error al marcar todas como leídas');
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('❌ Error desde Superadmin:', error);
             alert('Error al marcar todas las notificaciones como leídas: ' + error.message);
         }
     }
