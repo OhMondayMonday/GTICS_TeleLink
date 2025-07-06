@@ -218,8 +218,8 @@
     document.addEventListener('DOMContentLoaded', function () {
         // Inicializar DataTable
         var reservasTable = $('#tablaReservas').DataTable({
-            lengthMenu: [10, 25, 50, 100],
-            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50],
+            pageLength: 5,
             processing: false,
             serverSide: false,
             scrollX: true,
@@ -266,7 +266,7 @@
                 $("#loading-container-reservas").remove();
                 $("#table-content-reservas").show();
                 
-                // Ocultar selector de longitud para mantener 10 registros fijos
+                // Ocultar selector de longitud para mantener 5 registros fijos
                 $(".dataTables_length").hide();
                 
                 // Limpiar anchos específicos aplicados por DataTables
