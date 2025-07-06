@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{admin/fragments/headList.html :: headList(title='Lista de establecimientos deportivos')}">
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
+
 <body data-sidebar="dark" class="vertical-collpsed">
 
-<!-- Begin page -->
-<div id="layout-wrapper">
+    <!-- Begin page -->
+    <div id="layout-wrapper">
 
-<!--
+        <!--
 
 <div th:replace="~{admin/fragments/header.html :: header}"></div>
 
@@ -17,58 +19,63 @@
 
 -->
 
-<div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}"></div>
+        <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Establecimientos deportivos')}">
+        </div>
 
 
-<!-- ============================================================== -->
-<!-- Start right Content here -->
-<!-- ============================================================== -->
-<div class="main-content">
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
 
-    <div class="page-content">
-        <div class="container-fluid">
-            <div class="row mb-4">
-                <div class="col-lg-12">
-                    <div class="card mb-0">                        <div class="card-body">
-                            <!-- Export buttons will be positioned via JavaScript after DataTable initialization -->
-                            <div id="export-buttons-container" class="d-none">
-                                <div class="btn-group" role="group">
-                                    <a th:href="@{/admin/establecimientos/export/excel}" 
-                                       class="btn btn-success btn-sm">
-                                        <i class="fas fa-file-excel me-1"></i>
-                                        Exportar Excel
-                                    </a>
-                                    <a th:href="@{/admin/establecimientos/export/pdf}" 
-                                       class="btn btn-danger btn-sm">
-                                        <i class="fas fa-file-pdf me-1"></i>
-                                        Exportar PDF
-                                    </a>
-                                </div>
-                            </div>
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-lg-12">
+                            <div class="card mb-0">
+                                <div class="card-body">
+                                    <!-- Export buttons will be positioned via JavaScript after DataTable initialization -->
+                                    <div id="export-buttons-container" class="d-none">
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/admin/establecimientos/export/excel}"
+                                                class="btn btn-success btn-sm">
+                                                <i class="fas fa-file-excel me-1"></i>
+                                                Exportar Excel
+                                            </a>
+                                            <a th:href="@{/admin/establecimientos/export/pdf}"
+                                                class="btn btn-danger btn-sm">
+                                                <i class="fas fa-file-pdf me-1"></i>
+                                                Exportar PDF
+                                            </a>
+                                        </div>
+                                    </div>
 
-                                            <!-- Contenedor de botones para "Nuevo Establecimiento" y "Nuevo Espacio Deportivo" con más espacio -->
-                                            <div class="d-flex mb-3">
-                                                <a th:href="@{/admin/establecimientos/nuevo}" class="btn btn-primary me-3 mb-2">
-                                                    <i class="mdi mdi-domain-plus me-1"></i> Nuevo Establecimiento
-                                                </a>
-                                                <a th:href="@{/admin/espacios/nuevo}" class="btn btn-success mb-2">
-                                                    <i class="mdi mdi-soccer-field me-1"></i> Nuevo Espacio Deportivo
-                                                </a>
-                                            </div>
+                                    <!-- Contenedor de botones para "Nuevo Establecimiento" y "Nuevo Espacio Deportivo" con más espacio -->
+                                    <div class="d-flex mb-3">
+                                        <a th:href="@{/admin/establecimientos/nuevo}" class="btn btn-primary me-3 mb-2">
+                                            <i class="mdi mdi-domain-plus me-1"></i> Nuevo Establecimiento
+                                        </a>
+                                        <a th:href="@{/admin/espacios/nuevo}" class="btn btn-success mb-2">
+                                            <i class="mdi mdi-soccer-field me-1"></i> Nuevo Espacio Deportivo
+                                        </a>
+                                    </div>
 
-                                            <!-- Loader -->
-                                            <div id="table-loader" class="d-flex justify-content-center align-items-center" style="height: 200px;">
-                                                <div class="spinner-border text-primary" role="status">
-                                                    <span class="visually-hidden">Cargando...</span>
-                                                </div>
-                                            </div>
+                                    <!-- Loader -->
+                                    <div id="table-loader" class="d-flex justify-content-center align-items-center"
+                                        style="height: 200px;">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Cargando...</span>
+                                        </div>
+                                    </div>
 
-                                            <!-- Tabla envuelta en contenedor oculto -->
-                                            <div id="table-content" style="display: none;">
-                                            <!-- Tabla responsive -->
-                                            <div class="table-responsive">
-                                                <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="6" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                                    <thead>
+                                    <!-- Tabla envuelta en contenedor oculto -->
+                                    <div id="table-content" style="display: none;">
+                                        <!-- Tabla responsive -->
+                                        <div class="table-responsive">
+                                            <table class="table table-centered datatable dt-responsive nowrap"
+                                                data-bs-page-length="6"
+                                                style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                <thead>
                                                     <tr>
                                                         <th>Nombre</th>
                                                         <th>Dirección</th>
@@ -77,77 +84,84 @@
                                                         <th>Horario</th>
                                                         <th>Acciones</th>
                                                     </tr>
-                                                    </thead>
-                                                    <tbody>
+                                                </thead>
+                                                <tbody>
                                                     <tr th:each="establecimiento : ${establecimientos}">
-                                                        <td th:text="${establecimiento.establecimientoDeportivoNombre}"></td>
+                                                        <td th:text="${establecimiento.establecimientoDeportivoNombre}">
+                                                        </td>
                                                         <td th:text="${establecimiento.direccion}"></td>
                                                         <td th:text="${establecimiento.telefonoContacto}"></td>
                                                         <td th:text="${establecimiento.correoContacto}"></td>
-                                                        <td th:text="${establecimiento.horarioApertura} + ' - ' + ${establecimiento.horarioCierre}"></td>
+                                                        <td
+                                                            th:text="${establecimiento.horarioApertura} + ' - ' + ${establecimiento.horarioCierre}">
+                                                        </td>
 
                                                         <td>
                                                             <!--<a href="#" class="btn btn-outline-secondary btn-sm edit" title="Calendario">
                                                                 <i class="fas fa-calendar"></i>
                                                             </a>-->
-                                                            <a th:href="@{/admin/establecimientos/info(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-outline-secondary btn-sm edit" title="Ver">
+                                                            <a th:href="@{/admin/establecimientos/info(id=${establecimiento.establecimientoDeportivoId})}"
+                                                                class="btn btn-outline-secondary btn-sm edit"
+                                                                title="Ver">
                                                                 <i class="fas fa-eye"></i>
                                                             </a>
-                                                            <a th:href="@{/admin/establecimientos/editar(id=${establecimiento.establecimientoDeportivoId})}" class="btn btn-outline-secondary btn-sm edit" title="Editar">
+                                                            <a th:href="@{/admin/establecimientos/editar(id=${establecimiento.establecimientoDeportivoId})}"
+                                                                class="btn btn-outline-secondary btn-sm edit"
+                                                                title="Editar">
                                                                 <i class="fas fa-pencil-alt"></i>
                                                             </a>
                                                         </td>
                                                     </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            </div> <!-- End table-content -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div> <!-- End table-content -->
 
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </div> <!-- container-fluid -->
             </div>
-        </div> <!-- container-fluid -->
+            <!-- End Page-content -->
+
+
+
+            <!-- Footer -->
+            <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
+
+
+        </div>
+        <!-- end main content-->
+
+
     </div>
-    <!-- End Page-content -->
+    <!-- END layout-wrapper -->
+
+    <!-- Right bar overlay-->
+    <div class="sidebar-overlay"></div>
 
 
-
-    <!-- Footer -->
-    <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
-
-
-</div>
-<!-- end main content-->
-
-
-</div>
-<!-- END layout-wrapper -->
-
-<!-- Right bar overlay-->
-<div class="sidebar-overlay"></div>
-
-
-<!-- Incluir los scripts del listado -->
-<div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+    <!-- Incluir los scripts del listado -->
+    <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
 
     <!-- Script para inicializar DataTable con loader -->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             console.log('✅ Script cargado - establecimientoList');
-            
+
             try {
                 // Inicializar DataTable
                 var table = $(".datatable").DataTable({
                     lengthMenu: [5, 10, 25, 50],
                     pageLength: 10,
                     columns: [
-                        {orderable: true}, // Nombre
-                        {orderable: true}, // Dirección
-                        {orderable: true}, // Teléfono
-                        {orderable: true}, // Correo
-                        {orderable: true}, // Horario
-                        {orderable: false} // Acciones
+                        { orderable: true }, // Nombre
+                        { orderable: true }, // Dirección
+                        { orderable: true }, // Teléfono
+                        { orderable: true }, // Correo
+                        { orderable: true }, // Horario
+                        { orderable: false } // Acciones
                     ],
                     language: {
                         "decimal": "",
@@ -173,21 +187,21 @@
                             "sortDescending": ": activar para ordenar descendente"
                         }
                     },
-                    drawCallback: function() {
+                    drawCallback: function () {
                         $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
                     },
-                    initComplete: function() {
+                    initComplete: function () {
                         console.log('✅ DataTable establecimientos listo');
-                        
+
                         // Remover loader y mostrar tabla
                         $('#table-loader').remove();
                         $('#table-content').css('display', 'block !important').show();
-                        
+
                         // Ocultar selector de longitud
                         $(".dataTables_length").hide();
-                        
+
                         // Posicionar botones de exportar
-                        setTimeout(function() {
+                        setTimeout(function () {
                             var datatableWrapper = $('.dataTables_wrapper');
                             if (datatableWrapper.length > 0) {
                                 var topContainer = datatableWrapper.find('.dataTables_length').parent();
@@ -195,12 +209,12 @@
                                     var exportButtons = $('#export-buttons-container').html();
                                     if (exportButtons && topContainer.find('.btn-group').length === 0) {
                                         topContainer.prepend('<div class="col-sm-12 col-md-6 d-flex align-items-center">' + exportButtons + '</div>');
-                                        
+
                                         var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
                                         if (filterContainer.length > 0) {
                                             filterContainer.removeClass().addClass('col-sm-12 col-md-6');
                                         }
-                                        
+
                                         topContainer.addClass('row');
                                     }
                                 }
@@ -208,15 +222,15 @@
                         }, 100);
                     }
                 });
-                
+
             } catch (error) {
                 console.error('❌ Error en establecimientos DataTable:', error);
                 $('#table-loader').remove();
                 $('#table-content').show();
             }
-            
+
             // Fallback de seguridad
-            setTimeout(function() {
+            setTimeout(function () {
                 if ($('#table-loader').length > 0) {
                     console.log('⚠️ Fallback establecimientos ejecutado');
                     $('#table-loader').remove();
@@ -227,4 +241,5 @@
     </script>
 
 </body>
+
 </html>

@@ -2928,6 +2928,9 @@ public class AdminController {
 
             // Guardar en la base de datos
             asistenciaRepository.save(nuevaAsistencia);
+            LocalDate fecha = nuevaAsistencia.getHorarioEntrada().toLocalDate();
+            LocalTime horarioEntradaTime = nuevaAsistencia.getHorarioEntrada().toLocalTime();
+            LocalTime horarioSalidaTime = nuevaAsistencia.getHorarioSalida().toLocalTime();
 
             // Create notification
             try {
@@ -2936,7 +2939,7 @@ public class AdminController {
                         .findFirst();
                 if (optTipo.isPresent()) {
                     Notificacion notificacion = new Notificacion();
-                    notificacion.setUsuario(optCoordinador.get());
+                    notificacion.setUsuario(coordinador);
                     notificacion.setTipoNotificacion(optTipo.get());
                     notificacion.setTituloNotificacion("Nueva Asistencia Asignada");
                     notificacion.setMensaje("Se te ha asignado una nueva asistencia para el " + fecha + " de "
@@ -2952,7 +2955,7 @@ public class AdminController {
 
             // Send email to coordinator
             try {
-                emailService.sendAssistanceNotification(optCoordinador.get(), asistencia);
+                emailService.sendAssistanceNotification(coordinador, nuevaAsistencia);
             } catch (MessagingException e) {
                 // Log the error but don't interrupt the flow
                 System.err.println("Failed to send email to coordinator: " + e.getMessage());
@@ -3074,6 +3077,12 @@ public class AdminController {
             case SATURDAY:
                 return "Sábado";
             case SUNDAY:
+                return "Domingo";
+            default:
+                return "Desconocido";
+        }
+    }
+
     @GetMapping("/gestion-asistencias/api/asistencias")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> obtenerAsistenciasConFiltros(
