@@ -210,8 +210,10 @@
                             </a>
                           </div>
                         </div>
-                        <div class="loader-container">
-                          <div class="loader"></div>
+                        <div id="table-loader" class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                          <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                          </div>
                         </div>
                         <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100 display" style="display: none;">
                           <thead>
@@ -282,7 +284,7 @@
           "searching": false,
           "info": false,
           "initComplete": function() {
-            $(".loader-container").hide();
+            $("#table-loader").remove();
             $('#alternative-page-datatable').show();
             $('[data-bs-toggle="tooltip"]').tooltip();
           }
