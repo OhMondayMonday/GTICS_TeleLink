@@ -330,5 +330,24 @@
         });
       }
     </script>
+    
+    <!-- Asegurar anchos automáticos en cabeceras y margen inferior -->
+    <style>
+    #alternative-page-datatable th,
+    #alternative-page-datatable td {
+        width: auto !important;
+    }
+
+    #alternative-page-datatable {
+        width: 100% !important;
+        table-layout: auto !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Limpiar estilos específicos de DataTables */
+    .dataTables_wrapper .table {
+        width: 100% !important;
+    }
+    </style>
   </body>
 </html>

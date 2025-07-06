@@ -762,6 +762,8 @@
             });
 
         </script>
+        
+        <!-- Asegurar anchos automáticos en cabeceras y margen inferior -->
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -821,6 +823,30 @@
                 });
             }
         </script>
+
+        <style>
+        #alternative-page-datatable th,
+        #alternative-page-datatable td,
+        #alternative-page-datatable2 th,
+        #alternative-page-datatable2 td,
+        #alternative-page-datatable3 th,
+        #alternative-page-datatable3 td {
+            width: auto !important;
+        }
+
+        #alternative-page-datatable,
+        #alternative-page-datatable2,
+        #alternative-page-datatable3 {
+            width: 100% !important;
+            table-layout: auto !important;
+            margin-bottom: 15px !important;
+        }
+
+        /* Limpiar estilos específicos de DataTables */
+        .dataTables_wrapper .table {
+            width: 100% !important;
+        }
+        </style>
     </body>
 
 
