@@ -137,7 +137,7 @@
                                         <table id="usuariosTable" class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%; display: none;">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 40px">ID</th>
+                                                    <th>ID</th>
                                                     <th>Nombre</th>
                                                     <th>Rol</th>
                                                     <th>DNI</th>
@@ -145,7 +145,7 @@
                                                     <th>Celular</th>
                                                     <th>Fecha creación</th>
                                                     <th>Estado</th>
-                                                    <th style="width: 80px">Acciones</th>
+                                                    <th>Acciones</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -289,5 +289,23 @@
                 });
             });
         </script>
+
+        <!-- Asegurar anchos automáticos en cabeceras -->
+        <style>
+        #usuariosTable th,
+        #usuariosTable td {
+            width: auto !important;
+        }
+
+        #usuariosTable {
+            width: 100% !important;
+            table-layout: auto !important;
+        }
+
+        /* Limpiar estilos específicos de DataTables */
+        .dataTables_wrapper .table {
+            width: 100% !important;
+        }
+        </style>
     </body>
 </html>

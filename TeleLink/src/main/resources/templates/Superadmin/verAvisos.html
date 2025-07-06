@@ -58,12 +58,12 @@
                                                 <table id="alternative-page-datatable" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                                     <thead>
                                                         <tr>
-                                                            <th style="width: 30px">ID</th>
+                                                            <th>ID</th>
                                                             <th>Título</th>
                                                             <th>Fecha de creación</th>
                                                             <th>Última actualización</th>
                                                             <th>Estado</th>
-                                                            <th style="width: 100px">Acción</th>
+                                                            <th>Acción</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -261,6 +261,24 @@
                 $(".dataTables_length").hide();
             });
         </script>
+
+        <!-- Asegurar anchos automáticos en cabeceras -->
+        <style>
+        #alternative-page-datatable th,
+        #alternative-page-datatable td {
+            width: auto !important;
+        }
+
+        #alternative-page-datatable {
+            width: 100% !important;
+            table-layout: auto !important;
+        }
+
+        /* Limpiar estilos específicos de DataTables */
+        .dataTables_wrapper .table {
+            width: 100% !important;
+        }
+        </style>
     </body>
 
 
