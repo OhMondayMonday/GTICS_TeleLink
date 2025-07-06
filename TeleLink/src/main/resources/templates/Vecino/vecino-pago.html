@@ -84,7 +84,10 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="pago : ${pagos}">
-                                    <td th:text="${pago.reserva.espacioDeportivo.nombre+' (' + pago.reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre + ')'}">Nombre</td>
+                                    <td>
+                                        <p th:text="${pago.reserva.espacioDeportivo.nombre}">Nombre</p>
+                                        <p class="mb-0" th:text="${pago.reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}">Descripción del espacio deportivo</p>
+                                    </td>
                                     <td th:text="${#temporals.format(pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
                                     <td th:text="${pago.reserva.usuario.nombres + ' ' + pago.reserva.usuario.apellidos}">Usuario</td>
                                     <td th:text="${pago.metodoPago.metodoPago}">Método</td>

@@ -23,8 +23,20 @@
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="8" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                
+
+                                <!-- Loader for Reservas -->
+                                <div id="loading-container-reservas" class="text-center p-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                    <div class="mt-2">Cargando reservas...</div>
+                                </div>
+
+                                <!-- Tabla envuelta en contenedor oculto -->
+                                <div id="table-content-reservas" style="display: none;">
+                                    <div class="table-responsive">
+                                    <table id="tablaReservas" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                         <thead>
                                         <tr>
                                             <th>Espacio</th>
@@ -34,7 +46,7 @@
                                             <th>Fecha y Hora</th>
                                             <th>Método de Pago</th>
                                             <th>Estado</th>
-                                            <th class="text-center">Acciones</th>
+                                            <th>Acciones</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -53,7 +65,7 @@
                                                         Nombre del Espacio
                                                     </a>
                                                 </h5>
-                                                <p class="mb-0" th:text="${reservaMap.reserva.espacioDeportivo.descripcion}">Descripción del espacio deportivo</p>
+                                                <p class="mb-0" th:text="${reservaMap.reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}">Descripción del espacio deportivo</p>
                                             </td>
                                             <td>
                                                 <span th:text="${'S/ ' + #numbers.formatDecimal(reservaMap.precioTotal, 1, 'COMMA', 2, 'POINT')}">S/ 50.00</span>
@@ -154,6 +166,7 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -176,7 +189,95 @@
 <script th:src="@{/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js}"></script>
 <script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
 <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
-<script th:src="@{/assets/js/pages/mis-reservas-corregido.init.js}"></script>
 <script th:src="@{/assets/js/app.js}"></script>
+
+<!-- Agregar margen inferior a la tabla -->
+<style>
+#tablaReservas {
+    margin-bottom: 15px !important;
+}
+
+/* Evitar que DataTables aplique anchos específicos */
+#tablaReservas th,
+#tablaReservas td {
+    width: auto !important;
+}
+
+#tablaReservas {
+    width: 100% !important;
+    table-layout: auto !important;
+}
+
+/* Limpiar estilos específicos de DataTables */
+.dataTables_wrapper .table {
+    width: 100% !important;
+}
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Inicializar DataTable
+        var reservasTable = $('#tablaReservas').DataTable({
+            lengthMenu: [10, 25, 50, 100],
+            pageLength: 10,
+            processing: false,
+            serverSide: false,
+            scrollX: true,
+            autoWidth: true, // Permitir que calcule anchos automáticamente
+            columnDefs: [
+                {
+                    targets: [-1], // Solo la última columna (Acciones) no es ordenable
+                    orderable: false
+                },
+                {
+                    targets: '_all',
+                    className: 'text-nowrap',
+                    width: null // Forzar que no aplique anchos específicos
+                }
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay reservas disponibles",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ reservas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 reservas",
+                "infoFiltered": "(filtrado de _MAX_ reservas totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ reservas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron reservas",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "<i class='mdi mdi-chevron-right'></i>",
+                    "previous": "<i class='mdi mdi-chevron-left'></i>"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar ascendente",
+                    "sortDescending": ": activar para ordenar descendente"
+                }
+            },
+            drawCallback: function() {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+            initComplete: function() {
+                $("#loading-container-reservas").remove();
+                $("#table-content-reservas").show();
+                
+                // Ocultar selector de longitud para mantener 10 registros fijos
+                $(".dataTables_length").hide();
+                
+                // Limpiar anchos específicos aplicados por DataTables
+                $('#tablaReservas th, #tablaReservas td').css('width', '');
+                $('#tablaReservas').css({
+                    'width': '100%',
+                    'table-layout': 'auto'
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>
