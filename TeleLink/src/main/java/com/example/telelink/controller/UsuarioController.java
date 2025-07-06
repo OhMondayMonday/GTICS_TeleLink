@@ -175,16 +175,54 @@ public class UsuarioController {
     }
 
     @GetMapping("/resenia")
-    public String mostrarMisResenias(Model model, HttpSession session) {
+    public String mostrarMisResenias(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model,
+            HttpSession session) {
+
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) return "redirect:/usuarios/inicio";
 
-        List<Resenia> resenias = reseniaRepository.findByUsuario_UsuarioId(usuario.getUsuarioId());
+        // Crear objeto Pageable para la paginación
+        Pageable pageable = PageRequest.of(page, size, Sort.by("fechaCreacion").descending());
+
+        // Obtener las reseñas paginadas
+        Page<Resenia> reseniasPaginadas = reseniaRepository.findByUsuario_UsuarioId(usuario.getUsuarioId(), pageable);
+
+        // Calcular información de paginación
+        int totalPaginas = reseniasPaginadas.getTotalPages();
+        long totalElementos = reseniasPaginadas.getTotalElements();
+        int paginaActual = page + 1; // +1 porque page es 0-based
+        int elementoInicio = (page * size) + 1;
+        int elementoFin = Math.min(elementoInicio + size - 1, (int) totalElementos);
+
+        // Generar lista de números de página para la navegación
+        List<Integer> numerosPagina = new ArrayList<>();
+        int inicio = Math.max(1, paginaActual - 2);
+        int fin = Math.min(totalPaginas, paginaActual + 2);
+
+        for (int i = inicio; i <= fin; i++) {
+            numerosPagina.add(i);
+        }
 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("resenias", resenias);
-        model.addAttribute("totalResenias", resenias.size());
+        model.addAttribute("resenias", reseniasPaginadas.getContent());
+        model.addAttribute("totalResenias", totalElementos);
         model.addAttribute("activeItem", "resenia");
+
+        // Atributos para paginación
+        model.addAttribute("paginaActual", paginaActual);
+        model.addAttribute("totalPaginas", totalPaginas);
+        model.addAttribute("elementoInicio", elementoInicio);
+        model.addAttribute("elementoFin", elementoFin);
+        model.addAttribute("totalElementos", totalElementos);
+        model.addAttribute("numerosPagina", numerosPagina);
+        model.addAttribute("tienePaginaAnterior", reseniasPaginadas.hasPrevious());
+        model.addAttribute("tienePaginaSiguiente", reseniasPaginadas.hasNext());
+        model.addAttribute("paginaAnterior", Math.max(0, page - 1));
+        model.addAttribute("paginaSiguiente", Math.min(totalPaginas - 1, page + 1));
+        model.addAttribute("tamanioPagina", size);
 
         return "Vecino/vecino-mis-resenias";
     }

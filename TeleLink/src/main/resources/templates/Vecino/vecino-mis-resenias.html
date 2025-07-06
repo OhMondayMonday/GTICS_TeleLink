@@ -38,31 +38,130 @@
                             </div>
                         </div>
 
+                        <!-- Controles de paginación superior -->
+                        <div class="row mb-3" th:if="${totalResenias > 0}">
+                            <div class="col-sm-12 col-md-6">
+                                <div class="dataTables_length">
+                                    <label class="form-label">
+                                        Mostrar
+                                        <select class="form-select form-select-sm d-inline-block" style="width: auto;"
+                                                onchange="cambiarTamanioPagina(this.value)">
+                                            <option value="10" th:selected="${tamanioPagina == 10}">10</option>
+                                            <option value="25" th:selected="${tamanioPagina == 25}">25</option>
+                                            <option value="50" th:selected="${tamanioPagina == 50}">50</option>
+                                            <option value="100" th:selected="${tamanioPagina == 100}">100</option>
+                                        </select>
+                                        entradas
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-6">
+                                <div class="dataTables_info text-md-end">
+                                    <span th:if="${totalResenias > 0}">
+                                        Mostrando <span th:text="${elementoInicio}"></span> a <span th:text="${elementoFin}"></span>
+                                        de <span th:text="${totalResenias}"></span> entradas
+                                    </span>
+                                    <span th:if="${totalResenias == 0}">
+                                        Mostrando 0 a 0 de 0 entradas
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mensaje cuando no hay reseñas -->
+                        <div th:if="${totalResenias == 0}" class="text-center py-4">
+                            <div class="text-muted">
+                                <i class="fas fa-star fa-3x mb-3"></i>
+                                <h5>No tienes reseñas aún</h5>
+                                <p>Cuando hagas reservas y las uses, podrás escribir reseñas sobre los espacios deportivos.</p>
+                            </div>
+                        </div>
+
                         <!-- Lista de reseñas -->
-                        <div th:each="resenia : ${resenias}" class="mb-4 border-bottom pb-3">
-                            <!-- Fecha y espacio deportivo -->
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted" th:text="'Reseñado el ' + ${resenia.getFechaFormateada()}"></span>
-                                <span class="badge bg-light text-dark" th:text="${resenia.espacioDeportivo.nombre}"></span>
+                        <div th:if="${totalResenias > 0}">
+                            <div th:each="resenia : ${resenias}" class="mb-4 border-bottom pb-3">
+                                <!-- Fecha y espacio deportivo -->
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted" th:text="'Reseñado el ' + ${resenia.getFechaFormateada()}"></span>
+                                    <span class="badge bg-light text-dark" th:text="${resenia.espacioDeportivo.nombre}"></span>
+                                </div>
+
+                                <!-- "Título" y calificación -->
+                                <h5 class="mb-1" th:text="${resenia.getTituloResenia()}"></h5>
+                                <div class="mb-2">
+                                    <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                        <span th:if="${i <= resenia.calificacion}" class="text-warning">★</span>
+                                        <span th:if="${i > resenia.calificacion}" class="text-secondary">☆</span>
+                                    </span>
+                                </div>
+
+                                <!-- Comentario completo -->
+                                <p class="mb-2" th:text="${resenia.comentario}"></p>
+
+                                <!-- Foto opcional -->
+                                <div th:if="${resenia.fotoReseniaUrl}">
+                                    <img th:src="${resenia.fotoReseniaUrl}"
+                                         class="img-fluid rounded mt-2"
+                                         style="max-height: 200px;">
+                                </div>
                             </div>
+                        </div>
 
-                            <!-- "Título" y calificación -->
-                            <h5 class="mb-1" th:text="${resenia.getTituloResenia()}"></h5>
-                            <div class="mb-2">
-                                <span th:each="i : ${#numbers.sequence(1, 5)}">
-                                    <span th:if="${i <= resenia.calificacion}" class="text-warning">★</span>
-                                    <span th:if="${i > resenia.calificacion}" class="text-secondary">☆</span>
-                                </span>
+                        <!-- Paginación -->
+                        <div th:if="${totalPaginas > 1}" class="row mt-4">
+                            <div class="col-sm-12 col-md-5">
+                                <div class="dataTables_info">
+                                    Mostrando <span th:text="${elementoInicio}"></span> a <span th:text="${elementoFin}"></span>
+                                    de <span th:text="${totalResenias}"></span> entradas
+                                </div>
                             </div>
+                            <div class="col-sm-12 col-md-7">
+                                <div class="dataTables_paginate paging_simple_numbers">
+                                    <ul class="pagination justify-content-end">
+                                        <!-- Botón Anterior -->
+                                        <li class="paginate_button page-item previous" th:classappend="${!tienePaginaAnterior} ? 'disabled'">
+                                            <a th:href="${tienePaginaAnterior} ? @{/usuarios/resenia(page=${paginaAnterior}, size=${tamanioPagina})} : '#'"
+                                               class="page-link">Anterior</a>
+                                        </li>
 
-                            <!-- Comentario completo -->
-                            <p class="mb-2" th:text="${resenia.comentario}"></p>
+                                        <!-- Primera página -->
+                                        <li th:if="${paginaActual > 3}" class="paginate_button page-item">
+                                            <a th:href="@{/usuarios/resenia(page=0, size=${tamanioPagina})}" class="page-link">1</a>
+                                        </li>
 
-                            <!-- Foto opcional -->
-                            <div th:if="${resenia.fotoReseniaUrl}">
-                                <img th:src="${resenia.fotoReseniaUrl}"
-                                     class="img-fluid rounded mt-2"
-                                     style="max-height: 200px;">
+                                        <!-- Puntos suspensivos izquierda -->
+                                        <li th:if="${paginaActual > 4}" class="paginate_button page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+
+                                        <!-- Números de página -->
+                                        <li th:each="numeroPagina : ${numerosPagina}"
+                                            class="paginate_button page-item"
+                                            th:classappend="${numeroPagina == paginaActual} ? 'active'">
+                                            <a th:href="@{/usuarios/resenia(page=${numeroPagina - 1}, size=${tamanioPagina})}"
+                                               class="page-link"
+                                               th:text="${numeroPagina}"></a>
+                                        </li>
+
+                                        <!-- Puntos suspensivos derecha -->
+                                        <li th:if="${paginaActual < totalPaginas - 3}" class="paginate_button page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+
+                                        <!-- Última página -->
+                                        <li th:if="${paginaActual < totalPaginas - 2}" class="paginate_button page-item">
+                                            <a th:href="@{/usuarios/resenia(page=${totalPaginas - 1}, size=${tamanioPagina})}"
+                                               class="page-link"
+                                               th:text="${totalPaginas}"></a>
+                                        </li>
+
+                                        <!-- Botón Siguiente -->
+                                        <li class="paginate_button page-item next" th:classappend="${!tienePaginaSiguiente} ? 'disabled'">
+                                            <a th:href="${tienePaginaSiguiente} ? @{/usuarios/resenia(page=${paginaSiguiente}, size=${tamanioPagina})} : '#'"
+                                               class="page-link">Siguiente</a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -94,6 +193,15 @@
 <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
 <script th:src="@{/assets/js/app.js}"></script>
 <script>
+
+    // Función para cambiar el tamaño de página
+    function cambiarTamanioPagina(nuevoTamaño) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('size', nuevoTamaño);
+        urlParams.set('page', '0'); // Resetear a la primera página
+        window.location.search = urlParams.toString();
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         // Script para cargar imagen en modal comprobante
         const modalComprobante = document.getElementById('modalComprobante');

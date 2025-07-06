@@ -1,8 +1,6 @@
 package com.example.telelink.repository;
 import com.example.telelink.entity.Resenia;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,11 +9,15 @@ import java.util.List;
 
 @Repository
 public interface ReseniaRepository extends JpaRepository<Resenia, Integer> {
+
     // Para buscar reseñas por espacio deportivo
     List<Resenia> findByEspacioDeportivo_EspacioDeportivoId(Integer espacioDeportivoId);
 
-    // Metodo nuevo para buscar reseñas por ID de usuario
+    // Para buscar reseñas por ID de usuario (sin paginación)
     List<Resenia> findByUsuario_UsuarioId(Integer usuarioId);
+
+    // Para buscar reseñas por ID de usuario (CON paginación) - METODO PRINCIPAL
+    Page<Resenia> findByUsuario_UsuarioId(Integer usuarioId, Pageable pageable);
 
     // Para comentarios destacados (los más recientes con imágenes)
     List<Resenia> findTop2ByEspacioDeportivo_EspacioDeportivoIdAndFotoReseniaUrlIsNotNullOrderByFechaCreacionDesc(
@@ -24,14 +26,12 @@ public interface ReseniaRepository extends JpaRepository<Resenia, Integer> {
     // Para estadísticas
     long countByEspacioDeportivo_EspacioDeportivoId(Integer espacioDeportivoId);
 
-    // Para el perfil de usuario
-    Page<Resenia> findByUsuario_UsuarioId(Integer usuarioId, Pageable pageable);
-
-    // Método existente (con paginación)
+    // Para espacios deportivos (con paginación)
     Page<Resenia> findByEspacioDeportivo_EspacioDeportivoId(Integer espacioId, Pageable pageable);
 
-
-    // ALTERNATIVA: Si no quieres usar @Query, puedes usar este metodo
+    // Para espacios deportivos (sin paginación, ordenado por fecha)
     List<Resenia> findByEspacioDeportivo_EspacioDeportivoIdOrderByFechaCreacionDesc(Integer espacioId);
 
+    // Metodo adicional para buscar reseñas del usuario ordenadas por fecha (sin paginación)
+    List<Resenia> findByUsuario_UsuarioIdOrderByFechaCreacionDesc(Integer usuarioId);
 }
