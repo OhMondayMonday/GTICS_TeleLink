@@ -9,6 +9,10 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,22 +32,10 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 import java.util.stream.Collectors;
-
 import org.springframework.http.ResponseEntity;
-
 import com.example.telelink.dto.ReservaCalendarioDTO;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.stream.Collectors;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Controller
 @RequestMapping("/usuarios")
@@ -131,30 +123,39 @@ public class UsuarioController {
     }
 
     @GetMapping("/reservas/{id}")
-    public String mostrarReservation(@PathVariable Integer id, Model model, HttpSession session) {
-        EspacioDeportivo espacio = espacioDeportivoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se encontró el espacio deportivo"));
+    public String mostrarReservation(@PathVariable Integer id,
+                                     @RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size,
+                                     Model model, HttpSession session) {
 
-        // Obtener las reseñas y calcular el promedio
-        List<Resenia> resenias = reseniaRepository.findByEspacioDeportivo_EspacioDeportivoId(id);
-        double promedio = resenias.stream()
-                .mapToInt(Resenia::getCalificacion)
-                .average()
-                .orElse(0.0);
-
-        model.addAttribute("espacio", espacio);
-        model.addAttribute("resenias", resenias);
-        model.addAttribute("promedioCalificacion", promedio);
-
+        // Verificar usuario logueado
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             return "redirect:/usuarios/inicio";
         }
+
+        // Obtener el espacio deportivo
+        EspacioDeportivo espacio = espacioDeportivoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se encontró el espacio deportivo"));
+
+        // Obtener TODAS las reseñas (sin paginación) para el frontend
+        List<Resenia> todasLasResenias = reseniaRepository.findByEspacioDeportivo_EspacioDeportivoIdOrderByFechaCreacionDesc(id);
+
+        // Calcular el promedio
+        double promedio = todasLasResenias.stream()
+                .mapToInt(Resenia::getCalificacion)
+                .average()
+                .orElse(0.0);
+
+        // Pasar todos los datos al modelo
+        model.addAttribute("espacio", espacio);
+        model.addAttribute("resenias", todasLasResenias);
+        model.addAttribute("totalResenias", todasLasResenias.size());
+        model.addAttribute("promedioCalificacion", promedio);
         model.addAttribute("usuario", usuario);
 
         return "Vecino/vecino-servicioDeportivo";
     }
-
 
 
     @GetMapping("/reembolsos")
