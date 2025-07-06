@@ -3083,6 +3083,14 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/gestion-asistencias")
+    public String gestionAsistencias(Model model) {
+        // Obtener todos los coordinadores activos para el filtro
+        List<Usuario> coordinadores = usuarioRepository.findByRol_RolAndEstadoCuenta("coordinador", Usuario.EstadoCuenta.activo);
+        model.addAttribute("coordinadores", coordinadores);
+        return "admin/gestionAsistencias";
+    }
+
     @GetMapping("/gestion-asistencias/api/asistencias")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> obtenerAsistenciasConFiltros(
