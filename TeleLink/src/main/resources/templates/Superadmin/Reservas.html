@@ -26,57 +26,79 @@
                                     <p class="card-title-desc mb-1">
                                         Lista de Reservas de la plataforma San Miguel
                                     </p>
-                                    <div class="loader-container">
-                                        <div class="loader"></div>
+
+                                    <!-- Export buttons -->
+                                    <div id="export-buttons-container" class="d-none">
+                                        <div class="btn-group" role="group">
+                                            <a href="#" id="exportExcelReservas" class="btn btn-success btn-sm">
+                                                <i class="fas fa-file-excel me-1"></i>
+                                                Exportar Excel
+                                            </a>
+                                            <a href="#" id="exportPdfReservas" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-file-pdf me-1"></i>
+                                                Exportar PDF
+                                            </a>
+                                        </div>
                                     </div>
-                                    <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100 display" style="display: none;">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 40px">ID</th>
-                                                <th>Titular</th>
-                                                <th>Establecimiento deportivo</th>
-                                                <th>Espacio</th>
-                                                <th>Servicio deportivo</th>
-                                                <th>Hora de inicio</th>
-                                                <th>Hora de fin</th>
-                                                <th>Estado</th>
-                                                <th style="width: 20px">Acción</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="reserva : ${reservas}">
-                                                <td th:text="${reserva.reservaId}"></td>
-                                                <td>
-                                                    <img th:src="${reserva.usuario.fotoPerfilUrl != null ? reserva.usuario.fotoPerfilUrl : '/assets/images/users/avatar-3.jpg'}"
-                                                         alt="foto_perfil" class="avatar-xs rounded-circle me-2">
-                                                    <span th:text="${reserva.usuario.nombres + ' ' + reserva.usuario.apellidos}"></span>
-                                                </td>
-                                                <td th:text="${reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}"></td>
-                                                <td th:text="${reserva.espacioDeportivo.nombre}"></td>
-                                                <td th:text="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo}"></td>
-                                                <td th:text="${#temporals.format(reserva.inicioReserva, 'HH:mm a')}"></td>
-                                                <td th:text="${#temporals.format(reserva.finReserva, 'HH:mm a')}"></td>
-                                                <td>
-                                                    <span th:switch="${reserva.estado.name()}" class="badge">
-                                                        <span th:case="pendiente" class="badge  bg-warning-subtle text-warning font-size-12">Pendiente</span>
-                                                        <span th:case="confirmada" class="badge  bg-primary-subtle text-primary font-size-12">Confirmada</span>
-                                                        <span th:case="cancelada" class="badge bg-danger-subtle text-danger font-size-12">Cancelado</span>
-                                                        <span th:case="completada" class="badge bg-success-subtle text-success font-size-12">Completado</span>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <a th:href="@{'/superadmin/reservas/' + ${reserva.reservaId}}"
-                                                       class="me-2 text-primary"
-                                                       data-bs-container="#tooltip-container"
-                                                       data-bs-toggle="tooltip"
-                                                       data-bs-placement="center"
-                                                       title="Detalles">
-                                                        <i class="mdi mdi-eye font-size-20"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+
+                                    <!-- Loader -->
+                                    <div id="table-loader" class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Cargando...</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tabla envuelta en contenedor oculto -->
+                                    <div id="table-content" style="display: none;">
+                                        <div class="table-responsive">
+                                            <table id="alternative-page-datatable" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width: 40px">ID</th>
+                                                        <th>Titular</th>
+                                                        <th>Establecimiento deportivo</th>
+                                                        <th>Espacio</th>
+                                                        <th>Servicio deportivo</th>
+                                                        <th>Hora de inicio</th>
+                                                        <th>Hora de fin</th>
+                                                        <th>Estado</th>
+                                                        <th style="width: 100px">Acción</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr th:each="reserva : ${reservas}">
+                                                        <td th:text="${reserva.reservaId}"></td>
+                                                        <td>
+                                                            <img th:src="${reserva.usuario.fotoPerfilUrl != null ? reserva.usuario.fotoPerfilUrl : '/assets/images/users/avatar-3.jpg'}"
+                                                                 alt="foto_perfil" class="avatar-xs rounded-circle me-2">
+                                                            <span th:text="${reserva.usuario.nombres + ' ' + reserva.usuario.apellidos}"></span>
+                                                        </td>
+                                                        <td th:text="${reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}"></td>
+                                                        <td th:text="${reserva.espacioDeportivo.nombre}"></td>
+                                                        <td th:text="${reserva.espacioDeportivo.servicioDeportivo.servicioDeportivo}"></td>
+                                                        <td th:text="${#temporals.format(reserva.inicioReserva, 'HH:mm a')}"></td>
+                                                        <td th:text="${#temporals.format(reserva.finReserva, 'HH:mm a')}"></td>
+                                                        <td>
+                                                            <span th:switch="${reserva.estado.name()}" class="badge">
+                                                                <span th:case="pendiente" class="badge bg-warning-subtle text-warning font-size-12">Pendiente</span>
+                                                                <span th:case="confirmada" class="badge bg-primary-subtle text-primary font-size-12">Confirmada</span>
+                                                                <span th:case="cancelada" class="badge bg-danger-subtle text-danger font-size-12">Cancelado</span>
+                                                                <span th:case="completada" class="badge bg-success-subtle text-success font-size-12">Completado</span>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <a th:href="@{'/superadmin/reservas/' + ${reserva.reservaId}}"
+                                                               class="btn btn-sm btn-outline-primary"
+                                                               data-bs-toggle="tooltip"
+                                                               title="Ver detalles">
+                                                                <i class="mdi mdi-eye-outline"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div> <!-- end card body-->
                             </div>
                         </div>
@@ -89,41 +111,94 @@
         <th:block th:replace="~{Superadmin/fragments/foot :: foot}"></th:block>
 
         <script>
-
-
             $(document).ready(function() {
-                // Muestra el símbolo de carga
-                $("#loading").show();
-
-                // Inicializa DataTable
+                // Inicializar DataTable
                 var table = $('#alternative-page-datatable').DataTable({
-                    "columnDefs": [
+                    lengthMenu: [5, 10, 25, 50],
+                    pageLength: 5,
+                    processing: false,
+                    serverSide: false,
+                    scrollX: true,
+                    autoWidth: false,
+                    columnDefs: [
                         {
-                            "targets": [-1], // Aplica a la última columna (puedes usar el índice adecuado si no es la última)
-                            "orderable": false // Desactiva el ordenamiento
+                            targets: [0, -1], // ID y Acciones
+                            orderable: false
                         },
+                        {
+                            targets: '_all',
+                            className: 'text-nowrap'
+                        }
                     ],
-                    "pageLength": 6,  // Fija el número de registros a mostrar
-                    "lengthChange": false,
-                    pagingType: "full_numbers",
-                    "info": true,  // Habilita la información de las entradas mostradas
-                    "language": {
-                        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
-                        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
-                        "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+                    language: {
+                        "decimal": "",
+                        "emptyTable": "No hay reservas disponibles",
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ reservas",
+                        "infoEmpty": "Mostrando 0 a 0 de 0 reservas",
+                        "infoFiltered": "(filtrado de _MAX_ reservas totales)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "Mostrar _MENU_ reservas",
+                        "loadingRecords": "Cargando...",
+                        "processing": "Procesando...",
+                        "search": "Buscar:",
+                        "zeroRecords": "No se encontraron reservas coincidentes",
+                        "paginate": {
+                            "first": "Primero",
+                            "last": "Último",
+                            "next": "<i class='mdi mdi-chevron-right'></i>",
+                            "previous": "<i class='mdi mdi-chevron-left'></i>"
+                        },
+                        "aria": {
+                            "sortAscending": ": activar para ordenar ascendente",
+                            "sortDescending": ": activar para ordenar descendente"
+                        }
                     },
-                    "initComplete": function() {
-                        // Oculta el símbolo de carga y muestra la tabla cuando los datos hayan sido procesados y renderizados
-                        $(".loader-container").hide();  // Ocultamos el indicador de carga
-                        $('#alternative-page-datatable').show();  // Mostramos la tabla
+                    initComplete: function() {
+                        $("#table-loader").remove(); // Eliminar del DOM en lugar de solo ocultar
+                        $("#table-content").show();
                     },
-                    drawCallback: function () {
+                    drawCallback: function() {
                         $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
                     }
                 });
 
-                // Asegúrate de que la tabla esté inicialmente oculta
-                table.hide();
+                // Ocultar los selectores de longitud por defecto
+                $(".dataTables_length").hide();
+
+                // Posicionar botones de exportación
+                setTimeout(function() {
+                    var datatableWrapper = $('#alternative-page-datatable').closest('.dataTables_wrapper');
+                    if (datatableWrapper.length > 0) {
+                        var topContainer = datatableWrapper.find('.dataTables_length').parent();
+                        if (topContainer.length > 0) {
+                            var exportButtonsContainer = $('#export-buttons-container');
+                            exportButtonsContainer.removeClass('d-none');
+                            
+                            var buttonWrapper = $('<div class="col-sm-12 col-md-6 d-flex align-items-center"></div>');
+                            buttonWrapper.append(exportButtonsContainer);
+                            topContainer.prepend(buttonWrapper);
+                            
+                            var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
+                            if (filterContainer.length > 0) {
+                                filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                            }
+                            
+                            topContainer.addClass('row');
+                        }
+                    }
+                }, 100);
+
+                // Configurar botones de exportación
+                $(document).on('click', '#exportExcelReservas', function(e) {
+                    e.preventDefault();
+                    window.location.href = '/superadmin/reservas/export/excel';
+                });
+
+                $(document).on('click', '#exportPdfReservas', function(e) {
+                    e.preventDefault();
+                    window.location.href = '/superadmin/reservas/export/pdf';
+                });
             });
 
         </script>

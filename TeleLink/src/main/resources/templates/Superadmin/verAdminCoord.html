@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 
 
   <!-- Mirrored from themesdesign.in/nazox/layouts/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:30:18 GMT -->
@@ -68,15 +68,34 @@
                         <div class="tab-pane fade show active" id="administradores" role="tabpanel" aria-labelledby="administradores-tab">
                           <div class="mt-3 mb-3 d-inline-flex">
                             <div class="justify-content-start start-0">
-                              <h4 class="card-title mb-1">Coordinadores</h4>
-                              <p class="card-title-desc mb-0 mt-0">Lista completa de usuarios coordinadores</p>
-                            </div>
-                            <div class="d-inline-block justify-content-end position-absolute mb-2 end-0 pb-3 pe-3">
-                              <a type="submit" th:href="@{/superadmin/crearAviso}" class="btn btn-success me-2 visually-hidden">+ Crear nuevo Administrador</a>
+                              <h4 class="card-title mb-1">Administradores</h4>
+                              <p class="card-title-desc mb-0 mt-0">Lista completa de usuarios administradores</p>
                             </div>
                           </div>
 
-                          <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100">
+                          <!-- Export buttons for Administradores -->
+                          <div id="export-buttons-container-admin" class="d-none">
+                            <div class="btn-group" role="group">
+                              <a href="#" id="exportExcelAdmin" class="btn btn-success btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>
+                                Exportar Excel
+                              </a>
+                              <a href="#" id="exportPdfAdmin" class="btn btn-danger btn-sm">
+                                <i class="fas fa-file-pdf me-1"></i>
+                                Exportar PDF
+                              </a>
+                            </div>
+                          </div>
+
+                          <!-- Loader for Administradores -->
+                          <div id="loading-container-admin" class="text-center p-4">
+                            <div class="spinner-border text-primary" role="status">
+                              <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <div class="mt-2">Cargando administradores...</div>
+                          </div>
+
+                          <table id="alternative-page-datatable" class="table table-centered datatable dt-responsive nowrap" style="display: none;">
                             <thead>
                               <tr>
                                 <th style="width: 40px">ID</th>
@@ -183,12 +202,31 @@
                               <h4 class="card-title mb-1">Coordinadores</h4>
                               <p class="card-title-desc mb-0 mt-0">Lista completa de usuarios coordinadores</p>
                             </div>
-                            <div class="d-inline-block justify-content-end position-absolute mb-2 end-0 pb-3 pe-3">
-                              <a type="submit" th:href="@{/superadmin/crearAviso}" class="btn btn-success me-2 visually-hidden">+ Crear nuevo Coordinador</a>
+                          </div>
+
+                          <!-- Export buttons for Coordinadores -->
+                          <div id="export-buttons-container-coord" class="d-none">
+                            <div class="btn-group" role="group">
+                              <a href="#" id="exportExcelCoord" class="btn btn-success btn-sm">
+                                <i class="fas fa-file-excel me-1"></i>
+                                Exportar Excel
+                              </a>
+                              <a href="#" id="exportPdfCoord" class="btn btn-danger btn-sm">
+                                <i class="fas fa-file-pdf me-1"></i>
+                                Exportar PDF
+                              </a>
                             </div>
                           </div>
 
-                          <table id="alternative-page-datatable2" class="table dt-responsive nowrap w-100">
+                          <!-- Loader for Coordinadores -->
+                          <div id="loading-container-coord" class="text-center p-4">
+                            <div class="spinner-border text-primary" role="status">
+                              <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <div class="mt-2">Cargando coordinadores...</div>
+                          </div>
+
+                          <table id="alternative-page-datatable2" class="table table-centered datatable dt-responsive nowrap" style="display: none;">
                             <thead>
                               <tr>
                                 <th style="width: 40px">ID</th>
@@ -539,107 +577,191 @@
 
     <script>
       $(document).ready(function () {
-        // Muestra el símbolo de carga
-        $("#loading").show();
-
-        // Inicializa la primera DataTable
-        var table1 = $('#alternative-page-datatable').DataTable({
-          "columnDefs": [
+        // Inicializar DataTable para Administradores
+        var adminTable = $('#alternative-page-datatable').DataTable({
+          lengthMenu: [5, 10, 25, 50],
+          pageLength: 5,
+          processing: false,
+          serverSide: false,
+          scrollX: true,
+          autoWidth: false,
+          columnDefs: [
             {
-              "targets": [-1], // Aplica a la última columna
-              "orderable": false // Desactiva el ordenamiento
+              targets: [0, -1], // ID y Acciones
+              orderable: false
             },
+            {
+              targets: '_all',
+              className: 'text-nowrap'
+            }
           ],
-          responsive: true,
-          "pageLength": 7,  // Fija el número de registros a mostrar
-          "lengthChange": false,
-          pagingType: "full_numbers",
-          "info": true,  // Habilita la información de las entradas mostradas
-          "language": {
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
-            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
-            "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+          language: {
+            "decimal": "",
+            "emptyTable": "No hay administradores disponibles",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ administradores",
+            "infoEmpty": "Mostrando 0 a 0 de 0 administradores",
+            "infoFiltered": "(filtrado de _MAX_ administradores totales)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ administradores",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron administradores",
+            "paginate": {
+              "first": "Primero",
+              "last": "Último",
+              "next": "<i class='mdi mdi-chevron-right'></i>",
+              "previous": "<i class='mdi mdi-chevron-left'></i>"
+            },
+            "aria": {
+              "sortAscending": ": activar para ordenar ascendente",
+              "sortDescending": ": activar para ordenar descendente"
+            }
           },
-          "initComplete": function () {
-            $(".loader-container").hide();  // Ocultamos el indicador de carga
-            $('#alternative-page-datatable').show();  // Mostramos la tabla 1
+          initComplete: function() {
+            $("#loading-container-admin").remove();
+            $("#alternative-page-datatable").show();
           },
-          drawCallback: function () {
+          drawCallback: function() {
             $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
           }
         });
 
-        // Inicializa la segunda DataTable
-        var table2 = $('#alternative-page-datatable2').DataTable({
-          "columnDefs": [
+        // Inicializar DataTable para Coordinadores
+        var coordTable = $('#alternative-page-datatable2').DataTable({
+          lengthMenu: [5, 10, 25, 50],
+          pageLength: 5,
+          processing: false,
+          serverSide: false,
+          scrollX: true,
+          autoWidth: false,
+          columnDefs: [
             {
-              "targets": [-1], // Aplica a la última columna
-              "orderable": false // Desactiva el ordenamiento
+              targets: [0, -1], // ID y Acciones
+              orderable: false
             },
+            {
+              targets: '_all',
+              className: 'text-nowrap'
+            }
           ],
-          "pageLength": 7,  // Fija el número de registros a mostrar
-          "lengthChange": false,
-          responsive: true,
-          pagingType: "full_numbers",
-          "info": true,  // Habilita la información de las entradas mostradas
-          "language": {
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
-            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
-            "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+          language: {
+            "decimal": "",
+            "emptyTable": "No hay coordinadores disponibles",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ coordinadores",
+            "infoEmpty": "Mostrando 0 a 0 de 0 coordinadores",
+            "infoFiltered": "(filtrado de _MAX_ coordinadores totales)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ coordinadores",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "No se encontraron coordinadores",
+            "paginate": {
+              "first": "Primero",
+              "last": "Último",
+              "next": "<i class='mdi mdi-chevron-right'></i>",
+              "previous": "<i class='mdi mdi-chevron-left'></i>"
+            },
+            "aria": {
+              "sortAscending": ": activar para ordenar ascendente",
+              "sortDescending": ": activar para ordenar descendente"
+            }
           },
-          "initComplete": function () {
-            $(".loader-container").hide();  // Ocultamos el indicador de carga
-            $('#alternative-page-datatable2').show();  // Mostramos la tabla 2
+          initComplete: function() {
+            $("#loading-container-coord").remove();
+            $("#alternative-page-datatable2").show();
           },
-          drawCallback: function () {
+          drawCallback: function() {
             $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
           }
         });
 
-        var table3 = $('#alternative-page-datatable3').DataTable({
-          "columnDefs": [
-            {
-              "targets": [-1], // Aplica a la última columna
-              "orderable": false // Desactiva el ordenamiento
-            },
-          ],
-          "pageLength": 7,  // Fija el número de registros a mostrar
-          "lengthChange": false,
-          responsive: true,
-          pagingType: "full_numbers",
-          "info": true,  // Habilita la información de las entradas mostradas
-          "language": {
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
-            "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
-            "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
-          },
-          "initComplete": function () {
-            $(".loader-container").hide();  // Ocultamos el indicador de carga
-            $('#alternative-page-datatable3').show();  // Mostramos la tabla 2
-          },
-          drawCallback: function () {
-            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+        // Ocultar los selectores de longitud por defecto
+        $(".dataTables_length").hide();
+
+        // Posicionar botones de exportación para Administradores
+        setTimeout(function() {
+          var adminDatatableWrapper = $('#alternative-page-datatable').closest('.dataTables_wrapper');
+          if (adminDatatableWrapper.length > 0) {
+            var adminTopContainer = adminDatatableWrapper.find('.dataTables_length').parent();
+            if (adminTopContainer.length > 0) {
+              var adminExportButtonsContainer = $('#export-buttons-container-admin');
+              adminExportButtonsContainer.removeClass('d-none');
+              
+              var adminButtonWrapper = $('<div class="col-sm-12 col-md-6 d-flex align-items-center"></div>');
+              adminButtonWrapper.append(adminExportButtonsContainer);
+              adminTopContainer.prepend(adminButtonWrapper);
+              
+              var adminFilterContainer = adminDatatableWrapper.find('.dataTables_filter').parent();
+              if (adminFilterContainer.length > 0) {
+                adminFilterContainer.removeClass().addClass('col-sm-12 col-md-6');
+              }
+              
+              adminTopContainer.addClass('row');
+            }
           }
+        }, 100);
+
+        // Posicionar botones de exportación para Coordinadores
+        setTimeout(function() {
+          var coordDatatableWrapper = $('#alternative-page-datatable2').closest('.dataTables_wrapper');
+          if (coordDatatableWrapper.length > 0) {
+            var coordTopContainer = coordDatatableWrapper.find('.dataTables_length').parent();
+            if (coordTopContainer.length > 0) {
+              var coordExportButtonsContainer = $('#export-buttons-container-coord');
+              coordExportButtonsContainer.removeClass('d-none');
+              
+              var coordButtonWrapper = $('<div class="col-sm-12 col-md-6 d-flex align-items-center"></div>');
+              coordButtonWrapper.append(coordExportButtonsContainer);
+              coordTopContainer.prepend(coordButtonWrapper);
+              
+              var coordFilterContainer = coordDatatableWrapper.find('.dataTables_filter').parent();
+              if (coordFilterContainer.length > 0) {
+                coordFilterContainer.removeClass().addClass('col-sm-12 col-md-6');
+              }
+              
+              coordTopContainer.addClass('row');
+            }
+          }
+        }, 100);
+
+        // Configurar botones de exportación para Administradores
+        $(document).on('click', '#exportExcelAdmin', function(e) {
+          e.preventDefault();
+          window.location.href = '/superadmin/administradores/export/excel';
         });
 
-        // Cuando se cambia de pestaña, recalcular la tabla si es necesario
+        $(document).on('click', '#exportPdfAdmin', function(e) {
+          e.preventDefault();
+          window.location.href = '/superadmin/administradores/export/pdf';
+        });
+
+        // Configurar botones de exportación para Coordinadores
+        $(document).on('click', '#exportExcelCoord', function(e) {
+          e.preventDefault();
+          window.location.href = '/superadmin/coordinadores/export/excel';
+        });
+
+        $(document).on('click', '#exportPdfCoord', function(e) {
+          e.preventDefault();
+          window.location.href = '/superadmin/coordinadores/export/pdf';
+        });
+
+        // Ajustar tablas cuando se cambian las pestañas
         $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) {
           var tabID = $(event.target).attr('data-bs-target');
-
-          // Se ajustan las tablas con un pequeño retraso
           setTimeout(function () {
             if (tabID === '#administradores') {
-              table1.columns.adjust().responsive.recalc(); // Ajusta las columnas de la tabla 2
+              adminTable.columns.adjust().responsive.recalc();
             } else if (tabID === '#coordinadores') {
-              table2.columns.adjust().responsive.recalc(); // Ajusta las columnas de la tabla 1
+              coordTable.columns.adjust().responsive.recalc();
             }
-            else if (tabID === '#reembolsos') {
-              table3.columns.adjust().responsive.recalc(); // Ajusta las columnas de la tabla 1
-            }
-          }, 100);  // El retraso de 100ms es para asegurar que la pestaña se haya renderizado completamente
+          }, 100);
         });
       });
-
     </script>
   </body>
 
