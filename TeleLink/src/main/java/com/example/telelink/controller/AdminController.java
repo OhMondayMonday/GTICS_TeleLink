@@ -364,6 +364,7 @@ public class AdminController {
     @GetMapping("mantenimientos/nuevo")
     public String crearMantenimiento(@ModelAttribute("mantenimiento") Mantenimiento mantenimiento, Model model) {
         model.addAttribute("espaciosDeportivos", espacioDeportivoRepository.findAll());
+        model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
         return "admin/mantenimientoForm";
     }
 
@@ -375,6 +376,7 @@ public class AdminController {
         if (optMantenimiento.isPresent()) {
             model.addAttribute("mantenimiento", optMantenimiento.get()); // ✅ Corregido
             model.addAttribute("espaciosDeportivos", espacioDeportivoRepository.findAll());
+            model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
             return "admin/mantenimientoForm";
         } else {
             return "redirect:/admin/mantenimientos";
@@ -437,6 +439,7 @@ public class AdminController {
 
     if (bindingResult.hasErrors()) {
         model.addAttribute("espaciosDeportivos", espacioDeportivoRepository.findAll());
+        model.addAttribute("establecimientos", establecimientoDeportivoRepository.findAll());
         return "admin/mantenimientoForm";
     }
 

@@ -32,14 +32,17 @@
                                         <select class="form-select" th:field="*{espacioDeportivo}" 
                                                 th:classappend="${#fields.hasErrors('espacioDeportivo')} ? 'is-invalid' : ''" required>
                                             <option value="">Seleccione un espacio deportivo</option>
-                                            <optgroup th:each="establecimiento : ${espaciosDeportivos.groupBy(espacioDeportivo -> espacioDeportivo.establecimientoDeportivo)}" 
-                                                      th:label="${establecimiento.key.establecimientoDeportivoNombre}">
-                                                <option th:each="espacio : ${establecimiento.value}" 
-                                                        th:value="${espacio.espacioDeportivoId}" 
-                                                        th:text="${espacio.nombre + ' - ' + espacio.servicioDeportivo.servicioDeportivo}"
-                                                        th:selected="${mantenimiento.espacioDeportivo != null && mantenimiento.espacioDeportivo.espacioDeportivoId == espacio.espacioDeportivoId}">
-                                                </option>
-                                            </optgroup>
+                                            <th:block th:each="establecimiento : ${establecimientos}">
+                                                <optgroup th:label="${establecimiento.establecimientoDeportivoNombre}">
+                                                    <th:block th:each="espacio : ${espaciosDeportivos}">
+                                                        <option th:if="${espacio.establecimientoDeportivo.establecimientoDeportivoId == establecimiento.establecimientoDeportivoId}"
+                                                                th:value="${espacio.espacioDeportivoId}" 
+                                                                th:text="${espacio.nombre + ' (' + espacio.servicioDeportivo.servicioDeportivo + ')'}"
+                                                                th:selected="${mantenimiento.espacioDeportivo != null && mantenimiento.espacioDeportivo.espacioDeportivoId == espacio.espacioDeportivoId}">
+                                                        </option>
+                                                    </th:block>
+                                                </optgroup>
+                                            </th:block>
                                         </select>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('espacioDeportivo')}" 
                                              th:errors="*{espacioDeportivo}"></div>
