@@ -220,4 +220,40 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
                 @Param("fin") LocalDateTime fin,
                 @Param("establecimientoId") Integer establecimientoId);
 
+
+        /* Chatbot */
+        @Query("SELECT r FROM Reserva r " +
+                "JOIN r.espacioDeportivo ed " +
+                "JOIN ed.servicioDeportivo sd " +
+                "WHERE sd.servicioDeportivoId = :servicioId " +
+                "AND r.inicioReserva < :fin " +
+                "AND r.finReserva > :inicio " +
+                "AND r.estado NOT IN ('cancelada')")
+        List<Reserva> findActiveReservationsByServicioAndTimeRange(
+                @Param("servicioId") Integer servicioId,
+                @Param("inicio") LocalDateTime inicio,
+                @Param("fin") LocalDateTime fin);
+
+
+        @Query("SELECT r FROM Reserva r WHERE r.espacioDeportivo.espacioDeportivoId = :espacioId " +
+                "AND r.inicioReserva < :fin AND r.finReserva > :inicio " +
+                "AND r.estado IN ('pendiente', 'confirmada', 'en_proceso')")
+        List<Reserva> findActiveReservationsForEspacio(
+                @Param("espacioId") Integer espacioId,
+                @Param("inicio") LocalDateTime inicio,
+                @Param("fin") LocalDateTime fin);
+
+        @Query("SELECT r FROM Reserva r WHERE r.usuario = :usuario " +
+                "AND r.espacioDeportivo.espacioDeportivoId = :espacioId " +
+                "AND r.inicioReserva < :fin AND r.finReserva > :inicio " +
+                "AND r.estado IN ('pendiente', 'confirmada', 'en_proceso')")
+        List<Reserva> findByUsuarioAndEspacioDeportivoAndTimeRange(
+                @Param("usuario") Usuario usuario,
+                @Param("espacioId") Integer espacioId,
+                @Param("inicio") LocalDateTime inicio,
+                @Param("fin") LocalDateTime fin);
+
+
+
+
 }

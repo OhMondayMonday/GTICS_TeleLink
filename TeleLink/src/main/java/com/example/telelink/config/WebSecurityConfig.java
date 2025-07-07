@@ -79,8 +79,10 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher(request -> true)  // Esto aplica la regla a todas las rutas
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/chat")) // Disable CSRF for /api/chat
                 .authorizeHttpRequests(auth -> auth
                         // Permitir acceso público a recursos estáticos
+                        .requestMatchers("/api/chat").permitAll()
                         .requestMatchers("/api/chatbot").permitAll()
                         .requestMatchers(
                                 "/assets/**",

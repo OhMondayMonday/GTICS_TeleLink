@@ -38,7 +38,8 @@ public class Reserva {
     @Column(name = "numero_participantes")
     private Integer numeroParticipantes = 1; // Valor por defecto es 1
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = EstadoConverter.class)
+    @Column(name = "estado", nullable = false)
     private Estado estado = Estado.pendiente;
 
     @Column(name = "razon_cancelacion")
@@ -48,9 +49,26 @@ public class Reserva {
     private LocalDateTime fechaCreacion;
 
     @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion;    public enum Estado {
+    private LocalDateTime fechaActualizacion;
+
+
+    public enum Estado {
         pendiente, confirmada, cancelada, completada, en_proceso
     }
+
+    @Converter(autoApply = true)
+    public static class EstadoConverter implements AttributeConverter<Estado, String> {
+        @Override
+        public String convertToDatabaseColumn(Estado estado) {
+            return estado == null ? null : estado.name();
+        }
+
+        @Override
+        public Estado convertToEntityAttribute(String dbData) {
+            return dbData == null ? null : Estado.valueOf(dbData);
+        }
+    }
+
 
     public Integer getReservaId() {
         return reservaId;
