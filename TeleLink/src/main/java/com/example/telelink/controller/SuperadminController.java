@@ -8,8 +8,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,10 +16,28 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.telelink.service.S3Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPCell;
+import java.io.ByteArrayOutputStream;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 @RequestMapping("/superadmin")
@@ -73,14 +89,10 @@ public class SuperadminController {
         Integer reservasPiscina = reservaRepository.obtenerNumeroReservasPorServicio(4);
         Integer reservasGimnasio = reservaRepository.obtenerNumeroReservasPorServicio(1);
         Integer reservasAtletismo = reservaRepository.obtenerNumeroReservasPorServicio(3);
-        BigDecimal pagoPlinMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(2); // ID para Plin
-        BigDecimal pagoYapeMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(1); // ID para Yape
-        BigDecimal pagoIzipayMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(3); // ID para Izipay
-        BigDecimal pagoEfectivoMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(4);
-        BigDecimal pagoPlinSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(2); // ID para Plin
-        BigDecimal pagoYapeSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(1); // ID para Yape
-        BigDecimal pagoIzipaySemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(3); // ID para Izipay
-        BigDecimal pagoEfectivoSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(4); // ID para Efectivo
+        BigDecimal pagoOnlineMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(1); // ID para Pago Online
+        BigDecimal pagoDepositoMensual = pagoRepository.obtenerMontoMensualPorMetodoPago(2); // ID para Depósito Bancario
+        BigDecimal pagoOnlineSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(1); // ID para Pago Online
+        BigDecimal pagoDepositoSemanal = pagoRepository.obtenerMontoSemanalPorMetodoPago(2); // ID para Depósito Bancario
         List<Integer> chartData = Arrays.asList(reservasGimnasio, reservasFutbol, reservasAtletismo, reservasPiscina);
 
         // Calcular la diferencia en las reservas y definir el badge
@@ -113,14 +125,10 @@ public class SuperadminController {
         model.addAttribute("avisos", avisos);
         model.addAttribute("avisoActivo", avisoActivo);
         model.addAttribute("chartData", chartData);
-        model.addAttribute("pagoPlinMensual", pagoPlinMensual);
-        model.addAttribute("pagoYapeMensual", pagoYapeMensual);
-        model.addAttribute("pagoIzipayMensual", pagoIzipayMensual);
-        model.addAttribute("pagoEfectivoMensual", pagoEfectivoMensual);
-        model.addAttribute("pagoPlinSemanal", pagoPlinSemanal);
-        model.addAttribute("pagoYapeSemanal", pagoYapeSemanal);
-        model.addAttribute("pagoIzipaySemanal", pagoIzipaySemanal);
-        model.addAttribute("pagoEfectivoSemanal", pagoEfectivoSemanal);
+        model.addAttribute("pagoOnlineMensual", pagoOnlineMensual);
+        model.addAttribute("pagoDepositoMensual", pagoDepositoMensual);
+        model.addAttribute("pagoOnlineSemanal", pagoOnlineSemanal);
+        model.addAttribute("pagoDepositoSemanal", pagoDepositoSemanal);
 
         // Retornar la vista HTML
         return "Superadmin/Dashboard";  // Nombre de la vista (dashboard.html)
@@ -299,7 +307,7 @@ public class SuperadminController {
         model.addAttribute("nuevosUsuariosEsteMes", nuevosUsuariosEsteMes);
 
         // Obtener lista completa de usuarios
-        List<Usuario> usuarios = usuarioRepository.findAll();
+        List<Usuario> usuarios = usuarioRepository.findAllExceptSuperadmin();
         model.addAttribute("usuarios", usuarios);
 
         return "Superadmin/Usuarios";
@@ -576,5 +584,1775 @@ public class SuperadminController {
     public String listarPagosReservasPerfil() {
         return "verPerfilDetallado";
     }
+    @GetMapping("/usuarios/export/excel")
+public ResponseEntity<byte[]> exportarUsuariosExcel() {
+    try {
+        List<Usuario> usuarios = usuarioRepository.findAllExceptSuperadmin();
 
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Usuarios");
+
+        // Estilo para el encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+
+        // Estilo para las celdas de datos
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+        // Crear encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"ID", "Nombres", "Apellidos", "Correo Electrónico", "DNI", "Teléfono", "Rol", "Estado Cuenta", "Fecha Creación"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Llenar datos
+        int rowNum = 1;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        for (Usuario usuario : usuarios) {
+            Row row = sheet.createRow(rowNum++);
+
+            Cell idCell = row.createCell(0);
+            idCell.setCellValue(usuario.getUsuarioId());
+            idCell.setCellStyle(dataStyle);
+
+            Cell nombresCell = row.createCell(1);
+            nombresCell.setCellValue(usuario.getNombres() != null ? usuario.getNombres() : "");
+            nombresCell.setCellStyle(dataStyle);
+
+            Cell apellidosCell = row.createCell(2);
+            apellidosCell.setCellValue(usuario.getApellidos() != null ? usuario.getApellidos() : "");
+            apellidosCell.setCellStyle(dataStyle);
+
+            Cell correoCell = row.createCell(3);
+            correoCell.setCellValue(usuario.getCorreoElectronico() != null ? usuario.getCorreoElectronico() : "");
+            correoCell.setCellStyle(dataStyle);
+
+            Cell dniCell = row.createCell(4);
+            dniCell.setCellValue(usuario.getDni() != null ? usuario.getDni() : "");
+            dniCell.setCellStyle(dataStyle);
+
+            Cell telefonoCell = row.createCell(5);
+            telefonoCell.setCellValue(usuario.getTelefono() != null ? usuario.getTelefono() : "");
+            telefonoCell.setCellStyle(dataStyle);
+
+            Cell rolCell = row.createCell(6);
+            rolCell.setCellValue(usuario.getRol() != null ? usuario.getRol().getRol() : "");
+            rolCell.setCellStyle(dataStyle);
+
+            Cell estadoCell = row.createCell(7);
+            estadoCell.setCellValue(usuario.getEstadoCuenta() != null ? usuario.getEstadoCuenta().toString() : "");
+            estadoCell.setCellStyle(dataStyle);
+
+            Cell fechaCell = row.createCell(8);
+            fechaCell.setCellValue(usuario.getFechaCreacion() != null ? usuario.getFechaCreacion().format(formatter) : "");
+            fechaCell.setCellStyle(dataStyle);
+        }
+
+        // Ajustar ancho de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) < 3000) {
+                sheet.setColumnWidth(i, 3000);
+            }
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        responseHeaders.setContentDispositionFormData("attachment", "usuarios_superadmin.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/usuarios/export/pdf")
+public ResponseEntity<byte[]> exportarUsuariosPdf() {
+    try {
+        List<Usuario> usuarios = usuarioRepository.findAllExceptSuperadmin();
+
+        Document document = new Document(PageSize.A4.rotate()); // Orientación horizontal
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, outputStream);
+
+        document.open();
+
+        // Título
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+        Paragraph title = new Paragraph("Reporte de Usuarios - Superadmin", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        // Fecha de generación
+        com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+        Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                dateFont);
+        dateGenerated.setAlignment(Element.ALIGN_CENTER);
+        dateGenerated.setSpacingAfter(20);
+        document.add(dateGenerated);
+
+        // Crear tabla
+        PdfPTable table = new PdfPTable(9);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+        table.setSpacingAfter(10f);
+
+        // Configurar anchos de columnas
+        float[] columnWidths = {0.5f, 1.5f, 1.5f, 2f, 1f, 1f, 1f, 1f, 1.5f};
+        table.setWidths(columnWidths);
+
+        // Estilo para encabezados
+        com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
+        BaseColor headerColor = new BaseColor(52, 58, 64);
+
+        // Agregar encabezados
+        String[] headers = {"ID", "Nombres", "Apellidos", "Correo Electrónico", "DNI", "Teléfono", "Rol", "Estado", "Fecha Creación"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(headerColor);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setPadding(6);
+            table.addCell(cell);
+        }
+
+        // Estilo para datos
+        com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Agregar datos
+        for (Usuario usuario : usuarios) {
+            // ID
+            PdfPCell idCell = new PdfPCell(new Phrase(String.valueOf(usuario.getUsuarioId()), dataFont));
+            idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            idCell.setPadding(4);
+            table.addCell(idCell);
+
+            // Nombres
+            PdfPCell nombresCell = new PdfPCell(new Phrase(usuario.getNombres() != null ? usuario.getNombres() : "", dataFont));
+            nombresCell.setPadding(4);
+            table.addCell(nombresCell);
+
+            // Apellidos
+            PdfPCell apellidosCell = new PdfPCell(new Phrase(usuario.getApellidos() != null ? usuario.getApellidos() : "", dataFont));
+            apellidosCell.setPadding(4);
+            table.addCell(apellidosCell);
+
+            // Correo
+            PdfPCell correoCell = new PdfPCell(new Phrase(usuario.getCorreoElectronico() != null ? usuario.getCorreoElectronico() : "", dataFont));
+            correoCell.setPadding(4);
+            table.addCell(correoCell);
+
+            // DNI
+            PdfPCell dniCell = new PdfPCell(new Phrase(usuario.getDni() != null ? usuario.getDni() : "", dataFont));
+            dniCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            dniCell.setPadding(4);
+            table.addCell(dniCell);
+
+            // Teléfono
+            PdfPCell telefonoCell = new PdfPCell(new Phrase(usuario.getTelefono() != null ? usuario.getTelefono() : "", dataFont));
+            telefonoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            telefonoCell.setPadding(4);
+            table.addCell(telefonoCell);
+
+            // Rol
+            PdfPCell rolCell = new PdfPCell(new Phrase(usuario.getRol() != null ? usuario.getRol().getRol() : "", dataFont));
+            rolCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            rolCell.setPadding(4);
+            table.addCell(rolCell);
+
+            // Estado
+            PdfPCell estadoCell = new PdfPCell(new Phrase(usuario.getEstadoCuenta() != null ? usuario.getEstadoCuenta().toString() : "", dataFont));
+            estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            estadoCell.setPadding(4);
+            table.addCell(estadoCell);
+
+            // Fecha
+            PdfPCell fechaCell = new PdfPCell(new Phrase(usuario.getFechaCreacion() != null ? usuario.getFechaCreacion().format(formatter) : "", dataFont));
+            fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            fechaCell.setPadding(4);
+            table.addCell(fechaCell);
+        }
+
+        document.add(table);
+        document.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentDispositionFormData("attachment", "usuarios_superadmin.pdf");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== EXPORTACIÓN ADMINISTRADORES ====================
+@GetMapping("/administradores/export/excel")
+public ResponseEntity<byte[]> exportarAdministradoresExcel() {
+    try {
+        List<Usuario> administradores = usuarioRepository.findByRolId(2);
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Administradores");
+
+        // Estilo para el encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+
+        // Estilo para las celdas de datos
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+        // Crear encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"ID", "Nombres", "Apellidos", "Correo Electrónico", "DNI", "Teléfono", "Estado Cuenta", "Fecha Creación"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Llenar datos
+        int rowNum = 1;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        for (Usuario admin : administradores) {
+            Row row = sheet.createRow(rowNum++);
+
+            Cell idCell = row.createCell(0);
+            idCell.setCellValue(admin.getUsuarioId());
+            idCell.setCellStyle(dataStyle);
+
+            Cell nombresCell = row.createCell(1);
+            nombresCell.setCellValue(admin.getNombres() != null ? admin.getNombres() : "");
+            nombresCell.setCellStyle(dataStyle);
+
+            Cell apellidosCell = row.createCell(2);
+            apellidosCell.setCellValue(admin.getApellidos() != null ? admin.getApellidos() : "");
+            apellidosCell.setCellStyle(dataStyle);
+
+            Cell correoCell = row.createCell(3);
+            correoCell.setCellValue(admin.getCorreoElectronico() != null ? admin.getCorreoElectronico() : "");
+            correoCell.setCellStyle(dataStyle);
+
+            Cell dniCell = row.createCell(4);
+            dniCell.setCellValue(admin.getDni() != null ? admin.getDni() : "");
+            dniCell.setCellStyle(dataStyle);
+
+            Cell telefonoCell = row.createCell(5);
+            telefonoCell.setCellValue(admin.getTelefono() != null ? admin.getTelefono() : "");
+            telefonoCell.setCellStyle(dataStyle);
+
+            Cell estadoCell = row.createCell(6);
+            estadoCell.setCellValue(admin.getEstadoCuenta() != null ? admin.getEstadoCuenta().toString() : "");
+            estadoCell.setCellStyle(dataStyle);
+
+            Cell fechaCell = row.createCell(7);
+            fechaCell.setCellValue(admin.getFechaCreacion() != null ? admin.getFechaCreacion().format(formatter) : "");
+            fechaCell.setCellStyle(dataStyle);
+        }
+
+        // Ajustar ancho de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) < 3000) {
+                sheet.setColumnWidth(i, 3000);
+            }
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        responseHeaders.setContentDispositionFormData("attachment", "administradores_superadmin.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+@GetMapping("/administradores/export/pdf")
+public ResponseEntity<byte[]> exportarAdministradoresPdf() {
+    try {
+        List<Usuario> administradores = usuarioRepository.findByRolId(2);
+
+        Document document = new Document(PageSize.A4.rotate());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, outputStream);
+
+        document.open();
+
+        // Título
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+        Paragraph title = new Paragraph("Reporte de Administradores - Superadmin", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        // Fecha de generación
+        com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+        Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                dateFont);
+        dateGenerated.setAlignment(Element.ALIGN_CENTER);
+        dateGenerated.setSpacingAfter(20);
+        document.add(dateGenerated);
+
+        // Crear tabla
+        PdfPTable table = new PdfPTable(8);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+        table.setSpacingAfter(10f);
+
+        // Configurar anchos de columnas
+        float[] columnWidths = {0.5f, 1.5f, 1.5f, 2f, 1f, 1f, 1f, 1.5f};
+        table.setWidths(columnWidths);
+
+        // Estilo para encabezados
+        com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
+        BaseColor headerColor = new BaseColor(52, 58, 64);
+
+        // Agregar encabezados
+        String[] headers = {"ID", "Nombres", "Apellidos", "Correo Electrónico", "DNI", "Teléfono", "Estado", "Fecha Creación"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(headerColor);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setPadding(6);
+            table.addCell(cell);
+        }
+
+        // Estilo para datos
+        com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Agregar datos
+        for (Usuario admin : administradores) {
+            PdfPCell idCell = new PdfPCell(new Phrase(String.valueOf(admin.getUsuarioId()), dataFont));
+            idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            idCell.setPadding(4);
+            table.addCell(idCell);
+
+            PdfPCell nombresCell = new PdfPCell(new Phrase(admin.getNombres() != null ? admin.getNombres() : "", dataFont));
+            nombresCell.setPadding(4);
+            table.addCell(nombresCell);
+
+            PdfPCell apellidosCell = new PdfPCell(new Phrase(admin.getApellidos() != null ? admin.getApellidos() : "", dataFont));
+            apellidosCell.setPadding(4);
+            table.addCell(apellidosCell);
+
+            PdfPCell correoCell = new PdfPCell(new Phrase(admin.getCorreoElectronico() != null ? admin.getCorreoElectronico() : "", dataFont));
+            correoCell.setPadding(4);
+            table.addCell(correoCell);
+
+            PdfPCell dniCell = new PdfPCell(new Phrase(admin.getDni() != null ? admin.getDni() : "", dataFont));
+            dniCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            dniCell.setPadding(4);
+            table.addCell(dniCell);
+
+            PdfPCell telefonoCell = new PdfPCell(new Phrase(admin.getTelefono() != null ? admin.getTelefono() : "", dataFont));
+            telefonoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            telefonoCell.setPadding(4);
+            table.addCell(telefonoCell);
+
+            PdfPCell estadoCell = new PdfPCell(new Phrase(admin.getEstadoCuenta() != null ? admin.getEstadoCuenta().toString() : "", dataFont));
+            estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            estadoCell.setPadding(4);
+            table.addCell(estadoCell);
+
+            PdfPCell fechaCell = new PdfPCell(new Phrase(admin.getFechaCreacion() != null ? admin.getFechaCreacion().format(formatter) : "", dataFont));
+            fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            fechaCell.setPadding(4);
+            table.addCell(fechaCell);
+        }
+
+        document.add(table);
+        document.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentDispositionFormData("attachment", "administradores_superadmin.pdf");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+// ==================== EXPORTACIÓN COORDINADORES ====================
+@GetMapping("/coordinadores/export/excel")
+public ResponseEntity<byte[]> exportarCoordinadoresExcel() {
+    try {
+        List<Usuario> coordinadores = usuarioRepository.findByRolId(4);
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Coordinadores");
+
+        // Estilo para el encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+
+        // Estilo para las celdas de datos
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+        // Crear encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"ID", "Nombres", "Apellidos", "Correo Electrónico", "DNI", "Teléfono", "Estado Cuenta", "Fecha Creación"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Llenar datos
+        int rowNum = 1;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        for (Usuario coord : coordinadores) {
+            Row row = sheet.createRow(rowNum++);
+
+            Cell idCell = row.createCell(0);
+            idCell.setCellValue(coord.getUsuarioId());
+            idCell.setCellStyle(dataStyle);
+
+            Cell nombresCell = row.createCell(1);
+            nombresCell.setCellValue(coord.getNombres() != null ? coord.getNombres() : "");
+            nombresCell.setCellStyle(dataStyle);
+
+            Cell apellidosCell = row.createCell(2);
+            apellidosCell.setCellValue(coord.getApellidos() != null ? coord.getApellidos() : "");
+            apellidosCell.setCellStyle(dataStyle);
+
+            Cell correoCell = row.createCell(3);
+            correoCell.setCellValue(coord.getCorreoElectronico() != null ? coord.getCorreoElectronico() : "");
+            correoCell.setCellStyle(dataStyle);
+
+            Cell dniCell = row.createCell(4);
+            dniCell.setCellValue(coord.getDni() != null ? coord.getDni() : "");
+            dniCell.setCellStyle(dataStyle);
+
+            Cell telefonoCell = row.createCell(5);
+            telefonoCell.setCellValue(coord.getTelefono() != null ? coord.getTelefono() : "");
+            telefonoCell.setCellStyle(dataStyle);
+
+            Cell estadoCell = row.createCell(6);
+            estadoCell.setCellValue(coord.getEstadoCuenta() != null ? coord.getEstadoCuenta().toString() : "");
+            estadoCell.setCellStyle(dataStyle);
+
+            Cell fechaCell = row.createCell(7);
+            fechaCell.setCellValue(coord.getFechaCreacion() != null ? coord.getFechaCreacion().format(formatter) : "");
+            fechaCell.setCellStyle(dataStyle);
+        }
+
+        // Ajustar ancho de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) < 3000) {
+                sheet.setColumnWidth(i, 3000);
+            }
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        responseHeaders.setContentDispositionFormData("attachment", "coordinadores_superadmin.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+@GetMapping("/coordinadores/export/pdf")
+public ResponseEntity<byte[]> exportarCoordinadoresPdf() {
+    try {
+        List<Usuario> coordinadores = usuarioRepository.findByRolId(4);
+
+        Document document = new Document(PageSize.A4.rotate());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, outputStream);
+
+        document.open();
+
+        // Título
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+        Paragraph title = new Paragraph("Reporte de Coordinadores - Superadmin", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        // Fecha de generación
+        com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+        Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                dateFont);
+        dateGenerated.setAlignment(Element.ALIGN_CENTER);
+        dateGenerated.setSpacingAfter(20);
+        document.add(dateGenerated);
+
+        // Crear tabla
+        PdfPTable table = new PdfPTable(8);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+        table.setSpacingAfter(10f);
+
+        // Configurar anchos de columnas
+        float[] columnWidths = {0.5f, 1.5f, 1.5f, 2f, 1f, 1f, 1f, 1.5f};
+        table.setWidths(columnWidths);
+
+        // Estilo para encabezados
+        com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
+        BaseColor headerColor = new BaseColor(52, 58, 64);
+
+        // Agregar encabezados
+        String[] headers = {"ID", "Nombres", "Apellidos", "Correo Electrónico", "DNI", "Teléfono", "Estado", "Fecha Creación"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(headerColor);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setPadding(6);
+            table.addCell(cell);
+        }
+
+        // Estilo para datos
+        com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Agregar datos
+        for (Usuario coord : coordinadores) {
+            PdfPCell idCell = new PdfPCell(new Phrase(String.valueOf(coord.getUsuarioId()), dataFont));
+            idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            idCell.setPadding(4);
+            table.addCell(idCell);
+
+            PdfPCell nombresCell = new PdfPCell(new Phrase(coord.getNombres() != null ? coord.getNombres() : "", dataFont));
+            nombresCell.setPadding(4);
+            table.addCell(nombresCell);
+
+            PdfPCell apellidosCell = new PdfPCell(new Phrase(coord.getApellidos() != null ? coord.getApellidos() : "", dataFont));
+            apellidosCell.setPadding(4);
+            table.addCell(apellidosCell);
+
+            PdfPCell correoCell = new PdfPCell(new Phrase(coord.getCorreoElectronico() != null ? coord.getCorreoElectronico() : "", dataFont));
+            correoCell.setPadding(4);
+            table.addCell(correoCell);
+
+            PdfPCell dniCell = new PdfPCell(new Phrase(coord.getDni() != null ? coord.getDni() : "", dataFont));
+            dniCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            dniCell.setPadding(4);
+            table.addCell(dniCell);
+
+            PdfPCell telefonoCell = new PdfPCell(new Phrase(coord.getTelefono() != null ? coord.getTelefono() : "", dataFont));
+            telefonoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            telefonoCell.setPadding(4);
+            table.addCell(telefonoCell);
+
+            PdfPCell estadoCell = new PdfPCell(new Phrase(coord.getEstadoCuenta() != null ? coord.getEstadoCuenta().toString() : "", dataFont));
+            estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            estadoCell.setPadding(4);
+            table.addCell(estadoCell);
+
+            PdfPCell fechaCell = new PdfPCell(new Phrase(coord.getFechaCreacion() != null ? coord.getFechaCreacion().format(formatter) : "", dataFont));
+            fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            fechaCell.setPadding(4);
+            table.addCell(fechaCell);
+        }
+
+        document.add(table);
+        document.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentDispositionFormData("attachment", "coordinadores_superadmin.pdf");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+// ==================== EXPORTACIÓN PAGOS ====================
+@GetMapping("/pagos/export/excel")
+public ResponseEntity<byte[]> exportarPagosExcel() {
+    try {
+        List<Pago> pagos = pagoRepository.findAll();
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Pagos");
+
+        // Estilo para el encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+
+        // Estilo para las celdas de datos
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+        // Crear encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"ID", "Usuario", "Reserva ID", "Método de Pago", "Monto", "Fecha Pago", "Estado"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Llenar datos
+        int rowNum = 1;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        for (Pago pago : pagos) {
+            Row row = sheet.createRow(rowNum++);
+
+            Cell idCell = row.createCell(0);
+            idCell.setCellValue(pago.getPagoId());
+            idCell.setCellStyle(dataStyle);
+
+            Cell usuarioCell = row.createCell(1);
+            usuarioCell.setCellValue(pago.getReserva() != null && pago.getReserva().getUsuario() != null ? 
+                pago.getReserva().getUsuario().getNombres() + " " + pago.getReserva().getUsuario().getApellidos() : "");
+            usuarioCell.setCellStyle(dataStyle);
+
+            Cell reservaCell = row.createCell(2);
+            reservaCell.setCellValue(pago.getReserva() != null ? pago.getReserva().getReservaId() : 0);
+            reservaCell.setCellStyle(dataStyle);
+
+            Cell metodoCell = row.createCell(3);
+            metodoCell.setCellValue(pago.getMetodoPago() != null ? pago.getMetodoPago().getMetodoPago() : "");
+            metodoCell.setCellStyle(dataStyle);
+
+            Cell montoCell = row.createCell(4);
+            montoCell.setCellValue(pago.getMonto() != null ? pago.getMonto().doubleValue() : 0.0);
+            montoCell.setCellStyle(dataStyle);
+
+            Cell fechaCell = row.createCell(5);
+            fechaCell.setCellValue(pago.getFechaPago() != null ? pago.getFechaPago().format(formatter) : "");
+            fechaCell.setCellStyle(dataStyle);
+
+            Cell estadoCell = row.createCell(6);
+            estadoCell.setCellValue(pago.getEstadoTransaccion() != null ? pago.getEstadoTransaccion().toString() : "");
+            estadoCell.setCellStyle(dataStyle);
+        }
+
+        // Ajustar ancho de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) < 3000) {
+                sheet.setColumnWidth(i, 3000);
+            }
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        responseHeaders.setContentDispositionFormData("attachment", "pagos_superadmin.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+@GetMapping("/pagos/export/pdf")
+public ResponseEntity<byte[]> exportarPagosPdf() {
+    try {
+        List<Pago> pagos = pagoRepository.findAll();
+
+        Document document = new Document(PageSize.A4.rotate());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, outputStream);
+
+        document.open();
+
+        // Título
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+        Paragraph title = new Paragraph("Reporte de Pagos - Superadmin", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        // Fecha de generación
+        com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+        Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                dateFont);
+        dateGenerated.setAlignment(Element.ALIGN_CENTER);
+        dateGenerated.setSpacingAfter(20);
+        document.add(dateGenerated);
+
+        // Crear tabla
+        PdfPTable table = new PdfPTable(7);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+        table.setSpacingAfter(10f);
+
+        // Configurar anchos de columnas
+        float[] columnWidths = {0.5f, 2f, 1f, 1.5f, 1f, 1.5f, 1f};
+        table.setWidths(columnWidths);
+
+        // Estilo para encabezados
+        com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
+        BaseColor headerColor = new BaseColor(52, 58, 64);
+
+        // Agregar encabezados
+        String[] headers = {"ID", "Usuario", "Reserva ID", "Método de Pago", "Monto", "Fecha Pago", "Estado"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(headerColor);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setPadding(6);
+            table.addCell(cell);
+        }
+
+        // Estilo para datos
+        com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        // Agregar datos
+        for (Pago pago : pagos) {
+            PdfPCell idCell = new PdfPCell(new Phrase(String.valueOf(pago.getPagoId()), dataFont));
+            idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            idCell.setPadding(4);
+            table.addCell(idCell);
+
+            PdfPCell usuarioCell = new PdfPCell(new Phrase(pago.getReserva() != null && pago.getReserva().getUsuario() != null ? 
+                pago.getReserva().getUsuario().getNombres() + " " + pago.getReserva().getUsuario().getApellidos() : "", dataFont));
+            usuarioCell.setPadding(4);
+            table.addCell(usuarioCell);
+
+            PdfPCell reservaCell = new PdfPCell(new Phrase(String.valueOf(pago.getReserva() != null ? pago.getReserva().getReservaId() : 0), dataFont));
+            reservaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            reservaCell.setPadding(4);
+            table.addCell(reservaCell);
+
+            PdfPCell metodoCell = new PdfPCell(new Phrase(pago.getMetodoPago() != null ? pago.getMetodoPago().getMetodoPago() : "", dataFont));
+            metodoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            metodoCell.setPadding(4);
+            table.addCell(metodoCell);
+
+            PdfPCell montoCell = new PdfPCell(new Phrase("S/ " + (pago.getMonto() != null ? pago.getMonto().toString() : "0.00"), dataFont));
+            montoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            montoCell.setPadding(4);
+            table.addCell(montoCell);
+
+            PdfPCell fechaCell = new PdfPCell(new Phrase(pago.getFechaPago() != null ? pago.getFechaPago().format(formatter) : "", dataFont));
+            fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            fechaCell.setPadding(4);
+            table.addCell(fechaCell);
+
+            PdfPCell estadoCell = new PdfPCell(new Phrase(pago.getEstadoTransaccion() != null ? pago.getEstadoTransaccion().toString() : "", dataFont));
+            estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            estadoCell.setPadding(4);
+            table.addCell(estadoCell);
+        }
+
+        document.add(table);
+        document.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentDispositionFormData("attachment", "pagos_superadmin.pdf");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+// ==================== EXPORTACIÓN RESERVAS ====================
+@GetMapping("/reservas/export/excel")
+public ResponseEntity<byte[]> exportarReservasExcel() {
+    try {
+        List<Reserva> reservas = reservaRepository.findAll();
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Reservas");
+
+        // Estilo para el encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+
+        // Estilo para las celdas de datos
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+        // Crear encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"ID", "Usuario", "Establecimiento", "Espacio", "Servicio", "Fecha Inicio", "Fecha Fin", "Estado"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Llenar datos
+        int rowNum = 1;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        for (Reserva reserva : reservas) {
+            Row row = sheet.createRow(rowNum++);
+
+            Cell idCell = row.createCell(0);
+            idCell.setCellValue(reserva.getReservaId());
+            idCell.setCellStyle(dataStyle);
+
+            Cell usuarioCell = row.createCell(1);
+            usuarioCell.setCellValue(reserva.getUsuario() != null ? 
+                reserva.getUsuario().getNombres() + " " + reserva.getUsuario().getApellidos() : "");
+            usuarioCell.setCellStyle(dataStyle);
+
+            Cell establecimientoCell = row.createCell(2);
+            establecimientoCell.setCellValue(reserva.getEspacioDeportivo() != null && reserva.getEspacioDeportivo().getEstablecimientoDeportivo() != null ? 
+                reserva.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre() : "");
+            establecimientoCell.setCellStyle(dataStyle);
+
+            Cell espacioCell = row.createCell(3);
+            espacioCell.setCellValue(reserva.getEspacioDeportivo() != null ? reserva.getEspacioDeportivo().getNombre() : "");
+            espacioCell.setCellStyle(dataStyle);
+
+            Cell servicioCell = row.createCell(4);
+            servicioCell.setCellValue(reserva.getEspacioDeportivo() != null && reserva.getEspacioDeportivo().getServicioDeportivo() != null ? 
+                reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo() : "");
+            servicioCell.setCellStyle(dataStyle);
+
+            Cell inicioCell = row.createCell(5);
+            inicioCell.setCellValue(reserva.getInicioReserva() != null ? reserva.getInicioReserva().format(formatter) : "");
+            inicioCell.setCellStyle(dataStyle);
+
+            Cell finCell = row.createCell(6);
+            finCell.setCellValue(reserva.getFinReserva() != null ? reserva.getFinReserva().format(formatter) : "");
+            finCell.setCellStyle(dataStyle);
+
+            Cell estadoCell = row.createCell(7);
+            estadoCell.setCellValue(reserva.getEstado() != null ? reserva.getEstado().toString() : "");
+            estadoCell.setCellStyle(dataStyle);
+        }
+
+        // Ajustar ancho de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) < 3000) {
+                sheet.setColumnWidth(i, 3000);
+            }
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        responseHeaders.setContentDispositionFormData("attachment", "reservas_superadmin.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+@GetMapping("/reservas/export/pdf")
+public ResponseEntity<byte[]> exportarReservasPdf() {
+    try {
+        List<Reserva> reservas = reservaRepository.findAll();
+
+        Document document = new Document(PageSize.A4.rotate());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, outputStream);
+
+        document.open();
+
+        // Título
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+        Paragraph title = new Paragraph("Reporte de Reservas - Superadmin", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        // Fecha de generación
+        com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+        Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                dateFont);
+        dateGenerated.setAlignment(Element.ALIGN_CENTER);
+        dateGenerated.setSpacingAfter(20);
+        document.add(dateGenerated);
+
+        // Crear tabla
+        PdfPTable table = new PdfPTable(8);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+        table.setSpacingAfter(10f);
+
+        // Configurar anchos de columnas
+        float[] columnWidths = {0.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1f};
+        table.setWidths(columnWidths);
+
+        // Estilo para encabezados
+        com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, BaseColor.WHITE);
+        BaseColor headerColor = new BaseColor(52, 58, 64);
+
+        // Agregar encabezados
+        String[] headers = {"ID", "Usuario", "Establecimiento", "Espacio", "Servicio", "Fecha Inicio", "Fecha Fin", "Estado"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(headerColor);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setPadding(4);
+            table.addCell(cell);
+        }
+
+        // Estilo para datos
+        com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 7);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        // Agregar datos
+        for (Reserva reserva : reservas) {
+            PdfPCell idCell = new PdfPCell(new Phrase(String.valueOf(reserva.getReservaId()), dataFont));
+            idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            idCell.setPadding(3);
+            table.addCell(idCell);
+
+            PdfPCell usuarioCell = new PdfPCell(new Phrase(reserva.getUsuario() != null ? 
+                reserva.getUsuario().getNombres() + " " + reserva.getUsuario().getApellidos() : "", dataFont));
+            usuarioCell.setPadding(3);
+            table.addCell(usuarioCell);
+
+            PdfPCell establecimientoCell = new PdfPCell(new Phrase(reserva.getEspacioDeportivo() != null && reserva.getEspacioDeportivo().getEstablecimientoDeportivo() != null ? 
+                reserva.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre() : "", dataFont));
+            establecimientoCell.setPadding(3);
+            table.addCell(establecimientoCell);
+
+            PdfPCell espacioCell = new PdfPCell(new Phrase(reserva.getEspacioDeportivo() != null ? reserva.getEspacioDeportivo().getNombre() : "", dataFont));
+            espacioCell.setPadding(3);
+            table.addCell(espacioCell);
+
+            PdfPCell servicioCell = new PdfPCell(new Phrase(reserva.getEspacioDeportivo() != null && reserva.getEspacioDeportivo().getServicioDeportivo() != null ? 
+                reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo() : "", dataFont));
+            servicioCell.setPadding(3);
+            table.addCell(servicioCell);
+
+            PdfPCell inicioCell = new PdfPCell(new Phrase(reserva.getInicioReserva() != null ? reserva.getInicioReserva().format(formatter) : "", dataFont));
+            inicioCell.setPadding(3);
+            table.addCell(inicioCell);
+
+            PdfPCell finCell = new PdfPCell(new Phrase(reserva.getFinReserva() != null ? reserva.getFinReserva().format(formatter) : "", dataFont));
+            finCell.setPadding(3);
+            table.addCell(finCell);
+
+            PdfPCell estadoCell = new PdfPCell(new Phrase(reserva.getEstado() != null ? reserva.getEstado().toString() : "", dataFont));
+            estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            estadoCell.setPadding(3);
+            table.addCell(estadoCell);
+        }
+
+        document.add(table);
+        document.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentDispositionFormData("attachment", "reservas_superadmin.pdf");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ==================== EXPORTACIÓN RESERVAS DE USUARIO ====================
+@GetMapping("/usuarios/{id}/reservas/export/excel")
+public ResponseEntity<byte[]> exportarReservasUsuarioExcel(@PathVariable Integer id) {
+    try {
+        // Usar el mismo método que usa la vista para obtener las reservas
+        List<Reserva> reservas = reservaRepository.findByUsuario_UsuarioId(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Reservas_Usuario_" + usuario.getNombres());
+
+        // Estilo para el encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+
+        // Estilo para las celdas de datos
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+        // Crear encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"ID", "Espacio", "Servicio", "Inicio", "Fin", "Estado", "Participantes", "Fecha Creación"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Llenar datos
+        int rowNum = 1;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        for (Reserva reserva : reservas) {
+            Row row = sheet.createRow(rowNum++);
+
+            Cell idCell = row.createCell(0);
+            idCell.setCellValue(reserva.getReservaId());
+            idCell.setCellStyle(dataStyle);
+
+            Cell espacioCell = row.createCell(1);
+            espacioCell.setCellValue(reserva.getEspacioDeportivo() != null ? reserva.getEspacioDeportivo().getNombre() : "N/A");
+            espacioCell.setCellStyle(dataStyle);
+
+            Cell servicioCell = row.createCell(2);
+            servicioCell.setCellValue(reserva.getEspacioDeportivo() != null && reserva.getEspacioDeportivo().getServicioDeportivo() != null ? 
+                    reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo() : "N/A");
+            servicioCell.setCellStyle(dataStyle);
+
+            Cell inicioCell = row.createCell(3);
+            inicioCell.setCellValue(reserva.getInicioReserva() != null ? reserva.getInicioReserva().format(formatter) : "N/A");
+            inicioCell.setCellStyle(dataStyle);
+
+            Cell finCell = row.createCell(4);
+            finCell.setCellValue(reserva.getFinReserva() != null ? reserva.getFinReserva().format(formatter) : "N/A");
+            finCell.setCellStyle(dataStyle);
+
+            Cell estadoCell = row.createCell(5);
+            estadoCell.setCellValue(reserva.getEstado() != null ? reserva.getEstado().toString() : "N/A");
+            estadoCell.setCellStyle(dataStyle);
+
+            Cell participantesCell = row.createCell(6);
+            participantesCell.setCellValue(reserva.getNumeroParticipantes() != null ? reserva.getNumeroParticipantes() : 1);
+            participantesCell.setCellStyle(dataStyle);
+
+            Cell fechaCreacionCell = row.createCell(7);
+            fechaCreacionCell.setCellValue(reserva.getFechaCreacion() != null ? reserva.getFechaCreacion().format(formatter) : "N/A");
+            fechaCreacionCell.setCellStyle(dataStyle);
+        }
+
+        // Ajustar ancho de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) < 3000) {
+                sheet.setColumnWidth(i, 3000);
+            }
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        responseHeaders.setContentDispositionFormData("attachment", "reservas_usuario_" + usuario.getNombres() + "_" + usuario.getApellidos() + ".xlsx");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+@GetMapping("/usuarios/{id}/reservas/export/pdf")
+public ResponseEntity<byte[]> exportarReservasUsuarioPdf(@PathVariable Integer id) {
+    try {
+        // Usar el mismo método que usa la vista para obtener las reservas
+        List<Reserva> reservas = reservaRepository.findByUsuario_UsuarioId(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Document document = new Document(PageSize.A4.rotate());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, outputStream);
+
+        document.open();
+
+        // Título
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+        Paragraph title = new Paragraph("Reservas de " + usuario.getNombres() + " " + usuario.getApellidos(), titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        // Fecha de generación
+        com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+        Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                dateFont);
+        dateGenerated.setAlignment(Element.ALIGN_CENTER);
+        dateGenerated.setSpacingAfter(20);
+        document.add(dateGenerated);
+
+        // Crear tabla
+        PdfPTable table = new PdfPTable(8);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+        table.setSpacingAfter(10f);
+
+        // Configurar anchos de columnas
+        float[] columnWidths = {0.5f, 1.5f, 1.5f, 1.5f, 1.5f, 1f, 1f, 1.5f};
+        table.setWidths(columnWidths);
+
+        // Estilo para encabezados
+        com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
+        BaseColor headerColor = new BaseColor(52, 58, 64);
+
+        // Agregar encabezados
+        String[] headers = {"ID", "Espacio", "Servicio", "Inicio", "Fin", "Estado", "Participantes", "Fecha Creación"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(headerColor);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setPadding(6);
+            table.addCell(cell);
+        }
+
+        // Estilo para datos
+        com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        // Agregar datos
+        for (Reserva reserva : reservas) {
+            PdfPCell idCell = new PdfPCell(new Phrase(String.valueOf(reserva.getReservaId()), dataFont));
+            idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            idCell.setPadding(4);
+            table.addCell(idCell);
+
+            PdfPCell espacioCell = new PdfPCell(new Phrase(reserva.getEspacioDeportivo() != null ? reserva.getEspacioDeportivo().getNombre() : "N/A", dataFont));
+            espacioCell.setPadding(4);
+            table.addCell(espacioCell);
+
+            PdfPCell servicioCell = new PdfPCell(new Phrase(reserva.getEspacioDeportivo() != null && reserva.getEspacioDeportivo().getServicioDeportivo() != null ? 
+                    reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo() : "N/A", dataFont));
+            servicioCell.setPadding(4);
+            table.addCell(servicioCell);
+
+            PdfPCell inicioCell = new PdfPCell(new Phrase(reserva.getInicioReserva() != null ? reserva.getInicioReserva().format(formatter) : "N/A", dataFont));
+            inicioCell.setPadding(4);
+            table.addCell(inicioCell);
+
+            PdfPCell finCell = new PdfPCell(new Phrase(reserva.getFinReserva() != null ? reserva.getFinReserva().format(formatter) : "N/A", dataFont));
+            finCell.setPadding(4);
+            table.addCell(finCell);
+
+            PdfPCell estadoCell = new PdfPCell(new Phrase(reserva.getEstado() != null ? reserva.getEstado().toString() : "N/A", dataFont));
+            estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            estadoCell.setPadding(4);
+            table.addCell(estadoCell);
+
+            PdfPCell participantesCell = new PdfPCell(new Phrase(String.valueOf(reserva.getNumeroParticipantes() != null ? reserva.getNumeroParticipantes() : 1), dataFont));
+            participantesCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            participantesCell.setPadding(4);
+            table.addCell(participantesCell);
+
+            PdfPCell fechaCreacionCell = new PdfPCell(new Phrase(reserva.getFechaCreacion() != null ? reserva.getFechaCreacion().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A", dataFont));
+            fechaCreacionCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            fechaCreacionCell.setPadding(4);
+            table.addCell(fechaCreacionCell);
+        }
+
+        document.add(table);
+        document.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentDispositionFormData("attachment", "reservas_usuario_" + usuario.getNombres() + "_" + usuario.getApellidos() + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+// ==================== EXPORTACIÓN PAGOS DE USUARIO ====================
+@GetMapping("/usuarios/{id}/pagos/export/excel")
+public ResponseEntity<byte[]> exportarPagosUsuarioExcel(@PathVariable Integer id) {
+    try {
+        // Usar el mismo método que usa la vista para obtener los pagos
+        List<Pago> pagos = pagoRepository.findByReserva_Usuario_UsuarioId(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Pagos_Usuario_" + usuario.getNombres());
+
+        // Estilo para el encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+
+        // Estilo para las celdas de datos
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+        // Crear encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"ID", "Reserva ID", "Método Pago", "Monto", "Estado", "Fecha Pago", "Transacción ID"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Llenar datos
+        int rowNum = 1;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        for (Pago pago : pagos) {
+            Row row = sheet.createRow(rowNum++);
+
+            Cell idCell = row.createCell(0);
+            idCell.setCellValue(pago.getPagoId());
+            idCell.setCellStyle(dataStyle);
+
+            Cell reservaCell = row.createCell(1);
+            reservaCell.setCellValue(pago.getReserva() != null ? pago.getReserva().getReservaId() : 0);
+            reservaCell.setCellStyle(dataStyle);
+
+            Cell metodoCell = row.createCell(2);
+            metodoCell.setCellValue(pago.getMetodoPago() != null ? pago.getMetodoPago().getMetodoPago() : "N/A");
+            metodoCell.setCellStyle(dataStyle);
+
+            Cell montoCell = row.createCell(3);
+            montoCell.setCellValue(pago.getMonto() != null ? pago.getMonto().doubleValue() : 0.0);
+            montoCell.setCellStyle(dataStyle);
+
+            Cell estadoCell = row.createCell(4);
+            estadoCell.setCellValue(pago.getEstadoTransaccion() != null ? pago.getEstadoTransaccion().toString() : "N/A");
+            estadoCell.setCellStyle(dataStyle);
+
+            Cell fechaCell = row.createCell(5);
+            fechaCell.setCellValue(pago.getFechaPago() != null ? pago.getFechaPago().format(formatter) : "N/A");
+            fechaCell.setCellStyle(dataStyle);
+
+            Cell transaccionCell = row.createCell(6);
+            transaccionCell.setCellValue(pago.getTransaccionId() != null ? pago.getTransaccionId() : "N/A");
+            transaccionCell.setCellStyle(dataStyle);
+        }
+
+        // Ajustar ancho de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) < 3000) {
+                sheet.setColumnWidth(i, 3000);
+            }
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        responseHeaders.setContentDispositionFormData("attachment", "pagos_usuario_" + usuario.getNombres() + "_" + usuario.getApellidos() + ".xlsx");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+@GetMapping("/usuarios/{id}/pagos/export/pdf")
+public ResponseEntity<byte[]> exportarPagosUsuarioPdf(@PathVariable Integer id) {
+    try {
+        // Usar el mismo método que usa la vista para obtener los pagos
+        List<Pago> pagos = pagoRepository.findByReserva_Usuario_UsuarioId(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Document document = new Document(PageSize.A4.rotate());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, outputStream);
+
+        document.open();
+
+        // Título
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+        Paragraph title = new Paragraph("Pagos de " + usuario.getNombres() + " " + usuario.getApellidos(), titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        // Fecha de generación
+        com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+        Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                dateFont);
+        dateGenerated.setAlignment(Element.ALIGN_CENTER);
+        dateGenerated.setSpacingAfter(20);
+        document.add(dateGenerated);
+
+        // Crear tabla
+        PdfPTable table = new PdfPTable(7);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+        table.setSpacingAfter(10f);
+
+        // Configurar anchos de columnas
+        float[] columnWidths = {0.5f, 1f, 1.5f, 1f, 1f, 1.5f, 1.5f};
+        table.setWidths(columnWidths);
+
+        // Estilo para encabezados
+        com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
+        BaseColor headerColor = new BaseColor(52, 58, 64);
+
+        // Agregar encabezados
+        String[] headers = {"ID", "Reserva ID", "Método Pago", "Monto", "Estado", "Fecha Pago", "Transacción ID"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(headerColor);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setPadding(6);
+            table.addCell(cell);
+        }
+
+        // Estilo para datos
+        com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        // Agregar datos
+        for (Pago pago : pagos) {
+            PdfPCell idCell = new PdfPCell(new Phrase(String.valueOf(pago.getPagoId()), dataFont));
+            idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            idCell.setPadding(4);
+            table.addCell(idCell);
+
+            PdfPCell reservaCell = new PdfPCell(new Phrase(String.valueOf(pago.getReserva() != null ? pago.getReserva().getReservaId() : 0), dataFont));
+            reservaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            reservaCell.setPadding(4);
+            table.addCell(reservaCell);
+
+            PdfPCell metodoCell = new PdfPCell(new Phrase(pago.getMetodoPago() != null ? pago.getMetodoPago().getMetodoPago() : "N/A", dataFont));
+            metodoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            metodoCell.setPadding(4);
+            table.addCell(metodoCell);
+
+            PdfPCell montoCell = new PdfPCell(new Phrase("S/ " + (pago.getMonto() != null ? pago.getMonto().toString() : "0.00"), dataFont));
+            montoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            montoCell.setPadding(4);
+            table.addCell(montoCell);
+
+            PdfPCell estadoCell = new PdfPCell(new Phrase(pago.getEstadoTransaccion() != null ? pago.getEstadoTransaccion().toString() : "N/A", dataFont));
+            estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            estadoCell.setPadding(4);
+            table.addCell(estadoCell);
+
+            PdfPCell fechaCell = new PdfPCell(new Phrase(pago.getFechaPago() != null ? pago.getFechaPago().format(formatter) : "N/A", dataFont));
+            fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            fechaCell.setPadding(4);
+            table.addCell(fechaCell);
+
+            PdfPCell transaccionCell = new PdfPCell(new Phrase(pago.getTransaccionId() != null ? pago.getTransaccionId() : "N/A", dataFont));
+            transaccionCell.setPadding(4);
+            table.addCell(transaccionCell);
+        }
+
+        document.add(table);
+        document.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentDispositionFormData("attachment", "pagos_usuario_" + usuario.getNombres() + "_" + usuario.getApellidos() + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+// ==================== EXPORTACIÓN REEMBOLSOS DE USUARIO ====================
+@GetMapping("/usuarios/{id}/reembolsos/export/excel")
+public ResponseEntity<byte[]> exportarReembolsosUsuarioExcel(@PathVariable Integer id) {
+    try {
+        // Usar el mismo método que usa la vista para obtener los reembolsos
+        List<Reembolso> reembolsos = reembolsoRepository.findByPago_Reserva_Usuario_UsuarioId(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Reembolsos_Usuario_" + usuario.getNombres());
+
+        // Estilo para el encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+
+        // Estilo para las celdas de datos
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+
+        // Crear encabezados
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"ID", "Pago ID", "Monto", "Estado", "Fecha Reembolso", "Motivo"};
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Llenar datos
+        int rowNum = 1;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        
+        for (Reembolso reembolso : reembolsos) {
+            Row row = sheet.createRow(rowNum++);
+
+            Cell idCell = row.createCell(0);
+            idCell.setCellValue(reembolso.getReembolsoId());
+            idCell.setCellStyle(dataStyle);
+
+            Cell pagoCell = row.createCell(1);
+            pagoCell.setCellValue(reembolso.getPago() != null ? reembolso.getPago().getPagoId() : 0);
+            pagoCell.setCellStyle(dataStyle);
+
+            Cell montoCell = row.createCell(2);
+            montoCell.setCellValue(reembolso.getMonto() != null ? reembolso.getMonto().doubleValue() : 0.0);
+            montoCell.setCellStyle(dataStyle);
+
+            Cell estadoCell = row.createCell(3);
+            estadoCell.setCellValue(reembolso.getEstado() != null ? reembolso.getEstado().toString() : "N/A");
+            estadoCell.setCellStyle(dataStyle);
+
+            Cell fechaCell = row.createCell(4);
+            fechaCell.setCellValue(reembolso.getFechaReembolso() != null ? reembolso.getFechaReembolso().format(formatter) : "N/A");
+            fechaCell.setCellStyle(dataStyle);
+
+            Cell motivoCell = row.createCell(5);
+            motivoCell.setCellValue(reembolso.getMotivo() != null ? reembolso.getMotivo() : "Sin motivo");
+            motivoCell.setCellStyle(dataStyle);
+        }
+
+        // Ajustar ancho de columnas
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            if (sheet.getColumnWidth(i) < 3000) {
+                sheet.setColumnWidth(i, 3000);
+            }
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        responseHeaders.setContentDispositionFormData("attachment", "reembolsos_usuario_" + usuario.getNombres() + "_" + usuario.getApellidos() + ".xlsx");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+@GetMapping("/usuarios/{id}/reembolsos/export/pdf")
+public ResponseEntity<byte[]> exportarReembolsosUsuarioPdf(@PathVariable Integer id) {
+    try {
+        // Usar el mismo método que usa la vista para obtener los reembolsos
+        List<Reembolso> reembolsos = reembolsoRepository.findByPago_Reserva_Usuario_UsuarioId(id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Document document = new Document(PageSize.A4.rotate());
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, outputStream);
+
+        document.open();
+
+        // Título
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
+        Paragraph title = new Paragraph("Reembolsos de " + usuario.getNombres() + " " + usuario.getApellidos(), titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        // Fecha de generación
+        com.itextpdf.text.Font dateFont = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.GRAY);
+        Paragraph dateGenerated = new Paragraph("Fecha de generación: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                dateFont);
+        dateGenerated.setAlignment(Element.ALIGN_CENTER);
+        dateGenerated.setSpacingAfter(20);
+        document.add(dateGenerated);
+
+        // Crear tabla
+        PdfPTable table = new PdfPTable(6);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10f);
+        table.setSpacingAfter(10f);
+
+        // Configurar anchos de columnas
+        float[] columnWidths = {0.5f, 1f, 1f, 1f, 1.5f, 2f};
+        table.setWidths(columnWidths);
+
+        // Estilo para encabezados
+        com.itextpdf.text.Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, BaseColor.WHITE);
+        BaseColor headerColor = new BaseColor(52, 58, 64);
+
+        // Agregar encabezados
+        String[] headers = {"ID", "Pago ID", "Monto", "Estado", "Fecha Reembolso", "Motivo"};
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
+            cell.setBackgroundColor(headerColor);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setPadding(6);
+            table.addCell(cell);
+        }
+
+        // Estilo para datos
+        com.itextpdf.text.Font dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        // Agregar datos
+        for (Reembolso reembolso : reembolsos) {
+            PdfPCell idCell = new PdfPCell(new Phrase(String.valueOf(reembolso.getReembolsoId()), dataFont));
+            idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            idCell.setPadding(4);
+            table.addCell(idCell);
+
+            PdfPCell pagoCell = new PdfPCell(new Phrase(String.valueOf(reembolso.getPago() != null ? reembolso.getPago().getPagoId() : 0), dataFont));
+            pagoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            pagoCell.setPadding(4);
+            table.addCell(pagoCell);
+
+            PdfPCell montoCell = new PdfPCell(new Phrase("S/ " + (reembolso.getMonto() != null ? reembolso.getMonto().toString() : "0.00"), dataFont));
+            montoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            montoCell.setPadding(4);
+            table.addCell(montoCell);
+
+            PdfPCell estadoCell = new PdfPCell(new Phrase(reembolso.getEstado() != null ? reembolso.getEstado().toString() : "N/A", dataFont));
+            estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            estadoCell.setPadding(4);
+            table.addCell(estadoCell);
+
+            PdfPCell fechaCell = new PdfPCell(new Phrase(reembolso.getFechaReembolso() != null ? reembolso.getFechaReembolso().format(formatter) : "N/A", dataFont));
+            fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            fechaCell.setPadding(4);
+            table.addCell(fechaCell);
+
+            PdfPCell motivoCell = new PdfPCell(new Phrase(reembolso.getMotivo() != null ? 
+                    (reembolso.getMotivo().length() > 50 ? reembolso.getMotivo().substring(0, 50) + "..." : reembolso.getMotivo()) : "Sin motivo", dataFont));
+            motivoCell.setPadding(4);
+            table.addCell(motivoCell);
+        }
+
+        document.add(table);
+        document.close();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_PDF);
+        responseHeaders.setContentDispositionFormData("attachment", "reembolsos_usuario_" + usuario.getNombres() + "_" + usuario.getApellidos() + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(responseHeaders)
+                .body(outputStream.toByteArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

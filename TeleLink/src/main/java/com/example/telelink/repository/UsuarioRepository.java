@@ -106,4 +106,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query("SELECT u FROM Usuario u WHERE u.rol.rol = :rol AND u.estadoCuenta = :estado ORDER BY u.apellidos, u.nombres")
     List<Usuario> findByRol_RolAndEstadoCuenta(@Param("rol") String rol, @Param("estado") Usuario.EstadoCuenta estado);
 
+    @Query("SELECT u FROM Usuario u WHERE u.rol.rol != 'superadmin' ORDER BY u.apellidos, u.nombres")
+    List<Usuario> findAllExceptSuperadmin();
 }

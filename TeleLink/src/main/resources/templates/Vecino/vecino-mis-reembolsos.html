@@ -8,7 +8,7 @@
     <div class="main-content">
         <div class="page-content">
             <div class="container-fluid">
-                <div class="row">
+                <!--<div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                             <h4 class="mb-sm-0">Mis Reembolsos</h4>
@@ -20,25 +20,26 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>-->
                 <div class="card">
-                    <div class="card-body pt-0">
-                        <ul class="nav nav-tabs nav-tabs-custom mb-4">
-                            <li class="nav-item">
-                                <a class="nav-link fw-bold p-3 active" href="#">Mis reembolsos</a>
-                            </li>
-                        </ul>
-                        <div th:if="${#lists.isEmpty(reembolsos)}">
-                            <p class="text-danger">No se encontraron reembolsos para este usuario.</p>
+                    <div class="card-body">
+                        
+
+                        <!-- Loader for Reembolsos -->
+                        <div id="loading-container-reembolsos" class="text-center p-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <div class="mt-2">Cargando reembolsos...</div>
                         </div>
-                        <div th:if="${!#lists.isEmpty(reembolsos)}">
-                            <p class="text-success">Sí hay reembolsos.</p>
-                        </div>
-                        <div class="table-responsive">
-                            <table id="tablaReembolso" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                <thead class="thead-light">
+
+                        <!-- Tabla envuelta en contenedor oculto -->
+                        <div id="table-content-reembolsos" style="display: none;">
+                                
+                            <div class="table-responsive">
+                            <table id="tablaReembolsos" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                <thead>
                                 <tr>
-                                    <th></th>
                                     <th>Servicio Deportivo</th>
                                     <th>Fecha y Hora</th>
                                     <th>Monto</th>
@@ -51,8 +52,10 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="reembolso : ${reembolsos}">
-                                    <td></td>
-                                    <td th:text="${reembolso.pago.reserva.espacioDeportivo.nombre}">Nombre</td>
+                                    <td>
+                                        <p th:text="${reembolso.pago.reserva.espacioDeportivo.nombre}">Nombre</p>
+                                        <p th:text="${reembolso.pago.reserva.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre}"></p>
+                                    </td>
                                     <td th:text="${#temporals.format(reembolso.pago.reserva.inicioReserva, 'dd MMM, yyyy - h:mm a')}">Fecha</td>
                                     <td th:text="'S/ ' + ${reembolso.monto}">S/ 0.00</td>
                                     <td>
@@ -101,6 +104,7 @@
                                 </tr>
                                 </tbody>
                             </table>
+                        </div>
                         </div>
                         <!-- Modal Comprobante -->
                         <div class="modal fade" id="modalComprobante" tabindex="-1" aria-labelledby="modal-header-label" aria-hidden="true">
@@ -166,6 +170,30 @@
 <script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
 <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
 <script th:src="@{/assets/js/app.js}"></script>
+
+<!-- Agregar margen inferior a la tabla -->
+<style>
+#tablaReembolsos {
+    margin-bottom: 15px !important;
+}
+
+/* Evitar que DataTables aplique anchos específicos */
+#tablaReembolsos th,
+#tablaReembolsos td {
+    width: auto !important;
+}
+
+#tablaReembolsos {
+    width: 100% !important;
+    table-layout: auto !important;
+}
+
+/* Limpiar estilos específicos de DataTables */
+.dataTables_wrapper .table {
+    width: 100% !important;
+}
+</style>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Script para cargar imagen en modal comprobante
@@ -255,9 +283,65 @@
         });
 
         // Inicializar DataTable
-        $('#tablaReembolso').DataTable({
-            responsive: true,
-            columnDefs: [{ orderable: false, targets: [0, 7, 8] }]
+        var reembolsosTable = $('#tablaReembolsos').DataTable({
+            lengthMenu: [5, 10, 25, 50],
+            pageLength: 5,
+            processing: false,
+            serverSide: false,
+            scrollX: true,
+            autoWidth: true, // Permitir que calcule anchos automáticamente
+            columnDefs: [
+                {
+                    targets: [-2, -1], // Comprobante y Detalles (últimas dos columnas)
+                    orderable: false
+                },
+                {
+                    targets: '_all',
+                    className: 'text-nowrap',
+                    width: null // Forzar que no aplique anchos específicos
+                }
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay reembolsos disponibles",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ reembolsos",
+                "infoEmpty": "Mostrando 0 a 0 de 0 reembolsos",
+                "infoFiltered": "(filtrado de _MAX_ reembolsos totales)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ reembolsos",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron reembolsos",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "<i class='mdi mdi-chevron-right'></i>",
+                    "previous": "<i class='mdi mdi-chevron-left'></i>"
+                },
+                "aria": {
+                    "sortAscending": ": activar para ordenar ascendente",
+                    "sortDescending": ": activar para ordenar descendente"
+                }
+            },
+            drawCallback: function() {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+            initComplete: function() {
+                $("#loading-container-reembolsos").remove();
+                $("#table-content-reembolsos").show();
+                
+                // Ocultar selector de longitud para mantener 10 registros fijos
+                $(".dataTables_length").hide();
+                
+                // Limpiar anchos específicos aplicados por DataTables
+                $('#tablaReembolsos th, #tablaReembolsos td').css('width', '');
+                $('#tablaReembolsos').css({
+                    'width': '100%',
+                    'table-layout': 'auto'
+                });
+            }
         });
     });
 </script>

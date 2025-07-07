@@ -65,15 +65,14 @@
                         <img th:src="${session.usuario?.fotoPerfilUrl != null} ?
                                                   ${session.usuario.fotoPerfilUrl} :
                                                   '/assets/images/users/defaultfoto.jpg'"
-                             class="me-1 rounded-circle avatar-sm"
+                             class="rounded-circle header-profile-user"
                              alt="Foto de perfil">
                         <span class="d-none d-xl-inline-block ms-1" th:text="${session.usuario.getNombres()}"></span>
                         <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <!-- item-->
-                        <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Perfil</a>
-                        <div class="dropdown-divider"></div>
+                        <!-- Perfil option removed for Superadmin -->
+                        
                         <!--<a class="dropdown-item text-danger" href="#"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Cerrar sesión</a>-->
                         <form th:action="@{/logout}" method="post" style="display:inline;">
                             <button type="submit" class="dropdown-item text-danger" style="background:none;border:none;">

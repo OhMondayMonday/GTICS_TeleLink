@@ -110,11 +110,34 @@
                                     <p class="card-title-desc mb-0">
                                         Lista de usuarios de la plataforma San Miguel
                                     </p>
+                                    
+                                    <!-- Export buttons will be positioned via JavaScript after DataTable initialization -->
+                                    <div id="export-buttons-container" class="d-none">
+                                        <div class="btn-group" role="group">
+                                            <a href="#" id="exportExcel" class="btn btn-success btn-sm">
+                                                <i class="fas fa-file-excel me-1"></i>
+                                                Exportar Excel
+                                            </a>
+                                            <a href="#" id="exportPdf" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-file-pdf me-1"></i>
+                                                Exportar PDF
+                                            </a>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Loader -->
+                                    <div id="loading-container" class="text-center p-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Cargando...</span>
+                                        </div>
+                                        <div class="mt-2">Cargando usuarios...</div>
+                                    </div>
+                                    
                                     <div class="table-responsive">
-                                        <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100 display" style="display: none;">
+                                        <table id="usuariosTable" class="table table-centered datatable dt-responsive nowrap" data-bs-page-length="5" style="border-collapse: collapse; border-spacing: 0; width: 100%; display: none;">
                                             <thead>
                                                 <tr>
-                                                    <th style="width: 40px">ID</th>
+                                                    <th>ID</th>
                                                     <th>Nombre</th>
                                                     <th>Rol</th>
                                                     <th>DNI</th>
@@ -122,7 +145,7 @@
                                                     <th>Celular</th>
                                                     <th>Fecha creación</th>
                                                     <th>Estado</th>
-                                                    <th style="width: 20px">Acción</th>
+                                                    <th>Acciones</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -140,8 +163,8 @@
                                                     <td th:text="${#temporals.format(usuario.fechaCreacion, 'dd/MM/yyyy')}"></td>
                                                     <td>
                                                     <span th:switch="${usuario.estadoCuenta.name()}">
-                                                        <span th:case="'activo'" class="badge  bg-success-subtle text-success font-size-12">Activo</span>
-                                                        <span th:case="'baneado'" class="badge  bg-danger-subtle text-danger font-size-12">Baneado</span>
+                                                        <span th:case="'activo'" class="badge bg-success-subtle text-success font-size-12">Activo</span>
+                                                        <span th:case="'baneado'" class="badge bg-danger-subtle text-danger font-size-12">Baneado</span>
                                                         <span th:case="'pendiente'" class="badge bg-warning-subtle text-warning font-size-12">Pendiente</span>
                                                     </span>
                                                     </td>
@@ -152,7 +175,7 @@
                                                            data-bs-toggle="tooltip"
                                                            data-bs-placement="center"
                                                            title="Detalles">
-                                                            <i class="mdi mdi-eye font-size-20"></i>
+                                                            <i class="mdi mdi-eye font-size-18"></i>
                                                         </a>
                                                         <a th:href="@{'/superadmin/usuarios/editar/' + ${usuario.usuarioId}}"
                                                            class="text-warning"
@@ -160,7 +183,7 @@
                                                            data-bs-toggle="tooltip"
                                                            data-bs-placement="center"
                                                            title="Editar">
-                                                            <i class="mdi mdi-pencil font-size-20"></i>
+                                                            <i class="mdi mdi-pencil font-size-18"></i>
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -179,43 +202,110 @@
         <th:block th:replace="~{Superadmin/fragments/foot :: foot}"></th:block>
 
         <script>
-
-
             $(document).ready(function() {
-                // Muestra el símbolo de carga
-                $("#loading").show();
-
-                // Inicializa DataTable
-                var table = $('#alternative-page-datatable').DataTable({
-                    "columnDefs": [
+                // Inicializar DataTable
+                var usuariosTable = $("#usuariosTable").DataTable({
+                    lengthMenu: [5, 10, 25, 50],
+                    pageLength: 5,
+                    processing: false,
+                    serverSide: false,
+                    columnDefs: [
                         {
-                            "targets": [-1,0], // Aplica a la última columna (puedes usar el índice adecuado si no es la última)
-                            "orderable": false // Desactiva el ordenamiento
-                        },
+                            targets: [0, -1], // ID y Acciones
+                            orderable: false
+                        }
                     ],
-                    "pageLength": 5,  // Fija el número de registros a mostrar
-                    "lengthChange": false,
-                    pagingType: "full_numbers",
-                    "info": true,  // Habilita la información de las entradas mostradas
-                    "language": {
-                        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
-                        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
-                        "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+                    language: {
+                        "decimal": "",
+                        "emptyTable": "No hay usuarios disponibles",
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ usuarios",
+                        "infoEmpty": "Mostrando 0 a 0 de 0 usuarios",
+                        "infoFiltered": "(filtrado de _MAX_ usuarios totales)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "Mostrar _MENU_ usuarios",
+                        "loadingRecords": "Cargando...",
+                        "processing": "Procesando...",
+                        "search": "Buscar:",
+                        "zeroRecords": "No se encontraron usuarios",
+                        "paginate": {
+                            "first": "Primero",
+                            "last": "Último",
+                            "next": "<i class='mdi mdi-chevron-right'></i>",
+                            "previous": "<i class='mdi mdi-chevron-left'></i>"
+                        },
+                        "aria": {
+                            "sortAscending": ": activar para ordenar ascendente",
+                            "sortDescending": ": activar para ordenar descendente"
+                        }
                     },
-                    "initComplete": function() {
-                        // Oculta el símbolo de carga y muestra la tabla cuando los datos hayan sido procesados y renderizados
-                        $(".loader-container").hide();  // Ocultamos el indicador de carga
-                        $('#alternative-page-datatable').show();  // Mostramos la tabla
+                    initComplete: function() {
+                        // Ocultar loader y mostrar tabla
+                        $("#loading-container").hide();
+                        $("#usuariosTable").show();
                     },
-                    drawCallback: function () {
+                    drawCallback: function() {
                         $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
                     }
                 });
 
-                // Asegúrate de que la tabla esté inicialmente oculta
-                table.hide();
-            });
+                // Ocultar el selector de longitud por defecto
+                $(".dataTables_length").hide();
 
+                // Posicionar botones de exportación después de la inicialización
+                setTimeout(function() {
+                    var datatableWrapper = $('.dataTables_wrapper');
+                    if (datatableWrapper.length > 0) {
+                        var topContainer = datatableWrapper.find('.dataTables_length').parent();
+                        if (topContainer.length > 0) {
+                            // Mover el contenedor completo de botones (manteniendo eventos)
+                            var exportButtonsContainer = $('#export-buttons-container');
+                            exportButtonsContainer.removeClass('d-none');
+                            
+                            // Crear contenedor para los botones
+                            var buttonWrapper = $('<div class="col-sm-12 col-md-6 d-flex align-items-center"></div>');
+                            buttonWrapper.append(exportButtonsContainer);
+                            topContainer.prepend(buttonWrapper);
+                            
+                            var filterContainer = datatableWrapper.find('.dataTables_filter').parent();
+                            if (filterContainer.length > 0) {
+                                filterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                            }
+                            
+                            topContainer.addClass('row');
+                        }
+                    }
+                }, 100);
+
+                // Configurar botones de exportación (después del posicionamiento)
+                $(document).on('click', '#exportExcel', function(e) {
+                    e.preventDefault();
+                    window.location.href = '/superadmin/usuarios/export/excel';
+                });
+
+                $(document).on('click', '#exportPdf', function(e) {
+                    e.preventDefault();
+                    window.location.href = '/superadmin/usuarios/export/pdf';
+                });
+            });
         </script>
+
+        <!-- Asegurar anchos automáticos en cabeceras -->
+        <style>
+        #usuariosTable th,
+        #usuariosTable td {
+            width: auto !important;
+        }
+
+        #usuariosTable {
+            width: 100% !important;
+            table-layout: auto !important;
+        }
+
+        /* Limpiar estilos específicos de DataTables */
+        .dataTables_wrapper .table {
+            width: 100% !important;
+        }
+        </style>
     </body>
 </html>

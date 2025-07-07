@@ -195,16 +195,41 @@
                                                     </p>
                                                   </div>
 
-                                                    <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100">
+                                                  <!-- Export buttons for Reservas -->
+                                                  <div id="export-buttons-container-reservas" class="d-none">
+                                                    <div class="btn-group" role="group">
+                                                      <a href="#" id="exportExcelReservas" class="btn btn-success btn-sm" style="min-width: 120px;">
+                                                        <i class="fas fa-file-excel me-1"></i>
+                                                        Exportar Excel
+                                                      </a>
+                                                      <a href="#" id="exportPdfReservas" class="btn btn-danger btn-sm" style="min-width: 120px;">
+                                                        <i class="fas fa-file-pdf me-1"></i>
+                                                        Exportar PDF
+                                                      </a>
+                                                    </div>
+                                                  </div>
+
+                                                  <!-- Loader for Reservas -->
+                                                  <div id="loading-container-reservas" class="text-center p-4">
+                                                    <div class="spinner-border text-primary" role="status">
+                                                      <span class="visually-hidden">Cargando...</span>
+                                                    </div>
+                                                    <div class="mt-2">Cargando reservas...</div>
+                                                  </div>
+
+                                                  <!-- Tabla envuelta en contenedor oculto -->
+                                                  <div id="table-content-reservas" style="display: none;">
+                                                    <div class="table-responsive">
+                                                      <table id="alternative-page-datatable" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                                         <thead>
                                                             <tr>
-                                                                <th>ID</th>
+                                                                <th style="width: 40px">ID</th>
                                                                 <th>Espacio</th>
                                                                 <th>Servicio</th>
                                                                 <th>Inicio</th>
                                                                 <th>Fin</th>
                                                                 <th>Estado</th>
-                                                                <th>Acción</th>
+                                                                <th style="width: 100px">Acción</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -234,7 +259,9 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
-                                                    </table>
+                                                      </table>
+                                                    </div>
+                                                  </div>
 
                                                 </div>
 
@@ -248,18 +275,43 @@
                                                         </p>
                                                     </div>
 
-                                                    <table id="alternative-page-datatable2" class="table dt-responsive nowrap w-100">
-                                                        <thead>
+                                                    <!-- Export buttons for Pagos -->
+                                                    <div id="export-buttons-container-pagos" class="d-none">
+                                                      <div class="btn-group" role="group">
+                                                        <a href="#" id="exportExcelPagos" class="btn btn-success btn-sm" style="min-width: 120px;">
+                                                          <i class="fas fa-file-excel me-1"></i>
+                                                          Exportar Excel
+                                                        </a>
+                                                        <a href="#" id="exportPdfPagos" class="btn btn-danger btn-sm" style="min-width: 120px;">
+                                                          <i class="fas fa-file-pdf me-1"></i>
+                                                          Exportar PDF
+                                                        </a>
+                                                      </div>
+                                                    </div>
+
+                                                    <!-- Loader for Pagos -->
+                                                    <div id="loading-container-pagos" class="text-center p-4">
+                                                      <div class="spinner-border text-primary" role="status">
+                                                        <span class="visually-hidden">Cargando...</span>
+                                                      </div>
+                                                      <div class="mt-2">Cargando pagos...</div>
+                                                    </div>
+
+                                                    <!-- Tabla envuelta en contenedor oculto -->
+                                                    <div id="table-content-pagos" style="display: none;">
+                                                      <div class="table-responsive">
+                                                        <table id="alternative-page-datatable2" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                          <thead>
                                                             <tr>
-                                                                <th>ID</th>
+                                                                <th style="width: 40px">ID</th>
                                                                 <th>Reserva ID</th>
                                                                 <th>Método</th>
                                                                 <th>Monto</th>
                                                                 <th>Estado</th>
                                                                 <th>Fecha Pago</th>
-                                                                <th>Acciones</th>
+                                                                <th style="width: 100px">Acciones</th>
                                                             </tr>
-                                                        </thead>
+                                                          </thead>
                                                         <tbody>
                                                             <tr th:each="pago : ${pagos}">
                                                                 <td th:text="${pago.pagoId}"></td>
@@ -297,7 +349,9 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
-                                                    </table>
+                                                        </table>
+                                                      </div>
+                                                    </div>
                                                 </div>
 
                                                 <div class="tab-pane fade" id="reembolsos" role="tabpanel"
@@ -310,18 +364,43 @@
                                                         </p>
                                                     </div>
 
-                                                    <table id="alternative-page-datatable3" class="table dt-responsive nowrap w-100">
-                                                        <thead>
+                                                    <!-- Export buttons for Reembolsos -->
+                                                    <div id="export-buttons-container-reembolsos" class="d-none">
+                                                      <div class="btn-group" role="group">
+                                                        <a href="#" id="exportExcelReembolsos" class="btn btn-success btn-sm" style="min-width: 120px;">
+                                                          <i class="fas fa-file-excel me-1"></i>
+                                                          Exportar Excel
+                                                        </a>
+                                                        <a href="#" id="exportPdfReembolsos" class="btn btn-danger btn-sm" style="min-width: 120px;">
+                                                          <i class="fas fa-file-pdf me-1"></i>
+                                                          Exportar PDF
+                                                        </a>
+                                                      </div>
+                                                    </div>
+
+                                                    <!-- Loader for Reembolsos -->
+                                                    <div id="loading-container-reembolsos" class="text-center p-4">
+                                                      <div class="spinner-border text-primary" role="status">
+                                                        <span class="visually-hidden">Cargando...</span>
+                                                      </div>
+                                                      <div class="mt-2">Cargando reembolsos...</div>
+                                                    </div>
+
+                                                    <!-- Tabla envuelta en contenedor oculto -->
+                                                    <div id="table-content-reembolsos" style="display: none;">
+                                                      <div class="table-responsive">
+                                                        <table id="alternative-page-datatable3" class="table table-centered datatable dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                                          <thead>
                                                             <tr>
-                                                                <th>ID</th>
+                                                                <th style="width: 40px">ID</th>
                                                                 <th>Pago ID</th>
                                                                 <th>Monto</th>
                                                                 <th>Estado</th>
                                                                 <th>Fecha Reembolso</th>
                                                                 <th>Motivo</th>
-                                                                <th>Acciones</th>
+                                                                <th style="width: 100px">Acciones</th>
                                                             </tr>
-                                                        </thead>
+                                                          </thead>
                                                         <tbody>
                                                             <tr th:each="reembolso : ${reembolsos}">
                                                                 <td th:text="${reembolso.reembolsoId}"></td>
@@ -354,7 +433,9 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
-                                                    </table>
+                                                        </table>
+                                                      </div>
+                                                    </div>
                                                 </div>
 
                                                 <!-- Modal Universal para Detalles -->
@@ -401,108 +482,288 @@
 
         <script>
             $(document).ready(function () {
-                // Muestra el símbolo de carga
-                $("#loading").show();
-
-                // Inicializa la primera DataTable
-                var table1 = $('#alternative-page-datatable').DataTable({
-                    "columnDefs": [
-                        {
-                            "targets": [-1], // Aplica a la última columna
-                            "orderable": false // Desactiva el ordenamiento
-                        },
-                    ],
-                    responsive: true,
-                    "pageLength": 7,  // Fija el número de registros a mostrar
-                    "lengthChange": false,
-                    pagingType: "full_numbers",
-                    "info": true,  // Habilita la información de las entradas mostradas
-                    "language": {
-                        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
-                        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
-                        "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+                // Inicializar DataTable para Reservas
+                var reservasTable = $('#alternative-page-datatable').DataTable({
+                  lengthMenu: [5, 10, 25, 50],
+                  pageLength: 5,
+                  processing: false,
+                  serverSide: false,
+                  scrollX: true,
+                  autoWidth: false,
+                  columnDefs: [
+                    {
+                      targets: [0, -1], // ID y Acciones
+                      orderable: false
                     },
-                    "initComplete": function () {
-                        $(".loader-container").hide();  // Ocultamos el indicador de carga
-                        $('#alternative-page-datatable').show();  // Mostramos la tabla 1
-                    },
-                    drawCallback: function () {
-                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                    {
+                      targets: '_all',
+                      className: 'text-nowrap'
                     }
+                  ],
+                  language: {
+                    "decimal": "",
+                    "emptyTable": "No hay reservas disponibles",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ reservas",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 reservas",
+                    "infoFiltered": "(filtrado de _MAX_ reservas totales)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ reservas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "No se encontraron reservas",
+                    "paginate": {
+                      "first": "Primero",
+                      "last": "Último",
+                      "next": "<i class='mdi mdi-chevron-right'></i>",
+                      "previous": "<i class='mdi mdi-chevron-left'></i>"
+                    },
+                    "aria": {
+                      "sortAscending": ": activar para ordenar ascendente",
+                      "sortDescending": ": activar para ordenar descendente"
+                    }
+                  },
+                  initComplete: function() {
+                    $("#loading-container-reservas").remove();
+                    $("#table-content-reservas").show();
+                  },
+                  drawCallback: function() {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                  }
                 });
 
-                // Inicializa la segunda DataTable
-                var table2 = $('#alternative-page-datatable2').DataTable({
-                    "columnDefs": [
-                        {
-                            "targets": [-1], // Aplica a la última columna
-                            "orderable": false // Desactiva el ordenamiento
-                        },
-                    ],
-                    "pageLength": 7,  // Fija el número de registros a mostrar
-                    "lengthChange": false,
-                    responsive: true,
-                    pagingType: "full_numbers",
-                    "info": true,  // Habilita la información de las entradas mostradas
-                    "language": {
-                        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
-                        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
-                        "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+                // Inicializar DataTable para Pagos
+                var pagosTable = $('#alternative-page-datatable2').DataTable({
+                  lengthMenu: [5, 10, 25, 50],
+                  pageLength: 5,
+                  processing: false,
+                  serverSide: false,
+                  scrollX: true,
+                  autoWidth: false,
+                  columnDefs: [
+                    {
+                      targets: [0, -1], // ID y Acciones
+                      orderable: false
                     },
-                    "initComplete": function () {
-                        $(".loader-container").hide();  // Ocultamos el indicador de carga
-                        $('#alternative-page-datatable2').show();  // Mostramos la tabla 2
-                    },
-                    drawCallback: function () {
-                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                    {
+                      targets: '_all',
+                      className: 'text-nowrap'
                     }
+                  ],
+                  language: {
+                    "decimal": "",
+                    "emptyTable": "No hay pagos disponibles",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ pagos",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 pagos",
+                    "infoFiltered": "(filtrado de _MAX_ pagos totales)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ pagos",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "No se encontraron pagos",
+                    "paginate": {
+                      "first": "Primero",
+                      "last": "Último",
+                      "next": "<i class='mdi mdi-chevron-right'></i>",
+                      "previous": "<i class='mdi mdi-chevron-left'></i>"
+                    },
+                    "aria": {
+                      "sortAscending": ": activar para ordenar ascendente",
+                      "sortDescending": ": activar para ordenar descendente"
+                    }
+                  },
+                  initComplete: function() {
+                    $("#loading-container-pagos").remove();
+                    $("#table-content-pagos").show();
+                  },
+                  drawCallback: function() {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                  }
                 });
 
-                var table3 = $('#alternative-page-datatable3').DataTable({
-                    "columnDefs": [
-                        {
-                            "targets": [-1], // Aplica a la última columna
-                            "orderable": false // Desactiva el ordenamiento
-                        },
-                    ],
-                    "pageLength": 7,  // Fija el número de registros a mostrar
-                    "lengthChange": false,
-                    responsive: true,
-                    pagingType: "full_numbers",
-                    "info": true,  // Habilita la información de las entradas mostradas
-                    "language": {
-                        "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",  // Personaliza el texto
-                        "infoEmpty": "Mostrando 0 a 0 de 0 entradas",  // Mensaje cuando no hay datos
-                        "infoFiltered": "(filtrado de _MAX_ entradas totales)"  // Información adicional sobre el filtrado
+                // Inicializar DataTable para Reembolsos
+                var reembolsosTable = $('#alternative-page-datatable3').DataTable({
+                  lengthMenu: [5, 10, 25, 50],
+                  pageLength: 5,
+                  processing: false,
+                  serverSide: false,
+                  scrollX: true,
+                  autoWidth: false,
+                  columnDefs: [
+                    {
+                      targets: [0, -1], // ID y Acciones
+                      orderable: false
                     },
-                    "initComplete": function () {
-                        $(".loader-container").hide();  // Ocultamos el indicador de carga
-                        $('#alternative-page-datatable3').show();  // Mostramos la tabla 2
-                    },
-                    drawCallback: function () {
-                        $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                    {
+                      targets: '_all',
+                      className: 'text-nowrap'
                     }
+                  ],
+                  language: {
+                    "decimal": "",
+                    "emptyTable": "No hay reembolsos disponibles",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ reembolsos",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 reembolsos",
+                    "infoFiltered": "(filtrado de _MAX_ reembolsos totales)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ reembolsos",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "No se encontraron reembolsos",
+                    "paginate": {
+                      "first": "Primero",
+                      "last": "Último",
+                      "next": "<i class='mdi mdi-chevron-right'></i>",
+                      "previous": "<i class='mdi mdi-chevron-left'></i>"
+                    },
+                    "aria": {
+                      "sortAscending": ": activar para ordenar ascendente",
+                      "sortDescending": ": activar para ordenar descendente"
+                    }
+                  },
+                  initComplete: function() {
+                    $("#loading-container-reembolsos").remove();
+                    $("#table-content-reembolsos").show();
+                  },
+                  drawCallback: function() {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                  }
                 });
 
-                // Cuando se cambia de pestaña, recalcular la tabla si es necesario
+                // Ocultar los selectores de longitud por defecto
+                $(".dataTables_length").hide();
+
+                // Posicionar botones de exportación para Reservas
+                setTimeout(function() {
+                  var reservasDatatableWrapper = $('#alternative-page-datatable').closest('.dataTables_wrapper');
+                  if (reservasDatatableWrapper.length > 0) {
+                    var reservasTopContainer = reservasDatatableWrapper.find('.dataTables_length').parent();
+                    if (reservasTopContainer.length > 0) {
+                      var reservasExportButtonsContainer = $('#export-buttons-container-reservas');
+                      reservasExportButtonsContainer.removeClass('d-none');
+                      
+                      var reservasButtonWrapper = $('<div class="col-sm-12 col-md-6 d-flex align-items-center"></div>');
+                      reservasButtonWrapper.append(reservasExportButtonsContainer);
+                      reservasTopContainer.prepend(reservasButtonWrapper);
+                      
+                      var reservasFilterContainer = reservasDatatableWrapper.find('.dataTables_filter').parent();
+                      if (reservasFilterContainer.length > 0) {
+                        reservasFilterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                      }
+                      
+                      reservasTopContainer.addClass('row');
+                    }
+                  }
+                }, 100);
+
+                // Posicionar botones de exportación para Pagos
+                setTimeout(function() {
+                  var pagosDatatableWrapper = $('#alternative-page-datatable2').closest('.dataTables_wrapper');
+                  if (pagosDatatableWrapper.length > 0) {
+                    var pagosTopContainer = pagosDatatableWrapper.find('.dataTables_length').parent();
+                    if (pagosTopContainer.length > 0) {
+                      var pagosExportButtonsContainer = $('#export-buttons-container-pagos');
+                      pagosExportButtonsContainer.removeClass('d-none');
+                      
+                      var pagosButtonWrapper = $('<div class="col-sm-12 col-md-6 d-flex align-items-center"></div>');
+                      pagosButtonWrapper.append(pagosExportButtonsContainer);
+                      pagosTopContainer.prepend(pagosButtonWrapper);
+                      
+                      var pagosFilterContainer = pagosDatatableWrapper.find('.dataTables_filter').parent();
+                      if (pagosFilterContainer.length > 0) {
+                        pagosFilterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                      }
+                      
+                      pagosTopContainer.addClass('row');
+                    }
+                  }
+                }, 100);
+
+                // Posicionar botones de exportación para Reembolsos
+                setTimeout(function() {
+                  var reembolsosDatatableWrapper = $('#alternative-page-datatable3').closest('.dataTables_wrapper');
+                  if (reembolsosDatatableWrapper.length > 0) {
+                    var reembolsosTopContainer = reembolsosDatatableWrapper.find('.dataTables_length').parent();
+                    if (reembolsosTopContainer.length > 0) {
+                      var reembolsosExportButtonsContainer = $('#export-buttons-container-reembolsos');
+                      reembolsosExportButtonsContainer.removeClass('d-none');
+                      
+                      var reembolsosButtonWrapper = $('<div class="col-sm-12 col-md-6 d-flex align-items-center"></div>');
+                      reembolsosButtonWrapper.append(reembolsosExportButtonsContainer);
+                      reembolsosTopContainer.prepend(reembolsosButtonWrapper);
+                      
+                      var reembolsosFilterContainer = reembolsosDatatableWrapper.find('.dataTables_filter').parent();
+                      if (reembolsosFilterContainer.length > 0) {
+                        reembolsosFilterContainer.removeClass().addClass('col-sm-12 col-md-6');
+                      }
+                      
+                      reembolsosTopContainer.addClass('row');
+                    }
+                  }
+                }, 100);
+
+                // Configurar botones de exportación para Reservas
+                $(document).on('click', '#exportExcelReservas', function(e) {
+                  e.preventDefault();
+                  var userId = window.location.pathname.split('/')[3]; // Obtener ID del usuario de la URL
+                  window.location.href = '/superadmin/usuarios/' + userId + '/reservas/export/excel';
+                });
+
+                $(document).on('click', '#exportPdfReservas', function(e) {
+                  e.preventDefault();
+                  var userId = window.location.pathname.split('/')[3]; // Obtener ID del usuario de la URL
+                  window.location.href = '/superadmin/usuarios/' + userId + '/reservas/export/pdf';
+                });
+
+                // Configurar botones de exportación para Pagos
+                $(document).on('click', '#exportExcelPagos', function(e) {
+                  e.preventDefault();
+                  var userId = window.location.pathname.split('/')[3]; // Obtener ID del usuario de la URL
+                  window.location.href = '/superadmin/usuarios/' + userId + '/pagos/export/excel';
+                });
+
+                $(document).on('click', '#exportPdfPagos', function(e) {
+                  e.preventDefault();
+                  var userId = window.location.pathname.split('/')[3]; // Obtener ID del usuario de la URL
+                  window.location.href = '/superadmin/usuarios/' + userId + '/pagos/export/pdf';
+                });
+
+                // Configurar botones de exportación para Reembolsos
+                $(document).on('click', '#exportExcelReembolsos', function(e) {
+                  e.preventDefault();
+                  var userId = window.location.pathname.split('/')[3]; // Obtener ID del usuario de la URL
+                  window.location.href = '/superadmin/usuarios/' + userId + '/reembolsos/export/excel';
+                });
+
+                $(document).on('click', '#exportPdfReembolsos', function(e) {
+                  e.preventDefault();
+                  var userId = window.location.pathname.split('/')[3]; // Obtener ID del usuario de la URL
+                  window.location.href = '/superadmin/usuarios/' + userId + '/reembolsos/export/pdf';
+                });
+
+                // Ajustar tablas cuando se cambian las pestañas
                 $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) {
-                    var tabID = $(event.target).attr('data-bs-target');
-
-                    // Se ajustan las tablas con un pequeño retraso
-                    setTimeout(function () {
-                        if (tabID === '#reservas') {
-                            table1.columns.adjust().responsive.recalc(); // Ajusta las columnas de la tabla 2
-                        } else if (tabID === '#pagos') {
-                            table2.columns.adjust().responsive.recalc(); // Ajusta las columnas de la tabla 1
-                        }
-                        else if (tabID === '#reembolsos') {
-                            table3.columns.adjust().responsive.recalc(); // Ajusta las columnas de la tabla 1
-                        }
-                    }, 100);  // El retraso de 100ms es para asegurar que la pestaña se haya renderizado completamente
+                  var tabID = $(event.target).attr('data-bs-target');
+                  setTimeout(function () {
+                    if (tabID === '#reservas') {
+                      reservasTable.columns.adjust().responsive.recalc();
+                    } else if (tabID === '#pagos') {
+                      pagosTable.columns.adjust().responsive.recalc();
+                    } else if (tabID === '#reembolsos') {
+                      reembolsosTable.columns.adjust().responsive.recalc();
+                    }
+                  }, 100);
                 });
             });
 
         </script>
+        
+        <!-- Asegurar anchos automáticos en cabeceras y margen inferior -->
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -562,6 +823,30 @@
                 });
             }
         </script>
+
+        <style>
+        #alternative-page-datatable th,
+        #alternative-page-datatable td,
+        #alternative-page-datatable2 th,
+        #alternative-page-datatable2 td,
+        #alternative-page-datatable3 th,
+        #alternative-page-datatable3 td {
+            width: auto !important;
+        }
+
+        #alternative-page-datatable,
+        #alternative-page-datatable2,
+        #alternative-page-datatable3 {
+            width: 100% !important;
+            table-layout: auto !important;
+            margin-bottom: 15px !important;
+        }
+
+        /* Limpiar estilos específicos de DataTables */
+        .dataTables_wrapper .table {
+            width: 100% !important;
+        }
+        </style>
     </body>
 
 
