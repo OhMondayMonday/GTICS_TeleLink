@@ -49,4 +49,84 @@ public class Pago {
     public enum EstadoTransaccion {
         completado, fallido, pendiente
     }
+
+    public Integer getPagoId() {
+        return pagoId;
+    }
+
+    public void setPagoId(Integer pagoId) {
+        this.pagoId = pagoId;
+    }
+
+    public Reserva getReserva() {
+        return reserva;
+    }
+
+    public void setReserva(Reserva reserva) {
+        this.reserva = reserva;
+    }
+
+    public MetodoPago getMetodoPago() {
+        return metodoPago;
+    }
+
+    public void setMetodoPago(MetodoPago metodoPago) {
+        this.metodoPago = metodoPago;
+    }
+
+    public BigDecimal getMonto() {
+        return monto;
+    }
+
+    public void setMonto(BigDecimal monto) {
+        this.monto = monto;
+    }
+
+    public EstadoTransaccion getEstadoTransaccion() {
+        return estadoTransaccion;
+    }
+
+    public void setEstadoTransaccion(EstadoTransaccion estadoTransaccion) {
+        this.estadoTransaccion = estadoTransaccion;
+    }
+
+    public String getTransaccionId() {
+        return transaccionId;
+    }
+
+    public void setTransaccionId(String transaccionId) {
+        this.transaccionId = transaccionId;
+    }
+
+    public String getFotoComprobanteUrl() {
+        return fotoComprobanteUrl;
+    }
+
+    public void setFotoComprobanteUrl(String fotoComprobanteUrl) {
+        this.fotoComprobanteUrl = fotoComprobanteUrl;
+    }
+
+    public LocalDateTime getFechaPago() {
+        return fechaPago;
+    }
+
+    public void setFechaPago(LocalDateTime fechaPago) {
+        this.fechaPago = fechaPago;
+    }
+
+    public String getDetallesTransaccion() {
+        return detallesTransaccion;
+    }
+
+    public void setDetallesTransaccion(String detallesTransaccion) {
+        this.detallesTransaccion = detallesTransaccion;
+    }
+
+    public String getMotivoRechazo() {
+        return motivoRechazo;
+    }
+
+    public void setMotivoRechazo(String motivoRechazo) {
+        this.motivoRechazo = motivoRechazo;
+    }
 }

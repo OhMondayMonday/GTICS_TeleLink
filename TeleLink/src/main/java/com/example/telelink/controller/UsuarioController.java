@@ -403,14 +403,29 @@ public class UsuarioController {
 
             // Check if payment exists and is completed
             Optional<Pago> pagoOpt = pagoRepository.findByReserva(reserva);
-            boolean isPagado = pagoOpt.isPresent() &&
-                    pagoOpt.get().getEstadoTransaccion().name().equals("completado");
+
+            // Lógica más flexible para determinar si el pago está completado
+            boolean isPagado = false;
+            boolean pagoCompletado = false;
+
+            if (pagoOpt.isPresent()) {
+                String estadoTransaccion = pagoOpt.get().getEstadoTransaccion().name().toLowerCase();
+
+                // Usar la misma lógica que en mostrarComprobantePago
+                pagoCompletado = estadoTransaccion.equals("completado") ||
+                        estadoTransaccion.equals("completed") ||
+                        estadoTransaccion.equals("exitoso") ||
+                        estadoTransaccion.equals("success");
+
+                isPagado = pagoCompletado;
+            }
+
             reservaMap.put("isPagado", isPagado);
 
             // Add payment object and completion status explicitly
             if (pagoOpt.isPresent()) {
                 reservaMap.put("pago", pagoOpt.get());
-                reservaMap.put("pagoCompletado", pagoOpt.get().getEstadoTransaccion().name().equals("completado"));
+                reservaMap.put("pagoCompletado", pagoCompletado);
             } else {
                 reservaMap.put("pago", null);
                 reservaMap.put("pagoCompletado", false);
@@ -426,70 +441,63 @@ public class UsuarioController {
     }
 
     @GetMapping("/comprobante-pago/{reservaId}")
-    public String mostrarComprobantePago(@PathVariable Integer reservaId, Model model, HttpSession session) {
+    public String mostrarComprobantePago(@PathVariable("reservaId") Integer reservaId,
+                                         Model model,
+                                         HttpSession session,
+                                         RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
-            System.out.println("Usuario no encontrado en sesión");
+            redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para ver el comprobante.");
             return "redirect:/usuarios/inicio";
         }
 
-        Optional<Reserva> reservaOpt = reservaRepository.findById(reservaId);
-        if (!reservaOpt.isPresent() || !reservaOpt.get().getUsuario().equals(usuario)) {
-            System.out.println("Reserva no encontrada o no pertenece al usuario");
+        Optional<Reserva> optReserva = reservaRepository.findById(reservaId);
+        if (optReserva.isEmpty() || !optReserva.get().getUsuario().getUsuarioId().equals(usuario.getUsuarioId())) {
+            redirectAttributes.addFlashAttribute("error", "Reserva no encontrada o no autorizada");
             return "redirect:/usuarios/mis-reservas";
         }
 
-        Reserva reserva = reservaOpt.get();
-        Optional<Pago> pagoOpt = pagoRepository.findByReserva(reserva);
+        Reserva reserva = optReserva.get();
+        Optional<Pago> optPago = pagoRepository.findByReserva(reserva);
 
-        if (!pagoOpt.isPresent()) {
-            System.out.println("Pago no encontrado");
+        if (optPago.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "No se encontró un pago asociado a esta reserva");
             return "redirect:/usuarios/mis-reservas";
         }
 
-        Pago pago = pagoOpt.get();
+        Pago pago = optPago.get();
 
-        // Debug: Imprimir el estado actual de la transacción
-        System.out.println("Estado de transacción actual: " + pago.getEstadoTransaccion().name());
-
-        // Verificar diferentes posibles valores del enum
+        // Verificar si el pago está completado (con lógica flexible)
         String estadoTransaccion = pago.getEstadoTransaccion().name().toLowerCase();
+        boolean pagoCompletado = estadoTransaccion.equals("completado") ||
+                estadoTransaccion.equals("completed") ||
+                estadoTransaccion.equals("exitoso") ||
+                estadoTransaccion.equals("success");
 
-        // Condiciones más flexibles para el estado completado
-        if (!estadoTransaccion.equals("completado") &&
-                !estadoTransaccion.equals("completed") &&
-                !estadoTransaccion.equals("exitoso") &&
-                !estadoTransaccion.equals("success")) {
-            System.out.println("Pago no completado. Estado actual: " + estadoTransaccion);
+        if (!pagoCompletado) {
+            redirectAttributes.addFlashAttribute("error", "El pago no ha sido completado");
             return "redirect:/usuarios/mis-reservas";
         }
 
-        System.out.println("Mostrando comprobante de pago");
-
-        // Calculate duration and total price
+        // Calcular duración y precio total
         long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
-        if (duracionHoras == 0) {
-            duracionHoras = 1; // Mínimo 1 hora
-        }
-
         BigDecimal precioTotal = reserva.getEspacioDeportivo().getPrecioPorHora()
                 .multiply(BigDecimal.valueOf(duracionHoras));
+
+        // Si es piscina y tiene número de participantes, multiplicar por ese número
+        if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
+                && reserva.numeroParticipantes() != null
+                && reserva.numeroParticipantes() > 0) {
+            precioTotal = precioTotal.multiply(BigDecimal.valueOf(reserva.numeroParticipantes()));
+        }
 
         model.addAttribute("reserva", reserva);
         model.addAttribute("pago", pago);
         model.addAttribute("duracionHoras", duracionHoras);
         model.addAttribute("precioTotal", precioTotal);
-        model.addAttribute("usuario", usuario);
 
         return "Vecino/vecino-comprobantePago";
     }
-
-    @GetMapping("/comprobante")
-    public String mostrarComprobante(Model model) {
-        // Aquí puedes agregar cualquier lógica que necesites
-        return "Vecino/vecino-comprobantePago";
-    }
-
 
     @PostMapping("/reserva/cancelar/{id}")
     public String cancelarReserva(@PathVariable("id") Integer id,
