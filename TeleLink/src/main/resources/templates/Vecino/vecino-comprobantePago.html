@@ -17,98 +17,143 @@
                                 <h4 class="card-title mb-0">Comprobante de Pago</h4>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <!-- Detalles de la reserva -->
-                                        <div class="table-responsive">
-                                            <table class="table table-borderless">
-                                                <tbody>
-                                                <tr>
-                                                    <th class="text-muted">Comprobante #:</th>
-                                                    <td th:text="${pago.transaccionId}">TXN-123456</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-muted">Fecha de Pago:</th>
-                                                    <td th:text="${#temporals.format(pago.fechaPago, 'dd MMMM yyyy, HH:mm')}">15 junio 2025, 14:30</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-muted">Espacio Deportivo:</th>
-                                                    <td th:text="${reserva.espacioDeportivo.nombre}">Piscina Semi-Olímpica</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-muted">Descripción:</th>
-                                                    <td th:text="${reserva.espacioDeportivo.descripcion}">Piscina para clases de natación</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-muted">Fecha y Hora de Reserva:</th>
-                                                    <td>
-                                                        <span th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}">20 junio 2025, 17:00</span>
-                                                        - <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}">18:00</span>
-                                                    </td>
-                                                </tr>
-                                                <tr th:if="${reserva.numeroCarrilPiscina != null}">
-                                                    <th class="text-muted">Carril de Piscina:</th>
-                                                    <td th:text="${'Carril ' + reserva.numeroCarrilPiscina}">Carril 3</td>
-                                                </tr>
-                                                <tr th:if="${reserva.numeroCarrilPista != null}">
-                                                    <th class="text-muted">Carril de Pista:</th>
-                                                    <td th:text="${'Carril ' + reserva.numeroCarrilPista}">Carril 1</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-muted">Duración:</th>
-                                                    <td th:text="${duracionHoras + ' hora(s)'}">1 hora(s)</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-muted">Precio por Hora:</th>
-                                                    <td th:text="${'S/ ' + #numbers.formatDecimal(reserva.espacioDeportivo.precioPorHora, 1, 'COMMA', 2, 'POINT')}">S/ 40.00</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-muted">Método de Pago:</th>
-                                                    <td th:text="${pago.metodoPago.metodoPago}">Tarjeta de Crédito</td>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-muted">Estado de Transacción:</th>
-                                                    <td>
-                                                        <span class="badge bg-success" th:text="${pago.estadoTransaccion.name()}">Completado</span>
-                                                    </td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
+                                <!-- Contenido para impresión -->
+                                <div class="comprobante-print">
+                                    <!-- Encabezado del comprobante -->
+                                    <div class="comprobante-header">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-3">
+                                                <div class="logo-container">
+                                                    <img th:src="@{/assets/images/logoCompleto.png}" alt="logo-sanmiguel" class="logo-comprobante">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="header-info">
+                                                    <h2 class="comprobante-title">COMPROBANTE DE PAGO</h2>
+                                                    <p class="comprobante-subtitle">Sistema de Reserva de Canchas y Servicios Deportivos</p>
+                                                    <p class="comprobante-entity">Municipalidad de San Miguel</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 text-end">
+                                                <div class="comprobante-number">
+                                                    <strong>Nº: <span th:text="${pago.transaccionId}">TXN-123456</span></strong>
+                                                </div>
+                                                <div class="comprobante-date">
+                                                    <span th:text="${#temporals.format(pago.fechaPago, 'dd MMMM yyyy, HH:mm')}">15 junio 2025, 14:30</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <!-- Imagen del espacio deportivo -->
-                                        <img th:if="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl != null}"
-                                             th:src="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl}"
-                                             th:alt="${reserva.espacioDeportivo.nombre}"
-                                             class="img-fluid rounded mb-3" />
 
-                                        <!-- Resumen de pago -->
-                                        <div class="card border-primary">
-                                            <div class="card-header bg-primary text-white">
-                                                <h5 class="mb-0">Resumen de Pago</h5>
+                                    <hr class="comprobante-divider">
+
+                                    <!-- Información de la reserva -->
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="section-title">
+                                                <h4>Detalles de la Reserva</h4>
                                             </div>
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <span>Subtotal:</span>
-                                                    <span th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}">S/ 40.00</span>
+
+                                            <div class="info-grid">
+                                                <div class="info-item">
+                                                    <label>Espacio Deportivo:</label>
+                                                    <span th:text="${reserva.espacioDeportivo.nombre}">Piscina Semi-Olímpica</span>
                                                 </div>
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <span>IGV (0%):</span>
-                                                    <span>S/ 0.00</span>
+
+                                                <div class="info-item">
+                                                    <label>Descripción:</label>
+                                                    <span th:text="${reserva.espacioDeportivo.descripcion}">Piscina para clases de natación</span>
                                                 </div>
-                                                <hr>
-                                                <div class="d-flex justify-content-between h5">
-                                                    <strong>Total Pagado:</strong>
-                                                    <strong th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}">S/ 40.00</strong>
+
+                                                <div class="info-item">
+                                                    <label>Fecha y Hora:</label>
+                                                    <span>
+                                                        <span th:text="${#temporals.format(reserva.inicioReserva, 'dd MMMM yyyy, HH:mm')}">20 junio 2025, 17:00</span>
+                                                        - <span th:text="${#temporals.format(reserva.finReserva, 'HH:mm')}">18:00</span>
+                                                    </span>
+                                                </div>
+
+                                                <div class="info-item" th:if="${reserva.numeroCarrilPiscina != null}">
+                                                    <label>Carril de Piscina:</label>
+                                                    <span th:text="${'Carril ' + reserva.numeroCarrilPiscina}">Carril 3</span>
+                                                </div>
+
+                                                <div class="info-item" th:if="${reserva.numeroCarrilPista != null}">
+                                                    <label>Carril de Pista:</label>
+                                                    <span th:text="${'Carril ' + reserva.numeroCarrilPista}">Carril 1</span>
+                                                </div>
+
+                                                <div class="info-item">
+                                                    <label>Duración:</label>
+                                                    <span th:text="${duracionHoras + ' hora(s)'}">1 hora(s)</span>
+                                                </div>
+
+                                                <div class="info-item">
+                                                    <label>Precio por Hora:</label>
+                                                    <span th:text="${'S/ ' + #numbers.formatDecimal(reserva.espacioDeportivo.precioPorHora, 1, 'COMMA', 2, 'POINT')}">S/ 40.00</span>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="col-md-4">
+                                            <!-- Imagen del espacio deportivo -->
+                                            <img th:if="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl != null}"
+                                                 th:src="${reserva.espacioDeportivo.fotoEspacioDeportivoUrl}"
+                                                 th:alt="${reserva.espacioDeportivo.nombre}"
+                                                 class="espacio-image" />
+                                        </div>
+                                    </div>
+
+                                    <!-- Información de pago -->
+                                    <div class="section-title mt-4">
+                                        <h4>Información de Pago</h4>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <label>Método de Pago:</label>
+                                                <span th:text="${pago.metodoPago.metodoPago}">Tarjeta de Crédito</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <label>Estado de Transacción:</label>
+                                                <span class="estado-exitoso" th:text="${pago.estadoTransaccion.name()}">Completado</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Resumen de pago -->
+                                    <div class="payment-summary">
+                                        <h4>Resumen de Pago</h4>
+                                        <div class="summary-content">
+                                            <div class="summary-row">
+                                                <span>Subtotal:</span>
+                                                <span th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}">S/ 40.00</span>
+                                            </div>
+                                            <div class="summary-row">
+                                                <span>IGV (0%):</span>
+                                                <span>S/ 0.00</span>
+                                            </div>
+                                            <div class="summary-divider"></div>
+                                            <div class="summary-total">
+                                                <span>Total Pagado:</span>
+                                                <span th:text="${'S/ ' + #numbers.formatDecimal(precioTotal, 1, 'COMMA', 2, 'POINT')}">S/ 40.00</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pie del comprobante -->
+                                    <div class="comprobante-footer">
+                                        <p><strong>Gracias por su preferencia</strong></p>
+                                        <p>Este comprobante es válido como prueba de pago de su reserva deportiva.</p>
+                                        <p class="print-date">Impreso el: <script>document.write(new Date().toLocaleDateString('es-ES', {year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'}));</script></p>
                                     </div>
                                 </div>
 
-                                <!-- Botones de acción -->
-                                <div class="row mt-4">
+                                <!-- Botones de acción (solo visible en pantalla) -->
+                                <div class="row mt-4 screen-only">
                                     <div class="col-12">
                                         <div class="d-flex justify-content-between">
                                             <a th:href="@{/usuarios/mis-reservas}" class="btn btn-secondary">
@@ -140,25 +185,341 @@
 <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
 <script th:src="@{/assets/js/app.js}"></script>
 
-<!-- Estilos para impresión -->
+<!-- Estilos mejorados para impresión -->
 <style>
+    /* Estilos para pantalla */
+    .comprobante-print {
+        display: block;
+    }
+
+    .logo-container {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .logo-comprobante {
+        max-height: 60px;
+        width: auto;
+    }
+
+    .header-info {
+        text-align: center;
+    }
+
+    .comprobante-entity {
+        font-size: 16px;
+        color: #0056b3;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .section-title {
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #0056b3;
+    }
+
+    .section-title h4 {
+        color: #0056b3;
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .info-grid {
+        display: grid;
+        gap: 12px;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .info-item label {
+        font-weight: 600;
+        color: #0056b3;
+        font-size: 14px;
+    }
+
+    .info-item span {
+        font-size: 16px;
+        color: #333;
+    }
+
+    .espacio-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+
+    .estado-exitoso {
+        color: #28a745;
+        font-weight: 600;
+    }
+
+    .payment-summary {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+        border: 1px solid #dee2e6;
+    }
+
+    .payment-summary h4 {
+        color: #0056b3;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .summary-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 16px;
+    }
+
+    .summary-divider {
+        height: 1px;
+        background-color: #dee2e6;
+        margin: 10px 0;
+    }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 18px;
+        font-weight: 700;
+        color: #0056b3;
+        padding-top: 10px;
+    }
+
+    /* Estilos específicos para impresión */
     @media print {
+        /* Ocultar elementos de navegación */
         .btn, .sidebar, .navbar, .main-content .page-content .container-fluid .row .col-lg-12 .card .card-header,
-        .sidebar-overlay {
+        .sidebar-overlay, .screen-only {
             display: none !important;
         }
 
+        /* Resetear estilos de tarjeta */
         .card {
             border: none !important;
             box-shadow: none !important;
+            margin: 0 !important;
         }
 
         .card-body {
             padding: 0 !important;
         }
 
+        /* Configuración de página */
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+
         body {
             background: white !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #000;
+        }
+
+        /* Encabezado del comprobante */
+        .comprobante-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #000;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo-comprobante {
+            max-height: 50px;
+            width: auto;
+        }
+
+        .header-info {
+            text-align: center;
+        }
+
+        .comprobante-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #000;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .comprobante-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+
+        .comprobante-entity {
+            font-size: 16px;
+            color: #000;
+            font-weight: 600;
+            margin: 5px 0 0 0;
+        }
+
+        .comprobante-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
+        .comprobante-date {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .comprobante-divider {
+            border: none;
+            border-top: 2px solid #000;
+            margin: 20px 0;
+        }
+
+        /* Títulos de sección */
+        .section-title {
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #000;
+        }
+
+        .section-title h4 {
+            color: #000;
+            margin: 0;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* Grid de información */
+        .info-grid {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: baseline;
+        }
+
+        .info-item label {
+            font-weight: 600;
+            color: #000;
+            font-size: 14px;
+            min-width: 140px;
+            flex-shrink: 0;
+        }
+
+        .info-item span {
+            font-size: 14px;
+            color: #000;
+        }
+
+        /* Imagen del espacio */
+        .espacio-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border: 1px solid #000;
+            margin-bottom: 15px;
+        }
+
+        /* Estado exitoso */
+        .estado-exitoso {
+            color: #000;
+            font-weight: 700;
+        }
+
+        /* Resumen de pago */
+        .payment-summary {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border: 2px solid #000;
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
+
+        .payment-summary h4 {
+            color: #000;
+            margin-bottom: 15px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .summary-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .summary-divider {
+            height: 1px;
+            background-color: #000;
+            margin: 8px 0;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: 700;
+            color: #000;
+            padding-top: 8px;
+            border-top: 1px solid #000;
+        }
+
+        /* Pie del comprobante */
+        .comprobante-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            page-break-inside: avoid;
+        }
+
+        .comprobante-footer p {
+            margin: 5px 0;
+        }
+
+        .print-date {
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        /* Mejor manejo de saltos de página */
+        .row {
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            page-break-after: avoid;
         }
     }
 </style>
