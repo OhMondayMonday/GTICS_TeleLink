@@ -716,6 +716,7 @@ public class UsuarioController {
         }
         model.addAttribute("usuario", usuario);
         model.addAttribute("activeItem", "ayuda");
+
         return "Vecino/vecino-ayuda";
     }
 

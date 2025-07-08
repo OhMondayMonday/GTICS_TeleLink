@@ -1,6 +1,594 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Servicio Deportivo')}">
+<head th:replace="~{Vecino/fragments/topbarVecino.html :: head(title='Servicio Deportivo')}"></head>
+    <body data-sidebar="dark" class="vertical-collpsed">
+    <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Servicio Deportivo')}"></div>
+            <!-- ========== Left Sidebar Start ========== -->
+            <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Servicio Deportivo')}"></div>
+            <!-- ============================================================== -->
+            <div class="main-content">
+                <div class="page-content">
+                    <div class="container-fluid">
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                    <h4 class="mb-sm-0">Servicio Deportivo</h4>
+                                    <div class="page-title-right">
+                                        <ol class="breadcrumb m-0">
+                                            <li class="breadcrumb-item"><a th:href="@{/usuarios/cancha}">Cancha Disponible</a></li>
+                                            <li class="breadcrumb-item active"
+                                                th:text="${espacio.servicioDeportivo != null ? espacio.servicioDeportivo.servicioDeportivo : 'Sin categoría'}">
+                                                Tipo de espacio (Tipo de servicio)
+                                            </li>
+                                        </ol>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <div class="container my-4">
+                                            <div class="row g-3 align-items-center">
+                                                <!-- Columna de imagen y botones -->
+                                                <div class="col-md-5">
+                                                    <div class="card border-0 shadow-sm rounded-3" data-aos="fade-right">
+                                                        <img th:src="${espacio.fotoEspacioDeportivoUrl}" alt="Espacio Deportivo" class="img-fluid rounded-top" style="max-height: 220px; object-fit: cover;">
+                                                        <div class="card-body text-center py-3">
+                                                            <h6 class="fw-semibold mb-3">Reserva tu horario</h6>
+                                                            <div class="d-flex justify-content-center gap-2">
+                                                                <a th:href="@{'/usuarios/reservasCalendario/' + ${espacio.espacioDeportivoId}}" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
+                                                                    <i class="mdi mdi-calendar-clock me-1"></i> Ver horarios
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Columna de información -->
+                                                <div class="col-md-7">
+                                                    <div class="bg-white border rounded-3 shadow-sm p-3 h-100" data-aos="fade-left">
+
+                                                        <span class="badge bg-primary mb-2"
+                                                              th:text="${espacio.servicioDeportivo != null ? espacio.servicioDeportivo.servicioDeportivo : 'Sin categoría'}">
+                                                        </span>
+
+                                                        <h5 class="fw-bold mb-1" th:text="${espacio.nombre}"></h5>
+
+                                                        <div class="mb-2" th:if="${promedioCalificacion != null}">
+                                                            <span class="text-warning small">
+                                                                <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                                   th:classappend="${i <= promedioCalificacion ? 'mdi mdi-star' :
+                                                                   (i - 0.5 <= promedioCalificacion ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline')}"></i>
+                                                            </span>
+                                                            <small class="text-muted ms-1" th:text="${#numbers.formatDecimal(promedioCalificacion, 1, 1)} + ' / 5.0'">0.0 / 5.0</small>
+                                                        </div>
+                                                        <div class="mb-2" th:if="${promedioCalificacion == null}">
+                                                                <span class="text-warning small">
+                                                                    <i class="mdi mdi-star-outline"></i>
+                                                                    <i class="mdi mdi-star-outline"></i>
+                                                                    <i class="mdi mdi-star-outline"></i>
+                                                                    <i class="mdi mdi-star-outline"></i>
+                                                                    <i class="mdi mdi-star-outline"></i>
+                                                                </span>
+                                                            <small class="text-muted ms-1">Sin calificaciones</small>
+                                                        </div>
+
+                                                        <!-- Info tipo lista con íconos -->
+                                                        <ul class="list-unstyled small mb-0">
+                                                            <li class="mb-2 d-flex align-items-start">
+                                                                <i class="mdi mdi-check-circle-outline text-primary me-2 fs-5"></i>
+                                                                <span><strong>Tipo:</strong>
+                                                                    <span th:if="${espacio.servicioDeportivo != null and espacio.servicioDeportivo.servicioDeportivo != null}"
+                                                                          th:text="${espacio.servicioDeportivo.servicioDeportivo}">Tipo servicio</span>
+                                                                    <span th:if="${espacio.servicioDeportivo == null or espacio.servicioDeportivo.servicioDeportivo == null}">
+                                                                        Servicio no definido
+                                                                    </span>
+                                                                </span>
+                                                            </li>
+                                                            <li class="mb-2 d-flex align-items-start">
+                                                                <i class="mdi mdi-map-marker text-danger me-2 fs-5"></i>
+                                                                <span><strong>Establecimiento:</strong>
+                                                                    <span th:text="${espacio.establecimientoDeportivo != null ? espacio.establecimientoDeportivo.establecimientoDeportivoNombre : 'No definida'}">Ubicación</span>
+                                                                </span>
+                                                            </li>
+                                                            <li class="mb-2 d-flex align-items-start">
+                                                                <i class="mdi mdi-currency-usd text-success me-2 fs-5"></i>
+                                                                <span><strong>Precio:</strong>
+                                                                    <span th:text="${espacio.precioPorHora != null ? 'S/ ' + espacio.precioPorHora + ' por hora' : 'No definido'}">Precio</span>
+                                                                </span>
+                                                            </li>
+                                                            <li class="mb-2 d-flex align-items-start">
+                                                                <i class="mdi mdi-timer-sand text-warning me-2 fs-5"></i>
+                                                                <span><strong>Estado:</strong>
+                                                                    <span th:text="${espacio.estadoServicio != null ? espacio.estadoServicio : 'Desconocido'}"
+                                                                          th:classappend="${espacio.estadoServicio == 'operativo' ? 'text-success' : 'text-danger'}">
+                                                                        Estado
+                                                                    </span>
+                                                                </span>
+                                                            </li>
+                                                            <li class="mb-1 d-flex align-items-start">
+                                                                <i class="mdi mdi-cancel text-muted me-2 fs-5"></i>
+                                                                <span><strong>Cancelaciones:</strong> Sin penalidad hasta 48h antes</span>
+                                                            </li>
+                                                            <li class="mb-2 d-flex align-items-start">
+                                                                <i class="mdi mdi-credit-card-outline text-primary me-2 fs-5"></i>
+                                                                <span><strong>Forma de Pago:</strong>
+                                                                    <span>Procede al pago (puede ser online o por depósito bancario).</span>
+                                                                </span>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Pestañas de Descripción y Especificaciones -->
+                                            <div class="row mt-4">
+                                                <div class="col-12">
+                                                    <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+                                                        <li class="nav-item">
+                                                            <a class="nav-link active" id="desc-tab" data-bs-toggle="tab" href="#desc" role="tab">Descripción</a>
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <a class="nav-link" id="specifi-tab" data-bs-toggle="tab" href="#specifi" role="tab">Especificaciones</a>
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <a class="nav-link" id="reviews-tab" data-bs-toggle="tab" href="#reviews" role="tab">Reseñas</a>
+                                                        </li>
+                                                    </ul>
+
+                                                    <div class="tab-content border border-top-0 p-4">
+                                                        <!-- Descripción -->
+                                                        <div class="tab-pane fade show active" id="desc" role="tabpanel">
+                                                            <p>Disfruta del deporte en cualquiera de nuestras canchas, una con superficie de loza y otra con césped sintético, ambas perfectamente equipadas para que juegues sin preocupaciones. Piscina climatizada y pista de atletismo en diversos establecimientos.</p>
+                                                            <p>Ya sea para un partido entre amigos o para entrenar tus habilidades, nuestras canchas son el lugar ideal para divertirte y mejorar tu técnica.</p>
+                                                            <p>Visítanos en
+                                                                <a th:href="'https://www.google.com/maps?q=' + ${espacio.establecimientoDeportivo.geolocalizacion}"
+                                                                   target="_blank">ver ubicación en el mapa</a>.
+                                                            </p>
+                                                        </div>
+
+                                                        <!-- Especificaciones -->
+                                                        <div class="tab-pane fade" id="specifi" role="tabpanel">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-nowrap mb-0">
+                                                                    <tbody>
+                                                                    <tr>
+                                                                        <th scope="row" style="width: 400px;">Tipo</th>
+                                                                        <td th:text="${espacio.servicioDeportivo.servicioDeportivo}">Servicio Deportivo</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Dimensiones</th>
+                                                                        <td>30m x 20m (Loza) / 40m x 20m (Sintético)</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Aforo</th>
+                                                                        <td>20 personas</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Accesibilidad</th>
+                                                                        <td>Vecino SanMiguelinos</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Horario de atención</th>
+                                                                        <td>6:00 a.m. - 9:00 p.m.</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Ubicación</th>
+                                                                        <td>Av. La Marina 1234, San Miguel, Lima</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Teléfono</th>
+                                                                        <td>(51-1) 208-5830</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th scope="row">Política de cancelación</th>
+                                                                        <td>Puedes cancelar sin penalidad hasta 48h antes.</td>
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Contenido de Reseñas (versión corregida) -->
+                                                        <div class="tab-pane fade" id="reviews" role="tabpanel">
+                                                            <div class="mb-4">
+                                                                <!-- Sección de Promedio -->
+                                                                <div class="bg-light p-3 rounded mb-4">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="me-3">
+                                                                            <span class="display-4 fw-bold text-primary"
+                                                                                  th:text="${promedioCalificacion != null ? #numbers.formatDecimal(promedioCalificacion, 1, 1) : '0.0'}">0.0</span>
+                                                                            <span class="text-muted">/5</span>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div class="mb-1">
+                                                                                <span class="text-warning">
+                                                                                    <th:block th:if="${promedioCalificacion != null}">
+                                                                                        <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                                                           th:classappend="${i <= promedioCalificacion ? 'mdi mdi-star' :
+                                                                                           (i - 0.5 <= promedioCalificacion ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline')}"></i>
+                                                                                    </th:block>
+                                                                                    <th:block th:if="${promedioCalificacion == null}">
+                                                                                        <i class="mdi mdi-star-outline" th:each="i : ${#numbers.sequence(1, 5)}"></i>
+                                                                                    </th:block>
+                                                                                </span>
+                                                                            </div>
+                                                                            <div class="text-muted"
+                                                                                 th:text="'Basado en ' + ${resenias != null ? resenias.size() : 0} + ' reseña(s)'">
+                                                                                Basado en 0 reseña(s)
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Sección: Deja tu comentario -->
+                                                                <div class="mb-5" th:if="${usuario != null}">
+                                                                    <h5 class="mb-3">Deja tu comentario</h5>
+                                                                    <form th:action="@{'/usuarios/agregar-resenia/' + ${espacio.espacioDeportivoId}}"
+                                                                          method="post" enctype="multipart/form-data" id="reseniaForm"
+                                                                          class="border p-3 rounded">
+                                                                        <!-- Selector de estrellas -->
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label fw-semibold">Tu calificación</label>
+                                                                            <div class="rating-stars">
+                                                                                <input type="radio" id="star1" name="calificacion" value="1" required>
+                                                                                <label for="star1" title="1 estrella" class="mdi mdi-star"></label>
+
+                                                                                <input type="radio" id="star2" name="calificacion" value="2">
+                                                                                <label for="star2" title="2 estrellas" class="mdi mdi-star"></label>
+
+                                                                                <input type="radio" id="star3" name="calificacion" value="3">
+                                                                                <label for="star3" title="3 estrellas" class="mdi mdi-star"></label>
+
+                                                                                <input type="radio" id="star4" name="calificacion" value="4">
+                                                                                <label for="star4" title="4 estrellas" class="mdi mdi-star"></label>
+
+                                                                                <input type="radio" id="star5" name="calificacion" value="5">
+                                                                                <label for="star5" title="5 estrellas" class="mdi mdi-star"></label>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="mb-3">
+                                                                            <label for="comentario" class="form-label fw-semibold">Tu experiencia</label>
+                                                                            <textarea class="form-control" id="comentario" name="comentario" rows="3"
+                                                                                      placeholder="Comparte tu experiencia con este espacio deportivo..."
+                                                                                      maxlength="255" required></textarea>
+                                                                        </div>
+
+                                                                        <div class="mb-3">
+                                                                            <label for="fotoResenia" class="form-label fw-semibold">Subir foto (opcional)</label>
+                                                                            <input type="file" class="form-control" id="fotoResenia" name="fotoResenia" accept="image/*">
+                                                                            <div class="form-text">Formatos aceptados: JPG, PNG. Máx. 5MB</div>
+                                                                        </div>
+
+                                                                        <button type="submit" class="btn btn-primary px-4">
+                                                                            <i class="mdi mdi-send me-1"></i> Publicar comentario
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
+
+                                                                <!-- Sección: Comentarios -->
+                                                                <div>
+                                                                    <h5 class="mb-3">Comentarios
+                                                                        <span class="badge bg-primary" th:text="${totalResenias ?: 0}">0</span>
+                                                                    </h5>
+
+                                                                    <!-- Si hay reseñas -->
+                                                                    <div th:if="${resenias != null and not #lists.isEmpty(resenias)}">
+                                                                        <div id="comentarios-container">
+                                                                            <!-- Mostrar solo los primeros 10 comentarios inicialmente -->
+                                                                            <div th:each="resenia, iter : ${resenias}"
+                                                                                 th:id="'comment-' + ${iter.index}"
+                                                                                 th:class="${iter.index < 10 ? 'review-item mb-4 pb-4 border-bottom' : 'review-item mb-4 pb-4 border-bottom hidden-comment'}"
+                                                                                 th:style="${iter.index >= 10 ? 'display: none;' : ''}">
+
+                                                                                <div class="d-flex justify-content-between mb-2">
+                                                                                    <div>
+                                                                                        <span class="fw-bold"
+                                                                                              th:text="${(resenia.usuario != null and resenia.usuario.nombres != null) ?
+                                                                                                       (resenia.usuario.nombres + ' ' + (resenia.usuario.apellidos ?: '')) : 'Usuario Anónimo'}">
+                                                                                              Usuario Anónimo
+                                                                                        </span>
+                                                                                        <span class="text-muted small ms-2"
+                                                                                              th:text="${resenia.fechaCreacion != null ? #temporals.format(resenia.fechaCreacion, 'dd MMM yyyy') : 'Sin fecha'}">
+                                                                                              Sin fecha
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div class="text-warning">
+                                                                                        <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                                                           th:classappend="${i <= (resenia.calificacion ?: 0) ? 'mdi mdi-star' : 'mdi mdi-star-outline'}"></i>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="mb-2" th:text="${resenia.comentario ?: 'Sin comentario'}"></div>
+
+                                                                                <div th:if="${resenia.fotoReseniaUrl != null and resenia.fotoReseniaUrl != ''}">
+                                                                                    <img th:src="${resenia.fotoReseniaUrl}" alt="Foto de reseña"
+                                                                                         class="img-thumbnail" style="max-height: 150px;">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <!-- Botón "Ver más" solo si hay más de 10 comentarios -->
+                                                                        <div th:if="${totalResenias > 10}" class="text-center mt-3">
+                                                                            <button class="btn btn-outline-primary" id="verMasComentarios" onclick="mostrarMasComentarios()">
+                                                                                Ver más comentarios
+                                                                                <span class="badge bg-primary ms-1" th:text="${totalResenias - 10}">0</span>
+                                                                                <i class="mdi mdi-chevron-down"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Si no hay reseñas -->
+                                                                    <div th:if="${resenias == null or #lists.isEmpty(resenias)}" class="text-center py-4">
+                                                                        <i class="mdi mdi-comment-remove-outline display-4 text-muted mb-3"></i>
+                                                                        <h5 class="text-muted">No hay comentarios todavía</h5>
+                                                                        <p class="text-muted">Sé el primero en compartir tu experiencia</p>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <script>
+                                            AOS.init();
+                                        </script>
+
+                                    </div>
+                                </div>
+                                <!-- end card -->
+                            </div>
+                        </div>
+                        <!-- end row -->
+                    </div>
+                </div>
+                <!-- End Page-content -->
+            </div>
+            <!-- end main content-->
+        </div>
+    <!-- END layout-wrapper -->
+    <div class="sidebar-overlay"></div>
+
+    <script>
+        // Función para mostrar más comentarios
+        function mostrarMasComentarios() {
+            const comentariosOcultos = document.querySelectorAll('.hidden-comment');
+            const botonVerMas = document.getElementById('verMasComentarios');
+
+            console.log('Comentarios ocultos encontrados:', comentariosOcultos.length);
+
+            if (comentariosOcultos.length > 0) {
+                // Mostrar comentarios ocultos con animación
+                comentariosOcultos.forEach((comentario, index) => {
+                    setTimeout(() => {
+                        // Remover clase hidden y mostrar
+                        comentario.classList.remove('hidden-comment');
+                        comentario.style.display = 'block';
+
+                        // Animación de entrada
+                        comentario.style.opacity = '0';
+                        comentario.style.transform = 'translateY(20px)';
+                        comentario.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+
+                        // Activar la animación
+                        setTimeout(() => {
+                            comentario.style.opacity = '1';
+                            comentario.style.transform = 'translateY(0)';
+                        }, 50);
+                    }, index * 100);
+                });
+
+                // Ocultar el botón después de mostrar todos los comentarios
+                setTimeout(() => {
+                    if (botonVerMas) {
+                        botonVerMas.style.display = 'none';
+                    }
+                }, comentariosOcultos.length * 100 + 300);
+
+                // Scroll suave al primer comentario que se acaba de mostrar
+                setTimeout(() => {
+                    if (comentariosOcultos.length > 0) {
+                        comentariosOcultos[0].scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest'
+                        });
+                    }
+                }, 500);
+            }
+        }
+
+        // Inicialización cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Debug: Mostrar información sobre los comentarios
+            const totalComentarios = document.querySelectorAll('.review-item').length;
+            const comentariosOcultos = document.querySelectorAll('.hidden-comment').length;
+            const botonVerMas = document.getElementById('verMasComentarios');
+
+            console.log('Total de comentarios en la página:', totalComentarios);
+            console.log('Comentarios ocultos:', comentariosOcultos);
+            console.log('Botón ver más presente:', botonVerMas ? 'Sí' : 'No');
+
+            // Verificar si el botón debe mostrarse
+            if (comentariosOcultos === 0 && botonVerMas) {
+                botonVerMas.style.display = 'none';
+            }
+
+            // Configurar estrellas de calificación
+            const ratingInputs = document.querySelectorAll('input[name="calificacion"]');
+            const ratingLabels = document.querySelectorAll('.rating-stars label');
+
+            ratingLabels.forEach((label, index) => {
+                label.addEventListener('mouseenter', function() {
+                    ratingLabels.forEach((l, i) => {
+                        if (i >= index) {
+                            l.style.color = '#ffc107';
+                        } else {
+                            l.style.color = '#ccc';
+                        }
+                    });
+                });
+
+                label.addEventListener('mouseleave', function() {
+                    const checkedInput = document.querySelector('input[name="calificacion"]:checked');
+                    if (checkedInput) {
+                        const checkedValue = parseInt(checkedInput.value);
+                        ratingLabels.forEach((l, i) => {
+                            if (i >= (5 - checkedValue)) {
+                                l.style.color = '#ffc107';
+                            } else {
+                                l.style.color = '#ccc';
+                            }
+                        });
+                    } else {
+                        ratingLabels.forEach(l => l.style.color = '#ccc');
+                    }
+                });
+            });
+
+            // Validación del formulario
+            const form = document.getElementById('reseniaForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const calificacionSeleccionada = document.querySelector('input[name="calificacion"]:checked');
+                    const comentario = document.getElementById('comentario').value.trim();
+                    const archivo = document.getElementById('fotoResenia').files[0];
+
+                    // Validar archivo si se subió
+                    if (archivo) {
+                        const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg'];
+                        const tamanoMaximo = 5 * 1024 * 1024; // 5MB
+
+                        if (!tiposPermitidos.includes(archivo.type)) {
+                            alert('Por favor, sube una imagen en formato JPG o PNG.');
+                            e.preventDefault();
+                            return;
+                        }
+
+                        if (archivo.size > tamanoMaximo) {
+                            alert('La imagen es demasiado grande. El tamaño máximo permitido es 5MB.');
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+
+                    if (!calificacionSeleccionada || !comentario) {
+                        e.preventDefault();
+                        alert('Por favor completa todos los campos requeridos.');
+                    }
+                });
+            }
+        });
+
+        // JavaScript para el sistema de estrellas CORREGIDO
+        document.addEventListener('DOMContentLoaded', function() {
+            const ratingInputs = document.querySelectorAll('input[name="calificacion"]');
+            const ratingLabels = document.querySelectorAll('.rating-stars label');
+
+            // Función para colorear estrellas según el valor
+            function colorearEstrellas(valor) {
+                ratingLabels.forEach((label, index) => {
+                    // index + 1 porque los índices empiezan en 0 pero los valores en 1
+                    if (index + 1 <= valor) {
+                        label.style.color = '#ffc107';
+                    } else {
+                        label.style.color = '#ccc';
+                    }
+                });
+            }
+
+            // Manejar eventos de hover
+            ratingLabels.forEach((label, index) => {
+                label.addEventListener('mouseenter', function() {
+                    // Colorear desde la primera estrella hasta la actual
+                    colorearEstrellas(index + 1);
+                });
+
+                label.addEventListener('mouseleave', function() {
+                    // Restaurar estrellas según la selección actual
+                    const checkedInput = document.querySelector('input[name="calificacion"]:checked');
+                    if (checkedInput) {
+                        colorearEstrellas(parseInt(checkedInput.value));
+                    } else {
+                        colorearEstrellas(0); // Sin estrellas coloreadas
+                    }
+                });
+
+                // Manejar clic en la estrella
+                label.addEventListener('click', function() {
+                    const inputId = label.getAttribute('for');
+                    const input = document.getElementById(inputId);
+                    if (input) {
+                        input.checked = true;
+                        colorearEstrellas(parseInt(input.value));
+                    }
+                });
+            });
+
+            // Manejar cambios en los inputs directamente
+            ratingInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    colorearEstrellas(parseInt(this.value));
+                });
+            });
+
+            // Inicializar colores si ya hay una selección
+            const checkedInput = document.querySelector('input[name="calificacion"]:checked');
+            if (checkedInput) {
+                colorearEstrellas(parseInt(checkedInput.value));
+            }
+
+        });
+    </script>
+
+    <!-- JAVASCRIPT -->
+    <script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+    <script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
+    <script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
+    <script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
+
+    <!-- apexcharts -->
+    <script th:src="@{/assets/libs/apexcharts/apexcharts.min.js}"></script>
+
+    <!-- jquery.vectormap map -->
+    <script th:src="@{/assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js}"></script>
+    <script th:src="@{/assets/libs/admin-resources/jquery.vectormap/maps/jquery-jvectormap-us-merc-en.js}"></script>
+
+    <!-- plugin js -->
+    <script th:src="@{/assets/libs/moment/min/moment.min.js}"></script>
+    <script th:src="@{/assets/libs/jquery-ui-dist/jquery-ui.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/core/main.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/bootstrap/main.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/daygrid/main.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/timegrid/main.min.js}"></script>
+    <script th:src="@{/assets/libs/@fullcalendar/interaction/main.min.js}"></script>
+
+    <!-- Required datatable js -->
+    <script th:src="@{/assets/libs/datatables.net/js/jquery.dataTables.min.js}"></script>
+    <script th:src="@{/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js}"></script>
+
+    <!-- Responsive examples -->
+    <script th:src="@{/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js}"></script>
+    <script th:src="@{/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js}"></script>
+    <script th:src="@{/assets/js/app.js}"></script>
+
     <style>
         /* Estilos para el sistema de calificaciones */
         .rating-stars {
@@ -84,596 +672,7 @@
             scroll-behavior: smooth;
         }
     </style>
-</head>
-<!-- ====================================================================================================================================== -->
-<body data-sidebar="dark" class="vertical-collpsed">
-<!-- Begin page -->
-<div id="layout-wrapper">
-    <div th:replace="~{Vecino/fragments/topbarVecino :: topbar('Servicio Deportivo')}"></div>
-    <!-- ==================================================================================================================================== -->
-    <div th:replace="~{Vecino/fragments/sidebarVecino :: sidebar('Servicio Deportivo')}"></div>
-    <!-- ========================================================================================================================================== -->
-    <div class="main-content">
-        <div class="page-content">
-            <div class="container-fluid">
 
-                <!-- start page title -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                            <h4 class="mb-sm-0">Servicio Deportivo</h4>
-                            <div class="page-title-right">
-                                <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a th:href="@{/usuarios/cancha}">Cancha Disponible</a></li>
-                                    <li class="breadcrumb-item active"
-                                        th:text="${espacio.servicioDeportivo != null ? espacio.servicioDeportivo.servicioDeportivo : 'Sin categoría'}">
-                                        Tipo de espacio (Tipo de servicio)
-                                    </li>
-                                </ol>
-                            </div>
 
-                        </div>
-                    </div>
-                </div>
-                <!-- end page title -->
-
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-                                <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
-                                <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-                                <div class="container my-4">
-                                    <div class="row g-3 align-items-center">
-                                        <!-- Columna de imagen y botones -->
-                                        <div class="col-md-5">
-                                            <div class="card border-0 shadow-sm rounded-3" data-aos="fade-right">
-                                                <img th:src="${espacio.fotoEspacioDeportivoUrl}" alt="Espacio Deportivo" class="img-fluid rounded-top" style="max-height: 220px; object-fit: cover;">
-                                                <div class="card-body text-center py-3">
-                                                    <h6 class="fw-semibold mb-3">Reserva tu horario</h6>
-                                                    <div class="d-flex justify-content-center gap-2">
-                                                        <a th:href="@{'/usuarios/reservasCalendario/' + ${espacio.espacioDeportivoId}}" class="btn btn-outline-primary btn-sm px-3 rounded-pill">
-                                                            <i class="mdi mdi-calendar-clock me-1"></i> Ver horarios
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Columna de información -->
-                                        <div class="col-md-7">
-                                            <div class="bg-white border rounded-3 shadow-sm p-3 h-100" data-aos="fade-left">
-
-                                                <span class="badge bg-primary mb-2"
-                                                      th:text="${espacio.servicioDeportivo != null ? espacio.servicioDeportivo.servicioDeportivo : 'Sin categoría'}">
-                                                </span>
-
-                                                <h5 class="fw-bold mb-1" th:text="${espacio.nombre}"></h5>
-
-                                                <div class="mb-2" th:if="${promedioCalificacion != null}">
-                                                    <span class="text-warning small">
-                                                        <i th:each="i : ${#numbers.sequence(1, 5)}"
-                                                           th:classappend="${i <= promedioCalificacion ? 'mdi mdi-star' :
-                                                           (i - 0.5 <= promedioCalificacion ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline')}"></i>
-                                                    </span>
-                                                    <small class="text-muted ms-1" th:text="${#numbers.formatDecimal(promedioCalificacion, 1, 1)} + ' / 5.0'">0.0 / 5.0</small>
-                                                </div>
-                                                <div class="mb-2" th:if="${promedioCalificacion == null}">
-                                                        <span class="text-warning small">
-                                                            <i class="mdi mdi-star-outline"></i>
-                                                            <i class="mdi mdi-star-outline"></i>
-                                                            <i class="mdi mdi-star-outline"></i>
-                                                            <i class="mdi mdi-star-outline"></i>
-                                                            <i class="mdi mdi-star-outline"></i>
-                                                        </span>
-                                                    <small class="text-muted ms-1">Sin calificaciones</small>
-                                                </div>
-
-                                                <!-- Info tipo lista con íconos -->
-                                                <ul class="list-unstyled small mb-0">
-                                                    <li class="mb-2 d-flex align-items-start">
-                                                        <i class="mdi mdi-check-circle-outline text-primary me-2 fs-5"></i>
-                                                        <span><strong>Tipo:</strong>
-                                                            <span th:if="${espacio.servicioDeportivo != null and espacio.servicioDeportivo.servicioDeportivo != null}"
-                                                                  th:text="${espacio.servicioDeportivo.servicioDeportivo}">Tipo servicio</span>
-                                                            <span th:if="${espacio.servicioDeportivo == null or espacio.servicioDeportivo.servicioDeportivo == null}">
-                                                                Servicio no definido
-                                                            </span>
-                                                        </span>
-                                                    </li>
-                                                    <li class="mb-2 d-flex align-items-start">
-                                                        <i class="mdi mdi-map-marker text-danger me-2 fs-5"></i>
-                                                        <span><strong>Establecimiento:</strong>
-                                                            <span th:text="${espacio.establecimientoDeportivo != null ? espacio.establecimientoDeportivo.establecimientoDeportivoNombre : 'No definida'}">Ubicación</span>
-                                                        </span>
-                                                    </li>
-                                                    <li class="mb-2 d-flex align-items-start">
-                                                        <i class="mdi mdi-currency-usd text-success me-2 fs-5"></i>
-                                                        <span><strong>Precio:</strong>
-                                                            <span th:text="${espacio.precioPorHora != null ? 'S/ ' + espacio.precioPorHora + ' por hora' : 'No definido'}">Precio</span>
-                                                        </span>
-                                                    </li>
-                                                    <li class="mb-2 d-flex align-items-start">
-                                                        <i class="mdi mdi-timer-sand text-warning me-2 fs-5"></i>
-                                                        <span><strong>Estado:</strong>
-                                                            <span th:text="${espacio.estadoServicio != null ? espacio.estadoServicio : 'Desconocido'}"
-                                                                  th:classappend="${espacio.estadoServicio == 'operativo' ? 'text-success' : 'text-danger'}">
-                                                                Estado
-                                                            </span>
-                                                        </span>
-                                                    </li>
-                                                    <li class="mb-1 d-flex align-items-start">
-                                                        <i class="mdi mdi-cancel text-muted me-2 fs-5"></i>
-                                                        <span><strong>Cancelaciones:</strong> Sin penalidad hasta 48h antes</span>
-                                                    </li>
-                                                    <li class="mb-2 d-flex align-items-start">
-                                                        <i class="mdi mdi-credit-card-outline text-primary me-2 fs-5"></i>
-                                                        <span><strong>Forma de Pago:</strong>
-                                                            <span>Procede al pago (puede ser online o por depósito bancario).</span>
-                                                        </span>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Pestañas de Descripción y Especificaciones -->
-                                    <div class="row mt-4">
-                                        <div class="col-12">
-                                            <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
-                                                <li class="nav-item">
-                                                    <a class="nav-link active" id="desc-tab" data-bs-toggle="tab" href="#desc" role="tab">Descripción</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="nav-link" id="specifi-tab" data-bs-toggle="tab" href="#specifi" role="tab">Especificaciones</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="nav-link" id="reviews-tab" data-bs-toggle="tab" href="#reviews" role="tab">Reseñas</a>
-                                                </li>
-                                            </ul>
-
-                                            <div class="tab-content border border-top-0 p-4">
-                                                <!-- Descripción -->
-                                                <div class="tab-pane fade show active" id="desc" role="tabpanel">
-                                                    <p>Disfruta del deporte en cualquiera de nuestras canchas, una con superficie de loza y otra con césped sintético, ambas perfectamente equipadas para que juegues sin preocupaciones. Piscina climatizada y pista de atletismo en diversos establecimientos.</p>
-                                                    <p>Ya sea para un partido entre amigos o para entrenar tus habilidades, nuestras canchas son el lugar ideal para divertirte y mejorar tu técnica.</p>
-                                                    <p>Visítanos en
-                                                        <a th:href="'https://www.google.com/maps?q=' + ${espacio.establecimientoDeportivo.geolocalizacion}"
-                                                           target="_blank">ver ubicación en el mapa</a>.
-                                                    </p>
-                                                </div>
-
-                                                <!-- Especificaciones -->
-                                                <div class="tab-pane fade" id="specifi" role="tabpanel">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-nowrap mb-0">
-                                                            <tbody>
-                                                            <tr>
-                                                                <th scope="row" style="width: 400px;">Tipo</th>
-                                                                <td th:text="${espacio.servicioDeportivo.servicioDeportivo}">Servicio Deportivo</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Dimensiones</th>
-                                                                <td>30m x 20m (Loza) / 40m x 20m (Sintético)</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Aforo</th>
-                                                                <td>20 personas</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Accesibilidad</th>
-                                                                <td>Vecino SanMiguelinos</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Horario de atención</th>
-                                                                <td>6:00 a.m. - 9:00 p.m.</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Ubicación</th>
-                                                                <td>Av. La Marina 1234, San Miguel, Lima</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Teléfono</th>
-                                                                <td>(51-1) 208-5830</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="row">Política de cancelación</th>
-                                                                <td>Puedes cancelar sin penalidad hasta 48h antes.</td>
-                                                            </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Contenido de Reseñas (versión corregida) -->
-                                                <div class="tab-pane fade" id="reviews" role="tabpanel">
-                                                    <div class="mb-4">
-                                                        <!-- Sección de Promedio -->
-                                                        <div class="bg-light p-3 rounded mb-4">
-                                                            <div class="d-flex align-items-center">
-                                                                <div class="me-3">
-                                                                    <span class="display-4 fw-bold text-primary"
-                                                                          th:text="${promedioCalificacion != null ? #numbers.formatDecimal(promedioCalificacion, 1, 1) : '0.0'}">0.0</span>
-                                                                    <span class="text-muted">/5</span>
-                                                                </div>
-                                                                <div>
-                                                                    <div class="mb-1">
-                                                                        <span class="text-warning">
-                                                                            <th:block th:if="${promedioCalificacion != null}">
-                                                                                <i th:each="i : ${#numbers.sequence(1, 5)}"
-                                                                                   th:classappend="${i <= promedioCalificacion ? 'mdi mdi-star' :
-                                                                                   (i - 0.5 <= promedioCalificacion ? 'mdi mdi-star-half-full' : 'mdi mdi-star-outline')}"></i>
-                                                                            </th:block>
-                                                                            <th:block th:if="${promedioCalificacion == null}">
-                                                                                <i class="mdi mdi-star-outline" th:each="i : ${#numbers.sequence(1, 5)}"></i>
-                                                                            </th:block>
-                                                                        </span>
-                                                                    </div>
-                                                                    <div class="text-muted"
-                                                                         th:text="'Basado en ' + ${resenias != null ? resenias.size() : 0} + ' reseña(s)'">
-                                                                        Basado en 0 reseña(s)
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Sección: Deja tu comentario -->
-                                                        <div class="mb-5" th:if="${usuario != null}">
-                                                            <h5 class="mb-3">Deja tu comentario</h5>
-                                                            <form th:action="@{'/usuarios/agregar-resenia/' + ${espacio.espacioDeportivoId}}"
-                                                                  method="post" enctype="multipart/form-data" id="reseniaForm"
-                                                                  class="border p-3 rounded">
-                                                                <!-- Selector de estrellas -->
-                                                                <div class="mb-3">
-                                                                    <label class="form-label fw-semibold">Tu calificación</label>
-                                                                    <div class="rating-stars">
-                                                                        <input type="radio" id="star1" name="calificacion" value="1" required>
-                                                                        <label for="star1" title="1 estrella" class="mdi mdi-star"></label>
-
-                                                                        <input type="radio" id="star2" name="calificacion" value="2">
-                                                                        <label for="star2" title="2 estrellas" class="mdi mdi-star"></label>
-
-                                                                        <input type="radio" id="star3" name="calificacion" value="3">
-                                                                        <label for="star3" title="3 estrellas" class="mdi mdi-star"></label>
-
-                                                                        <input type="radio" id="star4" name="calificacion" value="4">
-                                                                        <label for="star4" title="4 estrellas" class="mdi mdi-star"></label>
-
-                                                                        <input type="radio" id="star5" name="calificacion" value="5">
-                                                                        <label for="star5" title="5 estrellas" class="mdi mdi-star"></label>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="mb-3">
-                                                                    <label for="comentario" class="form-label fw-semibold">Tu experiencia</label>
-                                                                    <textarea class="form-control" id="comentario" name="comentario" rows="3"
-                                                                              placeholder="Comparte tu experiencia con este espacio deportivo..."
-                                                                              maxlength="255" required></textarea>
-                                                                </div>
-
-                                                                <div class="mb-3">
-                                                                    <label for="fotoResenia" class="form-label fw-semibold">Subir foto (opcional)</label>
-                                                                    <input type="file" class="form-control" id="fotoResenia" name="fotoResenia" accept="image/*">
-                                                                    <div class="form-text">Formatos aceptados: JPG, PNG. Máx. 5MB</div>
-                                                                </div>
-
-                                                                <button type="submit" class="btn btn-primary px-4">
-                                                                    <i class="mdi mdi-send me-1"></i> Publicar comentario
-                                                                </button>
-                                                            </form>
-                                                        </div>
-
-                                                        <!-- Sección: Comentarios -->
-                                                        <div>
-                                                            <h5 class="mb-3">Comentarios
-                                                                <span class="badge bg-primary" th:text="${totalResenias ?: 0}">0</span>
-                                                            </h5>
-
-                                                            <!-- Si hay reseñas -->
-                                                            <div th:if="${resenias != null and not #lists.isEmpty(resenias)}">
-                                                                <div id="comentarios-container">
-                                                                    <!-- Mostrar solo los primeros 10 comentarios inicialmente -->
-                                                                    <div th:each="resenia, iter : ${resenias}"
-                                                                         th:id="'comment-' + ${iter.index}"
-                                                                         th:class="${iter.index < 10 ? 'review-item mb-4 pb-4 border-bottom' : 'review-item mb-4 pb-4 border-bottom hidden-comment'}"
-                                                                         th:style="${iter.index >= 10 ? 'display: none;' : ''}">
-
-                                                                        <div class="d-flex justify-content-between mb-2">
-                                                                            <div>
-                                                                                <span class="fw-bold"
-                                                                                      th:text="${(resenia.usuario != null and resenia.usuario.nombres != null) ?
-                                                                                               (resenia.usuario.nombres + ' ' + (resenia.usuario.apellidos ?: '')) : 'Usuario Anónimo'}">
-                                                                                      Usuario Anónimo
-                                                                                </span>
-                                                                                <span class="text-muted small ms-2"
-                                                                                      th:text="${resenia.fechaCreacion != null ? #temporals.format(resenia.fechaCreacion, 'dd MMM yyyy') : 'Sin fecha'}">
-                                                                                      Sin fecha
-                                                                                </span>
-                                                                            </div>
-                                                                            <div class="text-warning">
-                                                                                <i th:each="i : ${#numbers.sequence(1, 5)}"
-                                                                                   th:classappend="${i <= (resenia.calificacion ?: 0) ? 'mdi mdi-star' : 'mdi mdi-star-outline'}"></i>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="mb-2" th:text="${resenia.comentario ?: 'Sin comentario'}"></div>
-
-                                                                        <div th:if="${resenia.fotoReseniaUrl != null and resenia.fotoReseniaUrl != ''}">
-                                                                            <img th:src="${resenia.fotoReseniaUrl}" alt="Foto de reseña"
-                                                                                 class="img-thumbnail" style="max-height: 150px;">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Botón "Ver más" solo si hay más de 10 comentarios -->
-                                                                <div th:if="${totalResenias > 10}" class="text-center mt-3">
-                                                                    <button class="btn btn-outline-primary" id="verMasComentarios" onclick="mostrarMasComentarios()">
-                                                                        Ver más comentarios
-                                                                        <span class="badge bg-primary ms-1" th:text="${totalResenias - 10}">0</span>
-                                                                        <i class="mdi mdi-chevron-down"></i>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Si no hay reseñas -->
-                                                            <div th:if="${resenias == null or #lists.isEmpty(resenias)}" class="text-center py-4">
-                                                                <i class="mdi mdi-comment-remove-outline display-4 text-muted mb-3"></i>
-                                                                <h5 class="text-muted">No hay comentarios todavía</h5>
-                                                                <p class="text-muted">Sé el primero en compartir tu experiencia</p>
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-                                <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-                                <script>
-                                    AOS.init();
-                                </script>
-
-                            </div>
-                        </div>
-                        <!-- end card -->
-                    </div>
-                </div>
-                <!-- end row -->
-            </div>
-        </div>
-        <!-- End Page-content -->
-    </div>
-    <!-- end main content-->
-
-</div>
-<!-- END layout-wrapper -->
-<div class="sidebar-overlay"></div>
-<!-- Right Sidebar -->
-<div class="right-bar">
-    <div data-simplebar class="h-100">
-        <div class="rightbar-title d-flex align-items-center px-3 py-4">
-
-            <h5 class="m-0 me-2">Settings</h5>
-
-            <a href="javascript:void(0);" class="right-bar-toggle ms-auto">
-                <i class="mdi mdi-close noti-icon"></i>
-            </a>
-        </div>
-
-    </div> <!-- end slimscroll-menu-->
-</div>
-<!-- /Right-bar -->
-
-
-
-<!-- Right bar overlay-->
-<div class="rightbar-overlay"></div>
-
-<!-- JAVASCRIPT -->
-<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
-<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
-<script th:src="@{/assets/libs/metismenu/metisMenu.min.js}"></script>
-<script th:src="@{/assets/libs/simplebar/simplebar.min.js}"></script>
-<script th:src="@{/assets/libs/node-waves/waves.min.js}"></script>
-<script th:src="@{/assets/js/app.js}"></script>
-
-<script>
-    // Función para mostrar más comentarios
-    function mostrarMasComentarios() {
-        const comentariosOcultos = document.querySelectorAll('.hidden-comment');
-        const botonVerMas = document.getElementById('verMasComentarios');
-
-        console.log('Comentarios ocultos encontrados:', comentariosOcultos.length);
-
-        if (comentariosOcultos.length > 0) {
-            // Mostrar comentarios ocultos con animación
-            comentariosOcultos.forEach((comentario, index) => {
-                setTimeout(() => {
-                    // Remover clase hidden y mostrar
-                    comentario.classList.remove('hidden-comment');
-                    comentario.style.display = 'block';
-
-                    // Animación de entrada
-                    comentario.style.opacity = '0';
-                    comentario.style.transform = 'translateY(20px)';
-                    comentario.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-
-                    // Activar la animación
-                    setTimeout(() => {
-                        comentario.style.opacity = '1';
-                        comentario.style.transform = 'translateY(0)';
-                    }, 50);
-                }, index * 100);
-            });
-
-            // Ocultar el botón después de mostrar todos los comentarios
-            setTimeout(() => {
-                if (botonVerMas) {
-                    botonVerMas.style.display = 'none';
-                }
-            }, comentariosOcultos.length * 100 + 300);
-
-            // Scroll suave al primer comentario que se acaba de mostrar
-            setTimeout(() => {
-                if (comentariosOcultos.length > 0) {
-                    comentariosOcultos[0].scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'nearest'
-                    });
-                }
-            }, 500);
-        }
-    }
-
-    // Inicialización cuando se carga la página
-    document.addEventListener('DOMContentLoaded', function() {
-        // Debug: Mostrar información sobre los comentarios
-        const totalComentarios = document.querySelectorAll('.review-item').length;
-        const comentariosOcultos = document.querySelectorAll('.hidden-comment').length;
-        const botonVerMas = document.getElementById('verMasComentarios');
-
-        console.log('Total de comentarios en la página:', totalComentarios);
-        console.log('Comentarios ocultos:', comentariosOcultos);
-        console.log('Botón ver más presente:', botonVerMas ? 'Sí' : 'No');
-
-        // Verificar si el botón debe mostrarse
-        if (comentariosOcultos === 0 && botonVerMas) {
-            botonVerMas.style.display = 'none';
-        }
-
-        // Configurar estrellas de calificación
-        const ratingInputs = document.querySelectorAll('input[name="calificacion"]');
-        const ratingLabels = document.querySelectorAll('.rating-stars label');
-
-        ratingLabels.forEach((label, index) => {
-            label.addEventListener('mouseenter', function() {
-                ratingLabels.forEach((l, i) => {
-                    if (i >= index) {
-                        l.style.color = '#ffc107';
-                    } else {
-                        l.style.color = '#ccc';
-                    }
-                });
-            });
-
-            label.addEventListener('mouseleave', function() {
-                const checkedInput = document.querySelector('input[name="calificacion"]:checked');
-                if (checkedInput) {
-                    const checkedValue = parseInt(checkedInput.value);
-                    ratingLabels.forEach((l, i) => {
-                        if (i >= (5 - checkedValue)) {
-                            l.style.color = '#ffc107';
-                        } else {
-                            l.style.color = '#ccc';
-                        }
-                    });
-                } else {
-                    ratingLabels.forEach(l => l.style.color = '#ccc');
-                }
-            });
-        });
-
-        // Validación del formulario
-        const form = document.getElementById('reseniaForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                const calificacionSeleccionada = document.querySelector('input[name="calificacion"]:checked');
-                const comentario = document.getElementById('comentario').value.trim();
-                const archivo = document.getElementById('fotoResenia').files[0];
-
-                // Validar archivo si se subió
-                if (archivo) {
-                    const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg'];
-                    const tamanoMaximo = 5 * 1024 * 1024; // 5MB
-
-                    if (!tiposPermitidos.includes(archivo.type)) {
-                        alert('Por favor, sube una imagen en formato JPG o PNG.');
-                        e.preventDefault();
-                        return;
-                    }
-
-                    if (archivo.size > tamanoMaximo) {
-                        alert('La imagen es demasiado grande. El tamaño máximo permitido es 5MB.');
-                        e.preventDefault();
-                        return;
-                    }
-                }
-
-                if (!calificacionSeleccionada || !comentario) {
-                    e.preventDefault();
-                    alert('Por favor completa todos los campos requeridos.');
-                }
-            });
-        }
-    });
-
-    // JavaScript para el sistema de estrellas CORREGIDO
-    document.addEventListener('DOMContentLoaded', function() {
-        const ratingInputs = document.querySelectorAll('input[name="calificacion"]');
-        const ratingLabels = document.querySelectorAll('.rating-stars label');
-
-        // Función para colorear estrellas según el valor
-        function colorearEstrellas(valor) {
-            ratingLabels.forEach((label, index) => {
-                // index + 1 porque los índices empiezan en 0 pero los valores en 1
-                if (index + 1 <= valor) {
-                    label.style.color = '#ffc107';
-                } else {
-                    label.style.color = '#ccc';
-                }
-            });
-        }
-
-        // Manejar eventos de hover
-        ratingLabels.forEach((label, index) => {
-            label.addEventListener('mouseenter', function() {
-                // Colorear desde la primera estrella hasta la actual
-                colorearEstrellas(index + 1);
-            });
-
-            label.addEventListener('mouseleave', function() {
-                // Restaurar estrellas según la selección actual
-                const checkedInput = document.querySelector('input[name="calificacion"]:checked');
-                if (checkedInput) {
-                    colorearEstrellas(parseInt(checkedInput.value));
-                } else {
-                    colorearEstrellas(0); // Sin estrellas coloreadas
-                }
-            });
-
-            // Manejar clic en la estrella
-            label.addEventListener('click', function() {
-                const inputId = label.getAttribute('for');
-                const input = document.getElementById(inputId);
-                if (input) {
-                    input.checked = true;
-                    colorearEstrellas(parseInt(input.value));
-                }
-            });
-        });
-
-        // Manejar cambios en los inputs directamente
-        ratingInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                colorearEstrellas(parseInt(this.value));
-            });
-        });
-
-        // Inicializar colores si ya hay una selección
-        const checkedInput = document.querySelector('input[name="calificacion"]:checked');
-        if (checkedInput) {
-            colorearEstrellas(parseInt(checkedInput.value));
-        }
-
-    });
-</script>
-
-</body>
+    </body>
 </html>
