@@ -109,10 +109,59 @@
 <!-- Modal de Reasignación -->
 <div th:replace="~{admin/fragments/modalReasignarAsistencia.html :: modalReasignar}"></div>
 
+<!-- Modal de Detalles de Asistencia -->
+<div class="modal fade" id="modalDetalleAsistencia" tabindex="-1" role="dialog" aria-labelledby="modalDetalleAsistenciaLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDetalleAsistenciaLabel">Detalle de Asistencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Coordinador</label>
+                            <input type="text" class="form-control" id="detalleCoordinador" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha de Asistencia</label>
+                            <input type="text" class="form-control" id="detalleFecha" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Horario Programado</label>
+                            <input type="text" class="form-control" id="detalleHorarioProgramado" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Horario Cumplido</label>
+                            <input type="text" class="form-control" id="detalleHorarioCumplido" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label class="form-label">Ubicación del Espacio Deportivo</label>
+                            <div id="mapaAsistencia" style="height: 300px; width: 100%; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="sidebar-overlay"></div>
 
 <!-- Incluir los scripts del listado -->
 <div th:replace="~{admin/fragments/footList.html :: footList}"></div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o&libraries=places"></script>
+<script th:src="@{/assets/libs/gmaps/gmaps.min.js}"></script>
 <script th:src="@{/admin/assets/js/pages/gestion-asistencias.init.js}"></script>
 
 <!-- Script para posicionar botones de exportar -->
@@ -157,10 +206,133 @@
     });
 </script>
 
+<!-- Script para modal de detalles de asistencia -->
+<script>
+    var mapaAsistencia = null;
+    
+    function verDetalleAsistencia(asistenciaId) {
+        // Obtener los datos de la asistencia usando la función global
+        var fila = window.getAsistenciaData(asistenciaId);
+        
+        if (!fila) {
+            alert('No se pudieron cargar los detalles de la asistencia');
+            return;
+        }
+        
+        // Llenar los campos del modal
+        document.getElementById('detalleCoordinador').value = fila.coordinadorNombre;
+        document.getElementById('detalleFecha').value = formatearFecha(fila.horarioEntrada);
+        document.getElementById('detalleHorarioProgramado').value = formatearHora(fila.horarioEntrada) + ' - ' + formatearHora(fila.horarioSalida);
+        
+        // Crear el horario cumplido combinando entrada y salida reales
+        var horarioCumplido = '';
+        if (fila.registroEntrada && fila.registroSalida) {
+            horarioCumplido = formatearHora(fila.registroEntrada) + ' - ' + formatearHora(fila.registroSalida);
+        } else if (fila.registroEntrada) {
+            horarioCumplido = formatearHora(fila.registroEntrada) + ' - Sin registro de salida';
+        } else {
+            horarioCumplido = 'Sin registros de asistencia';
+        }
+        document.getElementById('detalleHorarioCumplido').value = horarioCumplido;
+        
+        // Mostrar el modal
+        var modal = new bootstrap.Modal(document.getElementById('modalDetalleAsistencia'));
+        modal.show();
+        
+        // Inicializar el mapa después de que el modal se muestre completamente
+        $('#modalDetalleAsistencia').on('shown.bs.modal', function () {
+            initializarMapaAsistencia(fila);
+        });
+    }
+    
+    function initializarMapaAsistencia(asistencia) {
+        try {
+            // Coordenadas del espacio deportivo
+            var geoEspacioDeportivo = asistencia.espacioGeolocalizacion;
+            var coordsEspacio = null;
+            
+            if (geoEspacioDeportivo) {
+                var coords = geoEspacioDeportivo.split(',');
+                if (coords.length === 2) {
+                    coordsEspacio = {
+                        lat: parseFloat(coords[0].trim()),
+                        lng: parseFloat(coords[1].trim())
+                    };
+                }
+            }
+            
+            // Usar coordenadas del espacio deportivo como centro, o Lima por defecto
+            var centroMapa = coordsEspacio || { lat: -12.043333, lng: -77.028333 };
+            
+            // Crear el mapa
+            mapaAsistencia = new GMaps({
+                div: '#mapaAsistencia',
+                lat: centroMapa.lat,
+                lng: centroMapa.lng,
+                zoom: 17
+            });
+            
+            // Agregar marcador del espacio deportivo - Azul
+            if (coordsEspacio) {
+                mapaAsistencia.addMarker({
+                    lat: coordsEspacio.lat,
+                    lng: coordsEspacio.lng,
+                    title: 'Ubicación del Espacio Deportivo',
+                    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                });
+            } else {
+                // Si no hay coordenadas, mostrar mensaje en el mapa
+                console.warn('No se encontraron coordenadas para el espacio deportivo');
+            }
+            
+        } catch (error) {
+            console.error('Error al inicializar el mapa:', error);
+        }
+    }
+    
+    function formatearFecha(fechaString) {
+        const fecha = new Date(fechaString);
+        return fecha.toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
+    
+    function formatearHora(fechaString) {
+        const fecha = new Date(fechaString);
+        return fecha.toLocaleTimeString('es-PE', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+    
+    function traducirEstado(estado) {
+        const estados = {
+            'pendiente': 'Pendiente',
+            'puntual': 'Puntual',
+            'tarde': 'Tardanza',
+            'inasistencia': 'Inasistencia',
+            'cancelada': 'Cancelada',
+            'reasignada': 'Reasignada'
+        };
+        return estados[estado] || estado;
+    }
+    
+    // Limpiar el mapa cuando se cierre el modal
+    $('#modalDetalleAsistencia').on('hidden.bs.modal', function () {
+        if (mapaAsistencia) {
+            mapaAsistencia = null;
+        }
+    });
+</script>
+
 <!-- CSS personalizado para modal -->
 <style>
     /* Asegurar que el modal esté por encima del navbar */
-    #modalReasignarAsistencia {
+    #modalReasignarAsistencia,
+    #modalDetalleAsistencia {
         z-index: 99999 !important;
     }
     
@@ -177,6 +349,7 @@
     
     /* Backup: forzar backdrop específico del modal */
     #modalReasignarAsistencia ~ .modal-backdrop,
+    #modalDetalleAsistencia ~ .modal-backdrop,
     .modal-backdrop.show {
         z-index: 99998 !important;
         background-color: rgba(0, 0, 0, 0.5) !important;
@@ -190,7 +363,8 @@
     }
     
     /* Asegurar que el modal content esté por encima de todo */
-    #modalReasignarAsistencia .modal-content {
+    #modalReasignarAsistencia .modal-content,
+    #modalDetalleAsistencia .modal-content {
         z-index: 100000 !important;
         position: relative;
     }
@@ -204,6 +378,11 @@
     .bg-purple {
         background-color: #6f42c1 !important;
         color: white !important;
+    }
+    
+    /* Estilos para el mapa de asistencia */
+    #mapaAsistencia {
+        background-color: #f8f9fa;
     }
 </style>
 
