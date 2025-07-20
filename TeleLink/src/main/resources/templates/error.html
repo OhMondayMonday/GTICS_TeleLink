@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>Error | Municipalidad de San Miguel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/assets/css/icons.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/assets/css/app.min.css}" rel="stylesheet" type="text/css" />
+    <style>
+        .authentication-bg {
+            background-image: url('https://pbs.twimg.com/media/GDl_-_1XYAAuSBN.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+        .bg-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        .auth-logo {
+            max-width: 150px;
+        }
+    </style>
+</head>
+<body class="auth-body-bg">
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <div class="col-lg-4">
+            <div class="authentication-page-content p-4 d-flex align-items-center min-vh-100">
+                <div class="w-100">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-9">
+                            <div class="text-center">
+                                <img th:src="@{/assets/images/logoCompleto.png}" alt="Municipalidad de San Miguel" class="auth-logo mx-auto">
+                                <h4 class="font-size-18 mt-4">¡Ha ocurrido un error!</h4>
+                                <p class="text-muted">Ocurrió un error inesperado. Por favor, vuelve a la página principal.</p>
+                                <div class="mt-4">
+                                    <!-- Si NO está autenticado -->
+                                    <a th:if="${rol == null}" th:href="@{/openLoginWindow}" class="btn btn-primary">Iniciar Sesión</a>
+                                    <a th:if="${rol == null}" th:href="@{/register}" class="btn btn-secondary">Registrarse</a>
+                                    <!-- Si está autenticado, mostrar botón con redirección según el rol -->
+                                    <div th:if="${rol != null}" th:switch="${rol}">
+                                        <a th:case="'superadmin'" th:href="@{/superadmin/inicio}" class="btn btn-primary">Ir al Inicio</a>
+                                        <a th:case="'administrador'" th:href="@{/admin/dashboard}" class="btn btn-primary">Ir al Inicio</a>
+                                        <a th:case="'coordinador'" th:href="@{/coordinador/inicio}" class="btn btn-primary">Ir al Inicio</a>
+                                        <a th:case="*" th:href="@{/usuarios/inicio}" class="btn btn-primary">Ir al Inicio</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="authentication-bg">
+                <div class="bg-overlay"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/assets/libs/jquery/jquery.min.js}"></script>
+<script th:src="@{/assets/libs/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/js/app.js}"></script>
+</body>
+</html>
