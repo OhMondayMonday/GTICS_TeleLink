@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesdesign" name="author" />
+    <!-- Meta tags CSRF necesarios para JavaScript -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <!-- App favicon -->
     <link rel="shortcut icon" th:href="@{/assets/images/logoCortado.png}">
 
@@ -153,10 +156,6 @@
             box-sizing: border-box !important;
         }
     </style>
-    
-    <!-- Meta tags CSRF necesarios para JavaScript -->
-    <meta name="_csrf" th:content="${_csrf.token}" />
-    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <header id="page-topbar" th:fragment="topbar(pagina)">
@@ -284,7 +283,7 @@
 
                 return tipoMap[tipo] || { icono: 'fas fa-bell', color: '#6c757d' };
             }
-z
+
             // Función para crear un item de notificación
             function createNotificationItem(notification) {
                 const tipoInfo = getTipoInfo(notification.tipoNotificacion.tipoNotificacion);
