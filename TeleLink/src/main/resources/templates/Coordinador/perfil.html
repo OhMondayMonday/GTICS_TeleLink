@@ -1,7 +1,172 @@
 <!doctype html>
 <html lang="es">
-    <!-- Mirrored from themesdesign.in/nazox/layouts/calendar.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 Aug 2024 19:31:16 GMT -->
     <head th:replace="~{fragments/topbarCoordinador :: head('Perfil')}"></head>
+    
+    <style>
+        /* Estilos profesionales para el perfil */
+        .profile-card {
+            border: none;
+            box-shadow: 0 15px 35px rgba(85, 110, 230, 0.15);
+            border-radius: 20px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .profile-header {
+            background: #556ee6;
+            padding: 2.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .profile-info {
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profile-role {
+            font-size: 1rem;
+            opacity: 0.9;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        
+        .profile-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .info-section {
+            padding: 2.5rem;
+            background: white;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+        }
+        
+        .info-item {
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-item label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-item label i {
+            margin-right: 0.5rem;
+            color: #2E3A59;
+            width: 16px;
+        }
+        
+        .info-input {
+            font-size: 1rem;
+            color: #2c3e50;
+            font-weight: 500;
+            padding: 1rem 1.25rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .info-input:focus {
+            border-color: #2E3A59;
+            box-shadow: 0 0 0 0.2rem rgba(46, 58, 89, 0.25);
+            background: white;
+        }
+        
+        .edit-btn {
+            background: #2a3042;
+            border: none;
+            padding: 0.875rem 2.5rem;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(42, 48, 66, 0.3);
+        }
+        
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(42, 48, 66, 0.4);
+            background: #1e222e;
+            color: white;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-header {
+                text-align: center;
+                padding: 2rem 1.5rem;
+            }
+            
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 1rem;
+            }
+            
+            .profile-name {
+                font-size: 1.5rem;
+            }
+            
+            .info-section {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+    
     <body data-sidebar="dark" class="vertical-collpsed">
         <!-- <body data-layout="horizontal" data-topbar="dark"> -->
         <!-- Begin page -->
@@ -20,76 +185,104 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-lg-12">
-                                <div class="card">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col-md-4">
-                                            <style>
-                                                .perfil-circular {
-                                                    padding: 30px;
-                                                    aspect-ratio: 1 / 1;
-                                                    width: 100%;
-                                                    object-fit: cover;
-                                                }
-                                            </style>
-
-                                            <img class="rounded-circle perfil-circular img-fluid"
-                                                 th:src="${usuario.fotoPerfilUrl != null} ? ${usuario.fotoPerfilUrl} : @{/assets/images/users/avatar-2.jpg}"
-                                                 alt="Foto de perfil">
+                                <div class="card profile-card">
+                                    <!-- Header del perfil con gradiente -->
+                                    <div class="profile-header">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-3 text-center">
+                                                <img class="rounded-circle profile-avatar"
+                                                     th:src="${usuario.fotoPerfilUrl != null} ? ${usuario.fotoPerfilUrl} : @{/assets/images/users/avatar-2.jpg}"
+                                                     alt="Foto de perfil">
+                                            </div>
+                                            <div class="col-md-9">
+                                                <div class="profile-info">
+                                                    <h2 class="profile-name" th:text="${usuario.nombres + ' ' + usuario.apellidos}">Nombre Completo</h2>
+                                                    <p class="profile-role">
+                                                        <i class="fas fa-user-tie me-2"></i>
+                                                        Coordinador Deportivo
+                                                    </p>
+                                                    <div class="profile-badge">
+                                                        <i class="fas fa-check-circle me-1"></i>
+                                                        Coordinador Activo
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-8">
-                                            <div class="card-body">
-                                                <h4 class="card-title mb-4 fw-semibold mt-3">Información personal</h4>
+                                    </div>
 
-                                                <form class="custom-validation" action="#" novalidate="">
-                                                    <div class="mb-3">
-                                                        <label>Nombres</label>
+                                    <!-- Información detallada -->
+                                    <div class="info-section">
+                                        <h5 class="section-title">
+                                            <i class="fas fa-info-circle me-2" style="color: #2E3A59;"></i>
+                                            Información Personal
+                                        </h5>
+                                        
+                                        <form class="custom-validation" action="#" novalidate="">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="info-item">
+                                                        <label>
+                                                            <i class="fas fa-user"></i>
+                                                            Nombres
+                                                        </label>
                                                         <input type="text"
-                                                               class="form-control border-0 bg-light"
-                                                               required=""
+                                                               class="info-input"
                                                                name="nombres"
                                                                id="nombres"
                                                                th:value="${usuario.nombres != null} ? ${usuario.nombres} : ''"
                                                                readonly disabled>
                                                     </div>
-
-                                                    <div class="mb-3">
-                                                        <label>Apellidos</label>
-                                                        <input type="text"
-                                                               class="form-control border-0 bg-light"
-                                                               required=""
-                                                               name="apellidos"
-                                                               id="apellidos"
-                                                               th:value="${usuario.apellidos != null} ? ${usuario.apellidos} : ''"
-                                                               readonly disabled>
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label>Correo electrónico</label>
+                                                    
+                                                    <div class="info-item">
+                                                        <label>
+                                                            <i class="fas fa-envelope"></i>
+                                                            Correo electrónico
+                                                        </label>
                                                         <input type="email"
-                                                               class="form-control border-0 bg-light"
-                                                               required=""
+                                                               class="info-input"
                                                                name="correoElectronico"
                                                                id="correoElectronico"
                                                                th:value="${usuario.correoElectronico != null} ? ${usuario.correoElectronico} : ''"
                                                                readonly disabled>
                                                     </div>
-
-                                                    <div class="mb-3">
-                                                        <label>Teléfono</label>
+                                                </div>
+                                                
+                                                <div class="col-md-6">
+                                                    <div class="info-item">
+                                                        <label>
+                                                            <i class="fas fa-user-friends"></i>
+                                                            Apellidos
+                                                        </label>
                                                         <input type="text"
-                                                               class="form-control border-0 bg-light"
-                                                               required=""
+                                                               class="info-input"
+                                                               name="apellidos"
+                                                               id="apellidos"
+                                                               th:value="${usuario.apellidos != null} ? ${usuario.apellidos} : ''"
+                                                               readonly disabled>
+                                                    </div>
+                                                    
+                                                    <div class="info-item">
+                                                        <label>
+                                                            <i class="fas fa-phone"></i>
+                                                            Teléfono
+                                                        </label>
+                                                        <input type="text"
+                                                               class="info-input"
                                                                name="telefono"
                                                                id="telefono"
                                                                th:value="${usuario.telefono != null} ? ${usuario.telefono} : ''"
                                                                readonly disabled>
                                                     </div>
-                                                    <div class="text-center">
-                                                        <a th:href="@{/coordinador/editar-perfil}" class="btn btn-primary">Editar</a>
-                                                    </div>
-                                                </form>
+                                                </div>
                                             </div>
-                                        </div>
+                                            
+                                            <div class="text-center mt-4">
+                                                <a th:href="@{/coordinador/editar-perfil}" class="edit-btn">
+                                                    <i class="fas fa-edit me-2"></i>
+                                                    Editar Perfil
+                                                </a>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
