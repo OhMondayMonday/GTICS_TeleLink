@@ -75,6 +75,40 @@
         .page-content {
             z-index: 1000 !important;
         }
+        
+        /* Estilos para el loader principal */
+        #page-loader {
+            min-height: 400px;
+        }
+        
+        #page-loader .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.25rem;
+        }
+        
+        #page-loader h5 {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-size: 1rem;
+        }
+        
+        #page-loader p {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-bottom: 0;
+        }
+        
+        /* Transición suave para el contenido principal */
+        #main-content {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        #main-content.show {
+            opacity: 1;
+        }
     </style>
     <body data-sidebar="dark" class="vertical-collpsed"
           th:data-horario-entrada="${asistenciaActiva != null ? #temporals.format(asistenciaActiva.horarioEntrada, 'yyyy-MM-dd HH:mm:ss') : ''}"
@@ -94,6 +128,27 @@
                             <p>Obteniendo ubicación...</p>
                         </div>
 
+                        <!-- Loader principal para toda la página -->
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card" id="page-loader">
+                                    <div class="card-body d-flex justify-content-center align-items-center">
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Cargando...</span>
+                                            </div>
+                                            <div class="mt-3">
+                                                <h5>Cargando página de asistencia...</h5>
+                                                <p>Por favor espere un momento</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contenido principal (oculto inicialmente) -->
+                        <div id="main-content" style="display: none;">
                         <div class="row" style="display: flex; align-items: stretch;">
                             <div class="col-lg-5 d-flex mb-4">
                                 <div class="card mb-0 flex-grow-1">
@@ -250,6 +305,7 @@
                                 </div>
                             </div>
                         </div>
+                        </div> <!-- Cierre del main-content -->
                     </div>
                 </div>
                 <footer th:replace="fragments/topbarCoordinador :: footer"></footer>
@@ -263,170 +319,177 @@
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o&libraries=places"></script>
         <script th:src="@{/assets/libs/gmaps/gmaps.min.js}"></script>        <script th:inline="javascript">
             document.addEventListener('DOMContentLoaded', function () {
-                // Mapa
-                try {
-                    var geolocalizacion = /*[[${geolocalizacion}]]*/ null;
-                    console.log("Geolocalización recibida:", geolocalizacion);
-                    var map = new GMaps({
-                        div: '#gmaps-markers',
-                        lat: -12.043333,
-                        lng: -77.028333,
-                        zoom: 16
-                    });
+                // Variables globales para el mapa
+                var geolocalizacion = /*[[${geolocalizacion}]]*/ null;
+                var map = null;
 
-                    // Obtener ubicación actual del usuario
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                            function(position) {
-                                var userLat = position.coords.latitude;
-                                var userLng = position.coords.longitude;
-                                
-                                // Agregar marcador de ubicación actual del usuario
-                                map.addMarker({
-                                    lat: userLat,
-                                    lng: userLng,
-                                    title: 'Mi ubicación actual',
-                                    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                                });
+                // Función para inicializar el mapa
+                function initializeMap() {
+                    console.log('🗺️ Inicializando mapa...');
+                    try {
+                        console.log("Geolocalización recibida:", geolocalizacion);
+                        map = new GMaps({
+                            div: '#gmaps-markers',
+                            lat: -12.043333,
+                            lng: -77.028333,
+                            zoom: 16
+                        });
 
-                                if (geolocalizacion) {
-                                    var coords = geolocalizacion.split(',');
-                                    if (coords.length === 2) {
-                                        var establishmentLat = parseFloat(coords[0].trim());
-                                        var establishmentLng = parseFloat(coords[1].trim());
-                                        if (!isNaN(establishmentLat) && !isNaN(establishmentLng)) {
-                                            // Centrar el mapa entre el usuario y el establecimiento
-                                            var centerLat = (userLat + establishmentLat) / 2;
-                                            var centerLng = (userLng + establishmentLng) / 2;
-                                            map.setCenter(centerLat, centerLng);
-                                            
-                                            // Agregar marcador del establecimiento
-                                            map.addMarker({
-                                                lat: establishmentLat,
-                                                lng: establishmentLng,
-                                                title: 'Ubicación del Establecimiento',
-                                                icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                                            });
+                        // Obtener ubicación actual del usuario
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(
+                                function(position) {
+                                    var userLat = position.coords.latitude;
+                                    var userLng = position.coords.longitude;
+                                    
+                                    // Agregar marcador de ubicación actual del usuario
+                                    map.addMarker({
+                                        lat: userLat,
+                                        lng: userLng,
+                                        title: 'Mi ubicación actual',
+                                        icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                                    });
 
-                                            // Agregar círculo de 50 metros alrededor del establecimiento
-                                            var circle = new google.maps.Circle({
-                                                center: {lat: establishmentLat, lng: establishmentLng},
-                                                radius: 50, // 50 metros
-                                                map: map.map,
-                                                strokeColor: '#FF6B6B',
-                                                strokeOpacity: 0.8,
-                                                strokeWeight: 2,
-                                                fillColor: '#FF6B6B',
-                                                fillOpacity: 0.35
-                                            });
+                                    if (geolocalizacion) {
+                                        var coords = geolocalizacion.split(',');
+                                        if (coords.length === 2) {
+                                            var establishmentLat = parseFloat(coords[0].trim());
+                                            var establishmentLng = parseFloat(coords[1].trim());
+                                            if (!isNaN(establishmentLat) && !isNaN(establishmentLng)) {
+                                                // Centrar el mapa entre el usuario y el establecimiento
+                                                var centerLat = (userLat + establishmentLat) / 2;
+                                                var centerLng = (userLng + establishmentLng) / 2;
+                                                map.setCenter(centerLat, centerLng);
+                                                
+                                                // Agregar marcador del establecimiento
+                                                map.addMarker({
+                                                    lat: establishmentLat,
+                                                    lng: establishmentLng,
+                                                    title: 'Ubicación del Establecimiento',
+                                                    icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                                                });
 
-                                            // Ajustar el zoom para mostrar ambos puntos y el círculo
-                                            var bounds = new google.maps.LatLngBounds();
-                                            bounds.extend(new google.maps.LatLng(userLat, userLng));
-                                            bounds.extend(new google.maps.LatLng(establishmentLat, establishmentLng));
-                                            map.map.fitBounds(bounds);
-                                            
-                                            // Asegurar un zoom mínimo
-                                            google.maps.event.addListenerOnce(map.map, 'bounds_changed', function() {
-                                                if (map.map.getZoom() > 18) {
-                                                    map.map.setZoom(18);
-                                                }
-                                            });
+                                                // Agregar círculo de 50 metros alrededor del establecimiento
+                                                var circle = new google.maps.Circle({
+                                                    center: {lat: establishmentLat, lng: establishmentLng},
+                                                    radius: 50, // 50 metros
+                                                    map: map.map,
+                                                    strokeColor: '#FF6B6B',
+                                                    strokeOpacity: 0.8,
+                                                    strokeWeight: 2,
+                                                    fillColor: '#FF6B6B',
+                                                    fillOpacity: 0.35
+                                                });
+
+                                                // Ajustar el zoom para mostrar ambos puntos y el círculo
+                                                var bounds = new google.maps.LatLngBounds();
+                                                bounds.extend(new google.maps.LatLng(userLat, userLng));
+                                                bounds.extend(new google.maps.LatLng(establishmentLat, establishmentLng));
+                                                map.map.fitBounds(bounds);
+                                                
+                                                // Asegurar un zoom mínimo
+                                                google.maps.event.addListenerOnce(map.map, 'bounds_changed', function() {
+                                                    if (map.map.getZoom() > 18) {
+                                                        map.map.setZoom(18);
+                                                    }
+                                                });
+                                            } else {
+                                                console.error("Coordenadas inválidas:", geolocalizacion);
+                                                // Solo mostrar ubicación del usuario
+                                                map.setCenter(userLat, userLng);
+                                            }
                                         } else {
-                                            console.error("Coordenadas inválidas:", geolocalizacion);
+                                            console.error("Formato de geolocalización incorrecto:", geolocalizacion);
                                             // Solo mostrar ubicación del usuario
                                             map.setCenter(userLat, userLng);
                                         }
                                     } else {
-                                        console.error("Formato de geolocalización incorrecto:", geolocalizacion);
-                                        // Solo mostrar ubicación del usuario
+                                        console.warn("No hay asignación actual, mostrando solo ubicación del usuario.");
+                                        // Centrar en la ubicación del usuario
                                         map.setCenter(userLat, userLng);
                                     }
-                                } else {
-                                    console.warn("No hay asignación actual, mostrando solo ubicación del usuario.");
-                                    // Centrar en la ubicación del usuario
-                                    map.setCenter(userLat, userLng);
-                                }
-                            },
-                            function(error) {
-                                console.error("Error al obtener ubicación del usuario:", error);
-                                // Fallback: usar lógica anterior si no se puede obtener ubicación
-                                if (geolocalizacion) {
-                                    var coords = geolocalizacion.split(',');
-                                    if (coords.length === 2) {
-                                        var lat = parseFloat(coords[0].trim());
-                                        var lng = parseFloat(coords[1].trim());
-                                        if (!isNaN(lat) && !isNaN(lng)) {
-                                            map.setCenter(lat, lng);
-                                            map.addMarker({
-                                                lat: lat,
-                                                lng: lng,
-                                                title: 'Ubicación del Establecimiento',
-                                                icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                                            });
+                                },
+                                function(error) {
+                                    console.error("Error al obtener ubicación del usuario:", error);
+                                    // Fallback: usar lógica anterior si no se puede obtener ubicación
+                                    if (geolocalizacion) {
+                                        var coords = geolocalizacion.split(',');
+                                        if (coords.length === 2) {
+                                            var lat = parseFloat(coords[0].trim());
+                                            var lng = parseFloat(coords[1].trim());
+                                            if (!isNaN(lat) && !isNaN(lng)) {
+                                                map.setCenter(lat, lng);
+                                                map.addMarker({
+                                                    lat: lat,
+                                                    lng: lng,
+                                                    title: 'Ubicación del Establecimiento',
+                                                    icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                                                });
 
-                                            // Agregar círculo de 50 metros
-                                            var circle = new google.maps.Circle({
-                                                center: {lat: lat, lng: lng},
-                                                radius: 50,
-                                                map: map.map,
-                                                strokeColor: '#FF6B6B',
-                                                strokeOpacity: 0.8,
-                                                strokeWeight: 2,
-                                                fillColor: '#FF6B6B',
-                                                fillOpacity: 0.35
-                                            });
+                                                // Agregar círculo de 50 metros
+                                                var circle = new google.maps.Circle({
+                                                    center: {lat: lat, lng: lng},
+                                                    radius: 50,
+                                                    map: map.map,
+                                                    strokeColor: '#FF6B6B',
+                                                    strokeOpacity: 0.8,
+                                                    strokeWeight: 2,
+                                                    fillColor: '#FF6B6B',
+                                                    fillOpacity: 0.35
+                                                });
+                                            }
                                         }
+                                    } else {
+                                        console.warn("No se proporcionó geolocalización, usando ubicación por defecto.");
+                                        map.addMarker({
+                                            lat: -12.043333,
+                                            lng: -77.028333,
+                                            title: 'Ubicación por defecto'
+                                        });
                                     }
-                                } else {
-                                    console.warn("No se proporcionó geolocalización, usando ubicación por defecto.");
-                                    map.addMarker({
-                                        lat: -12.043333,
-                                        lng: -77.028333,
-                                        title: 'Ubicación por defecto'
-                                    });
+                                },
+                                {
+                                    enableHighAccuracy: true,
+                                    timeout: 10000,
+                                    maximumAge: 60000
                                 }
-                            },
-                            {
-                                enableHighAccuracy: true,
-                                timeout: 10000,
-                                maximumAge: 60000
-                            }
-                        );
-                    } else {
-                        console.error("Geolocalización no soportada por el navegador");
-                        // Fallback para navegadores sin geolocalización
-                        if (geolocalizacion) {
-                            var coords = geolocalizacion.split(',');
-                            if (coords.length === 2) {
-                                var lat = parseFloat(coords[0].trim());
-                                var lng = parseFloat(coords[1].trim());
-                                if (!isNaN(lat) && !isNaN(lng)) {
-                                    map.setCenter(lat, lng);
-                                    map.addMarker({
-                                        lat: lat,
-                                        lng: lng,
-                                        title: 'Ubicación del Establecimiento',
-                                        icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                                    });
+                            );
+                        } else {
+                            console.error("Geolocalización no soportada por el navegador");
+                            // Fallback para navegadores sin geolocalización
+                            if (geolocalizacion) {
+                                var coords = geolocalizacion.split(',');
+                                if (coords.length === 2) {
+                                    var lat = parseFloat(coords[0].trim());
+                                    var lng = parseFloat(coords[1].trim());
+                                    if (!isNaN(lat) && !isNaN(lng)) {
+                                        map.setCenter(lat, lng);
+                                        map.addMarker({
+                                            lat: lat,
+                                            lng: lng,
+                                            title: 'Ubicación del Establecimiento',
+                                            icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                                        });
 
-                                    // Agregar círculo de 50 metros
-                                    var circle = new google.maps.Circle({
-                                        center: {lat: lat, lng: lng},
-                                        radius: 50,
-                                        map: map.map,
-                                        strokeColor: '#FF6B6B',
-                                        strokeOpacity: 0.8,
-                                        strokeWeight: 2,
-                                        fillColor: '#FF6B6B',
-                                        fillOpacity: 0.35
-                                    });
+                                        // Agregar círculo de 50 metros
+                                        var circle = new google.maps.Circle({
+                                            center: {lat: lat, lng: lng},
+                                            radius: 50,
+                                            map: map.map,
+                                            strokeColor: '#FF6B6B',
+                                            strokeOpacity: 0.8,
+                                            strokeWeight: 2,
+                                            fillColor: '#FF6B6B',
+                                            fillOpacity: 0.35
+                                        });
+                                    }
                                 }
                             }
                         }
+                        console.log('✅ Mapa inicializado correctamente');
+                    } catch (e) {
+                        console.error("Error al inicializar el mapa:", e);
                     }
-                } catch (e) {
-                    console.error("Error al inicializar el mapa:", e);
                 }
 
                 // Lógica para los botones de registrar entrada y salida
@@ -571,6 +634,41 @@
                         alert("La geolocalización no está soportada por tu navegador.");
                     }
                 });
+
+                // Función para ocultar el loader y mostrar el contenido
+                function hideLoaderAndShowContent() {
+                    console.log('🔄 Ocultando loader y mostrando contenido...');
+                    const pageLoader = document.getElementById('page-loader');
+                    const mainContent = document.getElementById('main-content');
+                    
+                    if (pageLoader) {
+                        pageLoader.style.opacity = '0';
+                        pageLoader.style.transition = 'opacity 0.3s ease-in-out';
+                        setTimeout(() => {
+                            pageLoader.remove();
+                        }, 300);
+                    }
+                    
+                    if (mainContent) {
+                        mainContent.style.display = 'block';
+                        // Trigger reflow
+                        mainContent.offsetHeight;
+                        mainContent.classList.add('show');
+                        
+                        // Inicializar el mapa después de que el contenido sea visible
+                        setTimeout(() => {
+                            initializeMap();
+                        }, 100); // Pequeño delay para asegurar que el DOM esté completamente renderizado
+                    }
+                    
+                    console.log('✅ Contenido mostrado correctamente');
+                }
+
+                // Simular carga completa después de un breve delay para que el usuario vea el loader
+                setTimeout(function() {
+                    hideLoaderAndShowContent();
+                }, 1500); // 1.5 segundos para mostrar el loader
+
             });
         </script>
 

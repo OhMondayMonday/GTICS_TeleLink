@@ -64,9 +64,15 @@ $(document).ready(function() {
                     render: function(data) {
                         let actions = '';
                         
+                        // Botón de detalles para asistencias completadas (puntual y tarde)
+                        if (data.estadoEntrada === 'puntual' || data.estadoEntrada === 'tarde') {
+                            actions = '<button type="button" class="btn btn-info btn-sm" onclick="verDetalleAsistencia(' + 
+                                      data.asistenciaId + ')" title="Ver Detalles de Asistencia">' +
+                                      '<i class="fas fa-eye"></i> Detalles</button>';
+                        }
                         // Botón de reasignar para asistencias canceladas que cumplan la condición
                         // Y que NO hayan sido reasignadas (observacionAsistencia != "reasignada")
-                        if (data.estadoEntrada === 'cancelada' && 
+                        else if (data.estadoEntrada === 'cancelada' && 
                             canReasignar(data.horarioEntrada) && 
                             data.observacionAsistencia !== 'reasignada') {
                             actions = '<button type="button" class="btn btn-danger btn-sm" onclick="mostrarModalReasignar(' + 
@@ -528,4 +534,30 @@ $(document).ready(function() {
 
     // Inicializar tabla
     initDataTable();
+    
+    // Función global para obtener datos de asistencia (usada por el modal de detalles)
+    window.getAsistenciaData = function(asistenciaId) {
+        if (!asistenciasTable) return null;
+        
+        var data = asistenciasTable.rows().data().toArray();
+        var asistencia = data.find(function(row) {
+            return row.asistenciaId == asistenciaId;
+        });
+        
+        if (!asistencia) return null;
+        
+        // Preparar objeto con los datos necesarios para el modal
+        return {
+            asistenciaId: asistencia.asistenciaId,
+            coordinadorNombre: asistencia.coordinador.nombres + ' ' + asistencia.coordinador.apellidos,
+            horarioEntrada: asistencia.horarioEntrada,
+            horarioSalida: asistencia.horarioSalida,
+            estadoEntrada: asistencia.estadoEntrada,
+            establecimientoNombre: asistencia.espacioDeportivo.establecimientoDeportivo.establecimientoDeportivoNombre,
+            espacioNombre: asistencia.espacioDeportivo.nombre,
+            registroEntrada: asistencia.registroEntrada,
+            registroSalida: asistencia.registroSalida,
+            espacioGeolocalizacion: asistencia.espacioDeportivo.geolocalizacion
+        };
+    };
 });
