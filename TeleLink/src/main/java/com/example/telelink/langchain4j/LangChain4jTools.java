@@ -51,15 +51,15 @@ public class LangChain4jTools {
             if (servicios.isEmpty()) {
                 return "No hay servicios deportivos disponibles. Asegúrate de listar todos estos servicios deportivos para el usuario.";
             }
-            StringBuilder response = new StringBuilder("Servicios deportivos disponibles:\n");
+            StringBuilder response = new StringBuilder("<strong>Servicios deportivos disponibles:</strong><br>");
             for (ServicioDeportivo servicio : servicios) {
                 if (servicio.getServicioDeportivo().startsWith("Cancha")) {
                     response.append("- ID: ").append(servicio.getServicioDeportivoId())
                             .append(", Nombre: ").append(servicio.getServicioDeportivo())
-                            .append("\n");
+                            .append("<br>");
                 }
             }
-            response.append("Asegúrate de listar todos estos servicios deportivos para el usuario.");
+            response.append("<em>Asegúrate de listar todos estos servicios deportivos para el usuario.</em>");
             return response.toString();
         } catch (Exception e) {
             return "Error al listar servicios deportivos: " + e.getMessage();
@@ -78,7 +78,7 @@ public class LangChain4jTools {
             if (espacios.isEmpty()) {
                 return "No hay espacios deportivos disponibles para " + servicio.getServicioDeportivo() + ". Asegúrate de listar todos estos espacios deportivos para el usuario.";
             }
-            StringBuilder response = new StringBuilder("Espacios deportivos disponibles para " + servicio.getServicioDeportivo() + ":\n");
+            StringBuilder response = new StringBuilder("<strong>Espacios deportivos disponibles para " + servicio.getServicioDeportivo() + ":</strong><br>");
             for (EspacioDeportivo espacio : espacios) {
                 if (espacio.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo) {
                     response.append("- ID: ").append(espacio.getEspacioDeportivoId())
@@ -87,10 +87,10 @@ public class LangChain4jTools {
                             .append(", Ubicación: ").append(espacio.getGeolocalizacion())
                             .append(", Precio por hora: S/").append(espacio.getPrecioPorHora())
                             .append(", Horario: ").append(espacio.getHorarioApertura()).append(" a ").append(espacio.getHorarioCierre())
-                            .append(")\n");
+                            .append(")<br>");
                 }
             }
-            response.append("Asegúrate de listar todos estos espacios deportivos para el usuario.");
+            response.append("<em>Asegúrate de listar todos estos espacios deportivos para el usuario.</em>");
             return response.toString();
         } catch (Exception e) {
             return "Error al listar espacios deportivos: " + e.getMessage();
@@ -139,11 +139,11 @@ public class LangChain4jTools {
             }
             List<Reserva> reservas = reservaRepository.findReservasEnRango(espacioId, inicio, fin);
             if (!reservas.isEmpty()) {
-                StringBuilder conflicts = new StringBuilder("No disponible. Reservas en conflicto:\n");
+                StringBuilder conflicts = new StringBuilder("No disponible. Reservas en conflicto:<br>");
                 for (Reserva r : reservas) {
                     String apellidos = r.getUsuario() != null && r.getUsuario().getApellidos() != null ? r.getUsuario().getApellidos() : "(usuario desconocido)";
                     conflicts.append("- El usuario ").append(apellidos)
-                            .append(" ha reservado de ").append(r.getInicioReserva()).append(" a ").append(r.getFinReserva()).append("\n");
+                            .append(" ha reservado de ").append(r.getInicioReserva()).append(" a ").append(r.getFinReserva()).append("<br>");
                 }
                 // Buscar alternativas en otros espacios del mismo servicio deportivo
                 ServicioDeportivo servicio = espacio.getServicioDeportivo();
@@ -162,7 +162,7 @@ public class LangChain4jTools {
                     }
                 }
                 if (!disponibles.isEmpty()) {
-                    conflicts.append("\nOtros espacios deportivos disponibles para el mismo servicio en ese horario:\n");
+                    conflicts.append("<br>Otros espacios deportivos disponibles para el mismo servicio en ese horario:<br>");
                     for (EspacioDeportivo disp : disponibles) {
                         conflicts.append("- ")
                                 .append(disp.getNombre())
@@ -171,12 +171,12 @@ public class LangChain4jTools {
                                 .append(", Precio por hora: S/").append(disp.getPrecioPorHora())
                                 .append(", Horario: ").append(disp.getHorarioApertura()).append(" a ").append(disp.getHorarioCierre())
                                 .append(", ID: ").append(disp.getEspacioDeportivoId())
-                                .append(")\n");
+                                .append(")<br>");
                     }
                 } else {
-                    conflicts.append("\nNo hay otros espacios deportivos disponibles para el mismo servicio en ese horario.");
+                    conflicts.append("<br>No hay otros espacios deportivos disponibles para el mismo servicio en ese horario.");
                 }
-                conflicts.append("\nAsegúrate de listar todos estos espacios deportivos para el usuario.");
+                conflicts.append("<br><em>Asegúrate de listar todos estos espacios deportivos para el usuario.</em>");
                 return conflicts.toString();
             }
             long hours = Duration.between(inicio, fin).toHours();
@@ -253,16 +253,16 @@ public class LangChain4jTools {
             if (futuras.isEmpty()) {
                 return "No tienes reservas confirmadas próximas. Si tienes reservas pendientes de pago, primero realiza el pago para que sean confirmadas.";
             }
-            StringBuilder sb = new StringBuilder("Tus reservas confirmadas próximas:\n");
+            StringBuilder sb = new StringBuilder("<strong>Tus reservas confirmadas próximas:</strong><br>");
             for (Reserva r : futuras) {
                 sb.append("- ID: ").append(r.getReservaId())
                   .append(", Espacio: ").append(r.getEspacioDeportivo().getNombre())
                   .append(", Establecimiento: ").append(r.getEspacioDeportivo().getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre())
                   .append(", Fecha: ").append(r.getInicioReserva().toLocalDate())
                   .append(", Horario: ").append(r.getInicioReserva().toLocalTime()).append(" a ").append(r.getFinReserva().toLocalTime())
-                  .append("\n");
+                  .append("<br>");
             }
-            sb.append("Para cancelar una reserva, el usuario debe indicar el nombre del espacio deportivo, el establecimiento, la fecha y el horario de la reserva que desea cancelar para que lo asocies con una ID y puedas usar el Tool cancelReserva. Asegúrate de listar las reservas del usuario.");
+            sb.append("<em>Para cancelar una reserva, el usuario debe indicar el nombre del espacio deportivo, el establecimiento, la fecha y el horario de la reserva que desea cancelar para que lo asocies con una ID y puedas usar el Tool cancelReserva. Asegúrate de listar las reservas del usuario.</em>");
             return sb.toString();
         } catch (Exception e) {
             return "Error al listar reservas confirmadas: " + e.getMessage();
