@@ -100,7 +100,10 @@
   <div id="chatbox" class="card shadow" style="position: fixed; bottom: 90px; right: 20px; width: 480px; min-width: 320px; max-width: 600px; height: 600px; display: none; z-index: 9999;">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
       <span>Asistente SanMI 🤖</span>
-      <button class="btn btn-sm btn-light" onclick="toggleChat()">✖</button>
+      <div>
+        <button class="btn btn-sm btn-light me-2" onclick="eliminarHistorial()">🗑 Borrar conversación</button>
+        <button class="btn btn-sm btn-light" onclick="toggleChat()">✖</button>
+      </div>
     </div>
     <div class="card-body" style="max-height: 520px; overflow-y: auto;">
       <!-- Mensaje del bot -->
@@ -174,16 +177,89 @@
   <!-- JavaScript -->
   <script th:inline="javascript">
     let chatId = /*[[${#strings.randomAlphanumeric(16)}]]*/ 'defaultChatId';
+    let esperandoRespuesta = false;
 
+    // Función para mostrar/ocultar el chatbox
     function toggleChat() {
       const chatbox = document.getElementById("chatbox");
-      const isVisible = chatbox.style.display === "block";
-      chatbox.style.display = isVisible ? "none" : "block";
+      if (chatbox.style.display === "block") {
+        chatbox.style.display = "none";
+      } else {
+        chatbox.style.display = "block";
+        cargarHistorial();
+      }
     }
 
+    document.addEventListener("DOMContentLoaded", function() {
+      // Mostrar/ocultar el chatbox al hacer clic en el botón flotante
+      document.getElementById("chat-button").addEventListener("click", function() {
+        toggleChat();
+      });
+      // Permitir enviar con Enter
+      document.getElementById("preguntaUsuario").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") enviarPregunta();
+      });
+      // Detecta el submit del formulario de logout y borra el historial
+      const logoutForm = document.querySelector('form[action="/logout"]');
+      if (logoutForm) {
+        logoutForm.addEventListener("submit", function() {
+          localStorage.removeItem("chatSanMIHistorial");
+        });
+      }
+    });
 
+    // Cargar historial desde localStorage al abrir el chat
+    function cargarHistorial() {
+      const chatResponse = document.getElementById("chat-response");
+      chatResponse.innerHTML = "";
+      const historial = JSON.parse(localStorage.getItem("chatSanMIHistorial") || "[]");
+      historial.forEach(msg => {
+        agregarMensaje(msg.autor, msg.texto, msg.tipo, true);
+      });
+    }
 
-    let esperandoRespuesta = false;
+    // Guardar mensaje en localStorage
+    function guardarMensaje(autor, texto, tipo) {
+      const historial = JSON.parse(localStorage.getItem("chatSanMIHistorial") || "[]");
+      historial.push({ autor, texto, tipo });
+      localStorage.setItem("chatSanMIHistorial", JSON.stringify(historial));
+    }
+
+    function agregarMensaje(autor, texto, tipo, skipSave) {
+      const chatResponse = document.getElementById("chat-response");
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "chat-message " + tipo;
+      if (tipo === "bot") {
+        texto = parseCustomBold(texto);
+      }
+      messageDiv.innerHTML = `<span class="custom-bold">${autor}:</span><br>${texto}`;
+      chatResponse.appendChild(messageDiv);
+      chatResponse.scrollTop = chatResponse.scrollHeight;
+      if (!skipSave) guardarMensaje(autor, texto, tipo);
+    }
+
+    function mostrarIndicadorEscribiendo() {
+      const chatResponse = document.getElementById("chat-response");
+      const indicator = document.createElement("div");
+      indicator.id = "typing-indicator";
+      indicator.className = "typing-indicator";
+      indicator.innerHTML = `<strong>SanMI Bot:</strong><br><span class="text-muted">Escribiendo...</span> <span class="spinner-border spinner-border-sm ms-2" role="status"></span>`;
+      chatResponse.appendChild(indicator);
+      chatResponse.scrollTop = chatResponse.scrollHeight;
+    }
+
+    function ocultarIndicadorEscribiendo() {
+      const indicator = document.getElementById("typing-indicator");
+      if (indicator) indicator.remove();
+    }
+
+    function eliminarHistorial() {
+      localStorage.removeItem("chatSanMIHistorial");
+      chatId = /*[[${#strings.randomAlphanumeric(16)}]]*/ 'newChatId';
+      document.getElementById("chat-response").innerHTML = "";
+      agregarMensaje("SanMI Bot", "Historial borrado. ¡Empecemos de nuevo! 👋", "bot");
+    }
+
     function enviarPregunta(msg) {
       if (esperandoRespuesta) return;
       const input = document.getElementById("preguntaUsuario");
@@ -219,48 +295,28 @@
         });
     }
 
-    // Reemplaza **texto** por <span class="custom-bold">texto</span>
     function parseCustomBold(text) {
       return text.replace(/\*\*(.*?)\*\*/g, '<span class="custom-bold">$1</span>');
     }
-    function agregarMensaje(autor, texto, tipo) {
-      const chatResponse = document.getElementById("chat-response");
-      const messageDiv = document.createElement("div");
-      messageDiv.className = "chat-message " + tipo;
-      // Aplica negrita personalizada solo en mensajes bot
-      if (tipo === "bot") {
-        texto = parseCustomBold(texto);
-      }
-      messageDiv.innerHTML = `<span class="custom-bold">${autor}:</span><br>${texto}`;
-      chatResponse.appendChild(messageDiv);
-      chatResponse.scrollTop = chatResponse.scrollHeight;
-    }
-
-    function mostrarIndicadorEscribiendo() {
-      const chatResponse = document.getElementById("chat-response");
-      const indicator = document.createElement("div");
-      indicator.id = "typing-indicator";
-      indicator.className = "typing-indicator";
-      indicator.innerHTML = `<strong>SanMI Bot:</strong><br><span class="text-muted">Escribiendo...</span> <span class="spinner-border spinner-border-sm ms-2" role="status"></span>`;
-      chatResponse.appendChild(indicator);
-      chatResponse.scrollTop = chatResponse.scrollHeight;
-    }
-
-    function ocultarIndicadorEscribiendo() {
-      const indicator = document.getElementById("typing-indicator");
-      if (indicator) indicator.remove();
-    }
-
-    function eliminarHistorial() {
-      chatId = /*[[${#strings.randomAlphanumeric(16)}]]*/ 'newChatId';
-      document.getElementById("chat-response").innerHTML = "";
-      agregarMensaje("SanMI Bot", "Historial borrado. ¡Empecemos de nuevo! 👋", "bot");
-    }
 
     document.addEventListener("DOMContentLoaded", function() {
+      // Mostrar el chatbox al hacer clic en el botón flotante
+      document.getElementById("chat-button").addEventListener("click", function() {
+        const chatbox = document.getElementById("chatbox");
+        chatbox.style.display = "block";
+        cargarHistorial();
+      });
+      // Permitir enviar con Enter
       document.getElementById("preguntaUsuario").addEventListener("keypress", function(e) {
         if (e.key === "Enter") enviarPregunta();
       });
+      // Detecta el submit del formulario de logout y borra el historial
+      const logoutForm = document.querySelector('form[action="/logout"]');
+      if (logoutForm) {
+        logoutForm.addEventListener("submit", function() {
+          localStorage.removeItem("chatSanMIHistorial");
+        });
+      }
     });
   </script>
 </div>
