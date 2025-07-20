@@ -328,6 +328,426 @@ public class LangChain4jTools {
         }
     }
 
+
+    // Nuevo flujo
+
+    @Tool("Verifica si una piscina específica está disponible para un rango de tiempo y carril, mostrando alternativas si no hay disponibilidad.")
+    public String checkPiscinaAvailabilityById(
+            @P("ID del espacio deportivo") Integer espacioId,
+            @P("Fecha y hora de inicio (YYYY-MM-DD HH:mm)") String start,
+            @P("Fecha y hora de fin (YYYY-MM-DD HH:mm)") String end,
+            @P("Número de carril de piscina") Integer numeroCarrilPiscina,
+            @P("Número de participantes") Integer numeroParticipantes) {
+        try {
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId).orElse(null);
+            if (espacio == null || !"piscina".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                return "Piscina no encontrada con ID: " + espacioId + ". Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime inicio = LocalDateTime.parse(start, formatter);
+            LocalDateTime fin = LocalDateTime.parse(end, formatter);
+
+            if (inicio.isBefore(LocalDateTime.now()) || fin.isBefore(LocalDateTime.now())) {
+                return "Las fechas deben ser en el futuro. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (fin.isBefore(inicio) || fin.isEqual(inicio)) {
+                return "La hora de fin debe ser después de la hora de inicio. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (inicio.toLocalTime().isBefore(espacio.getHorarioApertura()) || fin.toLocalTime().isAfter(espacio.getHorarioCierre())) {
+                return "El horario solicitado está fuera del horario de operación (" + espacio.getHorarioApertura() + " a " + espacio.getHorarioCierre() + "). Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (numeroCarrilPiscina == null || numeroCarrilPiscina < 1 || numeroCarrilPiscina > espacio.getCarrilesPiscina()) {
+                return "Número de carril inválido. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (numeroParticipantes == null || numeroParticipantes < 1 || numeroParticipantes > espacio.getMaxPersonasPorCarril()) {
+                return "Número de participantes inválido. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            int participantesActuales = reservaRepository.countTotalParticipantsInLane(
+                    espacioId, inicio, fin, numeroCarrilPiscina);
+            int espaciosDisponibles = espacio.getMaxPersonasPorCarril() - participantesActuales;
+            if (numeroParticipantes > espaciosDisponibles) {
+                StringBuilder conflicts = new StringBuilder("No disponible en el carril seleccionado. Reservas en conflicto:<br>");
+                List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPiscinaAndEstadoNot(
+                        espacioId, fin, inicio, numeroCarrilPiscina, Reserva.Estado.cancelada);
+                for (Reserva r : reservas) {
+                    String apellidos = r.getUsuario() != null && r.getUsuario().getApellidos() != null ? r.getUsuario().getApellidos() : "(usuario desconocido)";
+                    conflicts.append("- El usuario ").append(apellidos)
+                            .append(" ha reservado de ").append(r.getInicioReserva()).append(" a ").append(r.getFinReserva())
+                            .append(", Participantes: ").append(r.numeroParticipantes() != null ? r.numeroParticipantes() : 1)
+                            .append("<br>");
+                }
+                // Buscar alternativas en otros espacios del mismo servicio deportivo
+                ServicioDeportivo servicio = espacio.getServicioDeportivo();
+                List<EspacioDeportivo> otrosEspacios = espacioDeportivoRepository.findByServicioDeportivo(servicio)
+                        .stream()
+                        .filter(e -> !e.getEspacioDeportivoId().equals(espacioId))
+                        .filter(e -> e.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo)
+                        .collect(Collectors.toList());
+                List<EspacioDeportivo> disponibles = new java.util.ArrayList<>();
+                for (EspacioDeportivo otro : otrosEspacios) {
+                    int carriles = otro.getCarrilesPiscina() != null ? otro.getCarrilesPiscina() : 0;
+                    for (int carril = 1; carril <= carriles; carril++) {
+                        int libres = otro.getMaxPersonasPorCarril() - reservaRepository.countTotalParticipantsInLane(
+                                otro.getEspacioDeportivoId(), inicio, fin, carril);
+                        if (libres >= numeroParticipantes
+                                && !inicio.toLocalTime().isBefore(otro.getHorarioApertura())
+                                && !fin.toLocalTime().isAfter(otro.getHorarioCierre())) {
+                            disponibles.add(otro);
+                            break;
+                        }
+                    }
+                }
+                if (!disponibles.isEmpty()) {
+                    conflicts.append("<br>Otros espacios deportivos tipo piscina disponibles en ese horario:<br>");
+                    for (EspacioDeportivo disp : disponibles) {
+                        conflicts.append("- ").append(disp.getNombre())
+                                .append(" (Establecimiento: ").append(disp.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre())
+                                .append(", Ubicación: ").append(disp.getGeolocalizacion())
+                                .append(", Precio por hora: S/").append(disp.getPrecioPorHora())
+                                .append(", Horario: ").append(disp.getHorarioApertura()).append(" a ").append(disp.getHorarioCierre())
+                                .append(", ID: ").append(disp.getEspacioDeportivoId())
+                                .append(")<br>");
+                    }
+                } else {
+                    conflicts.append("<br>No hay otros espacios deportivos tipo piscina disponibles en ese horario.");
+                }
+                conflicts.append("<br><em>Asegúrate de listar todos estos espacios deportivos para el usuario.</em>");
+                return conflicts.toString();
+            }
+            long hours = Duration.between(inicio, fin).toHours();
+            BigDecimal costo = espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)).multiply(BigDecimal.valueOf(numeroParticipantes));
+            return "Piscina disponible. ID: " + espacioId + ", Nombre: " + espacio.getNombre() +
+                    ", Carril: " + numeroCarrilPiscina + ", Participantes: " + numeroParticipantes +
+                    ", Costo: S/" + costo + " por " + hours + " horas. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+        } catch (DateTimeParseException e) {
+            return "Formato de fecha inválido. Usa YYYY-MM-DD HH:mm. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+        } catch (Exception e) {
+            return "Error al verificar disponibilidad de piscina: " + e.getMessage() + " Asegúrate de listar todos estos espacios deportivos para el usuario.";
+        }
+    }
+
+    @Tool("Verifica si una pista de atletismo está disponible para un rango de tiempo y carril, mostrando alternativas si no hay disponibilidad.")
+    public String checkAtletismoAvailabilityById(
+            @P("ID del espacio deportivo") Integer espacioId,
+            @P("Fecha y hora de inicio (YYYY-MM-DD HH:mm)") String start,
+            @P("Fecha y hora de fin (YYYY-MM-DD HH:mm)") String end,
+            @P("Número de carril de pista") Integer numeroCarrilPista,
+            @P("Número de participantes") Integer numeroParticipantes) {
+        try {
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId).orElse(null);
+            if (espacio == null || !"pista de atletismo".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                return "Pista de atletismo no encontrada con ID: " + espacioId + ". Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime inicio = LocalDateTime.parse(start, formatter);
+            LocalDateTime fin = LocalDateTime.parse(end, formatter);
+
+            if (inicio.isBefore(LocalDateTime.now()) || fin.isBefore(LocalDateTime.now())) {
+                return "Las fechas deben ser en el futuro. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (fin.isBefore(inicio) || fin.isEqual(inicio)) {
+                return "La hora de fin debe ser después de la hora de inicio. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (inicio.toLocalTime().isBefore(espacio.getHorarioApertura()) || fin.toLocalTime().isAfter(espacio.getHorarioCierre())) {
+                return "El horario solicitado está fuera del horario de operación (" + espacio.getHorarioApertura() + " a " + espacio.getHorarioCierre() + "). Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (numeroCarrilPista == null || numeroCarrilPista < 1 || numeroCarrilPista > espacio.getCarrilesPista()) {
+                return "Número de carril inválido. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (numeroParticipantes == null || numeroParticipantes < 1 || numeroParticipantes > espacio.getMaxPersonasPorCarril()) {
+                return "Número de participantes inválido. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            int participantesActuales = reservaRepository.countTotalParticipantsInLaneAtletismo(
+                    espacioId, inicio, fin, numeroCarrilPista);
+            int espaciosDisponibles = espacio.getMaxPersonasPorCarril() - participantesActuales;
+            if (numeroParticipantes > espaciosDisponibles) {
+                StringBuilder conflicts = new StringBuilder("No disponible en el carril seleccionado. Reservas en conflicto:<br>");
+                List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPistaAndEstadoNot(
+                        espacioId, fin, inicio, numeroCarrilPista, Reserva.Estado.cancelada);
+                for (Reserva r : reservas) {
+                    String apellidos = r.getUsuario() != null && r.getUsuario().getApellidos() != null ? r.getUsuario().getApellidos() : "(usuario desconocido)";
+                    conflicts.append("- El usuario ").append(apellidos)
+                            .append(" ha reservado de ").append(r.getInicioReserva()).append(" a ").append(r.getFinReserva())
+                            .append(", Participantes: ").append(r.numeroParticipantes() != null ? r.numeroParticipantes() : 1)
+                            .append("<br>");
+                }
+                // Buscar alternativas en otros espacios del mismo servicio deportivo
+                ServicioDeportivo servicio = espacio.getServicioDeportivo();
+                List<EspacioDeportivo> otrosEspacios = espacioDeportivoRepository.findByServicioDeportivo(servicio)
+                        .stream()
+                        .filter(e -> !e.getEspacioDeportivoId().equals(espacioId))
+                        .filter(e -> e.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo)
+                        .collect(Collectors.toList());
+                List<EspacioDeportivo> disponibles = new java.util.ArrayList<>();
+                for (EspacioDeportivo otro : otrosEspacios) {
+                    int carriles = otro.getCarrilesPista() != null ? otro.getCarrilesPista() : 0;
+                    for (int carril = 1; carril <= carriles; carril++) {
+                        int libres = otro.getMaxPersonasPorCarril() - reservaRepository.countTotalParticipantsInLaneAtletismo(
+                                otro.getEspacioDeportivoId(), inicio, fin, carril);
+                        if (libres >= numeroParticipantes
+                                && !inicio.toLocalTime().isBefore(otro.getHorarioApertura())
+                                && !fin.toLocalTime().isAfter(otro.getHorarioCierre())) {
+                            disponibles.add(otro);
+                            break;
+                        }
+                    }
+                }
+                if (!disponibles.isEmpty()) {
+                    conflicts.append("<br>Otros espacios deportivos tipo pista de atletismo disponibles en ese horario:<br>");
+                    for (EspacioDeportivo disp : disponibles) {
+                        conflicts.append("- ").append(disp.getNombre())
+                                .append(" (Establecimiento: ").append(disp.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre())
+                                .append(", Ubicación: ").append(disp.getGeolocalizacion())
+                                .append(", Precio por hora: S/").append(disp.getPrecioPorHora())
+                                .append(", Horario: ").append(disp.getHorarioApertura()).append(" a ").append(disp.getHorarioCierre())
+                                .append(", ID: ").append(disp.getEspacioDeportivoId())
+                                .append(")<br>");
+                    }
+                } else {
+                    conflicts.append("<br>No hay otros espacios deportivos tipo pista de atletismo disponibles en ese horario.");
+                }
+                conflicts.append("<br><em>Asegúrate de listar todos estos espacios deportivos para el usuario.</em>");
+                return conflicts.toString();
+            }
+            long hours = Duration.between(inicio, fin).toHours();
+            BigDecimal costo = espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)).multiply(BigDecimal.valueOf(numeroParticipantes));
+            return "Pista de atletismo disponible. ID: " + espacioId + ", Nombre: " + espacio.getNombre() +
+                    ", Carril: " + numeroCarrilPista + ", Participantes: " + numeroParticipantes +
+                    ", Costo: S/" + costo + " por " + hours + " horas. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+        } catch (DateTimeParseException e) {
+            return "Formato de fecha inválido. Usa YYYY-MM-DD HH:mm. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+        } catch (Exception e) {
+            return "Error al verificar disponibilidad de pista de atletismo: " + e.getMessage() + " Asegúrate de listar todos estos espacios deportivos para el usuario.";
+        }
+    }
+
+    @Tool("Verifica si un gimnasio está disponible para un rango de tiempo y número de participantes, mostrando alternativas si no hay disponibilidad.")
+    public String checkGimnasioAvailabilityById(
+            @P("ID del espacio deportivo") Integer espacioId,
+            @P("Fecha y hora de inicio (YYYY-MM-DD HH:mm)") String start,
+            @P("Fecha y hora de fin (YYYY-MM-DD HH:mm)") String end,
+            @P("Número de participantes") Integer numeroParticipantes) {
+        try {
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId).orElse(null);
+            if (espacio == null || !"gimnasio".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                return "Gimnasio no encontrado con ID: " + espacioId + ". Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime inicio = LocalDateTime.parse(start, formatter);
+            LocalDateTime fin = LocalDateTime.parse(end, formatter);
+
+            if (inicio.isBefore(LocalDateTime.now()) || fin.isBefore(LocalDateTime.now())) {
+                return "Las fechas deben ser en el futuro. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (fin.isBefore(inicio) || fin.isEqual(inicio)) {
+                return "La hora de fin debe ser después de la hora de inicio. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (inicio.toLocalTime().isBefore(espacio.getHorarioApertura()) || fin.toLocalTime().isAfter(espacio.getHorarioCierre())) {
+                return "El horario solicitado está fuera del horario de operación (" + espacio.getHorarioApertura() + " a " + espacio.getHorarioCierre() + "). Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            if (numeroParticipantes == null || numeroParticipantes < 1 || numeroParticipantes > espacio.getAforoGimnasio()) {
+                return "Número de participantes inválido. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+            }
+            List<Reserva> reservas = reservaRepository.findActiveReservationsInRange(espacioId, inicio, fin);
+            int participantesActuales = reservas.stream().mapToInt(r -> r.numeroParticipantes() != null ? r.numeroParticipantes() : 1).sum();
+            int espaciosDisponibles = espacio.getAforoGimnasio() - participantesActuales;
+            if (numeroParticipantes > espaciosDisponibles) {
+                StringBuilder conflicts = new StringBuilder("No disponible. Reservas en conflicto:<br>");
+                for (Reserva r : reservas) {
+                    String apellidos = r.getUsuario() != null && r.getUsuario().getApellidos() != null ? r.getUsuario().getApellidos() : "(usuario desconocido)";
+                    conflicts.append("- El usuario ").append(apellidos)
+                            .append(" ha reservado de ").append(r.getInicioReserva()).append(" a ").append(r.getFinReserva())
+                            .append(", Participantes: ").append(r.numeroParticipantes() != null ? r.numeroParticipantes() : 1)
+                            .append("<br>");
+                }
+                // Buscar alternativas en otros espacios tipo gimnasio
+                ServicioDeportivo servicio = espacio.getServicioDeportivo();
+                List<EspacioDeportivo> otrosEspacios = espacioDeportivoRepository.findByServicioDeportivo(servicio)
+                        .stream()
+                        .filter(e -> !e.getEspacioDeportivoId().equals(espacioId))
+                        .filter(e -> e.getEstadoServicio() == EspacioDeportivo.EstadoServicio.operativo)
+                        .collect(Collectors.toList());
+                List<EspacioDeportivo> disponibles = new java.util.ArrayList<>();
+                for (EspacioDeportivo otro : otrosEspacios) {
+                    List<Reserva> reservasOtro = reservaRepository.findActiveReservationsInRange(otro.getEspacioDeportivoId(), inicio, fin);
+                    int libres = otro.getAforoGimnasio() - reservasOtro.stream().mapToInt(r -> r.numeroParticipantes() != null ? r.numeroParticipantes() : 1).sum();
+                    if (libres >= numeroParticipantes
+                            && !inicio.toLocalTime().isBefore(otro.getHorarioApertura())
+                            && !fin.toLocalTime().isAfter(otro.getHorarioCierre())) {
+                        disponibles.add(otro);
+                    }
+                }
+                if (!disponibles.isEmpty()) {
+                    conflicts.append("<br>Otros espacios deportivos tipo gimnasio disponibles en ese horario:<br>");
+                    for (EspacioDeportivo disp : disponibles) {
+                        conflicts.append("- ").append(disp.getNombre())
+                                .append(" (Establecimiento: ").append(disp.getEstablecimientoDeportivo().getEstablecimientoDeportivoNombre())
+                                .append(", Ubicación: ").append(disp.getGeolocalizacion())
+                                .append(", Precio por hora: S/").append(disp.getPrecioPorHora())
+                                .append(", Horario: ").append(disp.getHorarioApertura()).append(" a ").append(disp.getHorarioCierre())
+                                .append(", ID: ").append(disp.getEspacioDeportivoId())
+                                .append(")<br>");
+                    }
+                } else {
+                    conflicts.append("<br>No hay otros espacios deportivos tipo gimnasio disponibles en ese horario.");
+                }
+                conflicts.append("<br><em>Asegúrate de listar todos estos espacios deportivos para el usuario.</em>");
+                return conflicts.toString();
+            }
+            long hours = Duration.between(inicio, fin).toHours();
+            BigDecimal costo = espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)).multiply(BigDecimal.valueOf(numeroParticipantes));
+            return "Gimnasio disponible. ID: " + espacioId + ", Nombre: " + espacio.getNombre() +
+                    ", Participantes: " + numeroParticipantes +
+                    ", Costo: S/" + costo + " por " + hours + " horas. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+        } catch (DateTimeParseException e) {
+            return "Formato de fecha inválido. Usa YYYY-MM-DD HH:mm. Asegúrate de listar todos estos espacios deportivos para el usuario.";
+        } catch (Exception e) {
+            return "Error al verificar disponibilidad de gimnasio: " + e.getMessage() + " Asegúrate de listar todos estos espacios deportivos para el usuario.";
+        }
+    }
+
+    // Reservas 3 servicios nuevos
+
+    @Tool("Crea una reserva para un gimnasio usando su ID y número de participantes.")
+    public String createGimnasioReservaById(
+            @P("ID del espacio deportivo") Integer espacioId,
+            @P("Fecha y hora de inicio (YYYY-MM-DD HH:mm)") String start,
+            @P("Fecha y hora de fin (YYYY-MM-DD HH:mm)") String end,
+            @P("Número de participantes") Integer numeroParticipantes) {
+        try {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) return "Por favor, inicia sesión para crear una reserva.";
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId).orElse(null);
+            if (espacio == null || !"gimnasio".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                return "Gimnasio no encontrado con ID: " + espacioId;
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime inicio = LocalDateTime.parse(start, formatter);
+            LocalDateTime fin = LocalDateTime.parse(end, formatter);
+            if (numeroParticipantes == null || numeroParticipantes < 1 || numeroParticipantes > espacio.getAforoGimnasio()) {
+                return "Número de participantes inválido.";
+            }
+            List<Reserva> reservas = reservaRepository.findActiveReservationsInRange(espacioId, inicio, fin);
+            int participantesActuales = reservas.stream().mapToInt(r -> r.numeroParticipantes() != null ? r.numeroParticipantes() : 1).sum();
+            if (participantesActuales + numeroParticipantes > espacio.getAforoGimnasio()) {
+                return "No hay suficiente aforo disponible en el gimnasio.";
+            }
+            Reserva reserva = new Reserva();
+            reserva.setUsuario(usuario);
+            reserva.setEspacioDeportivo(espacio);
+            reserva.setInicioReserva(inicio);
+            reserva.setFinReserva(fin);
+            reserva.setNumeroParticipantes(numeroParticipantes);
+            reserva.setEstado(Reserva.Estado.pendiente);
+            reserva.setFechaCreacion(LocalDateTime.now());
+            reservaRepository.save(reserva);
+            long hours = Duration.between(inicio, fin).toHours();
+            BigDecimal costo = espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)).multiply(BigDecimal.valueOf(numeroParticipantes));
+            return "Reserva creada para gimnasio (ID: " + reserva.getReservaId() + "), " + numeroParticipantes + " participantes, de " + start + " a " + end + ". Costo: S/" + costo;
+        } catch (Exception e) {
+            return "Error al crear la reserva de gimnasio: " + e.getMessage();
+        }
+    }
+
+    @Tool("Crea una reserva para una pista de atletismo usando su ID, carril y número de participantes.")
+    public String createAtletismoReservaById(
+            @P("ID del espacio deportivo") Integer espacioId,
+            @P("Fecha y hora de inicio (YYYY-MM-DD HH:mm)") String start,
+            @P("Fecha y hora de fin (YYYY-MM-DD HH:mm)") String end,
+            @P("Número de carril de pista") Integer numeroCarrilPista,
+            @P("Número de participantes") Integer numeroParticipantes) {
+        try {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) return "Por favor, inicia sesión para crear una reserva.";
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId).orElse(null);
+            if (espacio == null || !"pista de atletismo".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                return "Pista de atletismo no encontrada con ID: " + espacioId;
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime inicio = LocalDateTime.parse(start, formatter);
+            LocalDateTime fin = LocalDateTime.parse(end, formatter);
+            if (numeroCarrilPista == null || numeroCarrilPista < 1 || numeroCarrilPista > espacio.getCarrilesPista()) {
+                return "Número de carril inválido.";
+            }
+            if (numeroParticipantes == null || numeroParticipantes < 1 || numeroParticipantes > espacio.getMaxPersonasPorCarril()) {
+                return "Número de participantes inválido.";
+            }
+            List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPistaAndEstadoNot(
+                    espacioId, fin, inicio, numeroCarrilPista, Reserva.Estado.cancelada);
+            int participantesActuales = reservas.stream().mapToInt(r -> r.numeroParticipantes() != null ? r.numeroParticipantes() : 1).sum();
+            if (participantesActuales + numeroParticipantes > espacio.getMaxPersonasPorCarril()) {
+                return "No hay suficiente espacio en el carril seleccionado.";
+            }
+            Reserva reserva = new Reserva();
+            reserva.setUsuario(usuario);
+            reserva.setEspacioDeportivo(espacio);
+            reserva.setInicioReserva(inicio);
+            reserva.setFinReserva(fin);
+            reserva.setNumeroCarrilPista(numeroCarrilPista);
+            reserva.setNumeroParticipantes(numeroParticipantes);
+            reserva.setEstado(Reserva.Estado.pendiente);
+            reserva.setFechaCreacion(LocalDateTime.now());
+            reservaRepository.save(reserva);
+            long hours = Duration.between(inicio, fin).toHours();
+            BigDecimal costo = espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)).multiply(BigDecimal.valueOf(numeroParticipantes));
+            return "Reserva creada para pista de atletismo (ID: " + reserva.getReservaId() + "), carril " + numeroCarrilPista + ", " + numeroParticipantes + " participantes, de " + start + " a " + end + ". Costo: S/" + costo;
+        } catch (Exception e) {
+            return "Error al crear la reserva de pista de atletismo: " + e.getMessage();
+        }
+    }
+
+
+
+    @Tool("Crea una reserva para una piscina específica usando su ID, carril y número de participantes.")
+    public String createPiscinaReservaById(
+            @P("ID del espacio deportivo") Integer espacioId,
+            @P("Fecha y hora de inicio (YYYY-MM-DD HH:mm)") String start,
+            @P("Fecha y hora de fin (YYYY-MM-DD HH:mm)") String end,
+            @P("Número de carril de piscina") Integer numeroCarrilPiscina,
+            @P("Número de participantes") Integer numeroParticipantes) {
+        try {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) return "Por favor, inicia sesión para crear una reserva.";
+            EspacioDeportivo espacio = espacioDeportivoRepository.findById(espacioId).orElse(null);
+            if (espacio == null || !"piscina".equalsIgnoreCase(espacio.getServicioDeportivo().getServicioDeportivo())) {
+                return "Piscina no encontrada con ID: " + espacioId;
+            }
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            LocalDateTime inicio = LocalDateTime.parse(start, formatter);
+            LocalDateTime fin = LocalDateTime.parse(end, formatter);
+            if (numeroCarrilPiscina == null || numeroCarrilPiscina < 1 || numeroCarrilPiscina > espacio.getCarrilesPiscina()) {
+                return "Número de carril inválido.";
+            }
+            if (numeroParticipantes == null || numeroParticipantes < 1 || numeroParticipantes > espacio.getMaxPersonasPorCarril()) {
+                return "Número de participantes inválido.";
+            }
+            List<Reserva> reservas = reservaRepository.findByEspacioDeportivo_EspacioDeportivoIdAndInicioReservaBeforeAndFinReservaAfterAndNumeroCarrilPiscinaAndEstadoNot(
+                    espacioId, fin, inicio, numeroCarrilPiscina, Reserva.Estado.cancelada);
+            int participantesActuales = reservas.stream().mapToInt(r -> r.numeroParticipantes() != null ? r.numeroParticipantes() : 1).sum();
+            if (participantesActuales + numeroParticipantes > espacio.getMaxPersonasPorCarril()) {
+                return "No hay suficiente espacio en el carril seleccionado.";
+            }
+            Reserva reserva = new Reserva();
+            reserva.setUsuario(usuario);
+            reserva.setEspacioDeportivo(espacio);
+            reserva.setInicioReserva(inicio);
+            reserva.setFinReserva(fin);
+            reserva.setNumeroCarrilPiscina(numeroCarrilPiscina);
+            reserva.setNumeroParticipantes(numeroParticipantes);
+            reserva.setEstado(Reserva.Estado.pendiente);
+            reserva.setFechaCreacion(LocalDateTime.now());
+            reservaRepository.save(reserva);
+            long hours = Duration.between(inicio, fin).toHours();
+            BigDecimal costo = espacio.getPrecioPorHora().multiply(BigDecimal.valueOf(hours)).multiply(BigDecimal.valueOf(numeroParticipantes));
+            return "Reserva creada para piscina (ID: " + reserva.getReservaId() + "), carril " + numeroCarrilPiscina + ", " + numeroParticipantes + " participantes, de " + start + " a " + end + ". Costo: S/" + costo;
+        } catch (Exception e) {
+            return "Error al crear la reserva de piscina: " + e.getMessage();
+        }
+    }
+
+    
+
+
     private String normalizeServicioDeportivo(String servicio) {
         String normalized = normalizeInput(servicio);
         return switch (normalized) {
