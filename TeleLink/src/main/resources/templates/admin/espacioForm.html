@@ -18,6 +18,33 @@
       opacity: 1;
       max-height: 1000px; /* Adjust as needed */
     }
+
+    /* Estilo para el nuevo componente de Google Place Autocomplete */
+    gmp-place-autocomplete {
+      display: block !important;
+      width: 100% !important;
+      min-width: 250px;
+      max-width: 100%;
+      margin-bottom: 10px;
+      background: transparent !important;
+    }
+    gmp-place-autocomplete input {
+      display: block !important;
+      width: 100% !important;
+      min-width: 250px;
+      max-width: 100%;
+      padding: 0.375rem 0.75rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #495057;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+      box-sizing: border-box;
+      z-index: 10;
+    }
   </style>
 
   <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Espacios deportivos')}"></div>
@@ -200,8 +227,8 @@
                   <!-- Geolocalización -->
                   <div class="mb-4">
                     <label class="form-label">Ubicación</label>
-                    <input type="text" id="search-place" class="form-control" placeholder="Buscar dirección">
-                    <div id="gmaps-markers" class="gmaps" style="height: 300px; width: 100%; margin-top: 10px;"></div>
+                    <gmp-place-autocomplete id="search-place" style="width:100%;" input-placeholder="Buscar dirección"></gmp-place-autocomplete>
+                    <div id="gmaps-markers" class="gmaps" style="height: 500px; width: 100%; margin-top: 10px;"></div>
                     <input type="hidden" th:field="*{geolocalizacion}" id="geolocalizacion"
                            th:classappend="${#fields.hasErrors('geolocalizacion')} ? 'is-invalid' : ''">
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('geolocalizacion')}" th:errors="*{geolocalizacion}"></div>
@@ -290,8 +317,8 @@
   <div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
 
   <!-- JavaScript to Handle Conditional Fields and Map -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o&libraries=places"></script>
-  <script th:src="@{/assets/libs/gmaps/gmaps.min.js}"></script>
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o&libraries=maps,marker"></script>
+  <script async src="https://unpkg.com/@googlemaps/places-widget/dist/index.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       // Conditional Fields
@@ -299,90 +326,88 @@
       const piscinaFields = document.getElementById('piscinaFields');
       const pistaFields = document.getElementById('pistaFields');
       const gimnasioFields = document.getElementById('gimnasioFields');
-
       function toggleFields() {
         const selectedValue = servicioSelect.value;
-
-        // Remove 'show' class from all field groups
         piscinaFields.classList.remove('show');
         pistaFields.classList.remove('show');
         gimnasioFields.classList.remove('show');
-
-        // Add 'show' class to the relevant field group
-        if (selectedValue === '1') { // Piscina
-          piscinaFields.classList.add('show');
-        } else if (selectedValue === '2') { // Pista de Atletismo
-          pistaFields.classList.add('show');
-        } else if (selectedValue === '3') { // Gimnasio
-          gimnasioFields.classList.add('show');
-        }
+        if (selectedValue === '1') { piscinaFields.classList.add('show'); }
+        else if (selectedValue === '2') { pistaFields.classList.add('show'); }
+        else if (selectedValue === '3') { gimnasioFields.classList.add('show'); }
       }
-
-      // Run on page load to handle pre-selected values
       toggleFields();
-
-      // Run on change of the select dropdown
       servicioSelect.addEventListener('change', toggleFields);
 
       // Map Initialization
-      var map = new GMaps({
-        div: '#gmaps-markers',
-        lat: /*[[${latitude}]]*/ -12.043333,
-        lng: /*[[${longitude}]]*/ -77.028333,
-        zoom: 15
-      });
-
-      var marker = null;
-      var geolocalizacionInput = document.getElementById('geolocalizacion');
-
-      // Initialize marker if coordinates exist
-      if (geolocalizacionInput.value) {
-        var coords = geolocalizacionInput.value.split(',');
-        if (coords.length === 2) {
-          var lat = parseFloat(coords[0].trim());
-          var lng = parseFloat(coords[1].trim());
-          if (!isNaN(lat) && !isNaN(lng)) {
-            map.setCenter(lat, lng);
-            marker = map.addMarker({
-              lat: lat,
-              lng: lng,
-              title: 'Ubicación seleccionada'
-            });
+      let map;
+      let marker = null;
+      const geolocalizacionInput = document.getElementById('geolocalizacion');
+      const mapDiv = document.getElementById('gmaps-markers');
+      const defaultLat = -12.043333;
+      const defaultLng = -77.028333;
+      function initMap() {
+        map = new google.maps.Map(mapDiv, {
+          center: { lat: defaultLat, lng: defaultLng },
+          zoom: 15
+        });
+        // If coordinates exist, set marker
+        if (geolocalizacionInput.value) {
+          const coords = geolocalizacionInput.value.split(',');
+          if (coords.length === 2) {
+            const lat = parseFloat(coords[0].trim());
+            const lng = parseFloat(coords[1].trim());
+            if (!isNaN(lat) && !isNaN(lng)) {
+              map.setCenter({ lat, lng });
+              marker = new google.maps.Marker({
+                position: { lat, lng },
+                map: map,
+                title: 'Ubicación seleccionada'
+              });
+            }
           }
         }
-      }
-
-      // Places Autocomplete
-      var input = document.getElementById('search-place');
-      var autocomplete = new google.maps.places.Autocomplete(input);
-      autocomplete.addListener('place_changed', function () {
-        var place = autocomplete.getPlace();
-        if (place.geometry) {
-          var lat = place.geometry.location.lat();
-          var lng = place.geometry.location.lng();
-          map.setCenter(lat, lng);
+        // Map click handler
+        map.addListener('click', function (e) {
+          const lat = e.latLng.lat();
+          const lng = e.latLng.lng();
+          map.setCenter({ lat, lng });
           if (marker) marker.setMap(null);
-          marker = map.addMarker({
-            lat: lat,
-            lng: lng,
+          marker = new google.maps.Marker({
+            position: { lat, lng },
+            map: map,
             title: 'Ubicación seleccionada'
           });
           geolocalizacionInput.value = lat + ',' + lng;
-        }
-      });
-
-      // Map Click Handler
-      google.maps.event.addListener(map.map, 'click', function (e) {
-        var lat = e.latLng.lat();
-        var lng = e.latLng.lng();
-        map.setCenter(lat, lng);
-        if (marker) marker.setMap(null);
-        marker = map.addMarker({
-          lat: lat,
-          lng: lng,
-          title: 'Ubicación seleccionada'
         });
-        geolocalizacionInput.value = lat + ',' + lng;
+      }
+      window.initMap = initMap;
+      function waitForGoogleMaps(callback) {
+        if (window.google && window.google.maps) {
+          callback();
+        } else {
+          setTimeout(function () { waitForGoogleMaps(callback); }, 100);
+        }
+      }
+      waitForGoogleMaps(initMap);
+
+      // Place Autocomplete Element
+      const autocomplete = document.getElementById('search-place');
+      autocomplete.addEventListener('gmp-place-autocomplete:place_changed', function (event) {
+        const place = event.detail;
+        if (place && place.location) {
+          const lat = place.location.lat;
+          const lng = place.location.lng;
+          if (map) {
+            map.setCenter({ lat, lng });
+            if (marker) marker.setMap(null);
+            marker = new google.maps.Marker({
+              position: { lat, lng },
+              map: map,
+              title: 'Ubicación seleccionada'
+            });
+          }
+          geolocalizacionInput.value = lat + ',' + lng;
+        }
       });
     });
   </script>
