@@ -135,12 +135,36 @@
             display: inline-block;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(42, 48, 66, 0.3);
+            margin-right: 1rem;
         }
         
         .edit-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(42, 48, 66, 0.4);
             background: #1e222e;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            border: none;
+            padding: 0.875rem 2.5rem;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+            background: #5a6268;
             color: white;
             text-decoration: none;
         }
@@ -245,6 +269,19 @@
                                                                th:value="${usuario.correoElectronico != null} ? ${usuario.correoElectronico} : ''"
                                                                readonly disabled>
                                                     </div>
+                                                    
+                                                    <div class="info-item">
+                                                        <label>
+                                                            <i class="fas fa-map-marker-alt"></i>
+                                                            Dirección
+                                                        </label>
+                                                        <input type="text"
+                                                               class="info-input"
+                                                               name="direccion"
+                                                               id="direccion"
+                                                               th:value="${usuario.direccion != null} ? ${usuario.direccion} : ''"
+                                                               readonly disabled>
+                                                    </div>
                                                 </div>
                                                 
                                                 <div class="col-md-6">
@@ -258,6 +295,19 @@
                                                                name="apellidos"
                                                                id="apellidos"
                                                                th:value="${usuario.apellidos != null} ? ${usuario.apellidos} : ''"
+                                                               readonly disabled>
+                                                    </div>
+                                                    
+                                                    <div class="info-item">
+                                                        <label>
+                                                            <i class="fas fa-id-card"></i>
+                                                            DNI
+                                                        </label>
+                                                        <input type="text"
+                                                               class="info-input"
+                                                               name="dni"
+                                                               id="dni"
+                                                               th:value="${usuario.dni != null} ? ${usuario.dni} : ''"
                                                                readonly disabled>
                                                     </div>
                                                     
@@ -280,6 +330,10 @@
                                                 <a th:href="@{/coordinador/editar-perfil}" class="edit-btn">
                                                     <i class="fas fa-edit me-2"></i>
                                                     Editar Perfil
+                                                </a>
+                                                <a th:href="@{/coordinador/inicio}" class="back-btn">
+                                                    <i class="fas fa-arrow-left me-2"></i>
+                                                    Regresar al Panel
                                                 </a>
                                             </div>
                                         </form>
