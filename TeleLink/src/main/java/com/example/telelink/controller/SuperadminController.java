@@ -4,6 +4,8 @@ import com.example.telelink.entity.*;
 
 import com.example.telelink.repository.*;
 import com.example.telelink.service.AvisoService;
+import com.example.telelink.service.EmailService;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.itextpdf.text.Document;
@@ -46,7 +49,11 @@ public class SuperadminController {
     @Autowired
     private ReservaRepository reservaRepository;
     @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
     private AvisoRepository avisoRepository;
+    @Autowired
+    private EmailService emailService;
     @Autowired
     private PagoRepository pagoRepository;
     @Autowired
@@ -752,52 +759,43 @@ public ResponseEntity<byte[]> exportarUsuariosPdf() {
 
         // Agregar datos
         for (Usuario usuario : usuarios) {
-            // ID
             PdfPCell idCell = new PdfPCell(new Phrase(String.valueOf(usuario.getUsuarioId()), dataFont));
             idCell.setHorizontalAlignment(Element.ALIGN_CENTER);
             idCell.setPadding(4);
             table.addCell(idCell);
 
-            // Nombres
             PdfPCell nombresCell = new PdfPCell(new Phrase(usuario.getNombres() != null ? usuario.getNombres() : "", dataFont));
             nombresCell.setPadding(4);
             table.addCell(nombresCell);
 
-            // Apellidos
             PdfPCell apellidosCell = new PdfPCell(new Phrase(usuario.getApellidos() != null ? usuario.getApellidos() : "", dataFont));
             apellidosCell.setPadding(4);
             table.addCell(apellidosCell);
 
-            // Correo
             PdfPCell correoCell = new PdfPCell(new Phrase(usuario.getCorreoElectronico() != null ? usuario.getCorreoElectronico() : "", dataFont));
             correoCell.setPadding(4);
             table.addCell(correoCell);
 
-            // DNI
             PdfPCell dniCell = new PdfPCell(new Phrase(usuario.getDni() != null ? usuario.getDni() : "", dataFont));
             dniCell.setHorizontalAlignment(Element.ALIGN_CENTER);
             dniCell.setPadding(4);
             table.addCell(dniCell);
 
-            // Teléfono
             PdfPCell telefonoCell = new PdfPCell(new Phrase(usuario.getTelefono() != null ? usuario.getTelefono() : "", dataFont));
             telefonoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
             telefonoCell.setPadding(4);
             table.addCell(telefonoCell);
 
-            // Rol
             PdfPCell rolCell = new PdfPCell(new Phrase(usuario.getRol() != null ? usuario.getRol().getRol() : "", dataFont));
             rolCell.setHorizontalAlignment(Element.ALIGN_CENTER);
             rolCell.setPadding(4);
             table.addCell(rolCell);
 
-            // Estado
             PdfPCell estadoCell = new PdfPCell(new Phrase(usuario.getEstadoCuenta() != null ? usuario.getEstadoCuenta().toString() : "", dataFont));
             estadoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
             estadoCell.setPadding(4);
             table.addCell(estadoCell);
 
-            // Fecha
             PdfPCell fechaCell = new PdfPCell(new Phrase(usuario.getFechaCreacion() != null ? usuario.getFechaCreacion().format(formatter) : "", dataFont));
             fechaCell.setHorizontalAlignment(Element.ALIGN_CENTER);
             fechaCell.setPadding(4);
@@ -2350,9 +2348,135 @@ public ResponseEntity<byte[]> exportarReembolsosUsuarioPdf(@PathVariable Integer
                 .headers(responseHeaders)
                 .body(outputStream.toByteArray());
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+    @GetMapping("/crearAdminCoord")
+    public String mostrarFormularioCreacionAdminCoordinador(Model model) {
+        model.addAttribute("usuario", new Usuario());
+        return "Superadmin/crearAdminCoordinador";
+    }
+
+    @PostMapping("/crearAdminCoord")
+    public String crearAdminCoordinador(
+            @ModelAttribute("usuario") @Valid Usuario usuario,
+            BindingResult result,
+            @RequestParam(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+        // Validaciones específicas
+        
+        // Validar correo único
+        if (usuarioRepository.existsByCorreoElectronico(usuario.getCorreoElectronico())) {
+            result.rejectValue("correoElectronico", "duplicate.email", "El correo electrónico ya está registrado");
         }
+
+        // Validar DNI único
+        if (usuario.getDni() != null && usuarioRepository.existsByDni(usuario.getDni())) {
+            result.rejectValue("dni", "duplicate.dni", "El DNI ya está registrado");
+        }
+
+        // Validar teléfono único
+        if (usuario.getTelefono() != null && usuarioRepository.existsByTelefono(usuario.getTelefono())) {
+            result.rejectValue("telefono", "duplicate.phone", "El número de teléfono ya está registrado");
+        }
+
+        // Validar rol
+        if (usuario.getRol() == null || usuario.getRol().getRolId() == null) {
+            result.rejectValue("rol", "required.rol", "Debe seleccionar un rol");
+        } else {
+            Integer rolId = usuario.getRol().getRolId();
+            if (rolId != 2 && rolId != 4) { // Solo administrador (2) o coordinador (4)
+                result.rejectValue("rol", "invalid.rol", "Rol no válido");
+            } else {
+                // Asignar el rol completo
+                Rol rol = rolRepository.findById(rolId)
+                        .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                usuario.setRol(rol);
+            }
+        }
+
+        // Validación del archivo de imagen
+        if (fotoPerfil != null && !fotoPerfil.isEmpty()) {
+            // Tamaño máximo: 2MB
+            if (fotoPerfil.getSize() > 2 * 1024 * 1024) {
+                result.rejectValue("fotoPerfilUrl", "size.exceeded", "La imagen no debe exceder los 2MB");
+            }
+
+            String originalFilename = fotoPerfil.getOriginalFilename();
+            String contentType = fotoPerfil.getContentType();
+
+            // Validación de tipo MIME
+            if (contentType == null ||
+                    (!contentType.equalsIgnoreCase("image/jpeg") &&
+                            !contentType.equalsIgnoreCase("image/png"))) {
+                result.rejectValue("fotoPerfilUrl", "invalid.type", "Solo se aceptan imágenes JPG o PNG");
+            }
+
+            // Validación de extensión
+            if (originalFilename == null ||
+                    (!originalFilename.toLowerCase().endsWith(".jpg") &&
+                            !originalFilename.toLowerCase().endsWith(".jpeg") &&
+                            !originalFilename.toLowerCase().endsWith(".png"))) {
+                result.rejectValue("fotoPerfilUrl", "invalid.extension", "El archivo debe tener extensión .jpg, .jpeg o .png");
+            }
+        }
+
+        if (result.hasErrors()) {
+            return "Superadmin/crearAdminCoordinador";
+        }
+
+        try {
+            // Generar contraseña temporal
+            String contraseñaTemporal = generarContraseñaTemporal();
+            String contraseñaHash = passwordEncoder.encode(contraseñaTemporal);
+            usuario.setContraseniaHash(contraseñaHash);
+
+            // Configurar valores por defecto
+            usuario.setEstadoCuenta(Usuario.EstadoCuenta.activo);
+            usuario.setFechaCreacion(LocalDateTime.now());
+            usuario.setFechaActualizacion(LocalDateTime.now());
+            
+            // Configurar foto por defecto
+            usuario.setFotoPerfilUrl("https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2281862025.jpg");
+        
+
+            // Guardar usuario
+            Usuario usuarioCreado = usuarioRepository.save(usuario);
+
+            // Enviar email con credenciales
+            try {
+                emailService.enviarCredencialesTemporales(usuarioCreado, contraseñaTemporal);
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Usuario creado exitosamente. Se han enviado las credenciales por correo electrónico.");
+            } catch (Exception emailException) {
+                // Si falla el envío del email, mostrar las credenciales en pantalla
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Usuario creado exitosamente. Contraseña temporal: " + contraseñaTemporal + 
+                    " (No se pudo enviar el correo, contacte al usuario directamente)");
+            }
+            
+            return "redirect:/superadmin/usuariosAdmin";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al crear el usuario: " + e.getMessage());
+            return "redirect:/superadmin/crearAdminCoordinador";
+        }
+    }
+
+    private String generarContraseñaTemporal() {
+        String caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder contraseña = new StringBuilder();
+        Random random = new Random();
+        
+        for (int i = 0; i < 8; i++) {
+            contraseña.append(caracteres.charAt(random.nextInt(caracteres.length())));
+        }
+        
+        return contraseña.toString();
     }
 }

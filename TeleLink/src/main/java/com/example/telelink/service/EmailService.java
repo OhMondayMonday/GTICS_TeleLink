@@ -1120,4 +1120,183 @@ public class EmailService {
         mailSender.send(message);
     }
     // ...existing code...
+
+    // ...existing code...
+    public void enviarCredencialesTemporales(Usuario usuario, String contraseñaTemporal) throws MessagingException {
+        String subject = "Bienvenido al Sistema - Credenciales de Acceso - Municipalidad de San Miguel";
+        String tipoUsuario = usuario.getRol().getRol();
+
+        String content = """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Credenciales de Acceso | Municipalidad de San Miguel</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+                    <style>
+                        body {
+                            background-color: #f4f4f4;
+                            font-family: Arial, sans-serif;
+                            color: #333;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 20px auto;
+                            background-color: #ffffff;
+                            padding: 20px;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        }
+                        .logo {
+                            max-width: 150px;
+                            margin: 0 auto;
+                            display: block;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 20px;
+                        }
+                        .header h3 {
+                            color: #1a73e8;
+                            font-size: 24px;
+                            margin: 10px 0;
+                        }
+                        .content {
+                            text-align: center;
+                            font-size: 16px;
+                            line-height: 1.6;
+                        }
+                        .content p {
+                            margin: 10px 0;
+                        }
+                        .btn-view {
+                            display: inline-block;
+                            padding: 12px 24px;
+                            background-color: #1a73e8;
+                            color: #ffffff;
+                            text-decoration: none;
+                            border-radius: 5px;
+                            font-size: 16px;
+                            margin: 20px 0;
+                        }
+                        .btn-view:hover {
+                            background-color: #1557b0;
+                        }
+                        .footer {
+                            text-align: center;
+                            font-size: 14px;
+                            color: #777;
+                            margin-top: 20px;
+                        }
+                        .footer p {
+                            margin: 5px 0;
+                        }
+                        .credentials {
+                            background-color: #f8f9fa;
+                            padding: 20px;
+                            border-radius: 8px;
+                            margin: 20px 0;
+                            border-left: 4px solid #1a73e8;
+                        }
+                        .credential-item {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin: 10px 0;
+                            padding: 8px 0;
+                            border-bottom: 1px solid #dee2e6;
+                        }
+                        .credential-label {
+                            font-weight: bold;
+                            color: #495057;
+                        }
+                        .credential-value {
+                            color: #1a73e8;
+                            font-family: monospace;
+                            font-size: 14px;
+                            background: #e3f2fd;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                        }
+                        .warning-box {
+                            background-color: #fff3cd;
+                            border: 1px solid #ffeaa7;
+                            border-radius: 8px;
+                            padding: 15px;
+                            margin: 20px 0;
+                        }
+                        .warning-box h5 {
+                            color: #856404;
+                            margin: 0 0 10px 0;
+                        }
+                        .warning-box p {
+                            color: #856404;
+                            margin: 5px 0;
+                            font-size: 14px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <img src="https://yt3.googleusercontent.com/IA0pZ7odBt38SOmTEZYD4K70xlsEzZz7zwAwwdm0tdcBxgCOL43tJdJtUuuXmkiOp6r0BXEW_g8=s900-c-k-c0x00ffffff-no-rj" alt="Municipalidad de San Miguel" class="logo">
+                            <h3>¡Bienvenido al Sistema, %s!</h3>
+                        </div>
+                        <div class="content">
+                            <p>Se ha creado exitosamente tu cuenta en el Sistema de Gestión Deportiva de la Municipalidad de San Miguel.</p>
+                            <p>Tu perfil ha sido configurado como: <strong>%s</strong></p>
+
+                            <div class="credentials">
+                                <h5 style="color: #1a73e8; margin-bottom: 15px;">
+                                    <i class="fas fa-key" style="margin-right: 8px;"></i>
+                                    Credenciales de Acceso
+                                </h5>
+                                <div class="credential-item">
+                                    <span class="credential-label">Usuario (Email):</span>
+                                    <span class="credential-value">%s</span>
+                                </div>
+                                <div class="credential-item">
+                                    <span class="credential-label">Contraseña Temporal:</span>
+                                    <span class="credential-value">%s</span>
+                                </div>
+                            </div>
+
+                            <div class="warning-box">
+                                <h5>⚠️ Importante - Seguridad</h5>
+                                <p>• Esta es una contraseña temporal que debes cambiar en tu primer inicio de sesión</p>
+                                <p>• No compartas estas credenciales con nadie</p>
+                                <p>• Si tienes problemas para acceder, contacta con el administrador</p>
+                            </div>
+
+                            <p>Para acceder al sistema, haz clic en el siguiente enlace:</p>
+                            <a href="https://deportesanmiguel.site/auth/login" class="btn-view">
+                                <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+                                Iniciar Sesión
+                            </a>
+
+                            <p style="margin-top: 30px;">Si tienes alguna duda sobre el uso del sistema, contacta con el equipo de soporte.</p>
+                        </div>
+                        <div class="footer">
+                            <p>© %d Municipalidad de San Miguel</p>
+                            <p>Sistema de Gestión Deportiva</p>
+                            <p>📧 soporte@munisanmiguel.gob.pe | 📞 (01) 567-8900</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """
+                .formatted(usuario.getNombres(), tipoUsuario, usuario.getCorreoElectronico(),
+                        contraseñaTemporal, java.time.Year.now().getValue());
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(fromEmail);
+        helper.setTo(usuario.getCorreoElectronico());
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        mailSender.send(message);
+    }
+    // ...existing code...
 }

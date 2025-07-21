@@ -559,11 +559,29 @@ public class UsuarioController {
                     reembolso.setEstado(Reembolso.Estado.completado);
                     reembolso.setDetallesTransaccion("Reembolso procesado automáticamente para Pago Online");
                     mensaje = "Reserva cancelada y reembolso procesado automáticamente.";
+
+                    notificacionService.crearNotificacion(
+                            usuario.getUsuarioId(),
+                            "creación",
+                            "Solicitud de reembolso creada",
+                            "Se ha creado una solicitud de reembolso de S/ " + pago.getMonto() + 
+                            " por la cancelación de tu reserva en " + reserva.getEspacioDeportivo().getNombre() + 
+                            ". Está pendiente de aprobación del administrador.",
+                            "/usuarios/reembolsos");
                 } else {
                     // Depósito Bancario: requiere aprobación del administrador
                     reembolso.setEstado(Reembolso.Estado.pendiente);
                     reembolso.setDetallesTransaccion("Esperando aprobación del administrador");
                     mensaje = "Reserva cancelada. El reembolso está pendiente de aprobación.";
+
+                    notificacionService.crearNotificacion(
+                            usuario.getUsuarioId(),
+                            "creación",
+                            "Solicitud de reembolso creada",
+                            "Se ha creado una solicitud de reembolso de S/ " + pago.getMonto() + 
+                            " por la cancelación de tu reserva en " + reserva.getEspacioDeportivo().getNombre() + 
+                            ". Está pendiente de aprobación del administrador.",
+                            "/usuarios/reembolsos");
                 }
 
                 reembolsoRepository.save(reembolso);
@@ -1203,7 +1221,7 @@ public class UsuarioController {
                     "creación",
                     "Reserva confirmada",
                     "Tu reserva en " + reserva.getEspacioDeportivo().getNombre() + " ha sido confirmada y pagada.",
-                    "/usuarios/reservas/" + reserva.getEspacioDeportivo().getEspacioDeportivoId());
+                    "/usuarios/comprobante-pago/" + reserva.getReservaId());
         } else {
             pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
             pago.setMotivoRechazo(errorMessage);

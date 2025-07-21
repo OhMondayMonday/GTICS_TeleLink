@@ -110,4 +110,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     List<Usuario> findAllExceptSuperadmin();
 
     List<Usuario> findByRol_RolId(Integer rolId);
+
+    boolean existsByCorreoElectronico(String correoElectronico);
+    boolean existsByDni(String dni);
+    boolean existsByTelefono(String telefono);
+
 }

@@ -75,12 +75,17 @@
 
                                                 <div class="info-item" th:if="${reserva.numeroCarrilPiscina != null}">
                                                     <label>Carril de Piscina:</label>
-                                                    <span th:text="${'Carril ' + reserva.numeroCarrilPiscina}">Carril 3</span>
+                                                    <span th:text="${'Carril ' + reserva.numeroCarrilPiscina}"></span>
                                                 </div>
 
                                                 <div class="info-item" th:if="${reserva.numeroCarrilPista != null}">
                                                     <label>Carril de Pista:</label>
-                                                    <span th:text="${'Carril ' + reserva.numeroCarrilPista}">Carril 1</span>
+                                                    <span th:text="${'Carril ' + reserva.numeroCarrilPista}"></span>
+                                                </div>
+
+                                                <div class="info-item" th:if="${reserva.numeroParticipantes != null }">
+                                                    <label>Numero de participantes:</label>
+                                                    <span th:text="${'Participantes: ' + reserva.numeroParticipantes}">1</span>
                                                 </div>
 
                                                 <div class="info-item">
