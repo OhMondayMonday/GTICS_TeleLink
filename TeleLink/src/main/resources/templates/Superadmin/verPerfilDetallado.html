@@ -407,11 +407,12 @@
                                                                 <td th:text="${reembolso.pago.pagoId}"></td>
                                                                 <td th:text="${'S/ ' + #numbers.formatDecimal(reembolso.monto, 1, 2)}"></td>
                                                                 <td>
-                                                                    <span th:switch="${reembolso.estado.name()}" class="badge">
+                                                                    <span th:switch="${reembolso.estado != null ? reembolso.estado.name() : 'sin_estado'}" class="badge">
                                                                         <span th:case="pendiente" class="badge bg-warning-subtle text-warning font-size-12">Pendiente</span>
                                                                         <span th:case="completado" class="badge bg-success-subtle text-success font-size-12">Completado</span>
                                                                         <span th:case="rechazado" class="badge  bg-danger-subtle text-danger font-size-12">Rechazado</span>
                                                                         <span th:case="cancelado" class="badge  bg-secondary-subtle text-secondary font-size-12">Cancelado</span>
+                                                                        <span th:case="sin_estado" class="badge bg-secondary-subtle text-secondary font-size-12">Sin estado</span>
                                                                     </span>
                                                                 </td>
                                                                 <td th:text="${reembolso.fechaReembolso != null} ? ${#temporals.format(reembolso.fechaReembolso, 'dd/MM/yyyy HH:mm')} : 'N/A'"></td>
