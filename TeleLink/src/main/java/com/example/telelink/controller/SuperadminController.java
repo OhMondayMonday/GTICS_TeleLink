@@ -307,7 +307,7 @@ public class SuperadminController {
         model.addAttribute("nuevosUsuariosEsteMes", nuevosUsuariosEsteMes);
 
         // Obtener lista completa de usuarios
-        List<Usuario> usuarios = usuarioRepository.findAllExceptSuperadmin();
+        List<Usuario> usuarios = usuarioRepository.findByRol_RolId(3);
         model.addAttribute("usuarios", usuarios);
 
         return "Superadmin/Usuarios";

@@ -1,5 +1,6 @@
 package com.example.telelink.controller;
 
+import com.example.telelink.service.NotificacionService;
 import com.example.telelink.dto.vecino.PagoRequest;
 import com.example.telelink.entity.*;
 import com.example.telelink.repository.*;
@@ -44,8 +45,10 @@ public class UsuarioController {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-
     private ReservaRepository reservaRepository;
+
+    @Autowired
+    private NotificacionService notificacionService;
 
     @Autowired
     private EspacioDeportivoRepository espacioDeportivoRepository;
@@ -1178,22 +1181,28 @@ public class UsuarioController {
 
         if (isValid) {
             pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
-            reserva.setEstado(Reserva.Estado.confirmada);
-            reserva.setFechaActualizacion(LocalDateTime.now());
-            redirectAttributes.addFlashAttribute("mensaje", "Pago realizado con éxito");
-            // Send email to use
-            try {
-                emailService.sendReservationPaymentCompleted(usuario, reserva, monto);
-                System.out.println(
-                        "✅ Correo de pago confirmado enviado exitosamente a: " + usuario.getCorreoElectronico());
-            } catch (Exception emailException) {
-                System.err.println("❌ Error al enviar correo de pago confirmado: " + emailException.getMessage());
-            }
-        } else {
-            pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
-            pago.setMotivoRechazo(errorMessage);
-            redirectAttributes.addFlashAttribute("error", "Pago rechazado: " + errorMessage);
+        reserva.setEstado(Reserva.Estado.confirmada);
+        reserva.setFechaActualizacion(LocalDateTime.now());
+        redirectAttributes.addFlashAttribute("mensaje", "Pago realizado con éxito");
+        // Send email to user
+        try {
+            emailService.sendReservationPaymentCompleted(usuario, reserva, monto);
+            System.out.println("✅ Correo de pago confirmado enviado exitosamente a: " + usuario.getCorreoElectronico());
+        } catch (Exception emailException) {
+            System.err.println("❌ Error al enviar correo de pago confirmado: " + emailException.getMessage());
         }
+            notificacionService.crearNotificacion(
+            usuario.getUsuarioId(),
+            "creación",
+            "Reserva confirmada",
+            "Tu reserva en " + reserva.getEspacioDeportivo().getNombre() + " ha sido confirmada y pagada.",
+            "/usuarios/reservas/" + reserva.getEspacioDeportivo().getEspacioDeportivoId()
+        );
+    } else {
+        pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
+        pago.setMotivoRechazo(errorMessage);
+        redirectAttributes.addFlashAttribute("error", "Pago rechazado: " + errorMessage);
+    }
 
         pagoRepository.save(pago);
         reservaRepository.save(reserva);
@@ -1312,6 +1321,15 @@ public class UsuarioController {
         reserva.setEstado(Reserva.Estado.en_proceso);
         reserva.setFechaActualizacion(LocalDateTime.now());
         reservaRepository.save(reserva);
+
+        // Crear notificación al usuario
+        notificacionService.crearNotificacion(
+            usuario.getUsuarioId(),
+            "creación",
+            "Pago por depósito registrado",
+            "Tu pago por depósito para la reserva en " + reserva.getEspacioDeportivo().getNombre() + " ha sido registrado. Pendiente de validación.",
+            "/usuarios/reservas/" + reserva.getEspacioDeportivo().getEspacioDeportivoId()
+        );
 
         redirectAttributes.addFlashAttribute("mensaje", "Pago por depósito registrado. Pendiente de validación.");
         return "redirect:/usuarios/mis-reservas";
@@ -1669,6 +1687,7 @@ public class UsuarioController {
             }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
+           
             return "redirect:/usuarios/reservar/" + espacioId;
         }
     }

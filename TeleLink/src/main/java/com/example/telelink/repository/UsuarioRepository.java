@@ -108,4 +108,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     @Query("SELECT u FROM Usuario u WHERE u.rol.rol != 'superadmin' ORDER BY u.apellidos, u.nombres")
     List<Usuario> findAllExceptSuperadmin();
+
+    List<Usuario> findByRol_RolId(Integer rolId);
 }
