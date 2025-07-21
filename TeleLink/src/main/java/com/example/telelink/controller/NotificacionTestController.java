@@ -33,7 +33,7 @@ public class NotificacionTestController {
             "creación",
             "Nueva reserva registrada",
             "Se ha creado una nueva reserva en el espacio deportivo principal",
-            "/coordinador/reservas"
+            "/coordinador/espacios-deportivos"
         );
 
         notificacionService.crearNotificacion(
@@ -41,7 +41,7 @@ public class NotificacionTestController {
             "aviso",
             "Recordatorio importante",
             "Recuerda revisar las asistencias pendientes de esta semana",
-            "/coordinador/asistencias"
+            "/coordinador/asistencia"
         );
 
         notificacionService.crearNotificacion(
@@ -71,7 +71,7 @@ public class NotificacionTestController {
             "cancelación",
             "Reserva cancelada",
             "La reserva del día 15 de enero ha sido cancelada por el usuario",
-            "/coordinador/reservas"
+            "/coordinador/espacios-deportivos"
         );
 
         return "Notificación de cancelación creada";

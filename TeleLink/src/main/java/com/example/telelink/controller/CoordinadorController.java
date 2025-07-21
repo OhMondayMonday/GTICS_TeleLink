@@ -1317,7 +1317,7 @@ import jakarta.servlet.http.HttpSession;
                         asistencia.getCoordinador().getApellidos(),
                         asistencia.getHorarioEntrada().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                         motivo));
-                notificacion.setUrlRedireccion(""); // URL vacía como solicitaste
+                notificacion.setUrlRedireccion("/admin/gestion-asistencias"); // URL vacía como solicitaste
                 notificacion.setEstado(Notificacion.Estado.no_leido);
                 notificacion.setFechaCreacion(LocalDateTime.now());
                 

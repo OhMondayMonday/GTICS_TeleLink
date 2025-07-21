@@ -136,7 +136,7 @@ public class NotificacionService {
             "asignación",
             "Nueva asistencia asignada",
             "Se te ha asignado una nueva asistencia para la actividad: " + nombreActividad,
-            "/coordinador/asistencias"
+            "/coordinador/asistencia"
         );
     }
 
@@ -149,7 +149,7 @@ public class NotificacionService {
             "creación",
             "Nueva reserva",
             "Se ha realizado una nueva reserva en el espacio: " + nombreEspacio,
-            "/coordinador/reservas"
+            "/coordinador/espacios-deportivos"
         );
     }
 
@@ -162,7 +162,7 @@ public class NotificacionService {
             "cancelación",
             "Reserva cancelada",
             "Se ha cancelado una reserva en el espacio: " + nombreEspacio,
-            "/coordinador/reservas"
+            "/coordinador/espacios-deportivos"
         );
     }
 
@@ -175,7 +175,7 @@ public class NotificacionService {
             "actualización",
             "Actividad actualizada",
             "La actividad " + nombreActividad + " ha sido actualizada",
-            "/coordinador/actividades"
+            "/coordinador/inicio"
         );
     }
 
@@ -188,7 +188,7 @@ public class NotificacionService {
             "aprobación",
             "Elemento aprobado",
             elemento + " ha sido aprobado",
-            "/coordinador/dashboard"
+            "/coordinador/inicio"
         );
     }
 

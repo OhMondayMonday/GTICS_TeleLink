@@ -4,6 +4,216 @@
     <meta charset="UTF-8">
     <title>Editar Perfil del Administrador</title>
 </head>
+
+<style>
+    /* Estilos profesionales para el perfil */
+    .profile-card {
+        border: none;
+        box-shadow: 0 15px 35px rgba(85, 110, 230, 0.15);
+        border-radius: 20px;
+        overflow: hidden;
+        background: white;
+    }
+    
+    .profile-header {
+        background: #556ee6;
+        padding: 2.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        object-fit: cover;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .profile-info {
+        color: white;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-role {
+        font-size: 1rem;
+        opacity: 0.9;
+        color: white;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-badge {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+    
+    .info-section {
+        padding: 2.5rem;
+        background: white;
+    }
+    
+    .section-title {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        font-size: 1.2rem;
+    }
+    
+    .info-item {
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-item label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .info-item label i {
+        margin-right: 0.5rem;
+        color: #2E3A59;
+        width: 16px;
+    }
+    
+    .info-input {
+        font-size: 1rem;
+        color: #2c3e50;
+        font-weight: 500;
+        padding: 1rem 1.25rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 2px solid transparent;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .info-input:focus {
+        border-color: #2E3A59;
+        box-shadow: 0 0 0 0.2rem rgba(46, 58, 89, 0.25);
+        background: white;
+    }
+    
+    .info-input.is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .info-input:read-only {
+        background: #e9ecef;
+        opacity: 0.7;
+    }
+    
+    .save-btn {
+        background: #556ee6;
+        border: none;
+        padding: 0.875rem 2.5rem;
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(85, 110, 230, 0.3);
+        margin-right: 1rem;
+    }
+    
+    .save-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(85, 110, 230, 0.4);
+        background: #4c63d2;
+        color: white;
+    }
+    
+    .cancel-btn {
+        background: #6c757d;
+        border: none;
+        padding: 0.875rem 2.5rem;
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    .cancel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .file-upload {
+        text-align: center;
+        padding: 1.5rem;
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .file-upload:hover {
+        border-color: #556ee6;
+        background: #f8f9ff;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-header {
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+        }
+        
+        .info-section {
+            padding: 2rem 1.5rem;
+        }
+    }
+</style>
+
 <body data-sidebar="dark" class="vertical-collpsed">
 <div id="layout-wrapper">
     <div th:replace="~{admin/fragments/layoutSuperior :: layoutSuperior(titulo='Editar Perfil')}"></div>
@@ -11,15 +221,40 @@
     <div class="main-content">
         <div class="page-content">
             <div class="container-fluid">
-                <div class="row justify-content-around">
-                    <div class="col-lg-11 align-items-center">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title mb-4 fw-semibold mt-3">Formulario de Edición de Perfil</h4>
-                                <p class="card-title-desc text-muted fs-6">
-                                    Actualice la información de su perfil de administrador.
-                                </p>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card profile-card">
+                            <!-- Header del perfil con gradiente -->
+                            <div class="profile-header">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3 text-center">
+                                        <img class="rounded-circle profile-avatar"
+                                             th:src="${usuario.fotoPerfilUrl} ?: 'https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg'"
+                                             alt="Foto de perfil">
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="profile-info">
+                                            <h2 class="profile-name">Editar Perfil de Administrador</h2>
+                                            <p class="profile-role">
+                                                <i class="fas fa-edit me-2"></i>
+                                                Actualizar información personal
+                                            </p>
+                                            <div class="profile-badge">
+                                                <i class="fas fa-shield-alt me-1"></i>
+                                                Modo Edición
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <!-- Formulario de edición -->
+                            <div class="info-section">
+                                <h5 class="section-title">
+                                    <i class="fas fa-user-edit me-2" style="color: #2E3A59;"></i>
+                                    Actualizar Información Personal
+                                </h5>
+                                
                                 <!-- Mostrar mensajes flash -->
                                 <div th:if="${message}" class="alert" th:classappend="${messageType == 'success' ? 'alert-success' : 'alert-danger'}">
                                     <span th:text="${message}"></span>
@@ -32,144 +267,111 @@
                                     </div>
 
                                     <!-- Foto de perfil -->
-                                    <div class="text-center mb-4">
-                                        <img th:src="${usuario.fotoPerfilUrl} ?: 'https://img.freepik.com/foto-gratis/disparo-cabeza-hombre-atractivo-sonriendo-complacido-mirando-intrigado-pie-sobre-fondo-azul_1258-65733.jpg'"
-                                             alt="Foto de perfil actual" class="rounded-circle" width="150" height="150">
-                                        <div class="mt-3">
-                                            <label class="form-label" for="fotoPerfil">Nueva foto de perfil <span class="text-danger">*</span></label>
-                                            <input type="file" class="form-control" name="fotoPerfil" id="fotoPerfil"
-                                                   accept="image/jpeg,image/png,image/jpg"
-                                                   th:classappend="${#fields.hasErrors('fotoPerfilUrl')} ? 'is-invalid' : ''">
-                                            <input type="hidden" th:field="*{fotoPerfilUrl}" />
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fotoPerfilUrl')}" th:errors="*{fotoPerfilUrl}"></div>
+                                    <div class="file-upload mb-4">
+                                        <label class="form-label" for="fotoPerfil">
+                                            <i class="fas fa-camera me-2"></i>
+                                            Nueva foto de perfil
+                                        </label>
+                                        <input type="file" class="form-control" name="fotoPerfil" id="fotoPerfil"
+                                               accept="image/jpeg,image/png,image/jpg"
+                                               th:classappend="${#fields.hasErrors('fotoPerfilUrl')} ? 'is-invalid' : ''">
+                                        <input type="hidden" th:field="*{fotoPerfilUrl}" />
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('fotoPerfilUrl')}" th:errors="*{fotoPerfilUrl}"></div>
+                                        <small class="text-muted">Formatos permitidos: JPG, PNG. Tamaño máximo: 2MB</small>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <!-- Nombres -->
+                                            <div class="info-item">
+                                                <label>
+                                                    <i class="fas fa-user"></i>
+                                                    Nombres <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" class="info-input"
+                                                       th:field="*{nombres}"
+                                                       th:classappend="${#fields.hasErrors('nombres')} ? 'is-invalid' : ''">
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombres')}" th:errors="*{nombres}"></div>
+                                            </div>
+                                            
+                                            <!-- Correo Electrónico (SOLO LECTURA) -->
+                                            <div class="info-item">
+                                                <label>
+                                                    <i class="fas fa-envelope"></i>
+                                                    Correo electrónico (No editable)
+                                                </label>
+                                                <input type="email" class="info-input"
+                                                       th:value="*{correoElectronico}"
+                                                       readonly>
+                                                <input type="hidden" th:field="*{correoElectronico}">
+                                            </div>
+                                            
+                                            <!-- Dirección -->
+                                            <div class="info-item">
+                                                <label>
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    Dirección <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" class="info-input"
+                                                       th:field="*{direccion}"
+                                                       th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid' : ''">
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <!-- Apellidos -->
+                                            <div class="info-item">
+                                                <label>
+                                                    <i class="fas fa-user-friends"></i>
+                                                    Apellidos <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" class="info-input"
+                                                       th:field="*{apellidos}"
+                                                       th:classappend="${#fields.hasErrors('apellidos')} ? 'is-invalid' : ''">
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
+                                            </div>
+                                            
+                                            <!-- DNI (SOLO LECTURA) -->
+                                            <div class="info-item">
+                                                <label>
+                                                    <i class="fas fa-id-card"></i>
+                                                    DNI (No editable)
+                                                </label>
+                                                <input type="text" class="info-input"
+                                                       th:value="*{dni}"
+                                                       readonly>
+                                                <input type="hidden" th:field="*{dni}">
+                                            </div>
+                                            
+                                            <!-- Teléfono -->
+                                            <div class="info-item">
+                                                <label>
+                                                    <i class="fas fa-phone"></i>
+                                                    Teléfono <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="text" class="info-input"
+                                                       th:field="*{telefono}"
+                                                       maxlength="20"
+                                                       pattern="[0-9]{1,20}"
+                                                       inputmode="numeric"
+                                                       title="Ingrese solo números, máximo 20 dígitos"
+                                                       th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''">
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <!-- Nombres -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Nombres <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control"
-                                                   th:field="*{nombres}"
-                                                   th:classappend="${#fields.hasErrors('nombres')} ? 'is-invalid' : ''">
-                                            <span class="input-group-text"><i class="mdi mdi-account"></i></span>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nombres')}" th:errors="*{nombres}"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Apellidos -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Apellidos <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control"
-                                                   th:field="*{apellidos}"
-                                                   th:classappend="${#fields.hasErrors('apellidos')} ? 'is-invalid' : ''">
-                                            <span class="input-group-text"><i class="mdi mdi-account"></i></span>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Correo Electrónico -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Correo electrónico <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="email" class="form-control"
-                                                   th:field="*{correoElectronico}"
-                                                   th:classappend="${#fields.hasErrors('correoElectronico')} ? 'is-invalid' : ''">
-                                            <span class="input-group-text"><i class="mdi mdi-email"></i></span>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('correoElectronico')}" th:errors="*{correoElectronico}"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- DNI -->
-                                    <div class="mb-3">
-                                        <label class="form-label">DNI <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control"
-                                                   th:field="*{dni}"
-                                                   maxlength="8"
-                                                   pattern="[0-9]{8}"
-                                                   title="Ingrese un DNI de 8 dígitos numéricos"
-                                                   th:classappend="${#fields.hasErrors('dni')} ? 'is-invalid' : ''">
-                                            <span class="input-group-text"><i class="mdi mdi-card"></i></span>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Dirección -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Dirección <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control"
-                                                   th:field="*{direccion}"
-                                                   th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid' : ''">
-                                            <span class="input-group-text"><i class="mdi mdi-map-marker"></i></span>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Teléfono -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Teléfono <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control"
-                                                   th:field="*{telefono}"
-                                                   maxlength="20"
-                                                   pattern="[0-9]{1,20}"
-                                                   inputmode="numeric"
-                                                   title="Ingrese solo números, máximo 20 dígitos"
-                                                   th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''">
-                                            <span class="input-group-text"><i class="mdi mdi-phone"></i></span>
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Estado de cuenta (disabled) -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Estado de cuenta</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control opacity-75"
-                                                   th:value="${#strings.capitalizeWords(#strings.replace(usuario.estadoCuenta, '_', ' '))}" disabled />
-                                            <span class="input-group-text"><i class="mdi mdi-account-check"></i></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Fecha de creación (disabled) -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Fecha de creación</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control opacity-75"
-                                                   th:value="${#temporals.format(usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}"
-                                                   disabled />
-                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Fecha de última actualización (disabled) -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Fecha de última actualización</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control opacity-75"
-                                                   th:value="${#temporals.format(usuario.fechaActualizacion, 'dd/MM/yyyy HH:mm')}"
-                                                   disabled />
-                                            <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Rol (disabled) -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Rol</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control opacity-75"
-                                                   th:value="${#strings.capitalizeWords(#strings.replace(usuario.rol.rol, '_', ' '))}" disabled />
-                                            <span class="input-group-text"><i class="mdi mdi-shield-account"></i></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Botones -->
-                                    <div class="d-flex justify-content-start">
-                                        <button type="submit" class="btn btn-primary me-3">Actualizar Perfil</button>
-                                        <a th:href="@{/admin/perfil}" class="btn btn-secondary ms-3">Cancelar</a>
+                                    
+                                    <!-- Botones de acción -->
+                                    <div class="text-center mt-4">
+                                        <button type="submit" class="save-btn">
+                                            <i class="fas fa-save me-2"></i>
+                                            Actualizar Perfil
+                                        </button>
+                                        <a th:href="@{/admin/perfil}" class="cancel-btn">
+                                            <i class="fas fa-times me-2"></i>
+                                            Cancelar
+                                        </a>
                                     </div>
                                 </form>
                             </div>
