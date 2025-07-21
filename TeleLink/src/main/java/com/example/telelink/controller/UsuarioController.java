@@ -1162,13 +1162,14 @@ public class UsuarioController {
         long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
         BigDecimal monto = reserva.getEspacioDeportivo().getPrecioPorHora().multiply(BigDecimal.valueOf(duracionHoras));
 
-        String tipoServicio = reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo();
+        String tipoServicio = reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo().toLowerCase();
+        System.out.print("Tipo de servicio: " + tipoServicio);
         if (("piscina".equalsIgnoreCase(tipoServicio)
                 || "atletismo".equalsIgnoreCase(tipoServicio)
                 || "gimnasio".equalsIgnoreCase(tipoServicio))
-                && reserva.numeroParticipantes() != null
-                && reserva.numeroParticipantes() > 0) {
-            monto = monto.multiply(BigDecimal.valueOf(reserva.numeroParticipantes()));
+                && reserva.getNumeroParticipantes() != null
+                && reserva.getNumeroParticipantes() > 0) {
+            monto = monto.multiply(BigDecimal.valueOf(reserva.getNumeroParticipantes()));
         }
 
         // Crear o actualizar pago
