@@ -127,9 +127,9 @@ public class UsuarioController {
 
     @GetMapping("/reservas/{id}")
     public String mostrarReservation(@PathVariable Integer id,
-                                     @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size,
-                                     Model model, HttpSession session) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model, HttpSession session) {
 
         // Verificar usuario logueado
         Usuario usuario = (Usuario) session.getAttribute("usuario");
@@ -142,7 +142,8 @@ public class UsuarioController {
                 .orElseThrow(() -> new RuntimeException("No se encontró el espacio deportivo"));
 
         // Obtener TODAS las reseñas (sin paginación) para el frontend
-        List<Resenia> todasLasResenias = reseniaRepository.findByEspacioDeportivo_EspacioDeportivoIdOrderByFechaCreacionDesc(id);
+        List<Resenia> todasLasResenias = reseniaRepository
+                .findByEspacioDeportivo_EspacioDeportivoIdOrderByFechaCreacionDesc(id);
 
         // Calcular el promedio
         double promedio = todasLasResenias.stream()
@@ -159,7 +160,6 @@ public class UsuarioController {
 
         return "Vecino/vecino-servicioDeportivo";
     }
-
 
     @GetMapping("/reembolsos")
     public String mostrarMisReembolsos(Model model, HttpSession session) {
@@ -185,7 +185,8 @@ public class UsuarioController {
             HttpSession session) {
 
         Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario == null) return "redirect:/usuarios/inicio";
+        if (usuario == null)
+            return "redirect:/usuarios/inicio";
 
         // Crear objeto Pageable para la paginación
         Pageable pageable = PageRequest.of(page, size, Sort.by("fechaCreacion").descending());
@@ -380,7 +381,6 @@ public class UsuarioController {
         return "Vecino/vecino-pago";
     }
 
-
     @GetMapping("/mis-reservas")
     public String mostrarReservas(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
@@ -445,9 +445,9 @@ public class UsuarioController {
 
     @GetMapping("/comprobante-pago/{reservaId}")
     public String mostrarComprobantePago(@PathVariable("reservaId") Integer reservaId,
-                                         Model model,
-                                         HttpSession session,
-                                         RedirectAttributes redirectAttributes) {
+            Model model,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Por favor, inicia sesión para ver el comprobante.");
@@ -1181,28 +1181,28 @@ public class UsuarioController {
 
         if (isValid) {
             pago.setEstadoTransaccion(Pago.EstadoTransaccion.completado);
-        reserva.setEstado(Reserva.Estado.confirmada);
-        reserva.setFechaActualizacion(LocalDateTime.now());
-        redirectAttributes.addFlashAttribute("mensaje", "Pago realizado con éxito");
-        // Send email to user
-        try {
-            emailService.sendReservationPaymentCompleted(usuario, reserva, monto);
-            System.out.println("✅ Correo de pago confirmado enviado exitosamente a: " + usuario.getCorreoElectronico());
-        } catch (Exception emailException) {
-            System.err.println("❌ Error al enviar correo de pago confirmado: " + emailException.getMessage());
-        }
+            reserva.setEstado(Reserva.Estado.confirmada);
+            reserva.setFechaActualizacion(LocalDateTime.now());
+            redirectAttributes.addFlashAttribute("mensaje", "Pago realizado con éxito");
+            // Send email to user
+            try {
+                emailService.sendReservationPaymentCompleted(usuario, reserva, monto);
+                System.out.println(
+                        "✅ Correo de pago confirmado enviado exitosamente a: " + usuario.getCorreoElectronico());
+            } catch (Exception emailException) {
+                System.err.println("❌ Error al enviar correo de pago confirmado: " + emailException.getMessage());
+            }
             notificacionService.crearNotificacion(
-            usuario.getUsuarioId(),
-            "creación",
-            "Reserva confirmada",
-            "Tu reserva en " + reserva.getEspacioDeportivo().getNombre() + " ha sido confirmada y pagada.",
-            "/usuarios/reservas/" + reserva.getEspacioDeportivo().getEspacioDeportivoId()
-        );
-    } else {
-        pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
-        pago.setMotivoRechazo(errorMessage);
-        redirectAttributes.addFlashAttribute("error", "Pago rechazado: " + errorMessage);
-    }
+                    usuario.getUsuarioId(),
+                    "creación",
+                    "Reserva confirmada",
+                    "Tu reserva en " + reserva.getEspacioDeportivo().getNombre() + " ha sido confirmada y pagada.",
+                    "/usuarios/reservas/" + reserva.getEspacioDeportivo().getEspacioDeportivoId());
+        } else {
+            pago.setEstadoTransaccion(Pago.EstadoTransaccion.fallido);
+            pago.setMotivoRechazo(errorMessage);
+            redirectAttributes.addFlashAttribute("error", "Pago rechazado: " + errorMessage);
+        }
 
         pagoRepository.save(pago);
         reservaRepository.save(reserva);
@@ -1273,7 +1273,10 @@ public class UsuarioController {
         BigDecimal monto = reserva.getEspacioDeportivo().getPrecioPorHora().multiply(BigDecimal.valueOf(duracionHoras));
 
         // Si es una reserva de piscina, multiplicar por el número de participantes
-        if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
+        String tipoServicio = reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo();
+        if (("piscina".equalsIgnoreCase(tipoServicio)
+                || "atletismo".equalsIgnoreCase(tipoServicio)
+                || "gimnasio".equalsIgnoreCase(tipoServicio))
                 && reserva.numeroParticipantes() != null
                 && reserva.numeroParticipantes() > 0) {
             monto = monto.multiply(BigDecimal.valueOf(reserva.numeroParticipantes()));
@@ -1324,12 +1327,12 @@ public class UsuarioController {
 
         // Crear notificación al usuario
         notificacionService.crearNotificacion(
-            usuario.getUsuarioId(),
-            "creación",
-            "Pago por depósito registrado",
-            "Tu pago por depósito para la reserva en " + reserva.getEspacioDeportivo().getNombre() + " ha sido registrado. Pendiente de validación.",
-            "/usuarios/reservas/" + reserva.getEspacioDeportivo().getEspacioDeportivoId()
-        );
+                usuario.getUsuarioId(),
+                "creación",
+                "Pago por depósito registrado",
+                "Tu pago por depósito para la reserva en " + reserva.getEspacioDeportivo().getNombre()
+                        + " ha sido registrado. Pendiente de validación.",
+                "/usuarios/reservas/" + reserva.getEspacioDeportivo().getEspacioDeportivoId());
 
         redirectAttributes.addFlashAttribute("mensaje", "Pago por depósito registrado. Pendiente de validación.");
         return "redirect:/usuarios/mis-reservas";
@@ -1687,7 +1690,7 @@ public class UsuarioController {
             }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
-           
+
             return "redirect:/usuarios/reservar/" + espacioId;
         }
     }
