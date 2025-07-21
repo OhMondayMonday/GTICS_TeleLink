@@ -117,17 +117,11 @@
                                             <div class="map-container"
                                                 style="height: 150px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
                                                 <!-- Alternativa 1: Si las coordenadas están en formato "lat,lng" -->
-                                                <iframe th:if="${#strings.contains(espacio.geolocalizacion, ',')}"
-                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${espacio.geolocalizacion}"
-                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
-                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                                                </iframe>
-                                                <!-- Alternativa 2: Si es una dirección de texto -->
-                                                <iframe th:unless="${#strings.contains(espacio.geolocalizacion, ',')}"
-                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${#strings.replace(espacio.geolocalizacion, ' ', '+')}"
-                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
-                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                                                </iframe>
+                                                <iframe
+                                                th:src="@{'https://www.google.com/maps?q=' + ${espacio.geolocalizacion} + '&output=embed'}"
+                                                width="100%" height="300" style="border:0;min-height:250px;"
+                                                allowfullscreen="" loading="lazy"
+                                                referrerpolicy="no-referrer-when-downgrade"></iframe>
                                             </div>
                                         </div>
                                     </div>
@@ -1053,12 +1047,17 @@
                     document.getElementById("event-price").value = precioPorHora.toFixed(2);
                     document.getElementById("input-precio-total").value = precioPorHora;
 
+                    // Actualizar el input hidden con el número de participantes inicial
+                    document.getElementById("input-numero-participantes").value = "1";
+
                     // Agregar event listener para actualizar precio al cambiar participantes
                     participantsSelect.onchange = function () {
                         const participantes = parseInt(this.value);
                         const precioTotal = precioPorHora * participantes;
                         document.getElementById("event-price").value = precioTotal.toFixed(2);
                         document.getElementById("input-precio-total").value = precioTotal;
+                        // Actualizar también el input hidden
+                        document.getElementById("input-numero-participantes").value = participantes;
                     };
 
                     // Consultar disponibilidad para mostrar información de aforo
@@ -1132,6 +1131,9 @@
                     return;
                 }
 
+                // Asegurar que el input hidden esté actualizado antes del envío
+                document.getElementById("input-numero-participantes").value = participantes;
+
                 // Verificar disponibilidad antes de enviar
                 const btnSave = document.getElementById("btn-save-event");
                 const originalText = btnSave.textContent;
@@ -1145,10 +1147,13 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.disponible) {
-                            // Proceder con la reserva
+                            // Proceder con la reserva - actualizar todos los campos hidden
                             document.getElementById("input-espacio-id").value = espacioId;
                             document.getElementById("input-fecha-inicio").value = rawStart;
                             document.getElementById("input-fecha-fin").value = rawEnd;
+                            document.getElementById("input-numero-participantes").value = participantes;
+                            
+                            // Enviar formulario
                             form.submit();
                         } else {
                             // Mostrar mensaje de error específico según el tipo
@@ -1296,8 +1301,21 @@
                         const option = document.createElement("option");
                         option.value = i;
                         option.textContent = i === 1 ? "1 persona" : i + " personas";
+                        if (i === 1) option.selected = true; // Seleccionar 1 por defecto
                         participantsSelect.appendChild(option);
                     }
+
+                    // Actualizar el input hidden después de cambiar las opciones
+                    document.getElementById("input-numero-participantes").value = "1";
+
+                    // Actualizar evento onchange para asegurar sincronización
+                    participantsSelect.onchange = function () {
+                        const participantes = parseInt(this.value);
+                        const precioTotal = getPrecioPorHora() * participantes;
+                        document.getElementById("event-price").value = precioTotal.toFixed(2);
+                        document.getElementById("input-precio-total").value = precioTotal;
+                        document.getElementById("input-numero-participantes").value = participantes;
+                    };
 
                     // Si no hay espacio, mostrar mensaje y deshabilitar botón
                     if (espaciosDisponibles <= 0) {

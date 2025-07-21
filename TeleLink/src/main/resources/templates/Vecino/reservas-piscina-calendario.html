@@ -112,17 +112,11 @@
                                             <div class="map-container"
                                                 style="height: 150px; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
                                                 <!-- Alternativa 1: Si las coordenadas están en formato "lat,lng" -->
-                                                <iframe th:if="${#strings.contains(espacio.geolocalizacion, ',')}"
-                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${espacio.geolocalizacion}"
-                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
-                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                                                </iframe>
-                                                <!-- Alternativa 2: Si es una dirección de texto -->
-                                                <iframe th:unless="${#strings.contains(espacio.geolocalizacion, ',')}"
-                                                    th:src="'https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dO_iY_G7yQT2Kc&q=' + ${#strings.replace(espacio.geolocalizacion, ' ', '+')}"
-                                                    width="100%" height="100%" style="border:0;" allowfullscreen=""
-                                                    loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                                                </iframe>
+                                                <iframe
+                                                th:src="@{'https://maps.google.com/maps?q=' + ${espacio.geolocalizacion} + '&z=16&output=embed'}"
+                                                width="100%" height="100%" style="border:0;"
+                                                allowfullscreen="" loading="lazy"
+                                                referrerpolicy="no-referrer-when-downgrade"></iframe>
                                             </div>
                                         </div>
                                     </div>
