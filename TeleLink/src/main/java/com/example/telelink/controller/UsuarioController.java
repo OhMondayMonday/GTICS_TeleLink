@@ -1162,8 +1162,10 @@ public class UsuarioController {
         long duracionHoras = Duration.between(reserva.getInicioReserva(), reserva.getFinReserva()).toHours();
         BigDecimal monto = reserva.getEspacioDeportivo().getPrecioPorHora().multiply(BigDecimal.valueOf(duracionHoras));
 
-        // Si es una reserva de piscina, multiplicar por el número de participantes
-        if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
+        String tipoServicio = reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo();
+        if (("piscina".equalsIgnoreCase(tipoServicio)
+                || "atletismo".equalsIgnoreCase(tipoServicio)
+                || "gimnasio".equalsIgnoreCase(tipoServicio))
                 && reserva.numeroParticipantes() != null
                 && reserva.numeroParticipantes() > 0) {
             monto = monto.multiply(BigDecimal.valueOf(reserva.numeroParticipantes()));
