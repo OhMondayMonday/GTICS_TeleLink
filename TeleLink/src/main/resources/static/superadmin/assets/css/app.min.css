@@ -377,20 +377,26 @@ body[data-topbar=colored] .app-search input.form-control::-webkit-input-placehol
 
 @media (max-width: 992px) {
     .footer {
-        left: 0
+        left: 0 !important;
+    }
+    
+    .vertical-collpsed .footer {
+        left: 0 !important;
     }
 }
 
-.vertical-collpsed .footer {
-    left: 70px;
-    -webkit-transition: all .3s ease-out;
-    transition: all .3s ease-out;
-}
+@media (min-width: 993px) {
+    .vertical-collpsed .footer {
+        left: 70px;
+        -webkit-transition: all .3s ease-out;
+        transition: all .3s ease-out;
+    }
 
-.vertical-expanded .footer {
-    left: 240px;
-    -webkit-transition: all .3s ease-out;
-    transition: all .3s ease-out;
+    .vertical-expanded .footer {
+        left: 240px;
+        -webkit-transition: all .3s ease-out;
+        transition: all .3s ease-out;
+    }
 }
 
 body[data-layout=horizontal] .footer {

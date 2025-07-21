@@ -167,11 +167,11 @@
                                                 <div class="product-img position-relative">
                                                     <!-- Estado -->
                                                     <div th:if="${espacio.estadoServicio.name() == 'operativo'}"
-                                                         class="product-ribbon badge bg-success">Disponible</div>
+                                                         class="product-ribbon badge bg-success" style="left:0px; top:4px">Disponible</div>
                                                     <div th:if="${espacio.estadoServicio.name() == 'mantenimiento'}"
-                                                         class="product-ribbon badge bg-warning">En Mantenimiento</div>
+                                                         class="product-ribbon badge bg-warning" style="left:0px; top:4px">En Mantenimiento</div>
                                                     <div th:if="${espacio.estadoServicio.name() == 'clausurado'}"
-                                                         class="product-ribbon badge bg-danger">Clausurado</div>
+                                                         class="product-ribbon badge bg-danger" style="left:0px; top:4px">Clausurado</div>
 
                                                     <!-- Tipo -->
                                                     <span class="badge bg-info position-absolute top-0 end-0 m-2"
@@ -526,11 +526,11 @@
 
                                                     // Asignar badge de estado
                                                     if (tarjeta.estado === 'operativo') {
-                                                        estadoBadge = '<div class="product-ribbon badge bg-success">Disponible</div>';
+                                                        estadoBadge = '<div class="product-ribbon badge bg-success" style="left:0px; top:4px">Disponible</div>';
                                                     } else if (tarjeta.estado === 'mantenimiento') {
-                                                        estadoBadge = '<div class="product-ribbon badge bg-warning">En Mantenimiento</div>';
+                                                        estadoBadge = '<div class="product-ribbon badge bg-warning" style="left:0px; top:4px">En Mantenimiento</div>';
                                                     } else if (tarjeta.estado === 'clausurado') {
-                                                        estadoBadge = '<div class="product-ribbon badge bg-danger">Clausurado</div>';
+                                                        estadoBadge = '<div class="product-ribbon badge bg-danger" style="left:0px; top:4px">Clausurado</div>';
                                                     }
 
                                                     // Crear lista de características
