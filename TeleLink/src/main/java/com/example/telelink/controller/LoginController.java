@@ -162,6 +162,7 @@ public class LoginController {
         usuario.setDni(dni);
         usuario.setEstadoCuenta(Usuario.EstadoCuenta.pendiente);
         usuario.setFechaCreacion(LocalDateTime.now());
+        usuario.setFotoPerfilUrl("https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2281862025.jpg");
 
         // Asignar rol "vecino"
         Rol vecinoRol = rolRepository.findByRol("vecino");

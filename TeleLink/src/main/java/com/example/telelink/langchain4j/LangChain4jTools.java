@@ -745,6 +745,105 @@ public class LangChain4jTools {
         }
     }
 
+    @Tool("Obtiene información personal del usuario logueado como nombre, apellidos, correo electrónico y otros datos de perfil.")
+    public String getUserInfo() {
+        try {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) {
+                return "No hay usuario logueado en este momento. Por favor, inicia sesión para acceder a tu información personal.";
+            }
+            
+            StringBuilder info = new StringBuilder("<strong>Tu información personal:</strong><br>");
+            
+            // Información básica
+            if (usuario.getNombres() != null && !usuario.getNombres().trim().isEmpty()) {
+                info.append("- <strong>Nombres:</strong> ").append(usuario.getNombres()).append("<br>");
+            }
+            
+            if (usuario.getApellidos() != null && !usuario.getApellidos().trim().isEmpty()) {
+                info.append("- <strong>Apellidos:</strong> ").append(usuario.getApellidos()).append("<br>");
+            }
+            
+            if (usuario.getCorreoElectronico() != null && !usuario.getCorreoElectronico().trim().isEmpty()) {
+                info.append("- <strong>Correo electrónico:</strong> ").append(usuario.getCorreoElectronico()).append("<br>");
+            }
+            
+            if (usuario.getTelefono() != null && !usuario.getTelefono().trim().isEmpty()) {
+                info.append("- <strong>Teléfono:</strong> ").append(usuario.getTelefono()).append("<br>");
+            }
+            
+            if (usuario.getDni() != null && !usuario.getDni().trim().isEmpty()) {
+                info.append("- <strong>DNI:</strong> ").append(usuario.getDni()).append("<br>");
+            }
+            
+            // Información adicional si está disponible
+            if (usuario.getRol().getRol() != null) {
+                info.append("- <strong>Rol:</strong> ").append(usuario.getRol().getRol()).append("<br>");
+            }
+            
+            if (usuario.getEstadoCuenta() != null) {
+                info.append("- <strong>Estado de cuenta:</strong> ").append(formatEstadoCuenta(usuario.getEstadoCuenta())).append("<br>");
+            }
+            
+            if (usuario.getFechaCreacion() != null) {
+                info.append("- <strong>Fecha de creación:</strong> ").append(usuario.getFechaCreacion().toLocalDate()).append("<br>");
+            }
+            
+            return info.toString();
+            
+        } catch (Exception e) {
+            return "Error al obtener información del usuario: " + e.getMessage();
+        }
+    }
+
+    @Tool("Obtiene solo el nombre completo del usuario logueado.")
+    public String getUserName() {
+        try {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) {
+                return "Usuario no logueado";
+            }
+            
+            String nombres = usuario.getNombres() != null ? usuario.getNombres() : "";
+            String apellidos = usuario.getApellidos() != null ? usuario.getApellidos() : "";
+            
+            if (nombres.trim().isEmpty() && apellidos.trim().isEmpty()) {
+                return "Nombre no disponible";
+            }
+            
+            return (nombres + " " + apellidos).trim();
+            
+        } catch (Exception e) {
+            return "Error al obtener nombre del usuario";
+        }
+    }
+
+    @Tool("Obtiene solo el correo electrónico del usuario logueado.")
+    public String getUserEmail() {
+        try {
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) {
+                return "Usuario no logueado";
+            }
+            
+            return usuario.getCorreoElectronico() != null ? usuario.getCorreoElectronico() : "Correo no disponible";
+            
+        } catch (Exception e) {
+            return "Error al obtener correo del usuario";
+        }
+    }
+
+    // Método auxiliar para formatear el estado de cuenta
+    private String formatEstadoCuenta(Usuario.EstadoCuenta estado) {
+        return switch (estado) {
+            case activo -> "Activo";
+            case eliminado -> "Eliminado";
+            case baneado -> "Baneado";
+            case pendiente -> "Pendiente";
+            default -> estado.toString();
+        };
+    }
+
     
 
 
