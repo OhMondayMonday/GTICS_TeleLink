@@ -488,7 +488,10 @@ public class UsuarioController {
                 .multiply(BigDecimal.valueOf(duracionHoras));
 
         // Si es piscina y tiene número de participantes, multiplicar por ese número
-        if ("piscina".equalsIgnoreCase(reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo())
+        String tipoServicio = reserva.getEspacioDeportivo().getServicioDeportivo().getServicioDeportivo();
+        if (("piscina".equalsIgnoreCase(tipoServicio)
+                || "atletismo".equalsIgnoreCase(tipoServicio)
+                || "gimnasio".equalsIgnoreCase(tipoServicio))
                 && reserva.numeroParticipantes() != null
                 && reserva.numeroParticipantes() > 0) {
             precioTotal = precioTotal.multiply(BigDecimal.valueOf(reserva.numeroParticipantes()));
