@@ -453,10 +453,10 @@ public class SuperadminController {
         usuario.setFechaActualizacion(LocalDateTime.now());
         usuarioRepository.save(usuario);
 
+        // Registrar actividad de baneo
         ActividadUsuario actividadUsuario = new ActividadUsuario();
         actividadUsuario.setUsuario(usuario);
-        actividadUsuario.setDetalles("Baneo de usuario");
-
+        actividadUsuario.setDetalles("Baneo de usuario" + (motivo != null ? ": " + motivo : ""));
 
         TipoActividad tipoBaneo = tipoActividadRepository.findById(1)
                 .orElseThrow(() -> new RuntimeException("Tipo de actividad no encontrado"));
@@ -464,27 +464,37 @@ public class SuperadminController {
         actividadUsuario.setTipoActividad(tipoBaneo);
         actividadUsuarioRepository.save(actividadUsuario);
 
-        // 2. Cancelar reservas confirmadas
-        List<Reserva> reservas = reservaRepository.findByUsuarioAndEstado(usuario, Reserva.Estado.confirmada);
-        for (Reserva reserva : reservas) {
-            reserva.setEstado(Reserva.Estado.cancelada);
-            reserva.setRazonCancelacion("Usuario baneado" + (motivo != null ? ": " + motivo : ""));
-            reserva.setFechaActualizacion(LocalDateTime.now());
-            reservaRepository.save(reserva);
+        // 2. Solo cancelar reservas y crear reembolsos si es un vecino (rol_id = 3)
+        if (usuario.getRol() != null && usuario.getRol().getRolId() == 3) {
+            // Solo para vecinos: cancelar reservas confirmadas y crear reembolsos
+            List<Reserva> reservas = reservaRepository.findByUsuarioAndEstado(usuario, Reserva.Estado.confirmada);
+            for (Reserva reserva : reservas) {
+                reserva.setEstado(Reserva.Estado.cancelada);
+                reserva.setRazonCancelacion("Usuario baneado" + (motivo != null ? ": " + motivo : ""));
+                reserva.setFechaActualizacion(LocalDateTime.now());
+                reservaRepository.save(reserva);
 
-            // 3. Crear reembolsos para pagos asociados
-            pagoRepository.findByReserva_ReservaId(reserva.getReservaId()).ifPresent(pago -> {
-                Reembolso reembolso = new Reembolso();
-                reembolso.setMonto(pago.getMonto());
-                reembolso.setMotivo("Reembolso por baneo de usuario");
-                reembolso.setFechaReembolso(LocalDateTime.now());
-                reembolso.setPago(pago);
-                reembolsoRepository.save(reembolso);
-            });
+                // 3. Crear reembolsos para pagos asociados
+                pagoRepository.findByReserva_ReservaId(reserva.getReservaId()).ifPresent(pago -> {
+                    Reembolso reembolso = new Reembolso();
+                    reembolso.setMonto(pago.getMonto());
+                    reembolso.setMotivo("Reembolso por baneo de usuario");
+                    reembolso.setFechaReembolso(LocalDateTime.now());
+                    reembolso.setEstado(Reembolso.Estado.pendiente);
+                    reembolso.setPago(pago);
+                    reembolsoRepository.save(reembolso);
+                });
+            }
+            
+            redirectAttrs.addFlashAttribute("success", "Usuario baneado exitosamente. Se cancelaron sus reservas activas.");
+            return "redirect:/superadmin/usuarios";
+        } else {
+            // Para administradores (rol_id = 2) y coordinadores (rol_id = 4): solo cambiar estado
+            String tipoUsuario = usuario.getRol().getRol();
+            redirectAttrs.addFlashAttribute("success", 
+                tipoUsuario + " baneado exitosamente. No se afectaron las operaciones del sistema.");
+            return "redirect:/superadmin/usuariosAdmin";
         }
-
-        redirectAttrs.addFlashAttribute("success", "Usuario baneado exitosamente");
-        return "redirect:/superadmin/usuarios";
     }
 
     @PostMapping("usuarios/{id}/activar")
@@ -494,14 +504,35 @@ public class SuperadminController {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Solo cambiar estado sin modificar reservas
+        // Cambiar estado sin modificar reservas (para cualquier tipo de usuario)
         usuario.setEstadoCuenta(Usuario.EstadoCuenta.activo);
         usuario.setFechaActualizacion(LocalDateTime.now());
         usuarioRepository.save(usuario);
 
-        redirectAttrs.addFlashAttribute("success", "Usuario activado exitosamente");
-        return "redirect:/superadmin/usuarios";
+        // Registrar actividad de activación
+        ActividadUsuario actividadUsuario = new ActividadUsuario();
+        actividadUsuario.setUsuario(usuario);
+        actividadUsuario.setDetalles("Activación de usuario");
+
+        TipoActividad tipoActivacion = tipoActividadRepository.findById(2) // Asumiendo que 2 es activación
+                .orElseThrow(() -> new RuntimeException("Tipo de actividad no encontrado"));
+
+        actividadUsuario.setTipoActividad(tipoActivacion);
+        actividadUsuarioRepository.save(actividadUsuario);
+
+        // Determinar redirección según el rol del usuario
+        if (usuario.getRol() != null && usuario.getRol().getRolId() == 3) {
+            // Vecino: redirigir a lista de usuarios
+            redirectAttrs.addFlashAttribute("success", "Usuario activado exitosamente");
+            return "redirect:/superadmin/usuarios";
+        } else {
+            // Administrador o Coordinador: redirigir a lista de admin/coordinadores
+            String tipoUsuario = usuario.getRol().getRol();
+            redirectAttrs.addFlashAttribute("success", tipoUsuario + " activado exitosamente");
+            return "redirect:/superadmin/usuariosAdmin";
+        }
     }
+
     @GetMapping("/pagos")
     public String listarPagos(Model model) {
         List<Pago> pagos = pagoRepository.findAll();
