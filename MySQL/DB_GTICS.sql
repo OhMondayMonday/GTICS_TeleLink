@@ -166,6 +166,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`espacios_deportivos` (
   `longitud_piscina` INT NULL DEFAULT NULL,
   `profundidad_piscina` DECIMAL(6,2) NULL DEFAULT NULL,
   `descripcion` TEXT NULL DEFAULT NULL,
+  `foto_espacio_deportivo_url` VARCHAR(255) NULL DEFAULT NULL,
   `aforo_gimnasio` INT NULL DEFAULT NULL,
   `longitud_pista` DECIMAL(6,2) NULL DEFAULT NULL,
   `carriles_pista` INT NULL DEFAULT NULL,
@@ -206,7 +207,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`asistencias` (
   `horario_salida` TIMESTAMP NULL DEFAULT NULL,
   `registro_entrada` TIMESTAMP NULL DEFAULT NULL,
   `registro_salida` TIMESTAMP NULL DEFAULT NULL,
-  `estado_entrada` ENUM('puntual', 'tarde', 'pendiente', 'inasistencia') NULL DEFAULT 'pendiente',
+  `estado_entrada` ENUM('puntual', 'tarde', 'pendiente', 'inasistencia', 'cancelada') NULL DEFAULT 'pendiente',
   `estado_salida` ENUM('realizado', 'pendiente', 'inasistencia') NULL DEFAULT NULL,
   `geolocalizacion` VARCHAR(100) NULL DEFAULT NULL,
   `observacion_asistencia` TEXT NULL DEFAULT NULL,
@@ -283,6 +284,9 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`mantenimientos` (
   `fecha_inicio` TIMESTAMP NULL DEFAULT NULL,
   `fecha_estimada_fin` TIMESTAMP NULL DEFAULT NULL,
   `estado` ENUM('pendiente', 'en_curso', 'finalizado') NULL DEFAULT NULL,
+  `descripcion` TEXT,
+  `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`mantenimiento_id`),
   INDEX `espacio_deportivo_id` (`espacio_deportivo_id` ASC) VISIBLE,
   CONSTRAINT `mantenimientos_ibfk_1`
@@ -291,7 +295,6 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`mantenimientos` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
-
 
 -- -----------------------------------------------------
 -- Table `db_gtics`.`mensajes`
@@ -387,6 +390,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
   `fin_reserva` TIMESTAMP NOT NULL,
   `numero_carril_piscina` INT NULL DEFAULT NULL,
   `numero_carril_pista` INT NULL DEFAULT NULL,
+  `numero_participantes_piscina` INT NULL DEFAULT 1,
   `estado` ENUM('pendiente', 'confirmada', 'cancelada','completada', 'en_proceso') NULL DEFAULT 'pendiente',
   `razon_cancelacion` TEXT NULL DEFAULT NULL,
   `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -394,6 +398,7 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
   PRIMARY KEY (`reserva_id`),
   INDEX `usuario_id` (`usuario_id` ASC) VISIBLE,
   INDEX `idx_reserva_piscina` (`espacio_deportivo_id` ASC, `inicio_reserva` ASC, `fin_reserva` ASC, `numero_carril_piscina` ASC) VISIBLE,
+  INDEX `idx_reserva_participantes` (`espacio_deportivo_id` ASC, `numero_carril_piscina` ASC, `inicio_reserva` ASC, `fin_reserva` ASC, `numero_participantes_piscina` ASC) VISIBLE,
   INDEX `idx_reserva_pista` (`espacio_deportivo_id` ASC, `inicio_reserva` ASC, `fin_reserva` ASC, `numero_carril_pista` ASC) VISIBLE,
   INDEX `idx_reserva_gimnasio_cancha` (`espacio_deportivo_id` ASC, `inicio_reserva` ASC, `fin_reserva` ASC) VISIBLE,
   CONSTRAINT `reservas_ibfk_1`
@@ -405,6 +410,11 @@ CREATE TABLE IF NOT EXISTS `db_gtics`.`reservas` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
+
+ALTER TABLE reservas 
+CHANGE numero_participantes_piscina numero_participantes INT DEFAULT 1 NOT NULL;
+
+select * from asistencias;
 -- -----------------------------------------------------
 -- Table `db_gtics`.`pagos`
 -- -----------------------------------------------------
@@ -609,7 +619,7 @@ BEGIN
         estado_entrada = 'inasistencia',
         estado_salida = 'inasistencia'
     WHERE 
-        horario_salida < CURRENT_TIMESTAMP
+        TIMESTAMPADD(MINUTE, 30, horario_entrada) < CURRENT_TIMESTAMP
         AND estado_entrada = 'pendiente';
 END$$
 
@@ -634,7 +644,76 @@ END//
 
 DELIMITER ;
 
+-- Habilitar el event scheduler
+SET GLOBAL event_scheduler = ON;
+
+-- Event scheduler para cancelar reservas pendientes después de 5 minutos
+DELIMITER $$
+
+CREATE EVENT IF NOT EXISTS `cancelar_reservas_pendientes_timeout`
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Cancelar reservas que están en estado 'pendiente' por más de 5 minutos
+    UPDATE `db_gtics`.`reservas`
+    SET 
+        `estado` = 'cancelada',
+        `razon_cancelacion` = 'Reserva cancelada automáticamente por timeout de pago (5 minutos)',
+        `fecha_actualizacion` = CURRENT_TIMESTAMP
+    WHERE 
+        `estado` = 'pendiente' 
+        AND TIMESTAMPDIFF(MINUTE, `fecha_creacion`, CURRENT_TIMESTAMP) >= 5;
+END$$
+
+DELIMITER ;
+
+-- Event scheduler para cancelar reservas en_proceso/pendiente que ya iniciaron
+DELIMITER $$
+
+CREATE EVENT IF NOT EXISTS `cancelar_reservas_vencidas`
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Cancelar reservas en estado 'en_proceso' o 'pendiente' cuya hora de inicio ya pasó
+    UPDATE `db_gtics`.`reservas`
+    SET 
+        `estado` = 'cancelada',
+        `razon_cancelacion` = 'Reserva cancelada automáticamente - hora de inicio superada',
+        `fecha_actualizacion` = CURRENT_TIMESTAMP
+    WHERE 
+        `estado` IN ('en_proceso', 'pendiente')
+        AND `inicio_reserva` < CURRENT_TIMESTAMP;
+END$$
+
+DELIMITER ;
+
+-- Event scheduler para completar reservas confirmadas que ya terminaron
+DELIMITER $$
+
+CREATE EVENT IF NOT EXISTS `completar_reservas_terminadas`
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    -- Completar reservas confirmadas cuya hora de fin ya pasó
+    UPDATE `db_gtics`.`reservas`
+    SET 
+        `estado` = 'completada',
+        `fecha_actualizacion` = CURRENT_TIMESTAMP
+    WHERE 
+        `estado` = 'confirmada'
+        AND `fin_reserva` < CURRENT_TIMESTAMP;
+END$$
+
+DELIMITER ;
 
 
+select * from db_gtics.usuarios;
 
-select * from db_gtics.reservas where espacio_deportivo_id=1;
+SELECT 
+    'Event schedulers configurados correctamente' as mensaje,
+    COUNT(*) as reservas_actualizadas
+FROM reservas 
+WHERE fecha_actualizacion >= NOW() - INTERVAL 1 MINUTE;
