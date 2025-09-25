@@ -223,8 +223,9 @@ export DB_NAME=deportes_san_miguel
 export DB_USER=tu_usuario
 export DB_PASSWORD=tu_password
 export OPENAI_API_KEY=tu_openai_key
-export API_PERU_TOKEN=tu_api_peru_token
-export EMAIL_USERNAME=tu_email
+export GEMINI_API_KEY=tu_gemini_api_key
+export APIPERU_TOKEN=tu_api_peru_token
+export EMAIL_USERNAME=tu_email@gmail.com
 export EMAIL_PASSWORD=tu_app_password
 ```
 
@@ -288,7 +289,41 @@ GTICS_TeleLink/
 ### Gestión del Proyecto
 - **JIRA Board:** [Ver tablero](https://gticsv1proyecto.atlassian.net/jira/software/projects/TL/boards/35)
 
-## 👨‍💻 Equipo de Desarrollo
+#### Variables Necesarias:
+```bash
+# API Keys
+OPENAI_API_KEY=sk-proj-xxxxxxxxxx
+GEMINI_API_KEY=AIzaSyAxxxxxxxxxx
+GOOGLE_MAPS_API_KEY=AIzaSyAxxxxxxxxxx
+APIPERU_TOKEN=9b12f2522cb0xxxxxxxxxx
+
+# Base de Datos
+DB_HOST=localhost
+DB_NAME=deportes_san_miguel
+DB_USER=tu_usuario
+DB_PASSWORD=tu_password
+
+# Email (Gmail)
+EMAIL_USERNAME=tu_email@gmail.com
+EMAIL_PASSWORD=tu_app_password
+
+# AWS (Producción)
+AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXX
+AWS_SECRET_ACCESS_KEY=xxxxxxxxxx
+AWS_S3_BUCKET_NAME=deportes-san-miguel-files
+```
+
+### Medidas de Seguridad Implementadas
+- 🔐 **Autenticación basada en sesiones**
+- 🔑 **Autorización por roles (RBAC)**
+- 🛡️ **Protección CSRF**
+- 🔒 **Validación de entrada de datos**
+- 📧 **Verificación por correo electrónico**
+- 🌐 **Conexiones HTTPS en producción**
+- 🔐 **Encriptación de contraseñas (BCrypt)**
+- 🚫 **API Keys protegidas con variables de entorno**
+
+## �👨‍💻 Equipo de Desarrollo
 
 **Proyecto Académico - GTICS 2025-I**
 - **Institución:** Pontificia Universidad Católica del Perú

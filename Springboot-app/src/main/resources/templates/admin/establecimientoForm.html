@@ -214,8 +214,8 @@
 <div th:replace="~{admin/fragments/footPage.html :: footPage}"></div>
 
 <!-- JavaScript to Handle Conditional Motivo Mantenimiento Field and Map -->
-<!-- Google Maps JS API & Place Autocomplete Element -->
-<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o&libraries=maps,marker"></script>
+<!-- Carga segura de Google Maps API -->
+<div th:replace="~{fragments/google-maps :: google-maps-markers}"></div>
 <script async src="https://unpkg.com/@googlemaps/places-widget/dist/index.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {

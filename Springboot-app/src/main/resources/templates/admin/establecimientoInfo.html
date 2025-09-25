@@ -209,7 +209,8 @@
         <div th:replace="~{admin/fragments/footer.html :: footer}"></div>
     </div>
 
-    <div th:replace="~{admin/fragments/footList.html :: footList}"></div>    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKJtg2Z14pcYE9UrOGXtN7mTA5HjNsP-o"></script>
+    <div th:replace="~{admin/fragments/footList.html :: footList}"></div>    <!-- Carga segura de Google Maps API -->
+    <div th:replace="~{fragments/google-maps :: google-maps-loader}"></div>
     <script th:src="@{/assets/libs/gmaps/gmaps.min.js}"></script>
     <script th:src="@{/assets/js/pages/espaciosAdmin.init.js}"></script>
     

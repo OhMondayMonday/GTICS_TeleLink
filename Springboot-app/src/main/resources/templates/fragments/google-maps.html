@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- 
+  Fragment para cargar Google Maps API de forma segura
+  Uso: <div th:replace="~{fragments/google-maps :: google-maps-loader}"></div>
+-->
+
+<div th:fragment="google-maps-loader">
+    <script th:inline="javascript">
+        // Función para cargar Google Maps API de forma segura
+        function loadGoogleMapsApi(libraries = [], callback = null) {
+            // Obtener la API key desde el servidor
+            fetch('/api/config/google-maps-key')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.apiKey && data.apiKey !== '') {
+                        // Construir la URL de Google Maps
+                        let mapsUrl = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}`;
+                        
+                        // Agregar librerías si se especifican
+                        if (libraries.length > 0) {
+                            mapsUrl += `&libraries=${libraries.join(',')}`;
+                        }
+                        
+                        // Crear y cargar el script
+                        const script = document.createElement('script');
+                        script.src = mapsUrl;
+                        script.async = true;
+                        script.defer = true;
+                        
+                        // Ejecutar callback cuando el script se carga
+                        if (callback) {
+                            script.onload = callback;
+                        }
+                        
+                        document.head.appendChild(script);
+                    } else {
+                        console.error('Google Maps API Key no configurada:', data.error || 'API Key vacía');
+                        if (callback) {
+                            callback(); // Ejecutar callback incluso si falla para evitar bloqueos
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener Google Maps API Key:', error);
+                    if (callback) {
+                        callback(); // Ejecutar callback incluso si falla
+                    }
+                });
+        }
+        
+        // Hacer disponible globalmente
+        window.loadGoogleMapsApi = loadGoogleMapsApi;
+    </script>
+</div>
+
+<!-- 
+  Fragment simplificado para cargar Google Maps con librerías específicas
+  Uso: <div th:replace="~{fragments/google-maps :: google-maps-places}"></div>
+-->
+<div th:fragment="google-maps-places">
+    <div th:replace="~{fragments/google-maps :: google-maps-loader}"></div>
+    <script>
+        // Cargar Google Maps con librería de Places
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGoogleMapsApi(['places'], function() {
+                console.log('Google Maps API con Places cargada exitosamente');
+            });
+        });
+    </script>
+</div>
+
+<!-- 
+  Fragment para Google Maps con marcadores
+  Uso: <div th:replace="~{fragments/google-maps :: google-maps-markers}"></div>
+-->
+<div th:fragment="google-maps-markers">
+    <div th:replace="~{fragments/google-maps :: google-maps-loader}"></div>
+    <script>
+        // Cargar Google Maps con librería de marcadores
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGoogleMapsApi(['maps', 'marker'], function() {
+                console.log('Google Maps API con marcadores cargada exitosamente');
+            });
+        });
+    </script>
+</div>
+
+</html>
